@@ -1,0 +1,65 @@
+/* Breadcrumb Navigation Styles - Premium Redesign */
+.breadcrumb-nav {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 1.25rem;
+    background: #ffffff;
+    border: 1px solid var(--gray-200);
+    border-radius: 12px;
+    font-size: 0.875rem;
+    overflow-x: auto;
+    white-space: nowrap;
+    gap: 0.5rem;
+    margin: 0.75rem 0;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+    scrollbar-width: none; /* Hide scrollbar for cleaner look */
+}
+
+.breadcrumb-nav::-webkit-scrollbar {
+    display: none;
+}
+
+.breadcrumb-nav:empty {
+    display: none;
+}
+
+.breadcrumb-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: var(--gray-500);
+    text-decoration: none;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    font-weight: 500;
+}
+
+.breadcrumb-item i {
+    font-size: 0.9rem;
+    color: var(--primary);
+}
+
+.breadcrumb-item:hover {
+    color: var(--primary);
+}
+
+.breadcrumb-item.active {
+    color: var(--text);
+    pointer-events: none;
+    font-weight: 700;
+}
+
+.breadcrumb-separator {
+    color: var(--gray-300);
+    font-size: 0.7rem;
+    display: flex;
+    align-items: center;
+}
+
+/* Mobile Styles */
+@media (max-width: 768px) {
+    .breadcrumb-nav {
+        padding: 0.6rem 1rem;
+        font-size: 0.813rem;
+        margin: 1rem 0;
+    }
+}

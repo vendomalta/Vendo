@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reklam Banner Yönetimi - Admin</title>
+    <link rel="stylesheet" href="../css/admin-modern.css">
+    <link rel="stylesheet" href="../css/admin-components.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="admin-container">
+        <div class="admin-header">
+            <h1><i class="fas fa-ad"></i> Reklam Banner Yönetimi</h1>
+            <a href="../index.html" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Geri Dön
+            </a>
+        </div>
+
+        <div class="admin-content">
+            <!-- İlan Detay Sayfası Banner -->
+            <div class="settings-card">
+                <h2><i class="fas fa-image"></i> İlan Detay Sayfası Banner</h2>
+                <p class="card-description">İlan detay sayfasının üst kısmında gösterilecek reklam banner'ı</p>
+                
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="banner-active"> 
+                        Banner Aktif
+                    </label>
+                </div>
+
+                <div class="form-group">
+                    <label for="banner-file">Banner Resmi (PNG/JPG/WebP)</label>
+                    <div class="file-input-wrapper">
+                        <input type="file" id="banner-file" class="form-control" 
+                               accept=".png,.jpg,.jpeg,.webp" required>
+                        <small>Önerilen boyut: 1600x180 piksel</small>
+                        <div class="file-info" id="file-info" style="display: none; margin-top: 0.5rem;">
+                            <span id="file-name" style="color: #10b981;"><i class="fas fa-check-circle"></i> Dosya seçildi</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="banner-link">Tıklama Linki (Opsiyonel)</label>
+                    <input type="url" id="banner-link" class="form-control" 
+                           placeholder="https://example.com">
+                </div>
+
+                <div class="form-group">
+                    <label for="banner-alt">Alt Metin</label>
+                    <input type="text" id="banner-alt" class="form-control" 
+                           placeholder="Reklam açıklaması">
+                </div>
+
+                <!-- Önizleme -->
+                <div class="banner-preview" id="banner-preview" style="display: none;">
+                    <h3>Önizleme</h3>
+                    <div class="preview-wrapper">
+                        <img id="preview-image" src="" alt="Banner Önizleme">
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button class="btn btn-primary" id="save-banner">
+                        <i class="fas fa-save"></i> Kaydet
+                    </button>
+                    <button class="btn btn-secondary" id="preview-btn">
+                        <i class="fas fa-eye"></i> Önizleme
+                    </button>
+                    <button class="btn btn-danger" id="delete-banner">
+                        <i class="fas fa-trash"></i> Sil
+                    </button>
+                </div>
+            </div>
+
+            <!-- Ana Sayfa Banner -->
+            <div class="settings-card">
+                <h2><i class="fas fa-home"></i> Ana Sayfa Banner</h2>
+                <p class="card-description">Ana sayfanın üst kısmında gösterilecek reklam banner'ı</p>
+                
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="homepage-banner-active"> 
+                        Banner Aktif
+                    </label>
+                </div>
+
+                <div class="form-group">
+                    <label for="homepage-banner-file">Banner Resmi (PNG/JPG/WebP)</label>
+                    <div class="file-input-wrapper">
+                        <input type="file" id="homepage-banner-file" class="form-control" 
+                               accept=".png,.jpg,.jpeg,.webp" required>
+                        <small>Önerilen boyut: 1600x180 piksel</small>
+                        <div class="file-info" id="homepage-file-info" style="display: none; margin-top: 0.5rem;">
+                            <span id="homepage-file-name" style="color: #10b981;"><i class="fas fa-check-circle"></i> Dosya seçildi</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="homepage-banner-link">Tıklama Linki (Opsiyonel)</label>
+                    <input type="url" id="homepage-banner-link" class="form-control" 
+                           placeholder="https://example.com">
+                </div>
+
+                <div class="form-group">
+                    <label for="homepage-banner-alt">Alt Metin</label>
+                    <input type="text" id="homepage-banner-alt" class="form-control" 
+                           placeholder="Reklam açıklaması">
+                </div>
+
+                <!-- Önizleme -->
+                <div class="banner-preview" id="homepage-banner-preview" style="display: none;">
+                    <h3>Önizleme</h3>
+                    <div class="preview-wrapper">
+                        <img id="homepage-preview-image" src="" alt="Banner Önizleme">
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button class="btn btn-primary" id="save-homepage-banner">
+                        <i class="fas fa-save"></i> Kaydet
+                    </button>
+                    <button class="btn btn-secondary" id="homepage-preview-btn">
+                        <i class="fas fa-eye"></i> Önizleme
+                    </button>
+                    <button class="btn btn-danger" id="delete-homepage-banner">
+                        <i class="fas fa-trash"></i> Sil
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { supabase } from '../../js/supabase.js';
+
+        let currentBanner = null;
+        let uploadedImageUrl = null;
+        let currentHomepageBanner = null;
+        let uploadedHomepageImageUrl = null;
+
+        // Sayfa yüklendiğinde mevcut banner'ı getir
+        async function loadCurrentBanner() {
+            try {
+                const { data, error } = await supabase
+                    .from('site_settings')
+                    .select('*')
+                    .eq('setting_key', 'detail_page_banner')
+                    .single();
+
+                if (data && data.setting_value) {
+                    currentBanner = data;
+                    const bannerData = typeof data.setting_value === 'string' 
+                        ? JSON.parse(data.setting_value) 
+                        : data.setting_value;
+
+                    document.getElementById('banner-active').checked = data.is_active;
+                    uploadedImageUrl = bannerData.image_url;
+                    document.getElementById('banner-link').value = bannerData.link_url || '';
+                    document.getElementById('banner-alt').value = bannerData.alt_text || '';
+                    
+                    // Mevcut banner'ı önizlemeye yükle
+                    if (uploadedImageUrl) {
+                        const preview = document.getElementById('banner-preview');
+                        const previewImg = document.getElementById('preview-image');
+                        previewImg.src = uploadedImageUrl;
+                        preview.style.display = 'block';
+                    }
+                }
+            } catch (error) {
+                console.error('Banner yükleme hatası:', error);
+            }
+        }
+
+        // Dosya seçildiğinde
+        document.getElementById('banner-file').addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+
+
+            // Dosya türü kontrolü
+            const allowedTypes = ['image/png', 'image/jpeg', 'image/webp'];
+            if (!allowedTypes.includes(file.type)) {
+                alert('Lütfen PNG, JPG veya WebP formatında bir dosya seçin');
+                e.target.value = '';
+                return;
+            }
+
+            // Dosya seçildi bilgisini göster
+            const fileInfo = document.getElementById('file-info');
+            const fileName = document.getElementById('file-name');
+            fileName.innerHTML = `<i class="fas fa-check-circle"></i> ${file.name} (${(file.size / 1024).toFixed(2)} KB)`;
+            fileInfo.style.display = 'block';
+
+            // Yerel önizleme
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const preview = document.getElementById('banner-preview');
+                const previewImg = document.getElementById('preview-image');
+                previewImg.src = event.target.result;
+                preview.style.display = 'block';
+                uploadedImageUrl = null; // Yeni dosya seçildiği için URL'yi temizle
+            };
+            reader.readAsDataURL(file);
+        });
+
+        // Önizleme Butonu
+        document.getElementById('preview-btn').addEventListener('click', () => {
+            const file = document.getElementById('banner-file').files[0];
+            if (file) {
+                // Zaten dosya seçildiğinde önizleme gösteriliyor
+                alert('Önizleme aşağıda gösteriliyor');
+            } else if (uploadedImageUrl) {
+                const preview = document.getElementById('banner-preview');
+                const previewImg = document.getElementById('preview-image');
+                previewImg.src = uploadedImageUrl;
+                preview.style.display = 'block';
+            } else {
+                alert('Lütfen bir dosya seçin veya yükle');
+            }
+        });
+
+        // Banner Kaydet
+        document.getElementById('save-banner').addEventListener('click', async () => {
+            const file = document.getElementById('banner-file').files[0];
+            const isActive = document.getElementById('banner-active').checked;
+            const linkUrl = document.getElementById('banner-link').value;
+            const altText = document.getElementById('banner-alt').value;
+
+            let imageUrl = uploadedImageUrl;
+
+            // Yeni dosya seçilmişse yükle
+            if (file) {
+                const saveBtn = document.getElementById('save-banner');
+                const originalText = saveBtn.innerHTML;
+                saveBtn.disabled = true;
+                saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Yükleniyor...';
+
+                try {
+                    const timestamp = Date.now();
+                    const fileName = `banner-${timestamp}.${file.name.split('.').pop()}`;
+                    
+                    // Dosyayı Supabase Storage'a yükle
+                    const { data, error: uploadError } = await supabase.storage
+                        .from('banners')
+                        .upload(`detail-page/${fileName}`, file, {
+                            cacheControl: '3600',
+                            upsert: true
+                        });
+
+                    if (uploadError) throw uploadError;
+
+                    // Yüklenen dosyanın public URL'sini al
+                    const { data: publicUrlData } = supabase.storage
+                        .from('banners')
+                        .getPublicUrl(`detail-page/${fileName}`);
+
+                    imageUrl = publicUrlData.publicUrl;
+                    console.log('Yüklenen resim URL:', imageUrl);
+                } catch (error) {
+                    console.error('Dosya yükleme hatası:', error);
+                    alert('Dosya yükleme sırasında hata oluştu: ' + error.message);
+                    saveBtn.disabled = false;
+                    saveBtn.innerHTML = originalText;
+                    return;
+                }
+            }
+
+            if (!imageUrl) {
+                alert('Lütfen bir dosya seçin');
+                return;
+            }
+
+            try {
+                const bannerData = {
+                    image_url: imageUrl,
+                    link_url: linkUrl,
+                    alt_text: altText
+                };
+
+                const saveData = {
+                    setting_key: 'detail_page_banner',
+                    setting_value: bannerData,
+                    is_active: isActive,
+                    updated_at: new Date()
+                };
+
+                let result;
+                if (currentBanner) {
+                    // Güncelle
+                    result = await supabase
+                        .from('site_settings')
+                        .update(saveData)
+                        .eq('id', currentBanner.id);
+                } else {
+                    // Yeni ekle
+                    result = await supabase
+                        .from('site_settings')
+                        .insert([saveData]);
+                }
+
+                if (result.error) throw result.error;
+
+                alert('Banner başarıyla kaydedildi!');
+                document.getElementById('banner-file').value = '';
+                document.getElementById('file-info').style.display = 'none';
+                uploadedImageUrl = imageUrl;
+                
+                // Butonu eski haline döndür
+                const saveBtn = document.getElementById('save-banner');
+                saveBtn.disabled = false;
+                saveBtn.innerHTML = '<i class="fas fa-save"></i> Kaydet';
+                
+                await loadCurrentBanner();
+            } catch (error) {
+                console.error('Kaydetme hatası:', error);
+                alert('Kaydetme sırasında bir hata oluştu: ' + error.message);
+                
+                // Hata durumunda da butonu eski haline döndür
+                const saveBtn = document.getElementById('save-banner');
+                saveBtn.disabled = false;
+                saveBtn.innerHTML = '<i class="fas fa-save"></i> Kaydet';
+            }
+        });
+
+        // Banner Sil
+        document.getElementById('delete-banner').addEventListener('click', async () => {
+            if (!currentBanner) {
+                alert('Silinecek banner bulunamadı');
+                return;
+            }
+
+            if (!confirm('Banner\'ı silmek istediğinizden emin misiniz?')) {
+                return;
+            }
+
+            try {
+                const { error } = await supabase
+                    .from('site_settings')
+                    .delete()
+                    .eq('id', currentBanner.id);
+
+                if (error) throw error;
+
+                alert('Banner başarıyla silindi!');
+                currentBanner = null;
+                uploadedImageUrl = null;
+                document.getElementById('banner-file').value = '';
+                document.getElementById('file-info').style.display = 'none';
+                document.getElementById('banner-link').value = '';
+                document.getElementById('banner-alt').value = '';
+                document.getElementById('banner-active').checked = false;
+                document.getElementById('banner-preview').style.display = 'none';
+            } catch (error) {
+                console.error('Silme hatası:', error);
+                alert('Silme sırasında bir hata oluştu: ' + error.message);
+            }
+        });
+
+        // Sayfa yüklendiğinde
+        loadCurrentBanner();
+        loadHomepageBanner();
+
+        // ============================================================
+        // ANA SAYFA BANNER FONKSİYONLARI
+        // ============================================================
+
+        // Homepage Banner Yükle
+        async function loadHomepageBanner() {
+            try {
+                const { data, error } = await supabase
+                    .from('site_settings')
+                    .select('*')
+                    .eq('setting_key', 'homepage_banner')
+                    .single();
+
+                if (data && data.setting_value) {
+                    currentHomepageBanner = data;
+                    const bannerData = typeof data.setting_value === 'string' 
+                        ? JSON.parse(data.setting_value) 
+                        : data.setting_value;
+
+                    document.getElementById('homepage-banner-active').checked = data.is_active;
+                    uploadedHomepageImageUrl = bannerData.image_url;
+                    document.getElementById('homepage-banner-link').value = bannerData.link_url || '';
+                    document.getElementById('homepage-banner-alt').value = bannerData.alt_text || '';
+                    
+                    if (uploadedHomepageImageUrl) {
+                        const preview = document.getElementById('homepage-banner-preview');
+                        const previewImg = document.getElementById('homepage-preview-image');
+                        previewImg.src = uploadedHomepageImageUrl;
+                        preview.style.display = 'block';
+                    }
+                }
+            } catch (error) {
+                console.error('Homepage banner yükleme hatası:', error);
+            }
+        }
+
+        // Homepage dosya seçimi
+        document.getElementById('homepage-banner-file').addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const allowedTypes = ['image/png', 'image/jpeg', 'image/webp'];
+            if (!allowedTypes.includes(file.type)) {
+                alert('Lütfen PNG, JPG veya WebP formatında bir dosya seçin');
+                e.target.value = '';
+                return;
+            }
+
+            const fileInfo = document.getElementById('homepage-file-info');
+            const fileName = document.getElementById('homepage-file-name');
+            fileName.innerHTML = `<i class="fas fa-check-circle"></i> ${file.name} (${(file.size / 1024).toFixed(2)} KB)`;
+            fileInfo.style.display = 'block';
+
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const preview = document.getElementById('homepage-banner-preview');
+                const previewImg = document.getElementById('homepage-preview-image');
+                previewImg.src = event.target.result;
+                preview.style.display = 'block';
+                uploadedHomepageImageUrl = null;
+            };
+            reader.readAsDataURL(file);
+        });
+
+        // Homepage önizleme
+        document.getElementById('homepage-preview-btn').addEventListener('click', () => {
+            const file = document.getElementById('homepage-banner-file').files[0];
+            if (file) {
+                alert('Önizleme aşağıda gösteriliyor');
+            } else if (uploadedHomepageImageUrl) {
+                const preview = document.getElementById('homepage-banner-preview');
+                const previewImg = document.getElementById('homepage-preview-image');
+                previewImg.src = uploadedHomepageImageUrl;
+                preview.style.display = 'block';
+            } else {
+                alert('Lütfen bir dosya seçin veya yükle');
+            }
+        });
+
+        // Homepage banner kaydet
+        document.getElementById('save-homepage-banner').addEventListener('click', async () => {
+            const file = document.getElementById('homepage-banner-file').files[0];
+            const isActive = document.getElementById('homepage-banner-active').checked;
+            const linkUrl = document.getElementById('homepage-banner-link').value;
+            const altText = document.getElementById('homepage-banner-alt').value;
+
+            let imageUrl = uploadedHomepageImageUrl;
+
+            if (file) {
+                const saveBtn = document.getElementById('save-homepage-banner');
+                const originalText = saveBtn.innerHTML;
+                saveBtn.disabled = true;
+                saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Yükleniyor...';
+
+                try {
+                    const timestamp = Date.now();
+                    const fileName = `homepage-banner-${timestamp}.${file.name.split('.').pop()}`;
+                    
+                    const { data, error: uploadError } = await supabase.storage
+                        .from('banners')
+                        .upload(`homepage/${fileName}`, file, {
+                            cacheControl: '3600',
+                            upsert: true
+                        });
+
+                    if (uploadError) throw uploadError;
+
+                    const { data: publicUrlData } = supabase.storage
+                        .from('banners')
+                        .getPublicUrl(`homepage/${fileName}`);
+
+                    imageUrl = publicUrlData.publicUrl;
+                } catch (error) {
+                    console.error('Dosya yükleme hatası:', error);
+                    alert('Dosya yükleme sırasında hata oluştu: ' + error.message);
+                    saveBtn.disabled = false;
+                    saveBtn.innerHTML = originalText;
+                    return;
+                }
+            }
+
+            if (!imageUrl) {
+                alert('Lütfen bir dosya seçin');
+                return;
+            }
+
+            try {
+                const bannerData = {
+                    image_url: imageUrl,
+                    link_url: linkUrl,
+                    alt_text: altText
+                };
+
+                const saveData = {
+                    setting_key: 'homepage_banner',
+                    setting_value: bannerData,
+                    is_active: isActive,
+                    updated_at: new Date()
+                };
+
+                let result;
+                if (currentHomepageBanner) {
+                    result = await supabase
+                        .from('site_settings')
+                        .update(saveData)
+                        .eq('id', currentHomepageBanner.id);
+                } else {
+                    result = await supabase
+                        .from('site_settings')
+                        .insert([saveData]);
+                }
+
+                if (result.error) throw result.error;
+
+                alert('Ana sayfa banner\'ı başarıyla kaydedildi!');
+                document.getElementById('homepage-banner-file').value = '';
+                document.getElementById('homepage-file-info').style.display = 'none';
+                uploadedHomepageImageUrl = imageUrl;
+                
+                const saveBtn = document.getElementById('save-homepage-banner');
+                saveBtn.disabled = false;
+                saveBtn.innerHTML = '<i class="fas fa-save"></i> Kaydet';
+                
+                await loadHomepageBanner();
+            } catch (error) {
+                console.error('Kaydetme hatası:', error);
+                alert('Kaydetme sırasında bir hata oluştu: ' + error.message);
+                
+                const saveBtn = document.getElementById('save-homepage-banner');
+                saveBtn.disabled = false;
+                saveBtn.innerHTML = '<i class="fas fa-save"></i> Kaydet';
+            }
+        });
+
+        // Homepage banner sil
+        document.getElementById('delete-homepage-banner').addEventListener('click', async () => {
+            if (!currentHomepageBanner) {
+                alert('Silinecek banner bulunamadı');
+                return;
+            }
+
+            if (!confirm('Ana sayfa banner\'ını silmek istediğinizden emin misiniz?')) {
+                return;
+            }
+
+            try {
+                const { error } = await supabase
+                    .from('site_settings')
+                    .delete()
+                    .eq('id', currentHomepageBanner.id);
+
+                if (error) throw error;
+
+                alert('Ana sayfa banner\'ı başarıyla silindi!');
+                currentHomepageBanner = null;
+                uploadedHomepageImageUrl = null;
+                document.getElementById('homepage-banner-file').value = '';
+                document.getElementById('homepage-file-info').style.display = 'none';
+                document.getElementById('homepage-banner-link').value = '';
+                document.getElementById('homepage-banner-alt').value = '';
+                document.getElementById('homepage-banner-active').checked = false;
+                document.getElementById('homepage-banner-preview').style.display = 'none';
+            } catch (error) {
+                console.error('Silme hatası:', error);
+                alert('Silme sırasında bir hata oluştu: ' + error.message);
+            }
+        });
+    </script>
+
+    <style>
+        .admin-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        .admin-header h1 {
+            font-size: 1.875rem;
+            color: #1e293b;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .settings-card {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .settings-card h2 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: #1e293b;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .card-description {
+            color: #64748b;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #334155;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #10b981;
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+        }
+
+        .file-input-wrapper {
+            position: relative;
+        }
+
+        .file-input-wrapper input[type="file"] {
+            display: block;
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px dashed #cbd5e1;
+            border-radius: 8px;
+            background: #f8fafc;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .file-input-wrapper input[type="file"]:hover {
+            border-color: #10b981;
+            background: #f0fdf4;
+        }
+
+        .file-input-wrapper input[type="file"]:focus {
+            outline: none;
+            border-color: #10b981;
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+        }
+
+        .file-info {
+            margin-top: 0.5rem;
+            padding: 0.5rem 0.75rem;
+            background: #f0fdf4;
+            border-left: 3px solid #10b981;
+            border-radius: 4px;
+            color: #10b981;
+            font-size: 0.875rem;
+        }
+
+        .file-info i {
+            margin-right: 0.5rem;
+        }
+
+        .form-group small {
+            display: block;
+            margin-top: 0.25rem;
+            color: #64748b;
+            font-size: 0.875rem;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: #10b981;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #059669;
+        }
+
+        .btn-secondary {
+            background: #64748b;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #475569;
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        .banner-preview {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: #f8fafc;
+            border-radius: 8px;
+        }
+
+        .banner-preview h3 {
+            margin-bottom: 1rem;
+            color: #334155;
+        }
+
+        .preview-wrapper {
+            border: 2px dashed #cbd5e1;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .preview-wrapper img {
+            width: 100%;
+            height: auto;
+            max-height: 180px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .coming-soon {
+            text-align: center;
+            padding: 3rem;
+            color: #64748b;
+            font-size: 1.125rem;
+        }
+
+        .coming-soon i {
+            font-size: 3rem;
+            display: block;
+            margin-bottom: 1rem;
+            color: #cbd5e1;
+        }
+    </style>
+</body>
+</html>

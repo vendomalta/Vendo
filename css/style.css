@@ -1,0 +1,225 @@
+/* 1) IMPORTLAR EN ÜSTE TAŞINDI (CSS gereği @import kuralları stil bloklarından önce olmalı) */
+@import url('variables.css');
+@import url('reset.css');
+@import url('animations.css');
+@import url('animations-enhanced.css');
+@import url('layout.css');
+@import url('header.css');
+@import url('sidebar.css');
+@import url('components.css');
+@import url('buttons.css');
+@import url('forms.css');
+@import url('listings.css');
+@import url('notifications-styles.css');
+@import url('phone-input.css');
+@import url('profile-buttons.css');
+@import url('responsive.css');
+@import url('footer.css');
+@import url('pages/ad-detail-new.css');
+@import url('pages/favorites.css');
+@import url('pages/login.css');
+@import url('pages/messages.css');
+@import url('pages/my-ads.css');
+@import url('pages/profile.css');
+@import url('pages/settings.css');
+
+/* === KATEGORI PANELI STIL === */
+.category-panel-overlay {
+	position: fixed;
+	inset: 0;
+	background: rgba(0,0,0,.35);
+	backdrop-filter: blur(2px);
+	opacity: 0;
+	pointer-events: none;
+	transition: opacity .25s ease;
+	z-index: 998;
+}
+.category-panel-overlay.active { opacity: 1; pointer-events: auto; }
+
+.category-panel {
+	position: fixed;
+	top: 0;
+	left: 0;
+	height: 100vh;
+	width: 50vw;
+	max-width: 520px;
+	background: var(--surface);
+	box-shadow: var(--shadow-lg);
+	border-right: 1px solid var(--gray-200);
+	transform: translateX(-100%);
+	transition: transform .3s cubic-bezier(.4,0,.2,1);
+	z-index: 999;
+	display: flex;
+	flex-direction: column;
+}
+.category-panel.open { transform: translateX(0); }
+.category-panel .panel-header { display:flex; align-items:center; justify-content:space-between; padding: 1rem 1.25rem; border-bottom:1px solid var(--gray-200); }
+.category-panel .panel-header h2 { font-size:1.15rem; font-weight:600; color: var(--text); }
+.panel-close-btn { background:none; border:none; font-size:1.75rem; line-height:1; cursor:pointer; color: var(--gray-500); padding:0 .25rem; }
+.panel-close-btn:hover { color: var(--danger); }
+.panel-content { padding:.75rem 1rem 1rem; overflow-y:auto; flex:1; display:grid; gap:.5rem; }
+.panel-category { display:flex; align-items:center; gap:.75rem; padding:.65rem .75rem; border:1px solid var(--gray-200); border-radius:8px; text-decoration:none; background:var(--muted-surface); color: var(--text); font-weight:500; transition: background .2s, border-color .2s; }
+.panel-category i { font-size:1.1rem; width:22px; text-align:center; color: var(--primary); }
+.panel-category small { margin-left:auto; font-size:.7rem; background: var(--primary); color:#fff; padding:2px 6px; border-radius:10px; font-weight:600; }
+.panel-category:hover { background: var(--surface); border-color: var(--primary); }
+
+@media (max-width: 800px) { .category-panel { width: 75vw; } }
+@media (max-width: 520px) { .category-panel { width: 88vw; } }
+
+body.no-scroll { overflow:hidden; }
+/* === /KATEGORI PANELI STIL === */
+
+/* 5. Özel Scrollbar (Tema Uyumu) */
+html {
+	/* İçerik ekran yüksekliğini aşarsa dikey scrollbar göster */
+	overflow-y: scroll;
+	scrollbar-width: thin; /* Firefox */
+	scrollbar-color: var(--primary) var(--muted-surface); /* Firefox renkleri */
+}
+
+/* Body'nin de taşma durumunda kaydırılabilir olmasını sağla */
+body {
+	min-height: 100vh;
+	overflow-y: visible; /* CRITICAL: Must be visible for position: sticky to work on children */
+	position: relative;
+}
+
+/* WebKit Tabanlı Tarayıcılar */
+body::-webkit-scrollbar {
+	width: 12px;
+}
+body::-webkit-scrollbar-track {
+	background: var(--muted-surface);
+	border-left: 1px solid var(--gray-200);
+}
+body::-webkit-scrollbar-thumb {
+	background: linear-gradient(180deg, var(--primary) 0%, var(--primary-dark) 100%);
+	border-radius: 8px;
+	border: 2px solid var(--muted-surface); /* Track ile görsel ayrım */
+}
+body::-webkit-scrollbar-thumb:hover {
+	background: var(--primary-dark);
+}
+body::-webkit-scrollbar-thumb:active {
+	background: var(--primary-light);
+}
+
+/* Daha dar görünüm isteyenler için opsiyonel sınıf */
+.scrollbar-compact body::-webkit-scrollbar { width: 8px; }
+.scrollbar-compact html { scrollbar-width: thin; }
+
+/* Scroll ilerleme çubuğu */
+.scroll-progress {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 5px;
+	background: rgba(0, 0, 0, 0.04);
+	backdrop-filter: blur(2px);
+	border-bottom: 1px solid var(--gray-100);
+	z-index: 1200;
+	pointer-events: none;
+}
+
+.dark-mode .scroll-progress {
+	background: rgba(255, 255, 255, 0.04);
+	border-bottom-color: var(--gray-700);
+}
+
+.scroll-progress__bar {
+	width: 100%;
+	height: 100%;
+	background: linear-gradient(90deg, var(--primary) 0%, var(--primary-dark) 100%);
+	transform: scaleX(0);
+	transform-origin: left;
+	transition: transform 0.12s ease-out;
+	border-radius: 0 8px 8px 0;
+}
+
+/* Ana Sayfa Banner */
+.homepage-banner-container {
+	margin: 0 0 0.75rem 0;
+	padding: 0;
+}
+
+.homepage-banner-wrapper {
+	position: relative;
+	background: var(--surface);
+	border-radius: 12px;
+	overflow: hidden;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+	border: 1px solid var(--gray-200);
+}
+
+.homepage-banner-wrapper a {
+	display: block;
+	width: 100%;
+	transition: opacity 0.3s ease;
+}
+
+.homepage-banner-wrapper a:hover {
+	opacity: 0.95;
+}
+
+.homepage-banner-wrapper img {
+	width: 100%;
+	height: auto;
+	max-height: 108px;
+	object-fit: cover;
+	display: block;
+}
+
+.homepage-banner-close {
+	position: absolute;
+	top: 10px;
+	right: 10px;
+	background: rgba(0, 0, 0, 0.6);
+	color: white;
+	border: none;
+	width: 32px;
+	height: 32px;
+	border-radius: 50%;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 0.9rem;
+	transition: all 0.2s ease;
+	z-index: 100;
+}
+
+.homepage-banner-close i {
+	pointer-events: none;
+}
+
+.homepage-banner-close:hover {
+	background: rgba(0, 0, 0, 0.8);
+	transform: scale(1.1);
+}
+
+@media (max-width: 768px) {
+	.homepage-banner-wrapper img {
+		max-height: 72px;
+	}
+
+	.homepage-banner-close {
+		width: 40px;
+		height: 40px;
+		font-size: 1.1rem;
+		top: 5px;
+		right: 5px;
+	}
+}
+
+/* Center page header texts horizontally (and make sure they're centered visually) */
+.page-header {
+	align-items: center;
+	justify-content: center;
+	text-align: center;
+}
+
+.page-header .header-content {
+	width: 100%;
+	margin: 0 auto;
+}

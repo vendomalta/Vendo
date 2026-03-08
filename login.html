@@ -1,0 +1,2617 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - VENDO</title>
+    <meta name="description" content="VENDO hesabınıza güvenle giriş yapın.">
+    <meta name="robots" content="noindex,nofollow">
+    <!-- Canonical: Yayında alan adıyla ekleyin -->
+    <link rel="icon" type="image/svg+xml" href="assets/images/verde-logo.svg" sizes="any">
+    <link rel="shortcut icon" href="assets/images/verde-logo.svg">
+    <link rel="apple-touch-icon" href="assets/images/verde-logo.svg">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <!-- ✅ GÜVENLIK: DOMPurify XSS koruması -->
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@latest/dist/purify.min.js"></script>
+    <!-- ✅ GÜVENLIK: CSRF Protection Meta Tag -->
+    <meta name="csrf-token" content="">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--background-light);
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        .split-container {
+            display: flex;
+            min-height: 100vh;
+            width: 100%;
+            overflow: visible;
+        }
+
+        /* Branding Side (Left) */
+        .branding-side {
+            display: none;
+            width: 50%;
+            background: linear-gradient(135deg, rgba(16, 183, 127, 0.08) 0%, rgba(16, 183, 127, 0.15) 100%);
+            padding: 4rem;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            overflow: visible;
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            min-height: 100vh;
+        }
+
+        .split-container.signup-mode .branding-side {
+            width: 35%;
+        }
+
+        @media (min-width: 1024px) {
+            .branding-side {
+                display: flex;
+            }
+        }
+
+        .branding-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .branding-logo {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 4rem;
+        }
+
+        .branding-logo-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--primary);
+            color: white;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 1.2rem;
+        }
+
+        .branding-logo-text {
+            font-size: 1.75rem;
+            font-weight: 800;
+            color: var(--text);
+            letter-spacing: -0.5px;
+        }
+
+        .branding-title {
+            font-size: clamp(2.5rem, 4.5vw, 4rem);
+            font-weight: 950;
+            line-height: 1;
+            color: var(--text);
+            margin-bottom: 1.5rem;
+            letter-spacing: -2px;
+        }
+
+        .branding-title span {
+            color: var(--primary);
+            position: relative;
+        }
+
+        .branding-title span::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: 2px;
+            width: 100%;
+            height: 15px;
+            background: rgba(16, 183, 127, 0.15);
+            z-index: -1;
+            border-radius: 4px;
+        }
+
+        .branding-subtitle {
+            font-size: 1.25rem;
+            color: var(--gray-600);
+            max-width: 460px;
+            line-height: 1.5;
+            font-weight: 500;
+            transition: all 0.4s ease;
+        }
+
+        .split-container.signup-mode .branding-subtitle {
+            font-size: 1rem;
+            opacity: 0.8;
+            max-width:300px;
+        }
+
+        .split-container.signup-mode .branding-title {
+            font-size: clamp(2rem, 3.5vw, 3rem);
+        }
+
+        /* Removed branding-illustration styles as element is removed */
+
+        .branding-footer {
+            font-size: 0.9rem;
+            color: var(--gray-400);
+            font-weight: 500;
+            transition: all 0.4s ease;
+        }
+
+        .split-container.signup-mode .branding-logo {
+            margin-bottom: 2rem;
+        }
+
+        .split-container.signup-mode .branding-footer {
+            opacity: 0.6;
+        }
+
+        /* Form Side (Right) */
+        .form-side {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start; /* Ensure content starts from top if overflowing */
+            padding: 3rem 2rem;
+            background: white;
+            position: relative;
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            min-height: 100vh;
+            height: auto;
+        }
+
+        @media (min-height: 700px) {
+            .form-side {
+                justify-content: center; /* Center only if there is enough vertical space */
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .form-side {
+                width: 50%;
+            }
+            .split-container.signup-mode .form-side {
+                width: 65%;
+                padding: 1.5rem 3rem; /* Further reduced vertical padding */
+            }
+        }
+
+        .form-container {
+            width: 100%;
+            max-width: 440px;
+            animation: fadeIn 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: max-width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .split-container.signup-mode .form-container {
+            max-width: 640px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Reuse existing styles but refine for the new layout */
+        .auth-header {
+            text-align: left;
+            margin-bottom: 2rem;
+        }
+
+        .auth-title {
+            font-size: 1.85rem;
+            font-weight: 800;
+            color: var(--text);
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.5px;
+        }
+
+        .auth-subtitle {
+            font-size: 0.95rem;
+            color: var(--gray-500);
+        }
+
+        .auth-tabs {
+            display: flex;
+            background: var(--muted-surface);
+            border-radius: 12px;
+            padding: 0.35rem;
+            margin-bottom: 2rem;
+        }
+
+        /* Tab specific styles */
+        .auth-tab {
+            flex: 1;
+            background: none;
+            border: none;
+            padding: 0.75rem 1rem;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: var(--gray-600);
+            border-radius: 10px;
+        }
+
+        .auth-tab.active {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+        }
+
+        /* Login Extras */
+        .login-extras {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .login-extras .form-checkbox {
+            margin-bottom: 0;
+        }
+
+        .login-extras .forgot-link {
+            color: var(--primary);
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: color 0.2s;
+        }
+
+        .login-extras .forgot-link:hover {
+            color: var(--primary-dark);
+            text-decoration: underline;
+        }
+
+        .auth-form {
+            display: none;
+        }
+
+        .auth-form.active {
+            display: block;
+        }
+
+        .auth-form.active#signupForm {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.85rem 1.15rem;
+            background: transparent;
+        }
+
+        .signup-full-width {
+            grid-column: span 2;
+        }
+
+        .split-container.signup-mode .auth-header,
+        .split-container.signup-mode .auth-tabs {
+            text-align: center;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .split-container.signup-mode .auth-tabs {
+            max-width: 400px;
+            margin-top: 1rem;
+        }
+
+        .form-group { 
+            margin-bottom: 0; 
+            position: relative; /* Added for popover anchoring */
+        } /* Handled by grid gap */
+
+        .form-label {
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--gray-700);
+        }
+
+        .form-input {
+            padding: 0.85rem 1.25rem;
+            font-size: 0.95rem;
+            border-radius: 12px;
+            border-width: 1.5px;
+            transition: all 0.2s;
+        }
+
+        .split-container.signup-mode .form-input {
+            padding: 0.6rem 1rem;
+            font-size: 0.85rem;
+            border-radius: 10px;
+        }
+
+        .auth-submit {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            width: 100%;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            margin-top: 1rem;
+        }
+
+        .auth-submit:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.25);
+        }
+
+        .auth-submit:active {
+            transform: translateY(0);
+        }
+
+        /* Mobile specific adjustments */
+        @media (max-width: 1023px) {
+            .form-side {
+                padding: 3rem 1.5rem;
+            }
+            .auth-header { text-align: center; }
+            .auth-tabs { margin-left: auto; margin-right: auto; max-width: 320px; }
+        }
+
+        .form-input-icon select {
+            padding-left: 2.75rem;
+            padding-right: 1rem;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23666' d='M1 4l5 4 5-4'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            padding-right: 2.5rem;
+            cursor: pointer;
+        }
+
+        .form-input-icon select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+        }
+
+        .phone-input-group {
+            display: flex;
+            gap: clamp(0.4rem, 1.2vw, 0.75rem);
+            align-items: stretch;
+        }
+
+        .phone-input-group .form-input-icon {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Ülke kodu select'i kompakt hale getir */
+        .phone-input-group .form-input-icon:first-child {
+            flex: 0 0 clamp(110px, 25vw, 150px);
+        }
+
+        .phone-input-group .form-input-icon:last-child {
+            flex: 1;
+        }
+
+        /* Custom Verde Select Component */
+        .verde-select {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+
+        .verde-select-trigger {
+            display: flex;
+            align-items: center;
+            padding: 0.6rem 1rem !important;
+            padding-left: clamp(2rem, 4vw, 2.75rem) !important;
+            padding-right: 2.25rem !important; /* Space for arrow */
+            font-size: 0.85rem;
+            font-weight: 500;
+            border-radius: 10px;
+            border: 1.5px solid var(--gray-200);
+            background: var(--muted-surface);
+            cursor: pointer;
+            transition: all 0.2s;
+            user-select: none;
+            height: 100%;
+            width: 100%;
+            color: var(--gray-700);
+            box-sizing: border-box;
+        }
+
+        .verde-select-trigger:hover {
+            border-color: var(--primary);
+            background: white;
+        }
+
+        .verde-select.active .verde-select-trigger {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+            background: white;
+        }
+
+        .verde-select-trigger::after {
+            content: '\f107';
+            font-family: 'Font Awesome 5 Free';
+            font-weight: 900;
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray-400);
+            transition: transform 0.2s;
+        }
+
+        .verde-select.active .verde-select-trigger::after {
+            transform: translateY(-50%) rotate(180deg);
+            color: var(--primary);
+        }
+
+        .verde-select-options {
+            position: absolute;
+            top: calc(100% + 5px);
+            left: 0;
+            min-width: 100%; /* At least as wide as the trigger */
+            width: max-content; /* Allow growing for long names if needed */
+            max-width: clamp(280px, 80vw, 400px); /* Limit growth */
+            max-height: 250px;
+            background: white;
+            border: 1px solid var(--gray-200);
+            border-radius: 14px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.12);
+            z-index: 2000;
+            overflow-y: auto;
+            display: none;
+            animation: verdeSlideDown 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes verdeSlideDown {
+            from { opacity: 0; transform: translateY(-10px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .verde-select.active .verde-select-options {
+            display: block;
+        }
+
+        .verde-select-option {
+            padding: 0.7rem 1rem;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.15s;
+            color: var(--gray-700);
+            border-bottom: 1px solid var(--gray-50);
+        }
+
+        .verde-select-option:last-child {
+            border-bottom: none;
+        }
+
+        .verde-select-option:hover {
+            background: var(--muted-surface);
+            color: var(--primary);
+            padding-left: 1.25rem; /* Slight slide effect */
+        }
+
+        .verde-select-option.selected {
+            background: rgba(16, 185, 129, 0.08);
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .verde-select-options::-webkit-scrollbar { width: 5px; }
+        .verde-select-options::-webkit-scrollbar-track { background: transparent; }
+        .verde-select-options::-webkit-scrollbar-thumb { background: var(--gray-200); border-radius: 10px; }
+        .verde-select-options::-webkit-scrollbar-thumb:hover { background: var(--gray-300); }
+
+        .phone-input-group {
+            display: flex;
+            gap: clamp(0.4rem, 1.2vw, 0.75rem);
+            align-items: stretch;
+        }
+
+        .phone-input-group .form-input-icon:first-child {
+            flex: 0 0 clamp(100px, 22vw, 130px);
+        }
+
+        .phone-input-group input[type="tel"] {
+            padding-left: clamp(2rem, 4vw, 2.75rem);
+            padding-right: clamp(0.75rem, 2vw, 1rem);
+            font-size: clamp(0.85rem, 1.8vw, 0.95rem);
+            letter-spacing: 0.5px;
+            height: 100%;
+            box-sizing: border-box;
+        }
+
+        .phone-input-group input[type="tel"]:hover {
+            border-color: var(--primary);
+        }
+
+        .phone-input-group input[type="tel"]:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+            background-color: rgba(16, 185, 129, 0.01);
+        }
+
+        .phone-input-group .form-input-icon i {
+            font-size: clamp(0.85rem, 2vw, 1rem);
+            left: clamp(0.6rem, 1.5vw, 1rem);
+        }
+
+
+        .form-input-icon {
+            position: relative;
+        }
+
+        .form-input-icon input {
+            padding-left: 2.75rem;
+            padding-right: 3rem;
+        }
+
+        .form-input-icon input[type="date"] {
+            padding-right: 3rem;
+        }
+
+        .form-input-icon i {
+            position: absolute;
+            left: 0.85rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray-400);
+            font-size: 0.9rem;
+        }
+        /* Corrected Signup Layout - Ultra Compact Mode */
+        .split-container.signup-mode .auth-header {
+            margin-bottom: 0.75rem;
+        }
+
+        .split-container.signup-mode .auth-header .auth-title {
+            width: 100%;
+            font-size: 1.5rem; /* Shrunk title */
+            margin-bottom: 0.25rem;
+        }
+
+        .split-container.signup-mode .auth-header .auth-subtitle {
+            width: 100%;
+            font-size: 0.85rem; /* Shrunk subtitle */
+        }
+
+        .split-container.signup-mode .auth-tabs {
+            margin-bottom: 1rem;
+            margin-top: 0.5rem;
+            padding: 0.25rem !important;
+        }
+
+        .split-container.signup-mode .auth-tab {
+            padding: 0.5rem;
+            font-size: 0.8rem;
+        }
+
+        /* Terms of Use Modal Styles */
+        .terms-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .terms-modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .terms-modal {
+            background: white;
+            width: 90%;
+            max-width: 600px;
+            max-height: 85vh;
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            display: flex;
+            flex-direction: column;
+            transform: translateY(20px);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow: hidden;
+        }
+
+        .terms-modal-overlay.active .terms-modal {
+            transform: translateY(0);
+        }
+
+        .terms-modal-header {
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid var(--gray-100);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--surface);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .terms-modal-title {
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: var(--text);
+            margin: 0;
+        }
+
+        .terms-modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--gray-400);
+            cursor: pointer;
+            transition: color 0.2s;
+            padding: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+        }
+
+        .terms-modal-close:hover {
+            color: var(--gray-800);
+            background: var(--gray-50);
+        }
+
+        .terms-modal-body {
+            padding: 2rem;
+            overflow-y: auto;
+            color: var(--gray-700);
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .terms-modal-body h3 {
+            color: var(--text);
+            font-size: 1.1rem;
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+            font-weight: 700;
+        }
+
+        .terms-modal-body h3:first-child {
+            margin-top: 0;
+        }
+
+        .terms-modal-body p {
+            margin-bottom: 1rem;
+        }
+
+        .terms-modal-body ul {
+            margin-bottom: 1rem;
+            padding-left: 1.5rem;
+        }
+
+        .terms-modal-body li {
+            margin-bottom: 0.5rem;
+        }
+
+        .terms-modal-footer {
+            padding: 1.25rem 2rem;
+            border-top: 1px solid var(--gray-100);
+            display: flex;
+            justify-content: flex-end;
+            background: var(--surface);
+        }
+
+        .terms-modal-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .terms-modal-btn:hover {
+            background: var(--primary-dark);
+        }
+
+        .split-container.signup-mode .auth-form#signupForm {
+            gap: 0.4rem 0.8rem; /* Tighter grid */
+        }
+
+        .split-container.signup-mode .form-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-bottom: 0.2rem;
+        }
+
+        .split-container.signup-mode .form-input {
+            padding-top: 0.55rem;
+            padding-bottom: 0.55rem;
+            padding-left: 2.25rem; /* Space for icon */
+            padding-right: 2.5rem; /* Space for toggles */
+            font-size: 0.85rem;
+            border-radius: 8px;
+        }
+
+        .split-container.signup-mode .form-input-icon i {
+            font-size: 0.8rem;
+            left: 0.85rem;
+        }
+
+        .split-container.signup-mode .auth-submit.signup-full-width {
+            padding: 0.65rem;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+
+        .split-container.signup-mode .auth-divider.signup-full-width {
+            margin: 0.4rem 0;
+        }
+
+        .split-container.signup-mode .social-login.signup-full-width {
+            gap: 0.5rem;
+        }
+
+        .split-container.signup-mode .social-btn {
+            padding: 0.5rem;
+            font-size: 0.8rem;
+            border-radius: 8px;
+        }
+
+
+        .password-toggle {
+            position: absolute;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            width: 2.5rem;
+            background: none;
+            border: none;
+            color: var(--gray-400);
+            cursor: pointer;
+            padding: 0;
+            border-radius: 0 6px 6px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+        }
+
+        .password-toggle:hover {
+            color: var(--primary);
+            background: rgba(16, 185, 129, 0.05);
+        }
+
+        .date-toggle {
+            position: absolute;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            width: 2.5rem;
+            background: none;
+            border: none;
+            color: var(--gray-400);
+            cursor: pointer;
+            padding: 0;
+            border-radius: 0 6px 6px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+        }
+
+        .date-toggle:hover {
+            color: var(--primary);
+            background: rgba(16, 185, 129, 0.05);
+        }
+
+        .form-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            margin-bottom: 1rem;
+        }
+
+        .form-checkbox input {
+            width: 1.25rem;
+            height: 1.25rem;
+            accent-color: var(--primary);
+        }
+
+        .form-checkbox label {
+            color: var(--gray-600);
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+
+        /* Password Strength */
+        .password-strength-container {
+            margin-top: 0.1rem;
+            margin-bottom: 0.2rem;
+        }
+
+        .password-strength-bar {
+            width: 100%;
+            height: 3px;
+            background: var(--muted-surface);
+            border-radius: 2px;
+            overflow: hidden;
+            margin-bottom: 0.2rem;
+        }
+
+        .strength-fill {
+            height: 100%;
+            width: 0%;
+            background: #ef4444;
+            border-radius: 3px;
+            transition: all 0.3s ease;
+        }
+
+        .strength-fill.weak {
+            width: 33%;
+            background: #ef4444;
+        }
+
+        .strength-fill.fair {
+            width: 66%;
+            background: #f59e0b;
+        }
+
+        .strength-fill.good {
+            width: 100%;
+            background: #10b981;
+        }
+
+        .password-strength-text {
+            font-size: 0.75rem;
+            color: var(--gray-600);
+            transition: color 0.3s ease;
+        }
+
+        .password-strength-text.weak {
+            color: #ef4444;
+        }
+
+        .password-strength-text.fair {
+            color: #f59e0b;
+        }
+
+        .password-strength-text.good {
+            color: #10b981;
+        }
+
+        /* Hide native calendar icon */
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            display: none !important;
+            -webkit-appearance: none;
+        }
+
+        /* Custom Date Picker Styles */
+        .verde-datepicker {
+            position: absolute;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            border: 1px solid var(--gray-100);
+            padding: 0.75rem; /* Reduced padding */
+            z-index: 1000;
+            width: 250px; /* Reduced width */
+            display: none;
+            animation: slideUp 0.3s ease-out;
+            bottom: calc(100% + 5px); /* Position above the input */
+        }
+
+        .datepicker-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem; /* Reduced margin */
+        }
+
+        .datepicker-title {
+            font-weight: 700;
+            color: var(--text);
+            font-size: 0.9rem; /* Slightly smaller title */
+            cursor: pointer;
+        }
+
+        .datepicker-nav {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .datepicker-btn {
+            background: var(--gray-50);
+            border: none;
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--gray-600);
+            transition: all 0.2s;
+        }
+
+        .datepicker-btn:hover {
+            background: var(--primary-light);
+            color: white;
+        }
+
+        .datepicker-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 2px;
+            text-align: center;
+        }
+
+        .datepicker-day-name {
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: var(--gray-400);
+            padding-bottom: 0.5rem;
+        }
+
+        .datepicker-day {
+            font-size: 0.85rem;
+            padding: 0.5rem 0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: var(--gray-700);
+            font-weight: 500;
+        }
+
+        .datepicker-day:hover:not(.empty) {
+            background: var(--gray-100);
+            color: var(--primary);
+        }
+
+        .datepicker-day.active {
+            background: var(--primary) !important;
+            color: white !important;
+        }
+
+        .datepicker-day.today {
+            color: var(--primary);
+            font-weight: 800;
+            position: relative;
+        }
+
+        .datepicker-day.today::after {
+            content: '';
+            position: absolute;
+            bottom: 4px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 4px;
+            height: 4px;
+            background: var(--primary);
+            border-radius: 50%;
+        }
+
+        .datepicker-year-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 5px;
+            max-height: 200px;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+
+        .datepicker-year {
+            font-size: 0.85rem;
+            padding: 0.5rem 0;
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s;
+            color: var(--gray-700);
+        }
+
+        .datepicker-year:hover {
+            background: var(--gray-100);
+            color: var(--primary);
+        }
+
+        .datepicker-year.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .datepicker-month-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            padding: 5px;
+        }
+
+        .datepicker-month {
+            font-size: 0.85rem;
+            padding: 0.75rem 0;
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s;
+            color: var(--gray-700);
+            font-weight: 600;
+        }
+
+        .datepicker-month:hover {
+            background: var(--gray-100);
+            color: var(--primary);
+        }
+
+        .datepicker-month.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* Password Requirements - Popover style on focus */
+        .password-requirements {
+            display: none;
+            position: absolute;
+            background: white;
+            z-index: 100;
+            bottom: calc(100% + 5px); /* Position above the input */
+            left: 0;
+            width: 100%;
+            padding: 1rem;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            border-radius: 12px;
+            border: 1px solid var(--gray-200);
+            animation: slideUp 0.3s ease-out;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .form-group:focus-within .password-requirements {
+            display: block;
+        }
+
+        .requirements-title {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text);
+            margin: 0 0 0.75rem 0;
+        }
+
+        .requirements-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .requirement {
+            font-size: 0.75rem;
+            padding: 0.3rem 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--gray-600);
+            transition: all 0.2s ease;
+        }
+
+        .requirement i {
+            font-size: 0.75rem;
+            min-width: 16px;
+        }
+
+        .requirement.invalid {
+            color: #ef4444;
+        }
+
+        .requirement.invalid i {
+            color: #ef4444;
+        }
+
+        .requirement.valid {
+            color: #10b981;
+        }
+
+        .requirement.valid i {
+            color: #10b981;
+        }
+
+        .auth-submit {
+            width: 100%;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.4rem 1rem;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: 0.15rem;
+        }
+
+        .auth-submit:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+            box-shadow: 0 3px 10px rgba(16, 185, 129, 0.2);
+        }
+
+        .auth-submit:disabled {
+            background: var(--gray-400);
+            cursor: not-allowed;
+            transform: none;
+        }
+
+
+        .auth-divider {
+            display: flex;
+            align-items: center;
+            margin: 1.5rem 0;
+            color: var(--gray-400);
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .auth-divider::before,
+        .auth-divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--gray-200);
+        }
+
+        .auth-divider span {
+            padding: 0 1rem;
+            background: white;
+            color: var(--gray-500);
+        }
+
+        .social-login {
+            display: flex;
+            gap: 0.4rem;
+            margin-bottom: 0.15rem;
+        }
+
+        .social-btn {
+            flex: 1;
+            background: white;
+            border: 1.5px solid var(--gray-200);
+            padding: 0.75rem 1rem;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--text);
+        }
+
+        .social-btn:hover {
+            border-color: var(--primary);
+            background: rgba(16, 185, 129, 0.05);
+            transform: translateY(-1px);
+        }
+
+        .back-to-home {
+            position: absolute;
+            top: 0.75rem;
+            left: 1rem;
+            color: var(--primary);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-weight: 500;
+            font-size: 0.8rem;
+            transition: all 0.2s;
+            z-index: 100;
+        }
+
+        .back-to-home:hover {
+            color: var(--primary-dark);
+            transform: translateX(-2px);
+        }
+
+        @media (max-width: 768px) {
+            /* Prevent iOS Safari from auto-zooming on input focus */
+            input, select, textarea,
+            .split-container.signup-mode .form-input,
+            .verde-select-trigger,
+            .phone-input-group input[type="tel"] {
+                font-size: 16px !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .form-side {
+                padding: 8rem 1rem 1rem 1rem;
+                justify-content: flex-start;
+            }
+
+            .auth-container {
+                padding: 0.5rem;
+                align-items: center;
+            }
+
+            .form-container {
+                width: 100%;
+                margin: 0 auto;
+            }
+
+            .auth-card {
+                padding: 1.25rem 1rem;
+                border-radius: 15px;
+            }
+
+            .auth-form.active#signupForm {
+                max-height: 65vh;
+                overflow-y: auto;
+                padding-right: 0.5rem;
+            }
+
+            .phone-input-group {
+                gap: clamp(0.3rem, 1vw, 0.5rem);
+            }
+
+            .phone-input-group .form-input-icon:first-child {
+                flex: 0 0 clamp(90px, 20vw, 110px);
+            }
+
+            .phone-input-group .form-input-icon:last-child {
+                flex: 1;
+            }
+
+            .phone-input-group select {
+                padding-left: clamp(1.8rem, 3vw, 2rem) !important;
+                padding-right: clamp(1.6rem, 3vw, 2rem) !important;
+                font-size: clamp(0.75rem, 1.3vw, 0.8rem);
+            }
+
+            .phone-input-group input[type="tel"] {
+                padding-left: clamp(1.8rem, 3vw, 2rem);
+                font-size: clamp(0.8rem, 1.3vw, 0.85rem);
+            }
+
+            .phone-format-hint {
+                font-size: clamp(0.7rem, 1.2vw, 0.75rem);
+                margin-top: clamp(0.25rem, 0.8vw, 0.3rem);
+            }
+
+            .back-to-home {
+                position: relative;
+                top: auto;
+                left: auto;
+                justify-content: center;
+                margin-bottom: 1rem;
+            }
+        }
+
+        /* ✅ Password Reset Modal Styles */
+        .password-reset-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 10000;
+            pointer-events: auto;
+        }
+
+        .modal-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(4px);
+            z-index: 1;
+        }
+
+        .modal-content {
+            position: relative;
+            z-index: 10;
+            max-width: 500px;
+            margin: 10vh auto;
+            background: var(--surface);
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            animation: modalSlideIn 0.3s ease-out;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+            width: 2.5rem;
+            height: 2.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        .modal-close:hover {
+            background: var(--muted-surface);
+            color: var(--text);
+        }
+
+        .modal-content h2 {
+            margin: 0 0 0.5rem 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--primary);
+        }
+
+        .modal-content p {
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+        }
+
+        .reset-info {
+            margin-top: 1rem;
+            padding: 0.75rem;
+            background: var(--muted-surface);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .reset-info i {
+            color: var(--primary);
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="split-container" id="splitContainer">
+        <!-- Branding Side (Left) -->
+        <div class="branding-side">
+            <div class="branding-content">
+                <a href="index.html" class="back-to-home" style="position: relative; top: auto; left: auto; margin-bottom: 2rem;">
+                    <i class="fas fa-arrow-left"></i>
+                    Back to Home
+                </a>
+                <div class="branding-logo">
+                    <div class="branding-logo-icon">V</div>
+                    <div class="branding-logo-text">Vendo</div>
+                </div>
+                <h1 class="branding-title">
+                    Discover your next<br>
+                    <span>great find.</span>
+                </h1>
+                <p class="branding-subtitle">
+                    Join a premier community to buy, sell, and discover unique products with ease and security.
+                </p>
+            </div>
+            
+            <!-- Branding illustration removed per user request -->
+
+            <div class="branding-footer">
+                © 2025 Vendo Project
+            </div>
+        </div>
+
+        <!-- Form Side (Right) -->
+        <div class="form-side">
+            <div class="form-container">
+                <div class="auth-header">
+                    <h2 class="auth-title">Welcome Back</h2>
+                    <p class="auth-subtitle">Manage your account or start fresh</p>
+                </div>
+
+                <div class="auth-tabs">
+                    <button class="auth-tab active" data-tab="login">Login</button>
+                    <button class="auth-tab" data-tab="signup">Register</button>
+                </div>
+
+            <form class="auth-form active" id="loginForm">
+                <div class="form-group">
+                    <label class="form-label" for="email">Email Address</label>
+                    <div class="form-input-icon">
+                        <input type="email" id="email" class="form-input" placeholder="example@email.com" required>
+                        <i class="fas fa-envelope"></i>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="password">Password</label>
+                    <div class="form-input-icon">
+                        <input type="password" id="password" class="form-input" placeholder="Enter your password" required>
+                        <i class="fas fa-lock"></i>
+                        <button type="button" class="password-toggle" onclick="togglePassword('password')">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="login-extras">
+                    <div class="form-checkbox">
+                        <input type="checkbox" id="rememberMe">
+                        <label for="rememberMe" style="font-size: 0.85rem; font-weight: 500;">Remember me</label>
+                    </div>
+                    <a href="#" id="forgotPasswordLink" class="forgot-link">
+                        Forgot Password?
+                    </a>
+                </div>
+
+                <button type="submit" class="auth-submit" style="margin-top: 0;">
+                    Login
+                    <i class="fas fa-arrow-right"></i>
+                </button>
+
+                <div class="auth-divider">
+                    <span>or</span>
+                </div>
+
+                <div class="social-login">
+                    <button type="button" class="social-btn" onclick="socialLogin('google')">
+                        <i class="fab fa-google"></i>
+                        Google
+                    </button>
+                    <button type="button" class="social-btn" onclick="socialLogin('facebook')">
+                        <i class="fab fa-facebook-f"></i>
+                        Facebook
+                    </button>
+                </div>
+            </form>
+
+            <!-- Signup Form -->
+            <form class="auth-form" id="signupForm">
+                <div class="form-group">
+                    <label class="form-label" for="signupFirstName">First Name</label>
+                    <div class="form-input-icon">
+                        <input type="text" id="signupFirstName" class="form-input" placeholder="First Name" required>
+                        <i class="fas fa-user"></i>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="signupLastName">Last Name</label>
+                    <div class="form-input-icon">
+                        <input type="text" id="signupLastName" class="form-input" placeholder="Last Name" required>
+                        <i class="fas fa-user-tag"></i>
+                    </div>
+                </div>
+
+                <div class="form-group signup-full-width">
+                    <label class="form-label" for="signupEmail">Email Address</label>
+                    <div class="form-input-icon">
+                        <input type="email" id="signupEmail" class="form-input" placeholder="example@email.com" required>
+                        <i class="fas fa-envelope"></i>
+                    </div>
+                </div>
+
+                <div class="form-group signup-full-width">
+                    <label class="form-label">
+                        <i class="fas fa-phone"></i> Phone Number
+                    </label>
+                    <div class="phone-input-group">
+                        <div class="form-input-icon">
+                            <div class="verde-select" id="customCountrySelector">
+                                <div class="verde-select-trigger">
+                                    <span id="selectedCountryText">+356</span>
+                                </div>
+                                <div class="verde-select-options" id="countryOptionsList">
+                                    <!-- Populated by JS -->
+                                </div>
+                                <select id="signupCountryCode" required
+                                    style="position: absolute; opacity: 0; pointer-events: none; width: 1px; height: 1px;">
+                                    <option value="356" selected>Malta +356</option>
+                                    <option disabled>──────────</option>
+                                    <option value="93">Afghanistan +93</option>
+                                    <option value="355">Albania +355</option>
+                                    <option value="213">Algeria +213</option>
+                                    <option value="1-684">American Samoa +1</option>
+                                    <option value="376">Andorra +376</option>
+                                    <option value="244">Angola +244</option>
+                                    <option value="1-264">Anguilla +1</option>
+                                    <option value="1-268">Antigua and Barbuda +1</option>
+                                    <option value="54">Argentina +54</option>
+                                    <option value="374">Armenia +374</option>
+                                    <option value="297">Aruba +297</option>
+                                    <option value="61">Australia +61</option>
+                                    <option value="43">Austria +43</option>
+                                    <option value="994">Azerbaijan +994</option>
+                                    <option value="1-242">Bahamas +1</option>
+                                    <option value="973">Bahrain +973</option>
+                                    <option value="880">Bangladesh +880</option>
+                                    <option value="1-246">Barbados +1</option>
+                                    <option value="375">Belarus +375</option>
+                                    <option value="32">Belgium +32</option>
+                                    <option value="501">Belize +501</option>
+                                    <option value="229">Benin +229</option>
+                                    <option value="1-441">Bermuda +1</option>
+                                    <option value="975">Bhutan +975</option>
+                                    <option value="591">Bolivia +591</option>
+                                    <option value="387">Bosnia and Herzegovina +387</option>
+                                    <option value="267">Botswana +267</option>
+                                    <option value="55">Brazil +55</option>
+                                    <option value="673">Brunei +673</option>
+                                    <option value="359">Bulgaria +359</option>
+                                    <option value="226">Burkina Faso +226</option>
+                                    <option value="257">Burundi +257</option>
+                                    <option value="855">Cambodia +855</option>
+                                    <option value="237">Cameroon +237</option>
+                                    <option value="1-204">Canada +1</option>
+                                    <option value="238">Cape Verde +238</option>
+                                    <option value="1-345">Cayman Islands +1</option>
+                                    <option value="236">Central African Republic +236</option>
+                                    <option value="235">Chad +235</option>
+                                    <option value="56">Chile +56</option>
+                                    <option value="86">China +86</option>
+                                    <option value="57">Colombia +57</option>
+                                    <option value="269">Comoros +269</option>
+                                    <option value="242">Congo (Brazzaville) +242</option>
+                                    <option value="243">Congo (Kinshasa) +243</option>
+                                    <option value="682">Cook Islands +682</option>
+                                    <option value="506">Costa Rica +506</option>
+                                    <option value="225">Cote d'Ivoire +225</option>
+                                    <option value="385">Croatia +385</option>
+                                    <option value="53">Cuba +53</option>
+                                    <option value="357">Cyprus +357</option>
+                                    <option value="420">Czechia +420</option>
+                                    <option value="45">Denmark +45</option>
+                                    <option value="253">Djibouti +253</option>
+                                    <option value="1-767">Dominica +1</option>
+                                    <option value="1-809">Dominican Republic +1</option>
+                                    <option value="593">Ecuador +593</option>
+                                    <option value="20">Egypt +20</option>
+                                    <option value="503">El Salvador +503</option>
+                                    <option value="240">Equatorial Guinea +240</option>
+                                    <option value="291">Eritrea +291</option>
+                                    <option value="372">Estonia +372</option>
+                                    <option value="251">Ethiopia +251</option>
+                                    <option value="500">Falkland Islands +500</option>
+                                    <option value="298">Faroe Islands +298</option>
+                                    <option value="679">Fiji +679</option>
+                                    <option value="358">Finland +358</option>
+                                    <option value="33">France +33</option>
+                                    <option value="594">French Guiana +594</option>
+                                    <option value="241">Gabon +241</option>
+                                    <option value="220">Gambia +220</option>
+                                    <option value="995">Georgia +995</option>
+                                    <option value="49">Germany +49</option>
+                                    <option value="233">Ghana +233</option>
+                                    <option value="350">Gibraltar +350</option>
+                                    <option value="30">Greece +30</option>
+                                    <option value="299">Greenland +299</option>
+                                    <option value="1-473">Grenada +1</option>
+                                    <option value="590">Guadeloupe +590</option>
+                                    <option value="1-671">Guam +1</option>
+                                    <option value="502">Guatemala +502</option>
+                                    <option value="224">Guinea +224</option>
+                                    <option value="245">Guinea-Bissau +245</option>
+                                    <option value="592">Guyana +592</option>
+                                    <option value="509">Haiti +509</option>
+                                    <option value="504">Honduras +504</option>
+                                    <option value="852">Hong Kong +852</option>
+                                    <option value="36">Hungary +36</option>
+                                    <option value="354">Iceland +354</option>
+                                    <option value="91">India +91</option>
+                                    <option value="62">Indonesia +62</option>
+                                    <option value="98">Iran +98</option>
+                                    <option value="964">Iraq +964</option>
+                                    <option value="353">Ireland +353</option>
+                                    <option value="972">Israel +972</option>
+                                    <option value="39">Italy +39</option>
+                                    <option value="1-876">Jamaica +1</option>
+                                    <option value="81">Japan +81</option>
+                                    <option value="962">Jordan +962</option>
+                                    <option value="7">Kazakhstan +7</option>
+                                    <option value="254">Kenya +254</option>
+                                    <option value="686">Kiribati +686</option>
+                                    <option value="965">Kuwait +965</option>
+                                    <option value="996">Kyrgyzstan +996</option>
+                                    <option value="856">Laos +856</option>
+                                    <option value="371">Latvia +371</option>
+                                    <option value="961">Lebanon +961</option>
+                                    <option value="266">Lesotho +266</option>
+                                    <option value="231">Liberia +231</option>
+                                    <option value="218">Libya +218</option>
+                                    <option value="423">Liechtenstein +423</option>
+                                    <option value="370">Lithuania +370</option>
+                                    <option value="352">Luxembourg +352</option>
+                                    <option value="853">Macao +853</option>
+                                    <option value="261">Madagascar +261</option>
+                                    <option value="265">Malawi +265</option>
+                                    <option value="60">Malaysia +60</option>
+                                    <option value="960">Maldives +960</option>
+                                    <option value="223">Mali +223</option>
+                                    <option value="692">Marshall Islands +692</option>
+                                    <option value="596">Martinique +596</option>
+                                    <option value="222">Mauritania +222</option>
+                                    <option value="230">Mauritius +230</option>
+                                    <option value="262">Mayotte +262</option>
+                                    <option value="52">Mexico +52</option>
+                                    <option value="691">Micronesia +691</option>
+                                    <option value="373">Moldova +373</option>
+                                    <option value="377">Monaco +377</option>
+                                    <option value="976">Mongolia +976</option>
+                                    <option value="382">Montenegro +382</option>
+                                    <option value="1-664">Montserrat +1</option>
+                                    <option value="212">Morocco +212</option>
+                                    <option value="258">Mozambique +258</option>
+                                    <option value="95">Myanmar +95</option>
+                                    <option value="264">Namibia +264</option>
+                                    <option value="674">Nauru +674</option>
+                                    <option value="977">Nepal +977</option>
+                                    <option value="31">Netherlands +31</option>
+                                    <option value="687">New Caledonia +687</option>
+                                    <option value="64">New Zealand +64</option>
+                                    <option value="505">Nicaragua +505</option>
+                                    <option value="227">Niger +227</option>
+                                    <option value="234">Nigeria +234</option>
+                                    <option value="683">Niue +683</option>
+                                    <option value="672">Norfolk Island +672</option>
+                                    <option value="850">North Korea +850</option>
+                                    <option value="1-670">Northern Mariana Islands +1</option>
+                                    <option value="47">Norway +47</option>
+                                    <option value="968">Oman +968</option>
+                                    <option value="92">Pakistan +92</option>
+                                    <option value="680">Palau +680</option>
+                                    <option value="970">Palestine +970</option>
+                                    <option value="507">Panama +507</option>
+                                    <option value="675">Papua New Guinea +675</option>
+                                    <option value="595">Paraguay +595</option>
+                                    <option value="51">Peru +51</option>
+                                    <option value="63">Philippines +63</option>
+                                    <option value="48">Poland +48</option>
+                                    <option value="351">Portugal +351</option>
+                                    <option value="1-787">Puerto Rico +1</option>
+                                    <option value="974">Qatar +974</option>
+                                    <option value="262">Reunion +262</option>
+                                    <option value="40">Romania +40</option>
+                                    <option value="7">Russia +7</option>
+                                    <option value="250">Rwanda +250</option>
+                                    <option value="1-869">Saint Kitts and Nevis +1</option>
+                                    <option value="1-758">Saint Lucia +1</option>
+                                    <option value="508">Saint Pierre and Miquelon +508</option>
+                                    <option value="1-784">Saint Vincent and the Grenadines +1</option>
+                                    <option value="685">Samoa +685</option>
+                                    <option value="378">San Marino +378</option>
+                                    <option value="239">Sao Tome and Principe +239</option>
+                                    <option value="966">Saudi Arabia +966</option>
+                                    <option value="221">Senegal +221</option>
+                                    <option value="381">Serbia +381</option>
+                                    <option value="248">Seychelles +248</option>
+                                    <option value="232">Sierra Leone +232</option>
+                                    <option value="65">Singapore +65</option>
+                                    <option value="421">Slovakia +421</option>
+                                    <option value="386">Slovenia +386</option>
+                                    <option value="677">Solomon Islands +677</option>
+                                    <option value="252">Somalia +252</option>
+                                    <option value="27">South Africa +27</option>
+                                    <option value="82">South Korea +82</option>
+                                    <option value="211">South Sudan +211</option>
+                                    <option value="34">Spain +34</option>
+                                    <option value="94">Sri Lanka +94</option>
+                                    <option value="249">Sudan +249</option>
+                                    <option value="597">Suriname +597</option>
+                                    <option value="268">Swaziland +268</option>
+                                    <option value="46">Sweden +46</option>
+                                    <option value="41">Switzerland +41</option>
+                                    <option value="963">Syria +963</option>
+                                    <option value="886">Taiwan +886</option>
+                                    <option value="992">Tajikistan +992</option>
+                                    <option value="255">Tanzania +255</option>
+                                    <option value="66">Thailand +66</option>
+                                    <option value="670">Timor-Leste +670</option>
+                                    <option value="228">Togo +228</option>
+                                    <option value="690">Tokelau +690</option>
+                                    <option value="676">Tonga +676</option>
+                                    <option value="1-868">Trinidad and Tobago +1</option>
+                                    <option value="216">Tunisia +216</option>
+                                    <option value="90">Turkey +90</option>
+                                    <option value="993">Turkmenistan +993</option>
+                                    <option value="1-649">Turks and Caicos Islands +1</option>
+                                    <option value="688">Tuvalu +688</option>
+                                    <option value="971">UAE +971</option>
+                                    <option value="256">Uganda +256</option>
+                                    <option value="380">Ukraine +380</option>
+                                    <option value="44">United Kingdom +44</option>
+                                    <option value="1">Uruguay +598</option>
+                                    <option value="1">USA +1</option>
+                                    <option value="998">Uzbekistan +998</option>
+                                    <option value="678">Vanuatu +678</option>
+                                    <option value="58">Venezuela +58</option>
+                                    <option value="84">Vietnam +84</option>
+                                    <option value="1-284">Virgin Islands, British +1</option>
+                                    <option value="1-340">Virgin Islands, U.S. +1</option>
+                                    <option value="681">Wallis and Futuna +681</option>
+                                    <option value="967">Yemen +967</option>
+                                    <option value="260">Zambia +260</option>
+                                    <option value="263">Zimbabwe +263</option>
+                                </select>
+                                <i class="fas fa-globe"></i>
+                            </div>
+                        </div>
+                        <div class="form-input-icon">
+                            <input type="tel" id="signupPhone" class="form-input" placeholder="XXXX XXXX" maxlength="20"
+                                inputmode="tel" title="Enter phone number">
+                            <i class="fas fa-phone"></i>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="form-group">
+                    <label class="form-label" for="signupPassword">Password</label>
+                    <div class="form-input-icon">
+                        <input type="password" id="signupPassword" class="form-input"
+                            placeholder="Create a strong password" required>
+                        <i class="fas fa-lock"></i>
+                        <button type="button" class="password-toggle" onclick="togglePassword('signupPassword')">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                    <!-- Password Strength Bar -->
+                    <div class="password-strength-container">
+                        <div class="password-strength-bar">
+                            <div id="passwordStrengthFill" class="strength-fill"></div>
+                        </div>
+                        <small id="passwordStrengthText" class="password-strength-text">Password strength: Weak</small>
+                    </div>
+                    <!-- Password Requirements -->
+                    <div class="password-requirements">
+                        <p class="requirements-title">Password Requirements:</p>
+                        <ul class="requirements-list">
+                            <li id="req-length" class="requirement invalid">
+                                <i class="fas fa-times"></i> At least 8 characters
+                            </li>
+                            <li id="req-uppercase" class="requirement invalid">
+                                <i class="fas fa-times"></i> At least 1 uppercase letter (A-Z)
+                            </li>
+                            <li id="req-lowercase" class="requirement invalid">
+                                <i class="fas fa-times"></i> At least 1 lowercase letter (a-z)
+                            </li>
+                            <li id="req-number" class="requirement invalid">
+                                <i class="fas fa-times"></i> At least 1 number (0-9)
+                            </li>
+                            <li id="req-special" class="requirement invalid">
+                                <i class="fas fa-times"></i> At least 1 special character (!@#$%)
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="confirmPassword">Confirm Password</label>
+                    <div class="form-input-icon">
+                        <input type="password" id="confirmPassword" class="form-input"
+                            placeholder="Re-enter your password" required>
+                        <i class="fas fa-lock"></i>
+                        <button type="button" class="password-toggle" onclick="togglePassword('confirmPassword')">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+
+
+                <div class="form-checkbox signup-full-width" style="margin-bottom: 0.25rem;">
+                    <input type="checkbox" id="acceptTerms" required>
+                    <label for="acceptTerms" style="font-size: 0.8rem;">
+                        I accept the <a href="#" id="openTermsModal" style="color: var(--primary); text-decoration: none;">Terms of Use</a>
+                    </label>
+                </div>
+
+                <button type="submit" class="auth-submit signup-full-width" style="margin-top: 0.25rem;">
+                    <i class="fas fa-user-plus"></i>
+                    Create Account
+                </button>
+
+                <div class="auth-divider signup-full-width" style="margin: 0.25rem 0;">
+                    <span>or</span>
+                </div>
+
+                <div class="social-login signup-full-width">
+                    <button type="button" class="social-btn" onclick="socialLogin('google')">
+                        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" style="width: 18px;">
+                        Register with Google
+                    </button>
+                    <button type="button" class="social-btn" onclick="socialLogin('facebook')">
+                        <i class="fab fa-facebook-f" style="color: #1877F2; font-size: 1.1rem;"></i>
+                        Register with Facebook
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Terms of Use Modal -->
+<div class="terms-modal-overlay" id="termsModal">
+    <div class="terms-modal">
+        <div class="terms-modal-header">
+            <h2 class="terms-modal-title">Kullanım Şartları ve Gizlilik Politikası</h2>
+            <button class="terms-modal-close" id="closeTermsModal" aria-label="Kapat">&times;</button>
+        </div>
+        <div class="terms-modal-body">
+            <h3>1. Giriş ve Kabul</h3>
+            <p>Bu Kullanım Şartları ("Sözleşme"), VENDO platformuna ("Platform") erişiminizi ve kullanımınızı düzenler. Platforma kayıt olarak veya kullanarak, bu Sözleşme'deki tüm şartları kabul etmiş sayılırsınız. Avrupa Birliği Genel Veri Koruma Tüzüğü (GDPR) kapsamında haklarınız güvence altındadır.</p>
+
+            <h3>2. Hizmet Kapsamı ve Değişiklikler</h3>
+            <p>VENDO, alıcı ve satıcıları bir araya getiren bir pazaryeri platformudur. VENDO, önceden makul bir süre tanıarak hizmetlerinde, arayüzünde veya kullanım şartlarında değişiklik yapma hakkını saklı tutar. Önemli değişiklikler tarafınıza e-posta yoluyla bildirilecektir.</p>
+
+            <h3>3. Kullanıcı Kaydı ve Güvenlik</h3>
+            <ul>
+                <li>Platformu kullanmak için 18 yaşını doldurmuş olmalısınız.</li>
+                <li>Kayıt sırasında verdiğiniz bilgilerin doğru, güncel ve eksiksiz olması zorunludur.</li>
+                <li>Hesap güvenliğinizden tamamen siz sorumlusunuz. Şifrenizin üçüncü şahıslarla paylaşılması yasaktır.</li>
+            </ul>
+
+            <h3>4. Veri Koruma ve Gizlilik (GDPR Uyumlu)</h3>
+            <p>Kişisel verileriniz, GDPR ve ilgili veri koruma mevzuatına sıkı sıkıya bağlı olarak işlenmektedir:</p>
+            <ul>
+                <li><strong>Veri Minimazasyonu:</strong> Sadece hizmeti sunmak için gerekli veriler toplanır.</li>
+                <li><strong>Haklarınız:</strong> İstediğiniz zaman verilerinize erişme, onları düzeltme, aktarma, işlenmesini kısıtlama veya tamamen silme ("Unutulma Hakkı") hakkına sahipsiniz.</li>
+                <li><strong>Açık Rıza:</strong> Verileriniz, rızanız olmadan pazarlama amaçlarıyla üçüncü şahıslarla paylaşılmaz.</li>
+            </ul>
+
+            <h3>5. Kullanıcı Yükümlülükleri ve Yasaklı Aktiviteler</h3>
+            <p>Platformu kullanırken aşağıdaki eylemler kesinlikle yasaktır:</p>
+            <ul>
+                <li>Yasa dışı, sahte veya yanıltıcı ürün/hizmet satışı veya tanıtımı yapmak.</li>
+                <li>Diğer kullanıcıları taciz etmek, nefret söyleminde bulunmak veya spam mesaj göndermek.</li>
+                <li>Platformun teknik altyapısına zarar verecek girişimlerde bulunmak (örn. malware, veri madenciliği).</li>
+            </ul>
+
+            <h3>6. Fikri Mülkiyet Hakları</h3>
+            <p>Platformdaki tüm tasarım, metin, grafik ve yazılımlar VENDO'nun mülkiyetindedir. Kullanıcılar tarafından yüklenen içeriklerin (örn. ilan fotoğrafları) telif hakkı kullanıcıya aittir, ancak VENDO bu içerikleri platformu tanıtmak amacıyla kullanma lisansına sahiptir.</p>
+
+            <h3>7. Sorumluluğun Sınırlandırılması</h3>
+            <p>VENDO sadece bir aracı platformdur. Alıcı ve satıcı arasındaki işlemlerden, ürünlerin kalitesinden, teslimatından veya yasallığından VENDO sorumlu tutulamaz. Herhangi bir uyuşmazlık durumunda taraflar kendi aralarında çözmekle yükümlüdür.</p>
+
+            <h3>8. Geçerli Hukuk ve Uyuşmazlık Çözümü</h3>
+            <p>Bu sözleşmeden doğacak her türlü ihtilafta, platformun merkezinin bulunduğu ülkenin yasaları geçerli olacak ve Tüketici Hakem Heyetleri veya mahkemeleri yetkili kılınacaktır.</p>
+        </div>
+        <div class="terms-modal-footer">
+            <button class="terms-modal-btn" id="acceptTermsModalBtn">Okudum ve Anladım</button>
+        </div>
+    </div>
+</div>
+
+    <script>
+        // Uygulama içi toast helper
+        const ensureToastStyles = () => {
+            if (document.getElementById('inline-toast-styles')) return;
+            const style = document.createElement('style');
+            style.id = 'inline-toast-styles';
+            style.textContent = `
+                .inline-toast {
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    min-width: 240px;
+                    padding: 0.9rem 1.25rem;
+                    border-radius: 12px;
+                    color: #fff;
+                    font-weight: 700;
+                    letter-spacing: 0.01em;
+                    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+                    z-index: 9999;
+                    animation: toastIn 160ms ease-out;
+                }
+                .inline-toast.info { background: #111827; }
+                .inline-toast.success { background: #10b981; }
+                .inline-toast.error { background: #ef4444; }
+                @keyframes toastIn { from { transform: translateY(-6px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+            `;
+            document.head.appendChild(style);
+        };
+
+        window.showInlineToast = (msg, type = 'info') => {
+            ensureToastStyles();
+            const el = document.createElement('div');
+            el.className = `inline-toast ${type}`;
+            el.textContent = msg;
+            document.body.appendChild(el);
+            setTimeout(() => el.remove(), 3200);
+        };
+
+        // Tab switching functionality
+        document.addEventListener('DOMContentLoaded', function () {
+            const tabs = document.querySelectorAll('.auth-tab');
+            const forms = document.querySelectorAll('.auth-form');
+
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function () {
+                    const tabType = this.getAttribute('data-tab');
+                    const splitContainer = document.getElementById('splitContainer');
+
+                    // Update tabs
+                    tabs.forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+
+                    // Layout animation toggle
+                    if (tabType === 'signup') {
+                        splitContainer?.classList.add('signup-mode');
+                    } else {
+                        splitContainer?.classList.remove('signup-mode');
+                    }
+
+                    // Update forms
+                    forms.forEach(form => form.classList.remove('active'));
+                    const targetForm = document.getElementById(tabType === 'login' ? 'loginForm' : 'signupForm');
+                    if (targetForm) targetForm.classList.add('active');
+
+                    // Update title
+                    const title = document.querySelector('.auth-title');
+                    if (title) {
+                        title.textContent = tabType === 'login' ? 'Welcome Back' : 'Create Account';
+                    }
+                });
+            });
+
+            // Telefon numarası formatlaması
+            const phoneFormats = {
+                '356': { format: 'XXXX XXXX', length: 8 },
+                '39': { format: 'XXXX XXXXX', length: 9 },
+                '30': { format: 'XXXX XXXXXX', length: 10 },
+                '34': { format: 'XXX XXXXXX', length: 9 },
+                '33': { format: 'XXXXXXXXX', length: 9 },
+                '49': { format: 'XXXX XXXXXX', length: 10 },
+                '44': { format: 'XXXX XXXXXX', length: 10 },
+                '1': { format: 'XXX-XXX-XXXX', length: 10 },
+                '90': { format: 'XXX XXX XXXX', length: 10 },
+                '212': { format: 'XXX XXXXXX', length: 9 },
+                '216': { format: 'XX XXXXXX', length: 8 },
+                '43': { format: 'XXXX XXXXXX', length: 10 },
+                '32': { format: 'XXXXXXXXX', length: 9 },
+                '359': { format: 'XXX XXXXXX', length: 9 },
+                '385': { format: 'XXXXXXXXX', length: 9 },
+                '357': { format: 'XXXX XXXX', length: 8 },
+                '420': { format: 'XXX XXX XXX', length: 9 },
+                '45': { format: 'XXXX XXXX', length: 8 },
+                '372': { format: 'XXXX XXXX', length: 8 },
+                '358': { format: 'XXXXXXXXXX', length: 10 },
+                '36': { format: 'XXX XXX XXXX', length: 10 },
+                '353': { format: 'XXXX XXXXXX', length: 10 },
+                '371': { format: 'XXXX XXXX', length: 8 },
+                '370': { format: 'XXXX XXXXX', length: 9 },
+                '352': { format: 'XXXXXX', length: 6 },
+                '31': { format: 'XXXXXXXXX', length: 9 },
+                '48': { format: 'XXX XXX XXXX', length: 10 },
+                '40': { format: 'XXX XXX XXXX', length: 10 },
+                '421': { format: 'XXX XXX XXX', length: 9 },
+                '386': { format: 'XXXXXXXX', length: 8 },
+                '46': { format: 'XXXXXXXXX', length: 9 },
+                '41': { format: 'XXXX XXXXX', length: 9 },
+                '61': { format: 'XXXX XXXX XXXX', length: 12 },
+                '64': { format: 'XXXX XXXXXX', length: 10 },
+                '81': { format: 'XXXX XXXXX', length: 9 },
+                '86': { format: 'XXXX XXXX XXXX', length: 12 },
+                '82': { format: 'XXXX XXXX XXXX', length: 12 },
+                '886': { format: 'XXXX XXXXXX', length: 10 },
+                '852': { format: 'XXXX XXXX', length: 8 },
+                '65': { format: 'XXXX XXXX', length: 8 },
+                '60': { format: 'XXX XXXX XXXX', length: 10 },
+                '62': { format: 'XXX XXXXXXXX', length: 10 },
+                '63': { format: 'XXXX XXXXXX', length: 10 },
+                '66': { format: 'XXX XXX XXXX', length: 10 },
+                '84': { format: 'XXXX XXXXXX', length: 10 },
+                '880': { format: 'XXXX XXXXXX', length: 10 },
+                '91': { format: 'XXXXX XXXXX', length: 10 },
+                '92': { format: 'XXX XXXXXXX', length: 10 },
+                '966': { format: 'XXX XXXXX', length: 8 },
+                '971': { format: 'XXX XXXXXX', length: 9 },
+                '970': { format: 'XXXX XXXXXX', length: 10 },
+                '972': { format: 'XXX XXXXXXX', length: 10 },
+                '20': { format: 'XXXX XXXXXX', length: 10 },
+                '27': { format: 'XXX XXXXXX', length: 9 },
+                '234': { format: 'XXXX XXXXXX', length: 10 },
+                '254': { format: 'XXX XXXXXX', length: 9 },
+                '256': { format: 'XXXX XXXXXX', length: 10 },
+                '1-204': { format: 'XXX-XXX-XXXX', length: 10 },
+                '52': { format: 'XXXXX XXXXXX', length: 10 },
+                '55': { format: 'XXXX XXXXX XXXX', length: 11 },
+                '56': { format: 'XXXX XXXXX', length: 9 },
+                '57': { format: 'XXX XXXXXXX', length: 10 },
+                '58': { format: 'XXXX XXXXXX', length: 10 },
+                '51': { format: 'XXXX XXXXX', length: 9 },
+                '54': { format: 'XXX XXXX XXXX', length: 10 }
+            };
+
+            const countryCodeSelect = document.getElementById('signupCountryCode');
+            const phoneInput = document.getElementById('signupPhone');
+
+            // Başlangıç format hint'i
+            if (countryCodeSelect) {
+                const code = countryCodeSelect.value;
+                const format = phoneFormats[code];
+                if (format) {
+                    phoneInput.maxLength = format.format.length;
+                    phoneInput.placeholder = format.format;
+                }
+            }
+
+            // Ülke kodu değiştiğinde
+            if (countryCodeSelect) {
+                countryCodeSelect.addEventListener('change', function () {
+                    const code = this.value;
+                    const format = phoneFormats[code];
+                    if (format) {
+                        // maxlength = format'teki boşluk/tire dahil hepsi
+                        phoneInput.maxLength = format.format.length;
+                        phoneInput.value = '';
+                        phoneInput.placeholder = format.format;
+                        phoneInput.focus();
+                    }
+                });
+            }
+
+            // Telefon numarasını otomatik formatla
+            if (phoneInput) {
+                phoneInput.addEventListener('input', function () {
+                    const code = countryCodeSelect.value;
+                    const format = phoneFormats[code];
+                    if (!format) return;
+
+                    let value = this.value.replace(/\D/g, ''); // Sadece rakamları al
+
+                    // Maksimum rakam sayısı kontrolü (boşluk/tire hariç)
+                    if (value.length > format.length) {
+                        value = value.slice(0, format.length);
+                    }
+
+                    let formatted = '';
+                    let formatPattern = format.format;
+                    let valueIndex = 0;
+
+                    // Format pattern'in her karakterini kontrol et
+                    for (let i = 0; i < formatPattern.length; i++) {
+                        if (formatPattern[i] === 'X') {
+                            // X ise rakamdan ekle
+                            if (valueIndex < value.length) {
+                                formatted += value[valueIndex];
+                                valueIndex++;
+                            } else {
+                                break; // Daha fazla rakam yoksa dur
+                            }
+                        } else {
+                            // Boşluk, tire vb format karakteri
+                            // Daima format karakterini ekle (placeholderda görmek için)
+                            if (valueIndex > 0 && valueIndex < value.length) {
+                                formatted += formatPattern[i];
+                            }
+                        }
+                    }
+
+                    this.value = formatted;
+                });
+            }
+
+            // Initialize Custom Country Select (with area code display logic)
+            initVerdeSelect({
+                selectorId: 'customCountrySelector',
+                optionsListId: 'countryOptionsList',
+                nativeSelectId: 'signupCountryCode',
+                selectedTextId: 'selectedCountryText',
+                displayFormatter: (text) => {
+                    const parts = text.split('+');
+                    return parts[1] ? '+' + parts[1] : text;
+                }
+            });
+
+            // Initialize Custom City Select
+            initVerdeSelect({
+                selectorId: 'customCitySelector',
+                optionsListId: 'cityOptionsList',
+                nativeSelectId: 'signupCity',
+                selectedTextId: 'selectedCityText'
+            });
+
+
+        });
+
+        // Custom Generic Select Logic
+        function initVerdeSelect(config) {
+            const selector = document.getElementById(config.selectorId);
+            const optionsList = document.getElementById(config.optionsListId);
+            const nativeSelect = document.getElementById(config.nativeSelectId);
+            const selectedText = document.getElementById(config.selectedTextId);
+            const trigger = selector ? selector.querySelector('.verde-select-trigger') : null;
+            
+            if (!selector || !optionsList || !nativeSelect || !selectedText || !trigger) return;
+
+            // Clear and populate custom options from native select
+            optionsList.innerHTML = '';
+            Array.from(nativeSelect.options).forEach(opt => {
+                if (opt.disabled) {
+                    const sep = document.createElement('div');
+                    sep.style.height = '1px';
+                    sep.style.background = 'var(--gray-100)';
+                    sep.style.margin = '4px 0';
+                    optionsList.appendChild(sep);
+                    return;
+                }
+
+                const div = document.createElement('div');
+                div.className = 'verde-select-option';
+                const formattedText = config.displayFormatter ? config.displayFormatter(opt.textContent) : opt.textContent;
+                
+                if (opt.selected) {
+                    div.classList.add('selected');
+                    selectedText.textContent = formattedText;
+                }
+                div.textContent = opt.textContent;
+                div.dataset.value = opt.value;
+
+                div.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    nativeSelect.value = opt.value;
+                    selectedText.textContent = formattedText;
+                    
+                    optionsList.querySelectorAll('.verde-select-option').forEach(el => el.classList.remove('selected'));
+                    div.classList.add('selected');
+                    selector.classList.remove('active');
+
+                    // Trigger change event for linked logic (like phone formatting)
+                    nativeSelect.dispatchEvent(new Event('change'));
+                });
+
+                optionsList.appendChild(div);
+            });
+
+            // Toggle dropdown
+            trigger.addEventListener('click', (e) => {
+                e.stopPropagation();
+                
+                // Close other open components
+                document.querySelectorAll('.verde-select').forEach(el => {
+                    if (el !== selector) el.classList.remove('active');
+                });
+                const datePicker = document.getElementById('verdeDatePicker');
+                if (datePicker) datePicker.style.display = 'none';
+                
+                selector.classList.toggle('active');
+                
+                // Ensure active item is visible
+                if (selector.classList.contains('active')) {
+                    const selected = optionsList.querySelector('.verde-select-option.selected');
+                    if (selected) {
+                        setTimeout(() => selected.scrollIntoView({ block: 'nearest' }), 50);
+                    }
+                }
+            });
+
+            // Close when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!selector.contains(e.target)) {
+                    selector.classList.remove('active');
+                }
+            });
+        }
+
+        // Terms of Use Modal Logic
+        const termsModal = document.getElementById('termsModal');
+        const openTermsLink = document.getElementById('openTermsModal');
+        const closeTermsBtn = document.getElementById('closeTermsModal');
+        const acceptTermsBtn = document.getElementById('acceptTermsModalBtn');
+        const acceptTermsCheckbox = document.getElementById('acceptTerms');
+
+        if (openTermsLink && termsModal) {
+            openTermsLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                termsModal.classList.add('active');
+                // Prevent body scroll when modal is open
+                document.body.style.overflow = 'hidden';
+            });
+        }
+
+        function closeTerms() {
+            termsModal.classList.remove('active');
+            // Restore body scroll
+            document.body.style.overflow = '';
+        }
+
+        if (closeTermsBtn) closeTermsBtn.addEventListener('click', closeTerms);
+        if (acceptTermsBtn) {
+            acceptTermsBtn.addEventListener('click', () => {
+                closeTerms();
+                // Optionally auto-check the checkbox if they click "I understood"
+                if (acceptTermsCheckbox) {
+                    acceptTermsCheckbox.checked = true;
+                }
+            });
+        }
+
+        // Close on overlay click
+        if (termsModal) {
+            termsModal.addEventListener('click', (e) => {
+                if (e.target === termsModal) {
+                    closeTerms();
+                }
+            });
+        }
+
+        // Custom Date Picker Logic
+        let currentPickerDate = new Date();
+        let selectedDate = null;
+        let pickerMode = 'DAYS'; // 'DAYS', 'MONTHS', or 'YEARS'
+
+        function initVerdeDatePicker() {
+            renderCalendar();
+            
+            document.addEventListener('click', function(e) {
+                const picker = document.getElementById('verdeDatePicker');
+                const display = document.getElementById('signupBirthDateDisplay');
+                if (picker && !picker.contains(e.target) && e.target !== display) {
+                    picker.style.display = 'none';
+                    pickerMode = 'DAYS';
+                }
+            });
+        }
+
+        function toggleVerdeDatePicker() {
+            const picker = document.getElementById('verdeDatePicker');
+            if (!picker) return;
+            const isHidden = picker.style.display === 'none' || picker.style.display === '';
+            picker.style.display = isHidden ? 'block' : 'none';
+            if (isHidden) {
+                pickerMode = 'DAYS';
+                renderCalendar();
+            }
+        }
+
+        function renderCalendar() {
+            const grid = document.getElementById('datepickerGrid');
+            const title = document.getElementById('datepickerTitle');
+            if (!grid || !title) return;
+
+            grid.innerHTML = '';
+            const year = currentPickerDate.getFullYear();
+            const month = currentPickerDate.getMonth();
+
+            if (pickerMode === 'YEARS') {
+                grid.className = 'datepicker-year-grid';
+                title.textContent = "Select Year";
+                const maxYear = 2020;
+                const startYear = 1940;
+                for (let y = maxYear; y >= startYear; y--) {
+                    const el = document.createElement('div');
+                    el.className = 'datepicker-year';
+                    if (y === year) el.classList.add('active');
+                    el.textContent = y;
+                    el.onclick = (e) => {
+                        e.stopPropagation();
+                        currentPickerDate.setFullYear(y);
+                        pickerMode = 'MONTHS';
+                        renderCalendar();
+                    };
+                    grid.appendChild(el);
+                    if (y === year) setTimeout(() => el.scrollIntoView({ block: 'center' }), 10);
+                }
+                return;
+            }
+
+            if (pickerMode === 'MONTHS') {
+                grid.className = 'datepicker-month-grid';
+                title.textContent = "Select Month";
+                const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+                monthNames.forEach((name, index) => {
+                    const el = document.createElement('div');
+                    el.className = 'datepicker-month';
+                    if (index === month) el.classList.add('active');
+                    el.textContent = name;
+                    el.onclick = (e) => {
+                        e.stopPropagation();
+                        currentPickerDate.setMonth(index);
+                        pickerMode = 'DAYS';
+                        renderCalendar();
+                    };
+                    grid.appendChild(el);
+                });
+                return;
+            }
+
+            grid.className = 'datepicker-grid';
+            const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+            title.textContent = `${monthNames[month]} ${year}`;
+
+            const dayNames = ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"];
+            dayNames.forEach(name => {
+                const el = document.createElement('div');
+                el.className = 'datepicker-day-name';
+                el.textContent = name;
+                grid.appendChild(el);
+            });
+
+            const firstDay = new Date(year, month, 1).getDay();
+            const adjustedFirstDay = firstDay === 0 ? 6 : firstDay - 1;
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+            for (let i = 0; i < adjustedFirstDay; i++) {
+                const el = document.createElement('div');
+                el.className = 'datepicker-day empty';
+                grid.appendChild(el);
+            }
+
+            const today = new Date();
+            for (let d = 1; d <= daysInMonth; d++) {
+                const el = document.createElement('div');
+                el.className = 'datepicker-day';
+                if (today.getDate() === d && today.getMonth() === month && today.getFullYear() === year) {
+                    el.classList.add('today');
+                }
+                if (selectedDate && selectedDate.getDate() === d && selectedDate.getMonth() === month && selectedDate.getFullYear() === year) {
+                    el.classList.add('active');
+                }
+                el.textContent = d;
+                el.onclick = (e) => {
+                    e.stopPropagation();
+                    selectDate(year, month, d);
+                };
+                grid.appendChild(el);
+            }
+        }
+
+        function showYearList() {
+            if (pickerMode === 'DAYS') {
+                pickerMode = 'YEARS';
+            } else if (pickerMode === 'YEARS') {
+                pickerMode = 'MONTHS';
+            } else {
+                pickerMode = 'DAYS';
+            }
+            renderCalendar();
+        }
+
+        function changeMonth(delta) {
+            if (pickerMode === 'YEARS') {
+                currentPickerDate.setFullYear(currentPickerDate.getFullYear() + (delta * 12));
+            } else if (pickerMode === 'MONTHS') {
+                currentPickerDate.setFullYear(currentPickerDate.getFullYear() + delta);
+            } else {
+                currentPickerDate.setMonth(currentPickerDate.getMonth() + delta);
+            }
+            renderCalendar();
+        }
+
+        function selectDate(y, m, d) {
+            selectedDate = new Date(y, m, d);
+            const display = document.getElementById('signupBirthDateDisplay');
+            const hidden = document.getElementById('signupBirthDate');
+            
+            const formattedDisplay = `${String(d).padStart(2, '0')}.${String(m + 1).padStart(2, '0')}.${y}`;
+            const formattedValue = `${y}-${String(m + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+            
+            if (display) display.value = formattedDisplay;
+            if (hidden) hidden.value = formattedValue;
+            
+            const picker = document.getElementById('verdeDatePicker');
+            if (picker) picker.style.display = 'none';
+            renderCalendar();
+        }
+
+        function togglePassword(inputId) {
+            const input = document.getElementById(inputId);
+            const toggle = input.parentElement.querySelector('.password-toggle i');
+            if (input.type === 'password') {
+                input.type = 'text';
+                toggle.className = 'fas fa-eye-slash';
+            } else {
+                input.type = 'password';
+                toggle.className = 'fas fa-eye';
+            }
+        }
+
+        async function socialLogin(provider) {
+            try {
+                const { data, error } = await supabase.auth.signInWithOAuth({
+                    provider: provider,
+                    options: {
+                        redirectTo: window.location.origin + '/index.html',
+                        queryParams: {
+                            prompt: 'select_account' // Hesap seçmeyi zorla
+                        }
+                    }
+                });
+
+                if (error) throw error;
+
+                // OAuth window opens, user authorizes
+                // Redirected to redirectTo after authorization
+            } catch (error) {
+                console.error(`${provider} login error:`, error);
+                showInlineToast(`❌ ${provider.charAt(0).toUpperCase() + provider.slice(1)} login failed: ${error.message}`, 'error');
+            }
+        }
+    </script>
+
+    <!-- JS DOSYALARINI YÜKLE -->
+    <script type="module" src="js/supabase.js"></script>
+    <script type="module" src="js/auth.js"></script>
+    <script src="js/ui.js"></script>
+
+    <script type="module">
+        // DİKKAT: Artık createClient yapmıyoruz, hazır olanı çağırıyoruz
+        import { supabase } from './js/supabase.js';
+
+        // Giriş Formu
+        document.getElementById('loginForm')?.addEventListener('submit', async (e) => {
+            e.preventDefault()
+            await window.login()
+        })
+
+        // Kayıt Formu
+        document.getElementById('signupForm')?.addEventListener('submit', async (e) => {
+            e.preventDefault()
+            await window.register()
+        })
+
+        // Password Validation
+        const signupPasswordInput = document.getElementById('signupPassword');
+        const passwordStrengthFill = document.getElementById('passwordStrengthFill');
+        const passwordStrengthText = document.getElementById('passwordStrengthText');
+        const requirements = {
+            length: document.getElementById('req-length'),
+            uppercase: document.getElementById('req-uppercase'),
+            lowercase: document.getElementById('req-lowercase'),
+            number: document.getElementById('req-number'),
+            special: document.getElementById('req-special')
+        };
+
+        function validatePassword(password) {
+            const validations = {
+                length: password.length >= 8,
+                uppercase: /[A-Z]/.test(password),
+                lowercase: /[a-z]/.test(password),
+                number: /[0-9]/.test(password),
+                special: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)
+            };
+
+            return validations;
+        }
+
+        function updatePasswordUI(password) {
+            const validations = validatePassword(password);
+
+            // Gereksinimleri güncelle
+            Object.keys(validations).forEach(key => {
+                const requirement = requirements[key];
+                if (validations[key]) {
+                    requirement.classList.remove('invalid');
+                    requirement.classList.add('valid');
+                    requirement.querySelector('i').className = 'fas fa-check';
+                } else {
+                    requirement.classList.remove('valid');
+                    requirement.classList.add('invalid');
+                    requirement.querySelector('i').className = 'fas fa-times';
+                }
+            });
+
+            // Şifre gücünü hesapla
+            let strength = 0;
+            if (validations.length) strength++;
+            if (validations.uppercase) strength++;
+            if (validations.lowercase) strength++;
+            if (validations.number) strength++;
+            if (validations.special) strength++;
+
+            let strengthLevel = 'Weak';
+            let strengthClass = 'weak';
+
+            if (strength >= 5) {
+                strengthLevel = 'Strong';
+                strengthClass = 'good';
+            } else if (strength >= 3) {
+                strengthLevel = 'Medium';
+                strengthClass = 'fair';
+            }
+
+            // Update strength bar
+            passwordStrengthFill.className = 'strength-fill ' + strengthClass;
+            passwordStrengthText.className = 'password-strength-text ' + strengthClass;
+            passwordStrengthText.textContent = `Password strength: ${strengthLevel}`;
+        }
+
+        if (signupPasswordInput) {
+            signupPasswordInput.addEventListener('input', function () {
+                updatePasswordUI(this.value);
+            });
+
+            signupPasswordInput.addEventListener('focus', function () {
+                const requirements = this.closest('.form-group').querySelector('.password-requirements');
+                if (requirements) requirements.style.display = 'block';
+            });
+
+            signupPasswordInput.addEventListener('blur', function () {
+                const requirements = this.closest('.form-group').querySelector('.password-requirements');
+                if (requirements) requirements.style.display = 'none';
+            });
+
+            // İlk yüklemede boş şifre göster
+            updatePasswordUI('');
+        }
+
+        // ✅ GÜVENLIK: Import security modules
+        import('./js/csrf-protection.js').then(module => {
+            // CSRF Protection'ı initialize et
+            module.injectCSRFMetaTag();
+            module.protectAllForms();
+        });
+
+        import('./js/security-logging.js').then(module => {
+            // Security logging module'ü load et
+            console.log('✅ Security logging module loaded');
+        });
+
+        import('./js/two-factor-auth.js').then(module => {
+            // 2FA module'ü load et
+            console.log('✅ Two-factor auth module loaded');
+        });
+
+        // ✅ Password Reset modülü
+        import('./js/password-reset.js').then(module => {
+            console.log('✅ Password reset module loaded', module);
+            const forgotPasswordLink = document.getElementById('forgotPasswordLink');
+            console.log('Forgot password link:', forgotPasswordLink);
+            if (forgotPasswordLink) {
+                forgotPasswordLink.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    console.log('Forgot password clicked!');
+                    module.showPasswordResetModal();
+                });
+                console.log('✅ Event listener attached');
+            } else {
+                console.error('❌ forgotPasswordLink not found!');
+            }
+        }).catch(error => {
+            console.error('❌ Error loading password-reset module:', error);
+        });
+    </script>
+</body>
+
+</html>

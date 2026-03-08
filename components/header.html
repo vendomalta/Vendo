@@ -1,0 +1,119 @@
+<header class="site-header" role="banner">
+    <div class="header-main">
+        <a href="/index.html" class="site-logo" aria-label="VENDO Homepage">
+            <div class="logo-icon">V</div>
+            <h1 class="logo-text">VENDO</h1>
+        </a>
+
+        <div class="search-bar-container">
+            <div class="search-wrapper">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" placeholder="Search for products, brands and more..." aria-label="Search"
+                    class="search-input">
+            </div>
+        </div>
+
+        <div class="header-right">
+            <div class="header-actions" role="navigation" aria-label="Quick Actions">
+                <a href="/ilan-ver.html" class="btn-post-ad" aria-label="Post an ad">
+                    <i class="fas fa-plus"></i>
+                    <span>Post Ad</span>
+                </a>
+
+                <div class="header-divider"></div>
+
+                <a href="/mesajlar.html" class="header-icon" aria-label="Messages">
+                    <i class="far fa-comment-dots"></i>
+                    <span class="notification-badge" style="display: none;"></span>
+                </a>
+
+                <button class="header-icon" id="notificationBtn" type="button" aria-haspopup="true"
+                    aria-expanded="false" aria-controls="notificationDropdown" aria-label="Notifications">
+                    <i class="far fa-bell"></i>
+                    <span class="notification-badge" style="display: none;"></span>
+                </button>
+
+                <div class="notification-dropdown" id="notificationDropdown">
+                    <div class="notification-header">
+                        <h3>Bildirimler</h3>
+                        <button class="clear-notifications" style="background:none; border:none; color:var(--primary); cursor:pointer; font-size:0.85rem;">Temizle</button>
+                    </div>
+                    <div class="notification-list"></div>
+                    <div class="notification-footer">
+                        <a href="#all-notifications">Tümünü Gör</a>
+                    </div>
+                </div>
+
+            <a href="/favorilerim.html" class="header-icon" aria-label="Favorites">
+                    <i class="far fa-heart"></i>
+                </a>
+            </div>
+
+            <div class="auth-buttons" style="display: none;">
+                <button class="auth-btn" onclick="window.location.href='/login.html'">
+                    <i class="fas fa-sign-in-alt"></i>
+                    <span class="btn-label">Sign In / Register</span>
+                </button>
+                <button class="admin-btn" id="adminLoginBtn" style="display: none;"
+                    onclick="window.location.href='/admin/login.html'">
+                    <i class="fas fa-shield-halved"></i>
+                    <span class="btn-label">Admin</span>
+                </button>
+            </div>
+
+            <div class="user-menu" style="display: none;">
+                <button class="user-button" type="button" aria-haspopup="true" aria-expanded="false"
+                    aria-controls="userDropdown">
+                    <img src="https://placehold.co/32x32" alt="Profile" class="avatar">
+                    <span class="btn-label">Account</span>
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+                <div class="user-dropdown" id="userDropdown" role="menu" aria-label="User menu">
+                    <div class="user-info">
+                        <img src="https://placehold.co/40x40" alt="Profile" class="user-avatar">
+                        <div class="user-details">
+                            <span class="user-name">User Name</span>
+                            <span class="user-email">user@example.com</span>
+                        </div>
+                    </div>
+                    <hr class="dropdown-divider">
+                    <a href="/profil.html" class="dropdown-item" role="menuitem"><i class="fas fa-user"></i><span>My
+                            Profile</span></a>
+                    <a href="/ilanlarim.html" class="dropdown-item" role="menuitem"><i class="fas fa-list"></i><span>My
+                            Ads</span></a>
+                    <a href="/favorilerim.html" class="dropdown-item" role="menuitem"><i
+                            class="fas fa-heart"></i><span>My Favorites</span></a>
+                    <a href="/mesajlar.html" class="dropdown-item" role="menuitem"><i
+                            class="fas fa-envelope"></i><span>Messages</span></a>
+                    <a href="/ayarlar.html" class="dropdown-item" role="menuitem"><i
+                            class="fas fa-cog"></i><span>Settings</span></a>
+                    <hr class="dropdown-divider">
+                    <a href="#" class="dropdown-item logout" role="menuitem"><i
+                            class="fas fa-sign-out-alt"></i><span>Sign Out</span></a>
+                </div>
+            </div>
+        </div>
+
+        <button class="mobile-search-toggle" type="button" aria-label="Search" aria-expanded="false">
+            <i class="fas fa-search"></i>
+        </button>
+
+        <button class="mobile-notification-toggle" type="button" aria-label="Notifications">
+            <i class="far fa-bell"></i>
+            <span class="notification-badge" style="display: none;"></span>
+        </button>
+
+        <div class="notification-dropdown mobile-dropdown" id="mobileNotificationDropdown">
+            <div class="notification-header">
+                <h3>Bildirimler</h3>
+                <button class="clear-notifications" style="background:none; border:none; color:var(--primary); cursor:pointer; font-size:0.85rem;">Temizle</button>
+            </div>
+            <div class="notification-list"></div>
+            <div class="notification-footer">
+                <a href="#all-notifications">Tümünü Gör</a>
+            </div>
+        </div>
+
+
+    </div>
+</header>

@@ -1,0 +1,363 @@
+-- ============================================================
+-- İLAN DETAY SAYFASI BANNER AYARLAMA
+-- ============================================================
+-- Bu SQL ile ilan detay sayfasına banner ekleyebilirsiniz.
+-- Banner admin panelinden de yönetilebilir.
+-- 
+-- KULLANIM:
+-- 1. Bu SQL dosyasını Supabase SQL Editor'de çalıştırın
+-- 2. Admin paneline giriş yapın: /admin/login.html
+-- 3. "Reklam Yönetimi" menüsüne tıklayın
+-- 4. Banner yükleyin ve ayarları yapın
+-- ============================================================
+
+-- ============================================================
+-- ADIM 1: SUPABASE STORAGE BUCKET OLUŞTUR
+-- ============================================================
+-- NOT: Bu kısım Supabase UI'dan yapılmalı çünkü SQL ile bucket oluşturma
+-- kısıtlıdır. Ancak policy'ler SQL ile ayarlanabilir.
+-- 
+-- Supabase Dashboard'da:
+-- 1. Storage -> Create a new bucket
+-- 2. Name: "banners"
+-- 3. Public bucket: YES (✓)
+-- 4. Create bucket
+-- 
+-- Alternatif olarak aşağıdaki JavaScript kodu Admin panelinde çalıştırılabilir:
+-- 
+-- import { supabase } from './supabase.js';
+-- await supabase.storage.createBucket('banners', { public: true });
+-- 
+
+-- ============================================================
+-- ADIM 2: STORAGE POLICIES (Bucket oluşturulduktan sonra)
+-- ============================================================
+
+-- Herkes banner'ları okuyabilir (public bucket)
+-- Bu policy otomatik oluşur ancak manuel de eklenebilir
+
+-- Sadece adminler banner yükleyebilir
+-- NOT: Bu policy'leri Storage ayarlarında manuel eklemelisiniz:
+-- 
+-- Policy Name: Admins can upload banners
+-- Operation: INSERT
+-- SQL: 
+--   EXISTS (
+--     SELECT 1 FROM public.profiles
+--     WHERE id = auth.uid() AND is_admin = TRUE
+--   )
+-- 
+
+-- Sadece adminler banner silebilir
+-- Policy Name: Admins can delete banners  
+-- Operation: DELETE
+-- SQL:
+--   EXISTS (
+--     SELECT 1 FROM public.profiles
+--     WHERE id = auth.uid() AND is_admin = TRUE
+--   )
+
+-- ============================================================
+-- ADIM 3: site_settings TABLOSU VE BANNER KAYDI
+-- ============================================================
+
+-- 1. site_settings tablosu varsa banner ekle
+INSERT INTO public.site_settings (setting_key, setting_value, is_active, created_at, updated_at)
+VALUES (
+    'detail_page_banner',
+    '{
+        "image_url": "https://placehold.co/1200x135/10b981/ffffff?text=BANNER+ALANI",
+        "link_url": "https://verde.com/kampanya",
+        "alt_text": "Özel Kampanya"
+    }'::jsonb,
+    true,
+    NOW(),
+    NOW()
+)
+ON CONFLICT (setting_key) 
+DO UPDATE SET 
+    setting_value = EXCLUDED.setting_value,
+    is_active = EXCLUDED.is_active,
+    updated_at = NOW();
+
+-- 2. Eğer site_settings tablosu yoksa oluştur
+CREATE TABLE IF NOT EXISTS public.site_settings (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    setting_key TEXT NOT NULL UNIQUE,
+    setting_value JSONB NOT NULL DEFAULT '{}'::jsonb,
+    is_active BOOLEAN DEFAULT true,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- Index ekle
+CREATE INDEX IF NOT EXISTS site_settings_key_idx ON public.site_settings(setting_key);
+CREATE INDEX IF NOT EXISTS site_settings_active_idx ON public.site_settings(is_active) WHERE is_active = TRUE;
+
+-- Trigger
+DROP TRIGGER IF EXISTS site_settings_updated_at ON public.site_settings;
+CREATE TRIGGER site_settings_updated_at
+    BEFORE UPDATE ON public.site_settings
+    FOR EACH ROW
+    EXECUTE FUNCTION public.handle_updated_at();
+
+COMMENT ON TABLE public.site_settings IS 'Site genelinde kullanılan ayarlar (banner, yapılandırma vb.)';
+COMMENT ON COLUMN public.site_settings.setting_key IS 'Ayar anahtarı (detail_page_banner, homepage_banner vb.)';
+COMMENT ON COLUMN public.site_settings.setting_value IS 'JSONB formatında ayar değeri';
+
+-- RLS Policy
+ALTER TABLE public.site_settings ENABLE ROW LEVEL SECURITY;
+
+-- Mevcut policy'leri sil (eğer varsa)
+DROP POLICY IF EXISTS "Anyone can view active settings" ON public.site_settings;
+DROP POLICY IF EXISTS "Only admins can manage settings" ON public.site_settings;
+
+-- Herkes aktif ayarları okuyabilir
+CREATE POLICY "Anyone can view active settings"
+ON public.site_settings FOR SELECT
+USING (is_active = true);
+
+-- Sadece adminler düzenleyebilir
+CREATE POLICY "Only admins can manage settings"
+ON public.site_settings FOR ALL
+TO authenticated
+USING (
+    EXISTS (
+        SELECT 1 FROM public.profiles
+        WHERE id = auth.uid() AND is_admin = TRUE
+    )
+);
+
+-- ============================================================
+-- BANNER ÖRNEKLERI
+-- ============================================================
+
+-- Örnek 1: Basit Banner (sadece resim)
+/*
+UPDATE public.site_settings
+SET setting_value = '{
+    "image_url": "https://via.placeholder.com/1200x135/10b981/ffffff?text=Reklam+Alanı",
+    "alt_text": "Banner"
+}'::jsonb
+WHERE setting_key = 'detail_page_banner';
+*/
+
+-- Örnek 2: Tıklanabilir Banner
+/*
+UPDATE public.site_settings
+SET setting_value = '{
+    "image_url": "https://via.placeholder.com/1200x135/10b981/ffffff?text=Özel+Kampanya",
+    "link_url": "https://verde.com/kampanya",
+    "alt_text": "Özel Kampanya - İndirimli İlanlar"
+}'::jsonb
+WHERE setting_key = 'detail_page_banner';
+*/
+
+-- Örnek 3: Kendi görselinizi yüklemek için
+-- 1. Görseli Supabase Storage'a yükleyin
+-- 2. Public URL'i alın
+-- 3. Aşağıdaki komutu çalıştırın:
+/*
+UPDATE public.site_settings
+SET setting_value = '{
+    "image_url": "https://your-supabase-project.supabase.co/storage/v1/object/public/banners/detail-banner.jpg",
+    "link_url": "https://kampanya.com",
+    "alt_text": "Kampanya Banner"
+}'::jsonb
+WHERE setting_key = 'detail_page_banner';
+*/
+
+-- Banner'ı aktif/pasif yapma
+-- Pasif et:
+/*
+UPDATE public.site_settings
+SET is_active = false
+WHERE setting_key = 'detail_page_banner';
+*/
+
+-- Aktif et:
+/*
+UPDATE public.site_settings
+SET is_active = true
+WHERE setting_key = 'detail_page_banner';
+*/
+
+-- Banner'ı tamamen sil
+/*
+DELETE FROM public.site_settings
+WHERE setting_key = 'detail_page_banner';
+*/
+
+-- Tüm bannerları listele
+/*
+SELECT 
+    setting_key,
+    setting_value->>'image_url' as image,
+    setting_value->>'link_url' as link,
+    is_active,
+    created_at
+FROM public.site_settings
+WHERE setting_key LIKE '%banner%'
+ORDER BY created_at DESC;
+*/
+
+-- ============================================================
+-- KULLANIM NOTLARI VE ADIMLAR
+-- ============================================================
+/*
+🚀 HIZLI BAŞLANGIÇ REHBERİ
+
+ADIM 1: SQL DOSYASINI ÇALIŞTIR
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+1. Supabase Dashboard'a git: https://supabase.com/dashboard
+2. Projenizi seçin
+3. Sol menüden "SQL Editor" açın
+4. Bu dosyanın içeriğini kopyala/yapıştır
+5. "Run" butonuna tıkla
+
+ADIM 2: STORAGE BUCKET OLUŞTUR
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+1. Supabase Dashboard -> Storage
+2. "Create a new bucket" butonuna tıkla
+3. Bucket Name: "banners"
+4. Public bucket: ✓ AÇIK
+5. "Create bucket" butonuna tıkla
+
+ADIM 3: ADMIN PANELİNDEN BANNER YÜKLE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+1. Tarayıcınızda: http://localhost:5500/admin/login.html
+2. Admin hesabınızla giriş yapın
+3. Sol menüden "Reklam Yönetimi" tıklayın
+4. Banner resmi seçin (1200x135 piksel önerilen)
+5. Link URL'i ekleyin (opsiyonel)
+6. Alt metin ekleyin
+7. "Banner Aktif" seçeneğini işaretleyin
+8. "Kaydet" butonuna tıklayın
+
+ADIM 4: TEST ET
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+1. Herhangi bir ilan detay sayfasını açın
+2. Sayfa üstünde banner'ı görmelisiniz
+3. Banner'ı kapatma (X) butonunu test edin
+4. Sayfa yenilendiğinde banner tekrar görünmeli
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📋 BANNER YÖNETİMİ
+
+Admin Panelinden Yapabilecekleriniz:
+✅ Banner resmi yükle/değiştir
+✅ Tıklama linki ekle
+✅ Banner'ı aktif/pasif yap
+✅ Banner'ı sil
+✅ Önizleme yap
+
+BANNER BOYUTLARI:
+- Önerilen: 1200x135 piksel
+- Maksimum yükseklik: 150 piksel
+- Dosya formatı: JPG, PNG, WebP
+- Maksimum boyut: 500 KB
+
+SQL İLE MANUEL YÖNETİM:
+*/
+
+-- Banner'ı aktif/pasif yap
+-- Pasif et:
+/*
+UPDATE public.site_settings
+SET is_active = false
+WHERE setting_key = 'detail_page_banner';
+*/
+
+-- Aktif et:
+/*
+UPDATE public.site_settings
+SET is_active = true
+WHERE setting_key = 'detail_page_banner';
+*/
+
+-- Banner bilgilerini görüntüle:
+/*
+SELECT 
+    setting_key,
+    setting_value->>'image_url' as image_url,
+    setting_value->>'link_url' as link_url,
+    setting_value->>'alt_text' as alt_text,
+    is_active,
+    created_at,
+    updated_at
+FROM public.site_settings
+WHERE setting_key = 'detail_page_banner';
+*/
+
+-- Banner'ı tamamen sil:
+/*
+DELETE FROM public.site_settings
+WHERE setting_key = 'detail_page_banner';
+*/
+
+-- Tüm bannerları listele (gelecekte birden fazla olabilir):
+/*
+SELECT 
+    setting_key,
+    setting_value->>'image_url' as image,
+    setting_value->>'link_url' as link,
+    is_active,
+    created_at
+FROM public.site_settings
+WHERE setting_key LIKE '%banner%'
+ORDER BY created_at DESC;
+*/
+
+/*
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🔒 GÜVENLİK NOTLARI
+
+✓ Sadece adminler banner yönetebilir (RLS policy ile korunur)
+✓ Storage bucket public'tir (banner'lar herkese görünür olmalı)
+✓ Banner yükleme/silme sadece admin izniyle
+✓ XSS koruması JavaScript'te yapılır
+✓ Dosya tipi kontrolü (sadece resim dosyaları)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+⚠️ SORUN GİDERME
+
+BANNER GÖRÜNMÜYOR:
+1. SQL dosyası çalıştırıldı mı?
+2. Storage bucket oluşturuldu mu?
+3. Banner admin panelinden yüklendi mi?
+4. "Banner Aktif" seçeneği işaretli mi?
+5. Tarayıcı console'unda hata var mı? (F12)
+
+YÜKLEME HATASI:
+1. Storage bucket'ın adı "banners" mi?
+2. Bucket public olarak ayarlandı mı?
+3. Admin yetkilerine sahip misiniz?
+4. Dosya boyutu çok büyük olabilir (max 500 KB)
+
+BANNER BOZUK GÖRÜNÜYOR:
+1. Görsel boyutları kontrol edin (1200x135 önerilen)
+2. Dosya formatı uygun mu? (JPG, PNG, WebP)
+3. CSS dosyalarının yüklendiğinden emin olun
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📚 EK BİLGİLER
+
+DOSYA YAPILARi:
+- /admin/html/banner-settings.html -> Banner yönetim sayfası
+- /admin/js/admin-panel.js -> Yönlendirme kodu
+- /js/listing-detail-loader.js -> Banner yükleme kodu
+- /css/pages/ad-detail-new.css -> Banner stilleri
+
+YENİ BANNER ALANLARI EKLEMEK:
+Ana sayfaya veya başka sayfalara banner eklemek için:
+1. HTML'de banner container ekleyin
+2. JavaScript'te yükleme fonksiyonu yazın
+3. site_settings'e yeni setting_key ekleyin
+   Örnek: 'homepage_banner', 'sidebar_banner' vb.
+
+İyi çalışmalar! 🚀
+*/

@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>İlan Oluştur | VERDE</title>
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/reset.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/ilan-ver-form.css">
+    <link rel="stylesheet" href="css/listings.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+
+<body>
+    <div id="header-placeholder"></div>
+
+    <!-- Main Content -->
+    <main class="form-main full-bleed">
+        <!-- Form Container -->
+        <div class="form-container">
+            <div class="progress-container">
+                <div class="progress-bar" role="progressbar" aria-label="Form ilerleme durumu">
+                    <div id="progressFill" class="progress-fill"></div>
+                </div>
+            </div>
+            <div class="form-content">
+                <!-- Category Info Banner -->
+                <div class="category-banner">
+                    <div class="banner-content">
+                        <i class="fas fa-tag" id="categoryIcon"></i>
+                        <div>
+                            <h3 id="categoryTitle">Kategori Seçin</h3>
+                            <p id="categorySubtitle">kategori > alt kategori > detay</p>
+                        </div>
+                    </div>
+                    <button class="change-category-btn" onclick="changeCategory()">
+                        <i class="fas fa-edit"></i>
+                        Değiştir
+                    </button>
+                </div>
+
+                <!-- Single Form - Wizard steps -->
+                <form id="listingForm" onsubmit="handleFormSubmit(event)">
+
+                    <!-- STEP 1: Temel Bilgiler + Fotoğraf -->
+                    <div class="form-step" data-step="1">
+                        <div class="two-column-wrapper">
+                            <!-- LEFT COLUMN: Temel Bilgiler -->
+                            <div class="form-section left-column">
+                                <h2 class="section-title">
+                                    <i class="fas fa-info-circle"></i>
+                                    Temel Bilgiler
+                                </h2>
+
+                                <!-- Title -->
+                                <div class="form-group">
+                                    <label for="title" class="form-label">
+                                        <span>İlan Başlığı</span>
+                                        <span class="required">*</span>
+                                    </label>
+                                    <input type="text" id="title" name="title" class="form-input"
+                                        placeholder="privert badroom" maxlength="100" required>
+                                    <span class="input-help">100 karaktere kadar yazabilirsiniz</span>
+                                </div>
+
+                                <!-- Description (Rich Text Editor) -->
+                                <div class="form-group">
+                                    <label for="descriptionEditor" class="form-label">
+                                        <span>Açıklama</span>
+                                        <span class="required">*</span>
+                                    </label>
+
+                                    <div class="rich-text-toolbar" id="rteToolbar" aria-hidden="false" role="toolbar">
+                                        <button type="button" data-cmd="bold" title="Kalın (Ctrl+B)"><i
+                                                class="fas fa-bold"></i></button>
+                                        <button type="button" data-cmd="italic" title="İtalik (Ctrl+I)"><i
+                                                class="fas fa-italic"></i></button>
+                                        <button type="button" data-cmd="underline" title="Altı çizili"><i
+                                                class="fas fa-underline"></i></button>
+                                        <button type="button" data-cmd="insertUnorderedList" title="Madde İşareti"><i
+                                                class="fas fa-list-ul"></i></button>
+                                        <button type="button" data-cmd="insertOrderedList" title="Numaralandırma"><i
+                                                class="fas fa-list-ol"></i></button>
+                                        <button type="button" data-cmd="justifyLeft" title="Sola Hizala"><i
+                                                class="fas fa-align-left"></i></button>
+                                        <button type="button" data-cmd="justifyCenter" title="Ortala"><i
+                                                class="fas fa-align-center"></i></button>
+                                        <button type="button" data-cmd="justifyRight" title="Sağa Hizala"><i
+                                                class="fas fa-align-right"></i></button>
+                                        <button type="button" data-cmd="createLink" title="Link ekle"><i
+                                                class="fas fa-link"></i></button>
+                                        <button type="button" data-cmd="removeFormat" title="Biçimi temizle"><i
+                                                class="fas fa-eraser"></i></button>
+                                    </div>
+
+                                    <div id="descriptionEditor" class="form-textarea rich-text-editor" contenteditable="true"
+                                        aria-multiline="true" role="textbox"
+                                        placeholder="İlanınızın detaylarını yazın..."></div>
+
+                                    <!-- Hidden field that will be submitted containing HTML content -->
+                                    <textarea id="description" name="description" class="visually-hidden"
+                                        aria-hidden="true" style="display:none"></textarea>
+
+                                    <span class="input-help"><span id="charCount">0</span>/2000</span>
+                                </div>
+                                <!-- Price & Location (moved from STEP 3) -->
+                                <div class="form-row">
+                                    <!-- Price -->
+                                    <div class="form-group">
+                                        <label for="price" class="form-label">
+                                            <span>Fiyat</span>
+                                            <span class="required">*</span>
+                                        </label>
+                                        <div class="price-input-wrapper">
+                                            <input type="number" id="price" name="price" class="form-input"
+                                                placeholder="0.00" min="1" step="0.01" required>
+                                            <span class="price-currency">€</span>
+                                        </div>
+                                    </div>
+
+                                    <!-- City -->
+                                    <div class="form-group">
+                                        <label for="city" class="form-label">
+                                            <span>Şehir</span>
+                                            <span class="required">*</span>
+                                        </label>
+                                        <select id="city" name="city" class="form-input" required>
+                                            <option value="">Şehir seçin...</option>
+                                            <option value="valletta">Valletta</option>
+                                            <option value="birkirkara">Birkirkara</option>
+                                            <option value="mosta">Mosta</option>
+                                            <option value="qormi">Qormi</option>
+                                            <option value="zabbar">Żabbar</option>
+                                            <option value="sliema">Sliema</option>
+                                            <option value="naxxar">Naxxar</option>
+                                            <option value="rabat">Rabat</option>
+                                            <option value="stpauls-bay">St. Paul's Bay</option>
+                                            <option value="marsaskala">Marsaskala</option>
+                                            <option value="mellieha">Mellieħa</option>
+                                            <option value="birzebbuga">Birżebbuġa</option>
+                                            <option value="attard">Attard</option>
+                                            <option value="siggiewi">Siġġiewi</option>
+                                            <option value="other">Diğer</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- RIGHT COLUMN: Fotoğraf Yükleme -->
+                            <div class="form-section right-column">
+                                <h2 class="section-title">
+                                    <i class="fas fa-images"></i>
+                                    Fotoğraf Yükle
+                                </h2>
+
+                                <div class="photo-upload-area" id="photoUploadArea">
+                                    <div class="upload-placeholder-content">
+                                        <div class="upload-icon">
+                                            <i class="fas fa-image"></i>
+                                        </div>
+                                        <div class="upload-text">
+                                            <p class="upload-title">Fotoğraf seçin veya sürükleyin</p>
+                                            <p class="upload-hint">JPG, PNG (En fazla 5MB, En fazla 5 fotoğraf)</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Live Preview Card (Moved here) -->
+                                    <div class="preview-container" id="uploadPreviewContainer" style="display: none; max-width: 300px; margin: 1rem auto; position: relative; z-index: 10;">
+                                        <div class="listing-card verde-card" id="livePreviewCard">
+                                            <div class="table-media">
+                                                <div class="listing-image" id="previewImageContainer">
+                                                    <div class="image-blur-bg" id="previewBlurBg"></div>
+                                                    <img id="previewImage" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 300'%3E%3Crect fill='%23e2e8f0' width='400' height='300'/%3E%3Ctext x='50%25' y='50%25' fill='%2394a3b8' text-anchor='middle' font-family='sans-serif'%3EFotoğraf Yok%3C/text%3E%3C/svg%3E" alt="Önizleme">
+                                                    <button class="favorite-button" type="button">
+                                                        <i class="far fa-heart"></i>
+                                                    </button>
+                                                    <button class="fit-toggle-button" id="fitToggleBtn" type="button" title="Görseli Sığdır">
+                                                        <i class="fas fa-expand"></i>
+                                                    </button>
+                                                    <div class="gallery-count"><i class="fas fa-camera"></i><span id="previewImageCount">0</span></div>
+                                                </div>
+                                                <div class="table-model" id="previewCategory">Kategori</div>
+                                            </div>
+                                            <div class="listing-content">
+                                                <div class="price-title">
+                                                    <h3 class="listing-title verde-title" id="previewTitle">İlan Başlığı</h3>
+                                                </div>
+                                                <div class="listing-actions">
+                                                    <div class="listing-meta verde-meta listing-meta-inline">
+                                                        <div class="listing-location verde-location" id="previewLocation"><i class="fas fa-map-marker-alt"></i> Şehir seçiniz</div>
+                                                        <div class="listing-price verde-price" id="previewPrice">€0</div>
+                                                        <div class="listing-date"><i class="fas fa-clock"></i> Şimdi</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <p style="text-align: center; font-size: 0.85rem; color: #64748b; margin-top: 1rem;">
+                                            * Fotoğrafı sürükleyerek ayarlayabilirsiniz.
+                                        </p>
+                                    </div>
+
+                                    <input type="file" id="photoInput" name="photo" class="photo-input"
+                                        accept="image/jpeg,image/png" multiple required>
+                                </div>
+
+                                <!-- Fotoğraf Önizleme Kutuları -->
+                                <div class="photo-preview-grid">
+                                    <div class="preview-box empty">
+                                        <i class="fas fa-plus"></i>
+                                    </div>
+                                    <div class="preview-box empty">
+                                        <i class="fas fa-plus"></i>
+                                    </div>
+                                    <div class="preview-box empty">
+                                        <i class="fas fa-plus"></i>
+                                    </div>
+                                    <div class="preview-box empty">
+                                        <i class="fas fa-plus"></i>
+                                    </div>
+                                    <div class="preview-box empty">
+                                        <i class="fas fa-plus"></i>
+                                    </div>
+                                    <div class="preview-box empty">
+                                        <i class="fas fa-plus"></i>
+                                    </div>
+                                    <div class="preview-box empty">
+                                        <i class="fas fa-plus"></i>
+                                    </div>
+                                    <div class="preview-box empty">
+                                        <i class="fas fa-plus"></i>
+                                    </div>
+                                    <div class="preview-box empty">
+                                        <i class="fas fa-plus"></i>
+                                    </div>
+                                    <div class="preview-box empty">
+                                        <i class="fas fa-plus"></i>
+                                    </div>
+                                </div>
+
+                            <div id="photoPreview" class="photo-preview" style="display: none;"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- STEP 2: Kategori Özel Alanlar -->
+                    <div class="form-step" data-step="2">
+                        <div class="form-section">
+                            <h2 class="section-title">
+                                <i class="fas fa-list"></i>
+                                Ürün Özellikleri
+                            </h2>
+                            <div id="categorySpecificFields"></div>
+                        </div>
+                    </div>
+
+                    <!-- STEP 3: Teknik Detaylar (Yeni) -->
+                    <div class="form-step" data-step="3">
+                        <div class="form-section">
+                            <h2 class="section-title">
+                                <i class="fas fa-cogs"></i>
+                                Teknik Detaylar
+                            </h2>
+                            <p class="section-subtitle">Aracınızın donanım özelliklerini seçin.</p>
+                            
+                            <div id="techDetailsContainer" class="tech-details-container">
+                                <!-- JS ile doldurulacak -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- STEP 4: İletişim Bilgileri -->
+                    <div class="form-step" data-step="4">
+                        <div class="form-section contact-section">
+                            <h2 class="section-title">
+                                <i class="fas fa-phone-alt"></i>
+                                İletişim Bilgileri
+                            </h2>
+
+                            <div class="form-group">
+                                <label class="form-label">Size nasıl ulaşılsın?</label>
+                                <div class="contact-options">
+                                    <label class="radio-option">
+                                        <input type="radio" name="contactPreference" value="phone" checked>
+                                        <span>Telefon numaralarımla</span>
+                                    </label>
+                                    <label class="radio-option">
+                                        <input type="radio" name="contactPreference" value="message">
+                                        <span>Telefonla ulaşılmak istemiyorum</span>
+                                    </label>
+                                </div>
+                                <p class="contact-hint" id="contactHintPhone">İlanda telefon numaran görünür ve arama
+                                    yapılabilir.</p>
+                                <p class="contact-hint" id="contactHintMessage" style="display:none;">İlana bakanlar
+                                    yalnızca uygulama içi mesajlaşma ile ulaşabilir, telefonun görünmez.</p>
+                            </div>
+
+                            <div class="two-column-wrapper">
+                                <div class="left-column">
+                                    <div class="contact-card" id="contactCard">
+                                        <div class="contact-row">
+                                            <label class="contact-label">İlanda görünecek ad soyad</label>
+                                            <input type="text" id="contactName" name="contactName" class="form-input"
+                                                placeholder="Yükleniyor..." disabled>
+                                            <span class="input-help">Profil bilgilerinizden otomatik alınır.</span>
+                                        </div>
+                                        <div class="contact-row">
+                                            <label class="contact-label">Cep Telefonu</label>
+                                            <input type="tel" id="contactPhoneDisplay" class="form-input"
+                                                placeholder="Yükleniyor..." disabled>
+                                            <span class="input-help">Profil bilgilerinizden otomatik alınır.</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="right-column">
+                                    <div class="form-section terms-section">
+                                        <h2 class="section-title">
+                                            <i class="fas fa-check-circle"></i>
+                                            Koşullar & Onay
+                                        </h2>
+
+                                        <div class="form-group checkbox-group">
+                                            <label class="checkbox-label">
+                                                <input type="checkbox" id="terms" name="terms" class="form-checkbox"
+                                                    required>
+                                                <span>
+                                                    <a href="#"
+                                                        style="color: #10b981; text-decoration: none; border-bottom: 1px solid #10b981;">Kullanım
+                                                        Koşullarını</a> ve
+                                                    <a href="#"
+                                                        style="color: #10b981; text-decoration: none; border-bottom: 1px solid #10b981;">Gizlilik
+                                                        Politikasını</a> kabul ediyorum
+                                                </span>
+                                            </label>
+                                        </div>
+
+                                        <div class="form-group checkbox-group">
+                                            <label class="checkbox-label">
+                                                <input type="checkbox" id="confirm" name="confirm" class="form-checkbox"
+                                                    required>
+                                                <span>İlanın doğru ve güncel bilgiler içerdiğini teyit ediyorum</span>
+                                            </label>
+                                        </div>
+
+                                        <div class="form-group checkbox-group">
+                                            <label class="checkbox-label">
+                                                <input type="checkbox" id="contact" name="contact"
+                                                    class="form-checkbox">
+                                                <span>VERDE bana uygun öneriler gönderebilir</span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Sticky Footer (shows publish on last step) -->
+                    <div class="form-footer sticky-footer">
+                        <button type="button" id="stickyPrev" class="btn btn-secondary">Geri</button>
+                        <button type="button" id="stickyNext" class="btn btn-primary">İleri</button>
+                        <button type="submit" id="publishBtn" class="btn btn-success" style="display:none;">
+                            <i class="fas fa-check"></i>
+                            İlanı Yayınla
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <!-- Loading Modal -->
+    <div id="loadingModal" class="loading-modal" style="display: none;">
+        <div class="loading-content">
+            <i class="fas fa-spinner"></i>
+            <p>İlanınız kaydediliyor...</p>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div id="successModal" class="success-modal" style="display: none;">
+        <div class="success-content">
+            <div class="success-icon">
+                <i class="fas fa-check"></i>
+            </div>
+            <h3>İlanınız Yayınlandı!</h3>
+            <p>Teşekkürler! İlanınız inceleme sürecine girdi.</p>
+            <p style="font-size: 0.9rem; color: #64748b; margin-top: 1rem;">
+                İlan numaranız: <span id="adId" style="font-weight: 700;">-</span>
+            </p>
+            <button class="btn btn-primary" onclick="redirectHome()">
+                Ana Sayfaya Dön
+            </button>
+        </div>
+    </div>
+
+    <script src="js/layout.js"></script>
+    <script type="module" src="js/form-validator.js"></script>
+    <script type="module" src="js/error-handler.js"></script>
+    <script type="module" src="js/toast.js"></script>
+    <script type="module" src="js/photo-upload.js"></script>
+    <script src="js/live-preview.js"></script>
+    <script type="module" src="js/ilan-ver-form.js"></script>
+</body>
+
+</html>

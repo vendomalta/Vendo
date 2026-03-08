@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gizlilik Politikası - VENDO</title>
+    <link rel="icon" type="image/svg+xml" href="assets/images/verde-logo.svg" sizes="any">
+    <link rel="shortcut icon" href="assets/images/verde-logo.svg">
+    <link rel="apple-touch-icon" href="assets/images/verde-logo.svg">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+
+<body>
+    <div id="header-placeholder"></div>
+
+    <main class="settings-page">
+        <div class="container">
+            <div class="page-header">
+                <div class="breadcrumb">
+                    <a href="ayarlar.html"><i class="fas fa-cog"></i> Ayarlar</a>
+                    <i class="fas fa-chevron-right"></i>
+                    <span>Gizlilik</span>
+                </div>
+                <h1><i class="fas fa-lock"></i> Gizlilik Ayarları</h1>
+                <p class="header-subtitle">Gizlilik tercihlerinizi yönetin</p>
+            </div>
+
+            <div class="settings-container">
+                <div class="settings-sidebar">
+                    <nav class="settings-nav">
+                        <a href="hesap-bilgileri.html" class="nav-item">
+                            <i class="fas fa-user"></i>
+                            <span>Hesap Bilgileri</span>
+                        </a>
+                        <a href="guvenlik.html" class="nav-item">
+                            <i class="fas fa-shield-alt"></i>
+                            <span>Güvenlik</span>
+                        </a>
+                        <a href="gizlilik.html" class="nav-item active">
+                            <i class="fas fa-lock"></i>
+                            <span>Gizlilik</span>
+                        </a>
+                        <a href="bildirimler.html" class="nav-item">
+                            <i class="fas fa-bell"></i>
+                            <span>Bildirimler</span>
+                        </a>
+                        <a href="gorunum.html" class="nav-item">
+                            <i class="fas fa-palette"></i>
+                            <span>Görünüm</span>
+                        </a>
+                        <a href="premium.html" class="nav-item">
+                            <i class="fas fa-crown"></i>
+                            <span>Premium</span>
+                        </a>
+                        <a href="veri-yonetimi.html" class="nav-item">
+                            <i class="fas fa-download"></i>
+                            <span>Veri Yönetimi</span>
+                        </a>
+                    </nav>
+                </div>
+
+                <div class="settings-content">
+                    <div class="settings-section active">
+                        <div class="settings-card">
+                            <h3>Profil Görünürlüğü</h3>
+                            <div class="privacy-setting">
+                                <div class="setting-info">
+                                    <h4>Profil Sayfası</h4>
+                                    <p>Profilinizin diğer kullanıcılar tarafından görülmesini kontrol edin</p>
+                                </div>
+                                <select class="setting-select">
+                                    <option value="public">Herkese Açık</option>
+                                    <option value="registered">Sadece Kayıtlı Kullanıcılar</option>
+                                    <option value="private">Gizli</option>
+                                </select>
+                            </div>
+
+                            <div class="privacy-setting">
+                                <div class="setting-info">
+                                    <h4>İletişim Bilgileri</h4>
+                                    <p>Telefon numaranız ve e-posta adresinizin görünürlüğü</p>
+                                </div>
+                                <div class="toggle-switch">
+                                    <input type="checkbox" id="showContact" class="toggle-input" checked>
+                                    <label for="showContact" class="toggle-label"></label>
+                                </div>
+                            </div>
+
+                            <div class="privacy-setting">
+                                <div class="setting-info">
+                                    <h4>Son Görülme</h4>
+                                    <p>En son ne zaman çevrimiçi olduğunuzun gösterilmesi</p>
+                                </div>
+                                <div class="toggle-switch">
+                                    <input type="checkbox" id="showLastSeen" class="toggle-input" checked>
+                                    <label for="showLastSeen" class="toggle-label"></label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="settings-card">
+                            <h3>İlan Gizliliği</h3>
+                            <div class="privacy-setting">
+                                <div class="setting-info">
+                                    <h4>İlan Geçmişi</h4>
+                                    <p>Daha önce verdiğiniz ilanların görünürlüğü</p>
+                                </div>
+                                <div class="toggle-switch">
+                                    <input type="checkbox" id="showAdHistory" class="toggle-input" checked>
+                                    <label for="showAdHistory" class="toggle-label"></label>
+                                </div>
+                            </div>
+
+                            <div class="privacy-setting">
+                                <div class="setting-info">
+                                    <h4>Favori Listeleri</h4>
+                                    <p>Favori ilanlarınızın diğer kullanıcılara gösterilmesi</p>
+                                </div>
+                                <select class="setting-select">
+                                    <option value="private">Gizli</option>
+                                    <option value="friends">Arkadaşlar</option>
+                                    <option value="public">Herkese Açık</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="settings-card">
+                            <h3>Mesajlaşma Gizliliği</h3>
+                            <div class="privacy-setting">
+                                <div class="setting-info">
+                                    <h4>Mesaj Gönderme Yetkisi</h4>
+                                    <p>Size kimler mesaj gönderebilir?</p>
+                                </div>
+                                <select class="setting-select">
+                                    <option value="everyone">Herkes</option>
+                                    <option value="verified">Doğrulanmış Kullanıcılar</option>
+                                    <option value="mutual">Karşılıklı İletişim</option>
+                                </select>
+                            </div>
+
+                            <div class="privacy-setting">
+                                <div class="setting-info">
+                                    <h4>Okundu Bilgisi</h4>
+                                    <p>Mesajları okuduğunuzun karşı tarafa bildirilmesi</p>
+                                </div>
+                                <div class="toggle-switch">
+                                    <input type="checkbox" id="showReadReceipts" class="toggle-input" checked>
+                                    <label for="showReadReceipts" class="toggle-label"></label>
+                                </div>
+                            </div>
+
+                            <div class="privacy-setting">
+                                <div class="setting-info">
+                                    <h4>Çevrimiçi Durumu</h4>
+                                    <p>Çevrimiçi olduğunuzun mesajlarda gösterilmesi</p>
+                                </div>
+                                <div class="toggle-switch">
+                                    <input type="checkbox" id="showOnlineStatus" class="toggle-input" checked>
+                                    <label for="showOnlineStatus" class="toggle-label"></label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="settings-card">
+                            <h3>Veri Toplama</h3>
+                            <div class="privacy-setting">
+                                <div class="setting-info">
+                                    <h4>Kullanım Analitikleri</h4>
+                                    <p>Hizmet kalitesini artırmak için anonim kullanım verilerinin toplanması</p>
+                                </div>
+                                <div class="toggle-switch">
+                                    <input type="checkbox" id="allowAnalytics" class="toggle-input" checked>
+                                    <label for="allowAnalytics" class="toggle-label"></label>
+                                </div>
+                            </div>
+
+                            <div class="privacy-setting">
+                                <div class="setting-info">
+                                    <h4>Kişiselleştirilmiş Reklamlar</h4>
+                                    <p>İlgi alanlarınıza göre özelleştirilmiş reklamların gösterilmesi</p>
+                                </div>
+                                <div class="toggle-switch">
+                                    <input type="checkbox" id="personalizedAds" class="toggle-input" checked>
+                                    <label for="personalizedAds" class="toggle-label"></label>
+                                </div>
+                            </div>
+
+                            <div class="privacy-setting">
+                                <div class="setting-info">
+                                    <h4>Konum Verileri</h4>
+                                    <p>Yakınınızdaki ilanları göstermek için konumunuzun kullanılması</p>
+                                </div>
+                                <div class="toggle-switch">
+                                    <input type="checkbox" id="allowLocation" class="toggle-input">
+                                    <label for="allowLocation" class="toggle-label"></label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="settings-card">
+                            <h3>Üçüncü Taraf Paylaşımlar</h3>
+                            <div class="privacy-setting">
+                                <div class="setting-info">
+                                    <h4>Sosyal Medya Entegrasyonu</h4>
+                                    <p>İlanlarınızın sosyal medya hesaplarınızda paylaşılması</p>
+                                </div>
+                                <div class="toggle-switch">
+                                    <input type="checkbox" id="socialShare" class="toggle-input">
+                                    <label for="socialShare" class="toggle-label"></label>
+                                </div>
+                            </div>
+
+                            <div class="privacy-setting">
+                                <div class="setting-info">
+                                    <h4>E-posta Pazarlama</h4>
+                                    <p>Promosyon ve özel teklif e-postalarının gönderilmesi</p>
+                                </div>
+                                <div class="toggle-switch">
+                                    <input type="checkbox" id="emailMarketing" class="toggle-input" checked>
+                                    <label for="emailMarketing" class="toggle-label"></label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button class="btn-primary" onclick="savePrivacySettings()">
+                                <i class="fas fa-save"></i>
+                                Gizlilik Ayarlarını Kaydet
+                            </button>
+                            <button class="btn-secondary" onclick="resetToDefaults()">
+                                <i class="fas fa-undo"></i>
+                                Varsayılan Ayarlara Dön
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+
+    <script src="js/auth.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/listings.js"></script>
+    <script src="js/layout.js"></script>
+    <script src="js/script.js"></script>
+    <script>
+        function savePrivacySettings() {
+            showNotification('Gizlilik ayarlarınız başarıyla kaydedildi!', 'success');
+        }
+
+        async function resetToDefaults() {
+            let ok = false;
+            if (typeof showConfirmDialog === 'function') {
+                ok = await showConfirmDialog('Ayarları sıfırla', 'Tüm gizlilik ayarlarını varsayılan değerlere döndürmek istediğinizden emin misiniz?');
+            } else {
+                if (typeof showNotification === 'function') showNotification('Onay gerekiyor: gizlilik ayarlarını sıfırlamak için onaylayın', 'info');
+                return;
+            }
+            if (!ok) return;
+            // Reset all toggles and selects to default values
+            document.querySelectorAll('.toggle-input').forEach(toggle => {
+                toggle.checked = toggle.id !== 'allowLocation' && toggle.id !== 'socialShare';
+            });
+
+            document.querySelectorAll('.setting-select').forEach(select => {
+                select.selectedIndex = 0;
+            });
+
+            showNotification('Tüm ayarlar varsayılan değerlere sıfırlandı.', 'info');
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>İlan Ver - Kategori Seç | VERDE</title>
+    <meta name="description"
+        content="İlanınızı kolayca oluşturun: kategori seçin, bilgileri girin, fotoğrafları yükleyin ve yayınlayın.">
+    <meta name="robots" content="index,follow">
+    <!-- Canonical: Yayında alan adıyla ekleyin -->
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="İlan Ver - VERDE">
+    <meta property="og:description" content="İlanınızı birkaç adımda oluşturun ve yayınlayın.">
+    <meta property="og:image" content="/assets/images/verde-logo-og.png">
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/reset.css">
+    <link rel="stylesheet" href="css/ilan-ver.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <!-- ✅ GÜVENLIK: DOMPurify XSS koruması -->
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@latest/dist/purify.min.js"></script>
+</head>
+
+<body>
+    <div id="header-placeholder"></div>
+
+    <!-- Main Content - Miller Columns -->
+    <main class="post-main">
+        <div class="page-title">
+            <h1>Kategori Seçin</h1>
+            <p>İlanınız için uygun kategoriyi seçerek devam edin</p>
+        </div>
+
+        <!-- Breadcrumb Navigation -->
+        <div id="breadcrumb" class="breadcrumb-nav"
+            style="padding: 1rem; margin: 0 1rem; background: #f9fafb; border-radius: 8px; display: none;">
+            <i class="fas fa-home"></i>
+            <span>Ana Sayfa</span>
+        </div>
+
+        <!-- Miller Columns Container -->
+        <div class="miller-container">
+            <!-- Column 1: Main Categories -->
+            <div class="miller-column" id="column1">
+                <div class="column-header">
+                    <i class="fas fa-list"></i>
+                    <span>1.Kategori</span>
+                </div>
+                <ul class="category-list" id="mainCategories">
+                    <!-- JavaScript ile doldurulacak -->
+                </ul>
+            </div>
+
+            <!-- Column 2: Subcategories -->
+            <div class="miller-column" id="column2" style="display: none;">
+                <div class="column-header">
+                    <i class="fas fa-folder-open"></i>
+                    <span id="column2Title">2.Kategori</span>
+                </div>
+                <ul class="category-list" id="subCategories">
+                    <!-- JavaScript ile doldurulacak -->
+                </ul>
+            </div>
+
+            <!-- Column 3: Details -->
+            <div class="miller-column" id="column3" style="display: none;">
+                <div class="column-header">
+                    <i class="fas fa-tag"></i>
+                    <span id="column3Title">3.Kategori</span>
+                </div>
+                <ul class="category-list" id="detailCategories">
+                    <!-- JavaScript ile doldurulacak -->
+                </ul>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="post-footer">
+        <div class="footer-container">
+            <!-- Footer Info Grid -->
+            <div class="footer-info-grid">
+                <!-- Customer Service -->
+                <div class="footer-info-item">
+                    <div class="info-icon phone">
+                        <i class="fas fa-headset"></i>
+                    </div>
+                    <div class="info-content">
+                        <h4>Müşteri Hizmetleri</h4>
+                        <p>e-posta olacak burda</p>
+                    </div>
+                </div>
+
+                <!-- Help & Support -->
+                <div class="footer-info-item">
+                    <div class="info-icon help">
+                        <i class="fas fa-question-circle"></i>
+                    </div>
+                    <div class="info-content">
+                        <h4>Yardım & Destek</h4>
+                        <p>destek@verde.com.tr</p>
+                    </div>
+                </div>
+
+                <!-- Mobile App -->
+                <div class="footer-info-item">
+                    <div class="info-icon app">
+                        <i class="fas fa-mobile-alt"></i>
+                    </div>
+                    <div class="info-content">
+                        <h4>Mobil Uygulama</h4>
+                        <p>İOS & Android'de İndir</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer Legal -->
+            <div class="footer-legal">
+                <p><strong>VERDE Platform Hakkında:</strong> Güvenli, hızlı ve kolay ilan verme deneyimi sunmak için
+                    tasarlanmıştır.</p>
+                <p>İlanınızı oluştururken kişisel verileriniz GDPR ve Türkiye KVKK kapsamında korunmaktadır. Tüm
+                    işlemler şifreli bağlantı ile yapılır.</p>
+                <p
+                    style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid rgba(0,0,0,0.1); font-size: 0.8rem;">
+                    © 2025 VERDE. Tüm Hakları Saklıdır. |
+                    <a href="#" style="color: #10b981; text-decoration: none;">Gizlilik Politikası</a> |
+                    <a href="#" style="color: #10b981; text-decoration: none;">Kullanım Koşulları</a>
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <script type="module" src="js/ilan-ver.js"></script>
+</body>
+
+</html>

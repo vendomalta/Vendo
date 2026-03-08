@@ -1,0 +1,8133 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Standalone Migration Tool (Robust)</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; padding: 20px; max-width: 800px; margin: 0 auto; background: #f9f9f9; }
+        h1 { color: #333; }
+        .log { background: #1e1e1e; color: #eee; padding: 15px; height: 400px; overflow-y: auto; font-family: "Consolas", "Monaco", monospace; border-radius: 6px; border: 1px solid #ccc; font-size: 13px; line-height: 1.4; }
+        .log div { margin-bottom: 4px; }
+        .success { color: #4ade80; }
+        .error { color: #ef4444; }
+        .info { color: #60a5fa; }
+        button { background: #2563eb; color: white; border: none; padding: 12px 24px; font-size: 16px; font-weight: bold; border-radius: 6px; cursor: pointer; transition: background 0.2s; }
+        button:hover { background: #1d4ed8; }
+        button:disabled { background: #93c5fd; cursor: not-allowed; }
+        #status { margin: 15px 0; font-weight: bold; min-height: 20px; }
+    </style>
+</head>
+<body>
+    <h1>Migration Tool (Robusto)</h1>
+    <div style="margin-bottom: 20px;">
+        <p>This tool will migrate categories and field configurations to Supabase.</p>
+        <button onclick="startMigration()">Start Migration</button>
+        <div id="status">Ready</div>
+    </div>
+    <div class="log" id="log"></div>
+
+    <script>
+        // Global error handler
+        window.onerror = function(msg, url, line, col, error) {
+            const el = document.getElementById('log');
+            if(el) {
+                const div = document.createElement('div');
+                div.textContent = 'CRITICAL SCRIPT ERROR: ' + msg + ' (Line ' + line + ')';
+                div.style.color = 'red';
+                div.style.fontWeight = 'bold';
+                el.appendChild(div);
+            }
+            alert('JavaScript Error:\n' + msg + '\nLine: ' + line);
+            return false;
+        };
+
+        // INJECTED DATA (Pure JSON)
+        const categories = [
+  {
+    "id": 1,
+    "name": "Real Estate",
+    "slug": "real-estate",
+    "parentId": null,
+    "icon": "fa-home",
+    "iconColor": "#1EB1F7",
+    "level": 0
+  },
+  {
+    "id": 2,
+    "name": "Vehicles",
+    "slug": "vehicles",
+    "parentId": null,
+    "icon": "fa-car",
+    "iconColor": "#1EB1F7",
+    "level": 0
+  },
+  {
+    "id": 3,
+    "name": "Parts & Accessories",
+    "slug": "parts-accessories",
+    "parentId": null,
+    "icon": "fa-cog",
+    "iconColor": "#1EB1F7",
+    "level": 0
+  },
+  {
+    "id": 4,
+    "name": "Second Hand",
+    "slug": "second-hand",
+    "parentId": null,
+    "icon": "fa-shopping-bag",
+    "iconColor": "#1EB1F7",
+    "level": 0
+  },
+  {
+    "id": 5,
+    "name": "Pets",
+    "slug": "pets",
+    "parentId": null,
+    "icon": "fa-paw",
+    "iconColor": "#1EB1F7",
+    "level": 0
+  },
+  {
+    "id": 6,
+    "name": "Technology",
+    "slug": "technology",
+    "parentId": null,
+    "icon": "fa-microchip",
+    "iconColor": "#1EB1F7",
+    "level": 0
+  },
+  {
+    "id": 101,
+    "name": "Residential",
+    "slug": "residential",
+    "parentId": 1,
+    "icon": "fa-building",
+    "iconColor": "#1EB1F7",
+    "level": 1
+  },
+  {
+    "id": 106,
+    "name": "Room",
+    "slug": "room",
+    "parentId": 1,
+    "icon": "fa-building",
+    "iconColor": "#1EB1F7",
+    "level": 1
+  },
+  {
+    "id": 102,
+    "name": "Commercial",
+    "slug": "commercial",
+    "parentId": 1,
+    "icon": "fa-store",
+    "iconColor": "#1EB1F7",
+    "level": 1
+  },
+  {
+    "id": 103,
+    "name": "Land",
+    "slug": "land",
+    "parentId": 1,
+    "icon": "fa-map",
+    "iconColor": "#1EB1F7",
+    "level": 1
+  },
+  {
+    "id": 10101,
+    "name": "Residential for Sale",
+    "slug": "residential-for-sale",
+    "parentId": 101,
+    "icon": "fa-tag",
+    "iconColor": "#1EB1F7",
+    "level": 2
+  },
+  {
+    "id": 10102,
+    "name": "Residential for Rent",
+    "slug": "residential-for-rent",
+    "parentId": 101,
+    "icon": "fa-key",
+    "iconColor": "#1EB1F7",
+    "level": 2
+  },
+  {
+    "id": 10601,
+    "name": "Room for Rent",
+    "slug": "room-for-rent",
+    "parentId": 106,
+    "icon": "fa-tag",
+    "iconColor": "#1EB1F7",
+    "level": 2
+  },
+  {
+    "id": 10201,
+    "name": "Commercial for Sale",
+    "slug": "commercial-for-sale",
+    "parentId": 102,
+    "icon": "fa-tag",
+    "iconColor": "#1EB1F7",
+    "level": 2
+  },
+  {
+    "id": 10202,
+    "name": "Commercial for Rent",
+    "slug": "commercial-for-rent",
+    "parentId": 102,
+    "icon": "fa-key",
+    "iconColor": "#1EB1F7",
+    "level": 2
+  },
+  {
+    "id": 10301,
+    "name": "Land for Sale",
+    "slug": "land-for-sale",
+    "parentId": 103,
+    "icon": "fa-map",
+    "iconColor": "#1EB1F7",
+    "level": 2
+  },
+  {
+    "id": 10302,
+    "name": "Land for Rent",
+    "slug": "land-for-rent",
+    "parentId": 103,
+    "icon": "fa-map-location",
+    "iconColor": "#1EB1F7",
+    "level": 2
+  },
+  {
+    "id": 201,
+    "name": "Cars",
+    "slug": "cars",
+    "parentId": 2,
+    "icon": "fa-car",
+    "iconColor": "#1EB1F7",
+    "level": 1
+  },
+  {
+    "id": 202,
+    "name": "Motorcycles",
+    "slug": "motorcycles",
+    "parentId": 2,
+    "icon": "fa-motorcycle",
+    "iconColor": "#1EB1F7",
+    "level": 1
+  },
+  {
+    "id": 203,
+    "name": "Caravan",
+    "slug": "caravan",
+    "parentId": 2,
+    "icon": "fa-caravan",
+    "iconColor": "#1EB1F7",
+    "level": 1
+  },
+  {
+    "id": 204,
+    "name": "Commercial Vehicles",
+    "slug": "commercial-vehicles",
+    "parentId": 2,
+    "icon": "fa-truck",
+    "iconColor": "#1EB1F7",
+    "level": 1
+  },
+  {
+    "id": 205,
+    "name": "Rental Vehicles",
+    "slug": "rental-vehicles",
+    "parentId": 2,
+    "icon": "fa-key",
+    "iconColor": "#1EB1F7",
+    "level": 1
+  },
+  {
+    "id": 206,
+    "name": "Boats & Marine",
+    "slug": "boats-marine",
+    "parentId": 2,
+    "icon": "fa-ship",
+    "iconColor": "#1EB1F7",
+    "level": 1
+  },
+  {
+    "id": 207,
+    "name": "ATV",
+    "slug": "atv",
+    "parentId": 2,
+    "icon": "fa-mountain",
+    "iconColor": "#1EB1F7",
+    "level": 1
+  },
+  {
+    "id": 20101,
+    "name": "Petrol & Diesel",
+    "slug": "petrol-diesel",
+    "parentId": 201,
+    "icon": "fa-bolt",
+    "iconColor": "#1EB1F7",
+    "level": 2
+  },
+  {
+    "id": 20102,
+    "name": "Electric & Hybrid",
+    "slug": "electric-hybrid",
+    "parentId": 201,
+    "icon": "fa-bolt",
+    "iconColor": "#1EB1F7",
+    "level": 2
+  },
+  {
+    "id": 20103,
+    "name": "SUV, 4x4 & Pickups",
+    "slug": "suv-4x4-pickups",
+    "parentId": 201,
+    "icon": "fa-car",
+    "iconColor": "#1EB1F7",
+    "level": 2
+  },
+  {
+    "id": 20104,
+    "name": "Classic Cars",
+    "slug": "classic-cars",
+    "parentId": 201,
+    "icon": "fa-car",
+    "iconColor": "#1EB1F7",
+    "level": 2
+  },
+  {
+    "id": 20201,
+    "name": "Benzinli Motor",
+    "slug": "benzinli-motor",
+    "parentId": 202,
+    "icon": "fa-plug",
+    "iconColor": "#1EB1F7",
+    "level": 2
+  },
+  {
+    "id": 20203,
+    "name": "Electric Scooter",
+    "slug": "electric-scooter",
+    "parentId": 202,
+    "icon": "fa-plug",
+    "iconColor": "#1EB1F7",
+    "level": 2
+  },
+  {
+    "id": 20301,
+    "name": "Motorhomes",
+    "slug": "motorhomes",
+    "parentId": 203,
+    "icon": "fa-caravan",
+    "iconColor": "#1EB1F7",
+    "level": 2
+  },
+  {
+    "id": 20302,
+    "name": "Towed Caravans",
+    "slug": "towed-caravans",
+    "parentId": 203,
+    "icon": "fa-key",
+    "iconColor": "#1EB1F7",
+    "level": 2
+  },
+  {
+    "id": 20401,
+    "name": "Trucks",
+    "slug": "trucks",
+    "parentId": 204,
+    "icon": "fa-truck",
+    "iconColor": "#1EB1F7",
+    "level": 2
+  },
+  {
+    "id": 20403,
+    "name": "Trailers",
+    "slug": "trailers",
+    "parentId": 204,
+    "icon": "fa-key",
+    "iconColor": "#1EB1F7",
+    "level": 2
+  },
+  {
+    "id": 20501,
+    "name": "Daily Rental",
+    "slug": "daily-rental",
+    "parentId": 205,
+    "icon": "fa-clock",
+    "iconColor": "#1EB1F7",
+    "level": 2
+  },
+  {
+    "id": 20502,
+    "name": "Monthly Rental",
+    "slug": "monthly-rental",
+    "parentId": 205,
+    "icon": "fa-calendar",
+    "iconColor": "#1EB1F7",
+    "level": 2
+  },
+  {
+    "id": 20601,
+    "name": "Yachts",
+    "slug": "yachts",
+    "parentId": 206,
+    "icon": "fa-water",
+    "iconColor": "#1EB1F7",
+    "level": 2
+  },
+  {
+    "id": 20602,
+    "name": "Sailing Boats",
+    "slug": "sailing-boats",
+    "parentId": 206,
+    "icon": "fa-water",
+    "iconColor": "#1EB1F7",
+    "level": 2
+  },
+  {
+    "id": 20603,
+    "name": "Jetski",
+    "slug": "jetski",
+    "parentId": 206,
+    "icon": "fa-anchor",
+    "iconColor": "#1EB1F7",
+    "level": 2
+  },
+  {
+    "id": 20701,
+    "name": "ATV For Sale",
+    "slug": "atv-for-sale",
+    "parentId": 207,
+    "icon": "fa-mountain",
+    "iconColor": "#1EB1F7",
+    "level": 2
+  },
+  {
+    "id": 20702,
+    "name": "ATV For Rent",
+    "slug": "atv-for-rent",
+    "parentId": 207,
+    "icon": "fa-key",
+    "iconColor": "#1EB1F7",
+    "level": 2
+  },
+  {
+    "id": 301,
+    "name": "Car Parts",
+    "slug": "car-parts",
+    "parentId": 3,
+    "icon": "fa-car",
+    "iconColor": "#1EB1F7",
+    "level": 1
+  },
+  {
+    "id": 302,
+    "name": "Motorcycle Parts",
+    "slug": "motorcycle-parts",
+    "parentId": 3,
+    "icon": "fa-motorcycle",
+    "iconColor": "#1EB1F7",
+    "level": 1
+  },
+  {
+    "id": 303,
+    "name": "Marine Parts",
+    "slug": "marine-parts",
+    "parentId": 3,
+    "icon": "fa-ship",
+    "iconColor": "#1EB1F7",
+    "level": 1
+  },
+  {
+    "id": 304,
+    "name": "Accessories",
+    "slug": "accessories",
+    "parentId": 3,
+    "icon": "fa-star",
+    "iconColor": "#1EB1F7",
+    "level": 1
+  },
+  {
+    "id": 30101,
+    "name": "Engine Parts",
+    "slug": "engine-parts",
+    "parentId": 301,
+    "icon": "fa-gears",
+    "iconColor": "#1EB1F7",
+    "level": 2
+  },
+  {
+    "id": 30102,
+    "name": "Wheels & Tires",
+    "slug": "wheels-tires",
+    "parentId": 301,
+    "icon": "fa-gears",
+    "iconColor": "#1EB1F7",
+    "level": 2
+  },
+  {
+    "id": 30103,
+    "name": "Lighting & Electric",
+    "slug": "lighting-electric",
+    "parentId": 301,
+    "icon": "fa-lightbulb",
+    "iconColor": "#1EB1F7",
+    "level": 2
+  },
+  {
+    "id": 30201,
+    "name": "Mechanical Parts",
+    "slug": "mechanical-parts",
+    "parentId": 302,
+    "icon": "fa-helmet-safety",
+    "iconColor": "#1EB1F7",
+    "level": 2
+  },
+  {
+    "id": 30202,
+    "name": "Helmet & Protection",
+    "slug": "helmet-protection",
+    "parentId": 302,
+    "icon": "fa-helmet-safety",
+    "iconColor": "#1EB1F7",
+    "level": 2
+  },
+  {
+    "id": 30203,
+    "name": "Tires & Rims",
+    "slug": "tires-rims",
+    "parentId": 302,
+    "icon": "fa-circle-dot",
+    "iconColor": "#1EB1F7",
+    "level": 2
+  },
+  {
+    "id": 30301,
+    "name": "Hull & Deck",
+    "slug": "hull-deck",
+    "parentId": 303,
+    "icon": "fa-ship",
+    "iconColor": "#1EB1F7",
+    "level": 2
+  },
+  {
+    "id": 30302,
+    "name": "Electronics & Navigation",
+    "slug": "electronics-navigation",
+    "parentId": 303,
+    "icon": "fa-compass",
+    "iconColor": "#1EB1F7",
+    "level": 2
+  },
+  {
+    "id": 30401,
+    "name": "Car Accessories",
+    "slug": "car-accessories",
+    "parentId": 304,
+    "icon": "fa-car",
+    "iconColor": "#1EB1F7",
+    "level": 2
+  },
+  {
+    "id": 30402,
+    "name": "Motorcycle Accessories",
+    "slug": "motorcycle-accessories",
+    "parentId": 304,
+    "icon": "fa-motorcycle",
+    "iconColor": "#1EB1F7",
+    "level": 2
+  },
+  {
+    "id": 30403,
+    "name": "Marine Accessories",
+    "slug": "marine-accessories",
+    "parentId": 304,
+    "icon": "fa-ship",
+    "iconColor": "#1EB1F7",
+    "level": 2
+  },
+  {
+    "id": 401,
+    "name": "Home & Decor",
+    "slug": "home-decor",
+    "parentId": 4,
+    "icon": "fa-couch",
+    "iconColor": "#1EB1F7",
+    "level": 1
+  },
+  {
+    "id": 402,
+    "name": "Fashion",
+    "slug": "fashion",
+    "parentId": 4,
+    "icon": "fa-shirt",
+    "iconColor": "#1EB1F7",
+    "level": 1
+  },
+  {
+    "id": 403,
+    "name": "Baby & Child & Bebek",
+    "slug": "baby-child-bebek",
+    "parentId": 4,
+    "icon": "fa-baby",
+    "iconColor": "#1EB1F7",
+    "level": 1
+  },
+  {
+    "id": 405,
+    "name": "Books, Movies & Music",
+    "slug": "books-movies-music",
+    "parentId": 4,
+    "icon": "fa-book",
+    "iconColor": "#1EB1F7",
+    "level": 1
+  },
+  {
+    "id": 406,
+    "name": "Musical Instruments",
+    "slug": "musical-instruments",
+    "parentId": 4,
+    "icon": "fa-music",
+    "iconColor": "#1EB1F7",
+    "level": 1
+  },
+  {
+    "id": 407,
+    "name": "Sports & Leisure",
+    "slug": "sports-leisure",
+    "parentId": 4,
+    "icon": "fa-dumbbell",
+    "iconColor": "#1EB1F7",
+    "level": 1
+  },
+  {
+    "id": 408,
+    "name": "Garden & Patio",
+    "slug": "garden-patio",
+    "parentId": 4,
+    "icon": "fa-hammer",
+    "iconColor": "#1EB1F7",
+    "level": 1
+  },
+  {
+    "id": 409,
+    "name": "Office",
+    "slug": "office",
+    "parentId": 4,
+    "icon": "fa-pen",
+    "iconColor": "#1EB1F7",
+    "level": 1
+  },
+  {
+    "id": 410,
+    "name": "Other Things",
+    "slug": "other-things",
+    "parentId": 4,
+    "icon": "fa-box",
+    "iconColor": "#1EB1F7",
+    "level": 1
+  },
+  {
+    "id": 40101,
+    "name": "Furniture",
+    "slug": "furniture",
+    "parentId": 401,
+    "icon": "fa-couch",
+    "iconColor": "#1EB1F7",
+    "level": 2
+  },
+  {
+    "id": 40102,
+    "name": "Decor",
+    "slug": "decor",
+    "parentId": 401,
+    "icon": "fa-lightbulb",
+    "iconColor": "#1EB1F7",
+    "level": 2
+  },
+  {
+    "id": 40103,
+    "name": "Other Decor",
+    "slug": "other-decor",
+    "parentId": 401,
+    "icon": "fa-scissors",
+    "iconColor": "#1EB1F7",
+    "level": 2
+  },
+  {
+    "id": 40201,
+    "name": "Women Fashion",
+    "slug": "women-fashion",
+    "parentId": 402,
+    "icon": "fa-shirt",
+    "iconColor": "#1EB1F7",
+    "level": 2
+  },
+  {
+    "id": 40202,
+    "name": "Men Fashion",
+    "slug": "men-fashion",
+    "parentId": 402,
+    "icon": "fa-user",
+    "iconColor": "#1EB1F7",
+    "level": 2
+  },
+  {
+    "id": 40203,
+    "name": "Children Fashion",
+    "slug": "children-fashion",
+    "parentId": 402,
+    "icon": "fa-child",
+    "iconColor": "#1EB1F7",
+    "level": 2
+  },
+  {
+    "id": 40204,
+    "name": "Baby Fashion",
+    "slug": "baby-fashion",
+    "parentId": 402,
+    "icon": "fa-child",
+    "iconColor": "#1EB1F7",
+    "level": 2
+  },
+  {
+    "id": 40205,
+    "name": "Other Fashion",
+    "slug": "other-fashion",
+    "parentId": 402,
+    "icon": "fa-scissors",
+    "iconColor": "#1EB1F7",
+    "level": 2
+  },
+  {
+    "id": 40301,
+    "name": "Pushchairs & Prams",
+    "slug": "pushchairs-prams",
+    "parentId": 403,
+    "icon": "fa-baby-carriage",
+    "iconColor": "#1EB1F7",
+    "level": 2
+  },
+  {
+    "id": 40302,
+    "name": "High Chairs",
+    "slug": "high-chairs",
+    "parentId": 403,
+    "icon": "fa-chair",
+    "iconColor": "#1EB1F7",
+    "level": 2
+  },
+  {
+    "id": 40303,
+    "name": "Other Baby",
+    "slug": "other-baby",
+    "parentId": 403,
+    "icon": "fa-scissors",
+    "iconColor": "#1EB1F7",
+    "level": 2
+  },
+  {
+    "id": 40501,
+    "name": "English Books",
+    "slug": "english-books",
+    "parentId": 405,
+    "icon": "fa-book",
+    "iconColor": "#1EB1F7",
+    "level": 2
+  },
+  {
+    "id": 40502,
+    "name": "Spanish Books",
+    "slug": "spanish-books",
+    "parentId": 405,
+    "icon": "fa-book",
+    "iconColor": "#1EB1F7",
+    "level": 2
+  },
+  {
+    "id": 40503,
+    "name": "Match",
+    "slug": "match",
+    "parentId": 405,
+    "icon": "fa-book",
+    "iconColor": "#1EB1F7",
+    "level": 2
+  },
+  {
+    "id": 40504,
+    "name": "Physics",
+    "slug": "physics",
+    "parentId": 405,
+    "icon": "fa-book",
+    "iconColor": "#1EB1F7",
+    "level": 2
+  },
+  {
+    "id": 40505,
+    "name": "Novel",
+    "slug": "novel",
+    "parentId": 405,
+    "icon": "fa-book",
+    "iconColor": "#1EB1F7",
+    "level": 2
+  },
+  {
+    "id": 40506,
+    "name": "Education",
+    "slug": "education-books",
+    "parentId": 405,
+    "icon": "fa-graduation-cap",
+    "iconColor": "#1EB1F7",
+    "level": 2
+  },
+  {
+    "id": 40507,
+    "name": "Other Books",
+    "slug": "other-books",
+    "parentId": 405,
+    "icon": "fa-scissors",
+    "iconColor": "#1EB1F7",
+    "level": 2
+  },
+  {
+    "id": 40601,
+    "name": "Instruments",
+    "slug": "instruments",
+    "parentId": 406,
+    "icon": "fa-guitar",
+    "iconColor": "#1EB1F7",
+    "level": 2
+  },
+  {
+    "id": 40602,
+    "name": "Studio Equipment",
+    "slug": "studio-equipment",
+    "parentId": 406,
+    "icon": "fa-microphone",
+    "iconColor": "#1EB1F7",
+    "level": 2
+  },
+  {
+    "id": 40603,
+    "name": "Other Music",
+    "slug": "other-music",
+    "parentId": 406,
+    "icon": "fa-scissors",
+    "iconColor": "#1EB1F7",
+    "level": 2
+  },
+  {
+    "id": 40701,
+    "name": "Fitness",
+    "slug": "fitness",
+    "parentId": 407,
+    "icon": "fa-dumbbell",
+    "iconColor": "#1EB1F7",
+    "level": 2
+  },
+  {
+    "id": 40702,
+    "name": "Outdoor",
+    "slug": "outdoor",
+    "parentId": 407,
+    "icon": "fa-mountain",
+    "iconColor": "#1EB1F7",
+    "level": 2
+  },
+  {
+    "id": 40703,
+    "name": "Other Sports",
+    "slug": "other-sports",
+    "parentId": 407,
+    "icon": "fa-scissors",
+    "iconColor": "#1EB1F7",
+    "level": 2
+  },
+  {
+    "id": 40801,
+    "name": "Garden Landscaping",
+    "slug": "garden-landscaping",
+    "parentId": 408,
+    "icon": "fa-tree",
+    "iconColor": "#1EB1F7",
+    "level": 2
+  },
+  {
+    "id": 40802,
+    "name": "Hand Tools",
+    "slug": "hand-tools",
+    "parentId": 408,
+    "icon": "fa-hammer",
+    "iconColor": "#1EB1F7",
+    "level": 2
+  },
+  {
+    "id": 40803,
+    "name": "Other Garden",
+    "slug": "other-garden",
+    "parentId": 408,
+    "icon": "fa-scissors",
+    "iconColor": "#1EB1F7",
+    "level": 2
+  },
+  {
+    "id": 40901,
+    "name": "Office Machines",
+    "slug": "office-machines",
+    "parentId": 409,
+    "icon": "fa-print",
+    "iconColor": "#1EB1F7",
+    "level": 2
+  },
+  {
+    "id": 40902,
+    "name": "Stationery",
+    "slug": "stationery",
+    "parentId": 409,
+    "icon": "fa-pen",
+    "iconColor": "#1EB1F7",
+    "level": 2
+  },
+  {
+    "id": 40903,
+    "name": "Other Office",
+    "slug": "other-office",
+    "parentId": 409,
+    "icon": "fa-scissors",
+    "iconColor": "#1EB1F7",
+    "level": 2
+  },
+  {
+    "id": 41002,
+    "name": "Mix",
+    "slug": "mix",
+    "parentId": 410,
+    "icon": "fa-layer-group",
+    "iconColor": "#1EB1F7",
+    "level": 2
+  },
+  {
+    "id": 501,
+    "name": "Dog Adoption",
+    "slug": "dog-adoption",
+    "parentId": 5,
+    "icon": "fa-dog",
+    "iconColor": "#1EB1F7",
+    "level": 1
+  },
+  {
+    "id": 502,
+    "name": "Cat Adoption",
+    "slug": "cat-adoption",
+    "parentId": 5,
+    "icon": "fa-cat",
+    "iconColor": "#1EB1F7",
+    "level": 1
+  },
+  {
+    "id": 503,
+    "name": "Accessories & Equipment",
+    "slug": "accessories-equipment",
+    "parentId": 5,
+    "icon": "fa-bone",
+    "iconColor": "#1EB1F7",
+    "level": 1
+  },
+  {
+    "id": 504,
+    "name": "Feed & Food",
+    "slug": "feed-food",
+    "parentId": 5,
+    "icon": "fa-bone",
+    "iconColor": "#1EB1F7",
+    "level": 1
+  },
+  {
+    "id": 508,
+    "name": "Bird",
+    "slug": "bird",
+    "parentId": 5,
+    "icon": "fa-bone",
+    "iconColor": "#1EB1F7",
+    "level": 1
+  },
+  {
+    "id": 50101,
+    "name": "Dog",
+    "slug": "dog",
+    "parentId": 501,
+    "icon": "fa-dog",
+    "iconColor": "#1EB1F7",
+    "level": 2
+  },
+  {
+    "id": 50201,
+    "name": "Cat",
+    "slug": "cat",
+    "parentId": 502,
+    "icon": "fa-cat",
+    "iconColor": "#1EB1F7",
+    "level": 2
+  },
+  {
+    "id": 50301,
+    "name": "Dog Accessories",
+    "slug": "dog-accessories",
+    "parentId": 503,
+    "icon": "fa-bone",
+    "iconColor": "#1EB1F7",
+    "level": 2
+  },
+  {
+    "id": 50302,
+    "name": "Cat Accessories",
+    "slug": "cat-accessories",
+    "parentId": 503,
+    "icon": "fa-cat",
+    "iconColor": "#1EB1F7",
+    "level": 2
+  },
+  {
+    "id": 50401,
+    "name": "Dry Food",
+    "slug": "dry-food",
+    "parentId": 504,
+    "icon": "fa-bone",
+    "iconColor": "#1EB1F7",
+    "level": 2
+  },
+  {
+    "id": 50402,
+    "name": "Wet Food",
+    "slug": "wet-food",
+    "parentId": 504,
+    "icon": "fa-fish",
+    "iconColor": "#1EB1F7",
+    "level": 2
+  },
+  {
+    "id": 50403,
+    "name": "Bird Food",
+    "slug": "bird-food",
+    "parentId": 504,
+    "icon": "fa-fish",
+    "iconColor": "#1EB1F7",
+    "level": 2
+  },
+  {
+    "id": 601,
+    "name": "Computer",
+    "slug": "computer",
+    "parentId": 6,
+    "icon": "fa-laptop",
+    "iconColor": "#1EB1F7",
+    "level": 1
+  },
+  {
+    "id": 602,
+    "name": "Mobile Phone & Accessories",
+    "slug": "mobile-phone-accessories",
+    "parentId": 6,
+    "icon": "fa-phone",
+    "iconColor": "#1EB1F7",
+    "level": 1
+  },
+  {
+    "id": 603,
+    "name": "Photography & Camera",
+    "slug": "photography-camera",
+    "parentId": 6,
+    "icon": "fa-camera",
+    "iconColor": "#1EB1F7",
+    "level": 1
+  },
+  {
+    "id": 604,
+    "name": "TV & Audio",
+    "slug": "tv-audio",
+    "parentId": 6,
+    "icon": "fa-plug",
+    "iconColor": "#1EB1F7",
+    "level": 1
+  },
+  {
+    "id": 605,
+    "name": "Electrical Home Appliances",
+    "slug": "electrical-home-appliances",
+    "parentId": 6,
+    "icon": "fa-blender",
+    "iconColor": "#1EB1F7",
+    "level": 1
+  },
+  {
+    "id": 606,
+    "name": "Watch",
+    "slug": "watch",
+    "parentId": 6,
+    "icon": "fa-clock",
+    "iconColor": "#1EB1F7",
+    "level": 1
+  },
+  {
+    "id": 607,
+    "name": "For Gamers",
+    "slug": "for-gamers",
+    "parentId": 6,
+    "icon": "fa-gamepad",
+    "iconColor": "#1EB1F7",
+    "level": 1
+  },
+  {
+    "id": 608,
+    "name": "Components & DIY",
+    "slug": "components-diy",
+    "parentId": 6,
+    "icon": "fa-microchip",
+    "iconColor": "#1EB1F7",
+    "level": 1
+  },
+  {
+    "id": 60101,
+    "name": "Desktops",
+    "slug": "desktops",
+    "parentId": 601,
+    "icon": "fa-desktop",
+    "iconColor": "#1EB1F7",
+    "level": 2
+  },
+  {
+    "id": 60102,
+    "name": "Laptop",
+    "slug": "laptop",
+    "parentId": 601,
+    "icon": "fa-laptop",
+    "iconColor": "#1EB1F7",
+    "level": 2
+  },
+  {
+    "id": 60103,
+    "name": "Other Technology",
+    "slug": "other-technology",
+    "parentId": 601,
+    "icon": "fa-laptop",
+    "iconColor": "#1EB1F7",
+    "level": 2
+  },
+  {
+    "id": 60201,
+    "name": "Android",
+    "slug": "android",
+    "parentId": 602,
+    "icon": "fa-mobile",
+    "iconColor": "#1EB1F7",
+    "level": 2
+  },
+  {
+    "id": 60201,
+    "name": "iPhone",
+    "slug": "iphone",
+    "parentId": 602,
+    "icon": "fa-mobile",
+    "iconColor": "#1EB1F7",
+    "level": 2
+  },
+  {
+    "id": 60202,
+    "name": "Accessory Mix",
+    "slug": "accessory-mix",
+    "parentId": 602,
+    "icon": "fa-headphones",
+    "iconColor": "#1EB1F7",
+    "level": 2
+  },
+  {
+    "id": 60301,
+    "name": "Action Cameras",
+    "slug": "action-cameras",
+    "parentId": 603,
+    "icon": "fa-video",
+    "iconColor": "#1EB1F7",
+    "level": 2
+  },
+  {
+    "id": 60302,
+    "name": "Digital Cameras",
+    "slug": "digital-cameras",
+    "parentId": 603,
+    "icon": "fa-headphones",
+    "iconColor": "#1EB1F7",
+    "level": 2
+  },
+  {
+    "id": 60303,
+    "name": "Frames",
+    "slug": "frames",
+    "parentId": 603,
+    "icon": "fa-gamepad",
+    "iconColor": "#1EB1F7",
+    "level": 2
+  },
+  {
+    "id": 60304,
+    "name": "Other Cameras",
+    "slug": "other-cameras",
+    "parentId": 603,
+    "icon": "fa-laptop",
+    "iconColor": "#1EB1F7",
+    "level": 2
+  },
+  {
+    "id": 60401,
+    "name": "TVs & Displays",
+    "slug": "tvs-displays",
+    "parentId": 604,
+    "icon": "fa-tv",
+    "iconColor": "#1EB1F7",
+    "level": 2
+  },
+  {
+    "id": 60402,
+    "name": "Audio Systems",
+    "slug": "audio-systems",
+    "parentId": 604,
+    "icon": "fa-volume-high",
+    "iconColor": "#1EB1F7",
+    "level": 2
+  },
+  {
+    "id": 60403,
+    "name": "Other Electronics",
+    "slug": "other-electronics",
+    "parentId": 604,
+    "icon": "fa-laptop",
+    "iconColor": "#1EB1F7",
+    "level": 2
+  },
+  {
+    "id": 60501,
+    "name": "Kitchen Appliances",
+    "slug": "kitchen-appliances",
+    "parentId": 605,
+    "icon": "fa-blender",
+    "iconColor": "#1EB1F7",
+    "level": 2
+  },
+  {
+    "id": 60502,
+    "name": "Cleaning Appliances",
+    "slug": "cleaning-appliances",
+    "parentId": 605,
+    "icon": "fa-broom",
+    "iconColor": "#1EB1F7",
+    "level": 2
+  },
+  {
+    "id": 60503,
+    "name": "Other Home Electronics",
+    "slug": "other-home-electronics",
+    "parentId": 605,
+    "icon": "fa-laptop",
+    "iconColor": "#1EB1F7",
+    "level": 2
+  },
+  {
+    "id": 60601,
+    "name": "Mechanical Watches",
+    "slug": "mechanical-watches",
+    "parentId": 606,
+    "icon": "fa-clock",
+    "iconColor": "#1EB1F7",
+    "level": 2
+  },
+  {
+    "id": 60602,
+    "name": "Smart Watches",
+    "slug": "smart-watches",
+    "parentId": 606,
+    "icon": "fa-clock",
+    "iconColor": "#1EB1F7",
+    "level": 2
+  },
+  {
+    "id": 60603,
+    "name": "Other Watches",
+    "slug": "other-watches",
+    "parentId": 606,
+    "icon": "fa-clock",
+    "iconColor": "#1EB1F7",
+    "level": 2
+  },
+  {
+    "id": 60701,
+    "name": "PC Accessories",
+    "slug": "pc-accessories",
+    "parentId": 607,
+    "icon": "fa-keyboard",
+    "iconColor": "#1EB1F7",
+    "level": 2
+  },
+  {
+    "id": 60702,
+    "name": "Console",
+    "slug": "console",
+    "parentId": 607,
+    "icon": "fa-gamepad",
+    "iconColor": "#1EB1F7",
+    "level": 2
+  },
+  {
+    "id": 60703,
+    "name": "Other Gaming",
+    "slug": "other-gaming",
+    "parentId": 607,
+    "icon": "fa-laptop",
+    "iconColor": "#1EB1F7",
+    "level": 2
+  },
+  {
+    "id": 60801,
+    "name": "Circuit Elements",
+    "slug": "circuit-elements",
+    "parentId": 608,
+    "icon": "fa-microchip",
+    "iconColor": "#1EB1F7",
+    "level": 2
+  },
+  {
+    "id": 60802,
+    "name": "Sensor & Module",
+    "slug": "sensor-module",
+    "parentId": 608,
+    "icon": "fa-bolt",
+    "iconColor": "#1EB1F7",
+    "level": 2
+  },
+  {
+    "id": 60803,
+    "name": "Other Games",
+    "slug": "other-games",
+    "parentId": 608,
+    "icon": "fa-laptop",
+    "iconColor": "#1EB1F7",
+    "level": 2
+  }
+];
+        const categoryFieldsConfig = {
+  "Residential for Sale": {
+    "fields": [
+      {
+        "name": "Otopark var mı?",
+        "label": "Otopark var mı?",
+        "type": "select",
+        "options": [
+          "yes",
+          "no"
+        ],
+        "required": true
+      },
+      {
+        "name": "balkon",
+        "label": "Balkon",
+        "type": "number",
+        "options": [
+          "yes",
+          "no"
+        ],
+        "required": true
+      },
+      {
+        "name": "batroom",
+        "label": "Batroom",
+        "type": "select",
+        "options": [
+          "1",
+          "2",
+          "3",
+          "+4"
+        ],
+        "required": true
+      },
+      {
+        "name": "Room",
+        "label": "Room",
+        "type": "number",
+        "required": true
+      },
+      {
+        "name": "Floor",
+        "label": "Floor",
+        "type": "select",
+        "options": [
+          "1",
+          "2",
+          "3",
+          "+4"
+        ],
+        "required": true
+      },
+      {
+        "name": "Bahçe",
+        "label": "Bahçe",
+        "type": "select",
+        "options": [
+          "yes",
+          "no"
+        ],
+        "required": true
+      },
+      {
+        "name": "Teras",
+        "label": "Teras",
+        "type": "select",
+        "options": [
+          "yes",
+          "no"
+        ],
+        "required": true
+      },
+      {
+        "name": "manzarası",
+        "label": "Manzarası",
+        "type": "select",
+        "options": [
+          "deniz",
+          "sehir"
+        ],
+        "required": true
+      },
+      {
+        "name": "garaj",
+        "label": "Garaj",
+        "type": "select",
+        "options": [
+          "yes",
+          "no"
+        ],
+        "required": true
+      },
+      {
+        "name": "Lift",
+        "label": "Lift",
+        "type": "select",
+        "options": [
+          "yes",
+          "no"
+        ],
+        "required": true
+      }
+    ]
+  },
+  "Residential for Rent": {
+    "fields": [
+      {
+        "name": "Pets Allowed?",
+        "label": "Pets Allowed?",
+        "type": "select",
+        "options": [
+          "Yes",
+          "No"
+        ],
+        "required": false
+      },
+      {
+        "name": "kiralama suresi",
+        "label": "Kiralama suresi",
+        "type": "select",
+        "options": [
+          "Uzun Dönem (Long Let): 6 aydan uzun (İkamet izni için geçerli)",
+          "Kısa Dönem (Short Let): 6 aydan kısa (Turistik/Geçici)"
+        ],
+        "required": false
+      },
+      {
+        "name": "batroom",
+        "label": "Batroom",
+        "type": "select",
+        "options": [
+          "1",
+          "2",
+          "3",
+          "+4"
+        ],
+        "required": true
+      },
+      {
+        "name": "Floor",
+        "label": "Floor",
+        "type": "select",
+        "options": [
+          "1",
+          "2",
+          "3",
+          "+4"
+        ],
+        "required": true
+      },
+      {
+        "name": "bills",
+        "label": "Bills included",
+        "type": "select",
+        "options": [
+          "yes",
+          "no"
+        ],
+        "required": true
+      },
+      {
+        "name": "deposit",
+        "label": "Deposit",
+        "type": "number",
+        "required": true
+      },
+      {
+        "name": "Otopark var mi?",
+        "label": "Otopark var mi?",
+        "type": "select",
+        "options": [
+          "yes",
+          "no"
+        ],
+        "required": true
+      },
+      {
+        "name": "balkon",
+        "label": "Balkon",
+        "type": "select",
+        "options": [
+          "sayi",
+          "no"
+        ],
+        "required": true
+      },
+      {
+        "name": "İnternet",
+        "label": "İnternet",
+        "type": "select",
+        "options": [
+          "yes",
+          "no"
+        ],
+        "required": true
+      },
+      {
+        "name": "Esyali",
+        "label": "Esyali",
+        "type": "select",
+        "options": [
+          "yes",
+          "no"
+        ],
+        "required": true
+      },
+      {
+        "name": "Klima",
+        "label": "Klima",
+        "type": "select",
+        "options": [
+          "yes",
+          "no"
+        ],
+        "required": true
+      },
+      {
+        "name": "Bulaşik makinesi",
+        "label": "Bulaşik makinesi",
+        "type": "select",
+        "options": [
+          "yes",
+          "no"
+        ],
+        "required": true
+      },
+      {
+        "name": "Çamaşir makinesi",
+        "label": "Çamaşir makinesi",
+        "type": "select",
+        "options": [
+          "yes",
+          "no"
+        ],
+        "required": true
+      },
+      {
+        "name": "Kurutma makinesi",
+        "label": "Kurutma makinesi",
+        "type": "select",
+        "options": [
+          "yes",
+          "no"
+        ],
+        "required": true
+      },
+      {
+        "name": "Lift",
+        "label": "Lift",
+        "type": "select",
+        "options": [
+          "yes",
+          "no"
+        ],
+        "required": true
+      }
+    ]
+  },
+  "Room for Rent": {
+    "fields": [
+      {
+        "name": "Pets Allowed?",
+        "label": "Pets Allowed?",
+        "type": "select",
+        "options": [
+          "Yes",
+          "No"
+        ],
+        "required": false
+      },
+      {
+        "name": "kiralama suresi",
+        "label": "Kiralama suresi",
+        "type": "select",
+        "options": [
+          "Uzun Dönem (Long Let): 6 aydan uzun (İkamet izni için geçerli)",
+          "Kısa Dönem (Short Let): 6 aydan kısa (Turistik/Geçici)"
+        ],
+        "required": false
+      },
+      {
+        "name": "batroom",
+        "label": "Batroom",
+        "type": "select",
+        "options": [
+          "1",
+          "2",
+          "3",
+          "+4"
+        ],
+        "required": true
+      },
+      {
+        "name": "Floor",
+        "label": "Floor",
+        "type": "select",
+        "options": [
+          "1",
+          "2",
+          "3",
+          "+4"
+        ],
+        "required": true
+      },
+      {
+        "name": "bills",
+        "label": "Bills included",
+        "type": "select",
+        "options": [
+          "Yes",
+          "No"
+        ],
+        "required": true
+      },
+      {
+        "name": "evde Kaç kisi yasiyor",
+        "label": "Kaç Kisi Yasiyor",
+        "type": "number",
+        "required": true
+      },
+      {
+        "name": "deposit",
+        "label": "Deposit",
+        "type": "number",
+        "required": true
+      },
+      {
+        "name": "Otopark var mi?",
+        "label": "Otopark var mi?",
+        "type": "select",
+        "options": [
+          "Yes",
+          "No"
+        ],
+        "required": true
+      },
+      {
+        "name": "balkon",
+        "label": "Balkon",
+        "type": "select",
+        "options": [
+          "Yes",
+          "No"
+        ],
+        "required": true
+      },
+      {
+        "name": "İnternet",
+        "label": "İnternet",
+        "type": "select",
+        "options": [
+          "Yes",
+          "No"
+        ],
+        "required": true
+      },
+      {
+        "name": "Esyali",
+        "label": "Esyali",
+        "type": "select",
+        "options": [
+          "Yes",
+          "No"
+        ],
+        "required": true
+      },
+      {
+        "name": "Klima",
+        "label": "Klima",
+        "type": "select",
+        "options": [
+          "Yes",
+          "No"
+        ],
+        "required": true
+      },
+      {
+        "name": "Çamaşir makinesi",
+        "label": "Çamaşir makinesi",
+        "type": "select",
+        "options": [
+          "Yes",
+          "No"
+        ],
+        "required": true
+      },
+      {
+        "name": "Bulaşik makinesi",
+        "label": "Bulaşik makinesi",
+        "type": "select",
+        "options": [
+          "Yes",
+          "No"
+        ],
+        "required": true
+      },
+      {
+        "name": "Kurutma makinesi",
+        "label": "Kurutma makinesi",
+        "type": "select",
+        "options": [
+          "Yes",
+          "No"
+        ],
+        "required": true
+      }
+    ]
+  },
+  "Commercial for Sale": {
+    "fields": [
+      {
+        "name": "Area (m²)",
+        "label": "Area (m²)",
+        "type": "number",
+        "required": false
+      },
+      {
+        "name": "Number of Rooms",
+        "label": "Number of Rooms",
+        "type": "select",
+        "options": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5+"
+        ],
+        "required": false
+      },
+      {
+        "name": "heating",
+        "label": "Heating",
+        "type": "select",
+        "options": [
+          "Yes",
+          "No"
+        ],
+        "required": true
+      },
+      {
+        "name": "Has Bathroom?",
+        "label": "Has Bathroom?",
+        "type": "select",
+        "options": [
+          "Yes",
+          "No"
+        ],
+        "required": true
+      },
+      {
+        "name": "durumu",
+        "label": "Durumu",
+        "type": "select",
+        "options": [
+          "sifir",
+          "ikinci el"
+        ],
+        "required": true
+      }
+    ]
+  },
+  "Commercial for Rent": {
+    "fields": [
+      {
+        "name": "Area (m²)",
+        "label": "Area (m²)",
+        "type": "number",
+        "required": false
+      },
+      {
+        "name": "Number of Rooms",
+        "label": "Number of Rooms",
+        "type": "select",
+        "options": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5+"
+        ],
+        "required": false
+      },
+      {
+        "name": "heating",
+        "label": "Heating",
+        "type": "select",
+        "options": [
+          "Yes",
+          "No"
+        ],
+        "required": true
+      },
+      {
+        "name": "Has Bathroom?",
+        "label": "Has Bathroom?",
+        "type": "select",
+        "options": [
+          "Yes",
+          "No"
+        ],
+        "required": true
+      },
+      {
+        "name": "durumu",
+        "label": "Durumu",
+        "type": "select",
+        "options": [
+          "sifir",
+          "ikinci el"
+        ],
+        "required": true
+      }
+    ]
+  },
+  "Land for Sale": {
+    "fields": [
+      {
+        "name": "Area (m²)",
+        "label": "Area (m²)",
+        "type": "number",
+        "required": true
+      },
+      {
+        "name": "imar",
+        "label": "Imar",
+        "type": "select",
+        "options": [
+          "Var",
+          "Yok"
+        ],
+        "required": true
+      }
+    ]
+  },
+  "Land for Rent": {
+    "fields": [
+      {
+        "name": "Area (m²)",
+        "label": "Area (m²)",
+        "type": "number",
+        "required": true
+      }
+    ]
+  },
+  "Petrol & Diesel": {
+    "fields": [
+      {
+        "name": "registration_year",
+        "label": "Yıl (Model Yılı)",
+        "type": "number",
+        "required": true
+      },
+      {
+        "name": "body_type",
+        "label": "Kasa Tipi",
+        "type": "select",
+        "options": [
+          "Hatchback",
+          "Sedan",
+          "SUV / Jeep",
+          "Coupe",
+          "Cabrio",
+          "Station Wagon",
+          "Van",
+          "Pick-up"
+        ],
+        "required": true
+      },
+      {
+        "name": "import_origin",
+        "label": "Import / Menşei",
+        "type": "select",
+        "options": [
+          "Ta Malta (Yerli)",
+          "İngiltere (UK)",
+          "Japonya (JDM)",
+          "Diğer"
+        ],
+        "required": true
+      },
+      {
+        "name": "vehicle_condition",
+        "label": "Araç Durumu",
+        "type": "select",
+        "options": [
+          "Sıfır (New)",
+          "İkinci El (Used)"
+        ],
+        "required": true
+      },
+      {
+        "name": "fuel_type",
+        "label": "Yakıt Türü",
+        "type": "select",
+        "options": [
+          "Benzin",
+          "Dizel"
+        ],
+        "required": true
+      },
+      {
+        "name": "transmission",
+        "label": "Vites Tipi",
+        "type": "select",
+        "options": [
+          "Manuel",
+          "Otomatik",
+          "Yarı Otomatik"
+        ],
+        "required": true
+      },
+      {
+        "name": "mileage",
+        "label": "KM",
+        "type": "number",
+        "required": true
+      },
+      {
+        "name": "engine_displacement",
+        "label": "Motor Hacmi (cc)",
+        "type": "number",
+        "required": false
+      },
+      {
+        "name": "engine_power",
+        "label": "Motor Gücü (HP)",
+        "type": "number",
+        "required": false
+      },
+      {
+        "name": "drivetrain",
+        "label": "Çekiş",
+        "type": "select",
+        "options": [
+          "Önden Çekiş",
+          "Arkadan İtiş",
+          "4x4"
+        ],
+        "required": true
+      },
+      {
+        "name": "color",
+        "label": "Renk",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "door_count",
+        "label": "Kapı Sayısı",
+        "type": "select",
+        "options": [
+          "2/3 Kapı",
+          "4/5 Kapı"
+        ],
+        "required": true
+      },
+      {
+        "name": "tire_condition",
+        "label": "Lastik Durumu",
+        "type": "select",
+        "options": [
+          "Yeni",
+          "Yeni Gibi",
+          "Orta",
+          "Değişmeli"
+        ],
+        "required": true
+      },
+      {
+        "name": "seat_count",
+        "label": "Koltuk Sayısı",
+        "type": "select",
+        "options": [
+          "2",
+          "4",
+          "5",
+          "7",
+          "8+"
+        ],
+        "required": true
+      },
+      {
+        "name": "air_conditioner",
+        "label": "Klima",
+        "type": "select",
+        "options": [
+          "Var",
+          "Yok",
+          "Çalışmıyor"
+        ],
+        "required": true
+      },
+      {
+        "name": "has_abs",
+        "label": "ABS",
+        "type": "select",
+        "options": [
+          "Var",
+          "Yok"
+        ],
+        "required": true
+      },
+      {
+        "name": "warranty",
+        "label": "Garanti",
+        "type": "select",
+        "options": [
+          "Var",
+          "Yok"
+        ],
+        "required": true
+      },
+      {
+        "name": "road_license_status",
+        "label": "Lisans/Vergi",
+        "type": "select",
+        "options": [
+          "Ödendi",
+          "Süresi Dolmuş",
+          "Borçlu"
+        ],
+        "required": false
+      },
+      {
+        "name": "vrt_expiry",
+        "label": "VRT / Muayene Bitiş",
+        "type": "text",
+        "required": false
+      },
+      {
+        "name": "exchange",
+        "label": "Takas",
+        "type": "select",
+        "options": [
+          "Evet",
+          "Hayır"
+        ],
+        "required": true
+      }
+    ]
+  },
+  "Electric & Hybrid": {
+    "fields": [
+      {
+        "name": "renk",
+        "label": "Renk",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "lastik durumu",
+        "label": "Lastik Durumu",
+        "type": "select",
+        "options": [
+          "yeni",
+          "yeni gibi",
+          "degimeli"
+        ],
+        "required": true
+      },
+      {
+        "name": "import mu",
+        "label": "Import mu",
+        "type": "select",
+        "options": [
+          "ta malta",
+          "ingiltere",
+          "japonya",
+          "other"
+        ],
+        "required": true
+      },
+      {
+        "name": "cekis",
+        "label": "Çekiş",
+        "type": "select",
+        "options": [
+          "Arkadan İtiş",
+          "Önden Çekiş",
+          "4x4"
+        ],
+        "required": true
+      },
+      {
+        "name": "arac durumu",
+        "label": "Araç Durumu",
+        "type": "select",
+        "options": [
+          "Yeni",
+          "İkinci El"
+        ],
+        "required": true
+      },
+      {
+        "name": "km",
+        "label": "KM",
+        "type": "number",
+        "required": true
+      },
+      {
+        "name": "motor gucu(hp)",
+        "label": "Motor Gücü (HP)",
+        "type": "number",
+        "required": false
+      },
+      {
+        "name": "motor hacmi(cc)",
+        "label": "Motor Hacmi (cc)",
+        "type": "number",
+        "required": false
+      },
+      {
+        "name": "garanti",
+        "label": "Garanti",
+        "type": "select",
+        "options": [
+          "Var",
+          "Yok"
+        ],
+        "required": true
+      },
+      {
+        "name": "abs",
+        "label": "ABS",
+        "type": "select",
+        "options": [
+          "Var",
+          "Yok"
+        ],
+        "required": true
+      },
+      {
+        "name": "seats",
+        "label": "Seats",
+        "type": "select",
+        "options": [
+          "2",
+          "4",
+          "5",
+          "7",
+          "Other"
+        ],
+        "required": true
+      }
+    ]
+  },
+  "SUV, 4x4 & Pickups": {
+    "fields": [
+      {
+        "name": "renk",
+        "label": "Renk",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "lastik durumu",
+        "label": "Lastik Durumu",
+        "type": "select",
+        "options": [
+          "yeni",
+          "yeni gibi",
+          "degimeli"
+        ],
+        "required": true
+      },
+      {
+        "name": "import mu",
+        "label": "Import mu",
+        "type": "select",
+        "options": [
+          "ta malta",
+          "ingiltere",
+          "japonya",
+          "other"
+        ],
+        "required": true
+      },
+      {
+        "name": "cekis",
+        "label": "Çekiş",
+        "type": "select",
+        "options": [
+          "Arkadan İtiş",
+          "Önden Çekiş",
+          "4x4"
+        ],
+        "required": true
+      },
+      {
+        "name": "vites tipi",
+        "label": "Vites Tipi",
+        "type": "select",
+        "options": [
+          "Manuel",
+          "Otomatik"
+        ],
+        "required": true
+      },
+      {
+        "name": "yakit turu",
+        "label": "Yakit Türü",
+        "type": "select",
+        "options": [
+          "Benzin",
+          "Dizel"
+        ],
+        "required": true
+      },
+      {
+        "name": "arac durumu",
+        "label": "Araç Durumu",
+        "type": "select",
+        "options": [
+          "Yeni",
+          "İkinci El"
+        ],
+        "required": true
+      },
+      {
+        "name": "km",
+        "label": "KM",
+        "type": "number",
+        "required": true
+      },
+      {
+        "name": "motor gucu(hp)",
+        "label": "Motor Gücü (HP)",
+        "type": "number",
+        "required": false
+      },
+      {
+        "name": "motor hacmi(cc)",
+        "label": "Motor Hacmi (cc)",
+        "type": "number",
+        "required": false
+      },
+      {
+        "name": "garanti",
+        "label": "Garanti",
+        "type": "select",
+        "options": [
+          "Var",
+          "Yok"
+        ],
+        "required": true
+      },
+      {
+        "name": "abs",
+        "label": "ABS",
+        "type": "select",
+        "options": [
+          "Var",
+          "Yok"
+        ],
+        "required": true
+      },
+      {
+        "name": "seats",
+        "label": "Seats",
+        "type": "select",
+        "options": [
+          "2",
+          "4",
+          "5",
+          "7",
+          "Other"
+        ],
+        "required": true
+      }
+    ]
+  },
+  "Classic Cars": {
+    "fields": [
+      {
+        "name": "renk",
+        "label": "Renk",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "lastik durumu",
+        "label": "Lastik Durumu",
+        "type": "select",
+        "options": [
+          "yeni",
+          "yeni gibi",
+          "degimeli"
+        ],
+        "required": true
+      },
+      {
+        "name": "import mu",
+        "label": "Import mu",
+        "type": "select",
+        "options": [
+          "ta malta",
+          "ingiltere",
+          "japonya",
+          "other"
+        ],
+        "required": true
+      },
+      {
+        "name": "cekis",
+        "label": "Çekiş",
+        "type": "select",
+        "options": [
+          "Arkadan İtiş",
+          "Önden Çekiş",
+          "4x4"
+        ],
+        "required": true
+      },
+      {
+        "name": "vites tipi",
+        "label": "Vites Tipi",
+        "type": "select",
+        "options": [
+          "Manuel",
+          "Otomatik"
+        ],
+        "required": true
+      },
+      {
+        "name": "yakit turu",
+        "label": "Yakit Türü",
+        "type": "select",
+        "options": [
+          "Benzin",
+          "Dizel"
+        ],
+        "required": true
+      },
+      {
+        "name": "arac durumu",
+        "label": "Araç Durumu",
+        "type": "select",
+        "options": [
+          "Yeni",
+          "İkinci El"
+        ],
+        "required": true
+      },
+      {
+        "name": "km",
+        "label": "KM",
+        "type": "number",
+        "required": true
+      },
+      {
+        "name": "motor gucu(hp)",
+        "label": "Motor Gücü (HP)",
+        "type": "number",
+        "required": false
+      },
+      {
+        "name": "motor hacmi(cc)",
+        "label": "Motor Hacmi (cc)",
+        "type": "number",
+        "required": false
+      },
+      {
+        "name": "garanti",
+        "label": "Garanti",
+        "type": "select",
+        "options": [
+          "Var",
+          "Yok"
+        ],
+        "required": true
+      },
+      {
+        "name": "abs",
+        "label": "ABS",
+        "type": "select",
+        "options": [
+          "Var",
+          "Yok"
+        ],
+        "required": true
+      },
+      {
+        "name": "seats",
+        "label": "Seats",
+        "type": "select",
+        "options": [
+          "2",
+          "4",
+          "5",
+          "7",
+          "Other"
+        ],
+        "required": true
+      }
+    ]
+  },
+  "Benzinli Motor": {
+    "fields": [
+      {
+        "name": "renk",
+        "label": "Renk",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "lastik durumu",
+        "label": "Lastik Durumu",
+        "type": "select",
+        "options": [
+          "yeni",
+          "yeni gibi",
+          "degimeli"
+        ],
+        "required": true
+      },
+      {
+        "name": "import mu",
+        "label": "Import mu",
+        "type": "select",
+        "options": [
+          "ta malta",
+          "ingiltere",
+          "japonya",
+          "other"
+        ],
+        "required": true
+      },
+      {
+        "name": "vites tipi",
+        "label": "Vites Tipi",
+        "type": "select",
+        "options": [
+          "Manuel",
+          "Otomatik"
+        ],
+        "required": true
+      },
+      {
+        "name": "arac durumu",
+        "label": "Araç Durumu",
+        "type": "select",
+        "options": [
+          "Yeni",
+          "İkinci El"
+        ],
+        "required": true
+      },
+      {
+        "name": "km",
+        "label": "KM",
+        "type": "number",
+        "required": true
+      },
+      {
+        "name": "motor gucu(hp)",
+        "label": "Motor Gücü (HP)",
+        "type": "number",
+        "required": false
+      },
+      {
+        "name": "motor hacmi(cc)",
+        "label": "Motor Hacmi (cc)",
+        "type": "number",
+        "required": false
+      },
+      {
+        "name": "garanti",
+        "label": "Garanti",
+        "type": "select",
+        "options": [
+          "Var",
+          "Yok"
+        ],
+        "required": true
+      },
+      {
+        "name": "abs",
+        "label": "ABS",
+        "type": "select",
+        "options": [
+          "Var",
+          "Yok"
+        ],
+        "required": true
+      }
+    ]
+  },
+  "Electric Scooter": {
+    "fields": [
+      {
+        "name": "renk",
+        "label": "Renk",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "lastik durumu",
+        "label": "Lastik Durumu",
+        "type": "select",
+        "options": [
+          "yeni",
+          "yeni gibi",
+          "degimeli"
+        ],
+        "required": true
+      },
+      {
+        "name": "import mu",
+        "label": "Import mu",
+        "type": "select",
+        "options": [
+          "ta malta",
+          "ingiltere",
+          "japonya",
+          "other"
+        ],
+        "required": true
+      },
+      {
+        "name": "vites tipi",
+        "label": "Vites Tipi",
+        "type": "select",
+        "options": [
+          "Manuel",
+          "Otomatik"
+        ],
+        "required": true
+      },
+      {
+        "name": "arac durumu",
+        "label": "Araç Durumu",
+        "type": "select",
+        "options": [
+          "Yeni",
+          "İkinci El"
+        ],
+        "required": true
+      },
+      {
+        "name": "km",
+        "label": "KM",
+        "type": "number",
+        "required": true
+      },
+      {
+        "name": "motor gucu(hp)",
+        "label": "Motor Gücü (HP)",
+        "type": "number",
+        "required": false
+      },
+      {
+        "name": "motor hacmi(cc)",
+        "label": "Motor Hacmi (cc)",
+        "type": "number",
+        "required": false
+      },
+      {
+        "name": "garanti",
+        "label": "Garanti",
+        "type": "select",
+        "options": [
+          "Var",
+          "Yok"
+        ],
+        "required": true
+      }
+    ]
+  },
+  "Motorhomes": {
+    "fields": [
+      {
+        "name": "lastik durumu",
+        "label": "Lastik Durumu",
+        "type": "select",
+        "options": [
+          "yeni",
+          "yeni gibi",
+          "degimeli"
+        ],
+        "required": true
+      },
+      {
+        "name": "import mu",
+        "label": "Import mu",
+        "type": "select",
+        "options": [
+          "ta malta",
+          "ingiltere",
+          "japonya",
+          "other"
+        ],
+        "required": true
+      },
+      {
+        "name": "vites tipi",
+        "label": "Vites Tipi",
+        "type": "select",
+        "options": [
+          "Manuel",
+          "Otomatik"
+        ],
+        "required": true
+      },
+      {
+        "name": "arac durumu",
+        "label": "Araç Durumu",
+        "type": "select",
+        "options": [
+          "Yeni",
+          "İkinci El"
+        ],
+        "required": true
+      },
+      {
+        "name": "km",
+        "label": "KM",
+        "type": "number",
+        "required": true
+      },
+      {
+        "name": "motor gucu(hp)",
+        "label": "Motor Gücü (HP)",
+        "type": "number",
+        "required": false
+      },
+      {
+        "name": "motor hacmi(cc)",
+        "label": "Motor Hacmi (cc)",
+        "type": "number",
+        "required": false
+      },
+      {
+        "name": "garanti",
+        "label": "Garanti",
+        "type": "select",
+        "options": [
+          "Var",
+          "Yok"
+        ],
+        "required": true
+      },
+      {
+        "name": "abs",
+        "label": "ABS",
+        "type": "select",
+        "options": [
+          "Var",
+          "Yok"
+        ],
+        "required": true
+      },
+      {
+        "name": "tuvalet",
+        "label": "Tuvalet",
+        "type": "number",
+        "required": false
+      },
+      {
+        "name": "dus",
+        "label": "Duş",
+        "type": "number",
+        "required": false
+      }
+    ]
+  },
+  "Towed Caravans": {
+    "fields": [
+      {
+        "name": "lastik durumu",
+        "label": "Lastik Durumu",
+        "type": "select",
+        "options": [
+          "yeni",
+          "yeni gibi",
+          "degimeli"
+        ],
+        "required": true
+      },
+      {
+        "name": "arac durumu",
+        "label": "Araç Durumu",
+        "type": "select",
+        "options": [
+          "Yeni",
+          "İkinci El"
+        ],
+        "required": true
+      },
+      {
+        "name": "garanti",
+        "label": "Garanti",
+        "type": "select",
+        "options": [
+          "Var",
+          "Yok"
+        ],
+        "required": true
+      }
+    ]
+  },
+  "Trucks": {
+    "fields": [
+      {
+        "name": "renk",
+        "label": "Renk",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "lastik durumu",
+        "label": "Lastik Durumu",
+        "type": "select",
+        "options": [
+          "yeni",
+          "yeni gibi",
+          "degimeli"
+        ],
+        "required": true
+      },
+      {
+        "name": "import mu",
+        "label": "Import mu",
+        "type": "select",
+        "options": [
+          "ta malta",
+          "ingiltere",
+          "japonya",
+          "other"
+        ],
+        "required": true
+      },
+      {
+        "name": "cekis",
+        "label": "Çekiş",
+        "type": "select",
+        "options": [
+          "Arkadan İtiş",
+          "Önden Çekiş",
+          "4x4"
+        ],
+        "required": true
+      },
+      {
+        "name": "vites tipi",
+        "label": "Vites Tipi",
+        "type": "select",
+        "options": [
+          "Manuel",
+          "Otomatik"
+        ],
+        "required": true
+      },
+      {
+        "name": "yakit turu",
+        "label": "Yakit Türü",
+        "type": "select",
+        "options": [
+          "Benzin",
+          "Dizel"
+        ],
+        "required": true
+      },
+      {
+        "name": "arac durumu",
+        "label": "Araç Durumu",
+        "type": "select",
+        "options": [
+          "Yeni",
+          "İkinci El"
+        ],
+        "required": true
+      },
+      {
+        "name": "km",
+        "label": "KM",
+        "type": "number",
+        "required": true
+      },
+      {
+        "name": "motor gucu(hp)",
+        "label": "Motor Gücü (HP)",
+        "type": "number",
+        "required": false
+      },
+      {
+        "name": "motor hacmi(cc)",
+        "label": "Motor Hacmi (cc)",
+        "type": "number",
+        "required": false
+      },
+      {
+        "name": "garanti",
+        "label": "Garanti",
+        "type": "select",
+        "options": [
+          "Var",
+          "Yok"
+        ],
+        "required": true
+      },
+      {
+        "name": "abs",
+        "label": "ABS",
+        "type": "select",
+        "options": [
+          "Var",
+          "Yok"
+        ],
+        "required": true
+      }
+    ]
+  },
+  "Trailers": {
+    "fields": [
+      {
+        "name": "lastik durumu",
+        "label": "Lastik Durumu",
+        "type": "select",
+        "options": [
+          "yeni",
+          "yeni gibi",
+          "degimeli"
+        ],
+        "required": true
+      },
+      {
+        "name": "dorse durumu",
+        "label": "Dorse Durumu",
+        "type": "select",
+        "options": [
+          "Yeni",
+          "İkinci El"
+        ],
+        "required": true
+      },
+      {
+        "name": "garanti",
+        "label": "Garanti",
+        "type": "select",
+        "options": [
+          "Var",
+          "Yok"
+        ],
+        "required": true
+      }
+    ]
+  },
+  "Daily Rental": {
+    "fields": [
+      {
+        "name": "seats",
+        "label": "Seats",
+        "type": "select",
+        "options": [
+          "2",
+          "4",
+          "5",
+          "7",
+          "Other"
+        ],
+        "required": true
+      },
+      {
+        "name": "renk",
+        "label": "Renk",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "vites tipi",
+        "label": "Vites Tipi",
+        "type": "select",
+        "options": [
+          "Manuel",
+          "Otomatik"
+        ],
+        "required": true
+      },
+      {
+        "name": "yakit turu",
+        "label": "Yakit Türü",
+        "type": "select",
+        "options": [
+          "Benzin",
+          "Dizel"
+        ],
+        "required": true
+      },
+      {
+        "name": "abs",
+        "label": "ABS",
+        "type": "select",
+        "options": [
+          "Var",
+          "Yok"
+        ],
+        "required": true
+      }
+    ]
+  },
+  "Monthly Rental": {
+    "fields": [
+      {
+        "name": "seats",
+        "label": "Seats",
+        "type": "select",
+        "options": [
+          "2",
+          "4",
+          "5",
+          "7",
+          "Other"
+        ],
+        "required": true
+      },
+      {
+        "name": "renk",
+        "label": "Renk",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "vites tipi",
+        "label": "Vites Tipi",
+        "type": "select",
+        "options": [
+          "Manuel",
+          "Otomatik"
+        ],
+        "required": true
+      },
+      {
+        "name": "yakit turu",
+        "label": "Yakit Türü",
+        "type": "select",
+        "options": [
+          "Benzin",
+          "Dizel"
+        ],
+        "required": true
+      },
+      {
+        "name": "abs",
+        "label": "ABS",
+        "type": "select",
+        "options": [
+          "Var",
+          "Yok"
+        ],
+        "required": true
+      }
+    ]
+  },
+  "Yachts": {
+    "fields": [
+      {
+        "name": "marka",
+        "label": "Marka",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "model",
+        "label": "Model",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "yil",
+        "label": "Yıl",
+        "type": "number",
+        "required": true
+      },
+      {
+        "name": "boyu",
+        "label": "Boyu",
+        "type": "number",
+        "required": true
+      },
+      {
+        "name": "eni",
+        "label": "Eni",
+        "type": "number",
+        "required": true
+      },
+      {
+        "name": "yil",
+        "label": "Yıl",
+        "type": "number",
+        "required": true
+      },
+      {
+        "name": "kamara",
+        "label": "Kamara",
+        "type": "select",
+        "options": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5+"
+        ],
+        "required": true
+      },
+      {
+        "name": "motor adeti",
+        "label": "Motor Adeti",
+        "type": "select",
+        "options": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5+"
+        ],
+        "required": true
+      },
+      {
+        "name": "motor gucu",
+        "label": "Motor Gücü(hp)",
+        "type": "number",
+        "required": true
+      },
+      {
+        "name": "bandıra",
+        "label": "Bandıra",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "govde tipi",
+        "label": "Gövde tipi",
+        "type": "select",
+        "options": [
+          "Fiberglass",
+          "Aluminum",
+          "Wood",
+          "Steel",
+          "Other"
+        ],
+        "required": true
+      },
+      {
+        "name": "yatak",
+        "label": "Yatak",
+        "type": "select",
+        "options": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5+"
+        ],
+        "required": true
+      },
+      {
+        "name": "banyo tuvalet sayısı",
+        "label": "Banyo Tuvalet Sayısı",
+        "type": "select",
+        "options": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5+"
+        ],
+        "required": true
+      },
+      {
+        "name": "yakıt tıpı",
+        "label": "Yakıt Tipi",
+        "type": "select",
+        "options": [
+          "Benzin",
+          "Dizel",
+          "Elektrik",
+          "Diğer"
+        ],
+        "required": true
+      },
+      {
+        "name": "bas pervane",
+        "label": "Bas Pervane",
+        "type": "select",
+        "options": [
+          "Var",
+          "Yok"
+        ],
+        "required": true
+      },
+      {
+        "name": "yatak",
+        "label": "Yatak",
+        "type": "select",
+        "options": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5+"
+        ],
+        "required": true
+      },
+      {
+        "name": "stabılazor",
+        "label": "Stabilizör",
+        "type": "select",
+        "options": [
+          "Var",
+          "Yok"
+        ],
+        "required": true
+      },
+      {
+        "name": "Yelken Durumu",
+        "label": "Yelken Durumu",
+        "type": "select",
+        "options": [
+          "Var",
+          "Yok"
+        ],
+        "required": true
+      }
+    ]
+  },
+  "Sailing Boats": {
+    "fields": [
+      {
+        "name": "marka",
+        "label": "Marka",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "model",
+        "label": "Model",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "yil",
+        "label": "Yıl",
+        "type": "number",
+        "required": true
+      },
+      {
+        "name": "boyu",
+        "label": "Boyu",
+        "type": "number",
+        "required": true
+      },
+      {
+        "name": "eni",
+        "label": "Eni",
+        "type": "number",
+        "required": true
+      },
+      {
+        "name": "yil",
+        "label": "Yıl",
+        "type": "number",
+        "required": true
+      },
+      {
+        "name": "kamara",
+        "label": "Kamara",
+        "type": "select",
+        "options": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5+"
+        ],
+        "required": true
+      },
+      {
+        "name": "motor adeti",
+        "label": "Motor Adeti",
+        "type": "select",
+        "options": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5+"
+        ],
+        "required": true
+      },
+      {
+        "name": "motor gucu",
+        "label": "Motor Gücü(hp)",
+        "type": "number",
+        "required": true
+      },
+      {
+        "name": "bandıra",
+        "label": "Bandıra",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "govde tipi",
+        "label": "Gövde tipi",
+        "type": "select",
+        "options": [
+          "Fiberglass",
+          "Aluminum",
+          "Wood",
+          "Steel",
+          "Other"
+        ],
+        "required": true
+      },
+      {
+        "name": "yatak",
+        "label": "Yatak",
+        "type": "select",
+        "options": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5+"
+        ],
+        "required": true
+      },
+      {
+        "name": "banyo tuvalet sayısı",
+        "label": "Banyo Tuvalet Sayısı",
+        "type": "select",
+        "options": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5+"
+        ],
+        "required": true
+      },
+      {
+        "name": "yakıt tıpı",
+        "label": "Yakıt Tipi",
+        "type": "select",
+        "options": [
+          "Benzin",
+          "Dizel",
+          "Elektrik",
+          "Diğer"
+        ],
+        "required": true
+      },
+      {
+        "name": "bas pervane",
+        "label": "Bas Pervane",
+        "type": "select",
+        "options": [
+          "Var",
+          "Yok"
+        ],
+        "required": true
+      },
+      {
+        "name": "yatak",
+        "label": "Yatak",
+        "type": "select",
+        "options": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5+"
+        ],
+        "required": true
+      },
+      {
+        "name": "stabılazor",
+        "label": "Stabilizör",
+        "type": "select",
+        "options": [
+          "Var",
+          "Yok"
+        ],
+        "required": true
+      },
+      {
+        "name": "Yelken Durumu",
+        "label": "Yelken Durumu",
+        "type": "select",
+        "options": [
+          "Var",
+          "Yok"
+        ],
+        "required": true
+      },
+      {
+        "name": "govde",
+        "label": "Gövde",
+        "type": "select",
+        "options": [
+          "Monohull",
+          "Katamaran"
+        ],
+        "required": true
+      },
+      {
+        "name": "Yelken Durumu",
+        "label": "Yelken Durumu",
+        "type": "select",
+        "options": [
+          "Var",
+          "Yok"
+        ],
+        "required": true
+      },
+      {
+        "name": "Vinçler (Winches)",
+        "label": "Vinçler (Winches)",
+        "type": "select",
+        "options": [
+          "manuel",
+          "elektrikli"
+        ],
+        "required": true
+      }
+    ]
+  },
+  "jet ski": {
+    "fields": [
+      {
+        "name": "marka",
+        "label": "Marka",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "model",
+        "label": "Model",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "yil",
+        "label": "Yıl",
+        "type": "number",
+        "required": true
+      },
+      {
+        "name": "boyu",
+        "label": "Boyu",
+        "type": "number",
+        "required": true
+      },
+      {
+        "name": "motor tipi",
+        "label": "Motor Tipi",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "kapasite",
+        "label": "Kapasite",
+        "type": "select",
+        "options": [
+          "1",
+          "2",
+          "3"
+        ],
+        "required": true
+      },
+      {
+        "name": "motor gucu",
+        "label": "Motor Gücü(hp)",
+        "type": "number",
+        "required": true
+      },
+      {
+        "name": "saat",
+        "label": "Saat",
+        "type": "number",
+        "required": true
+      }
+    ]
+  },
+  "ATV For Sale": {
+    "fields": [
+      {
+        "name": "renk",
+        "label": "Renk",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "lastik durumu",
+        "label": "Lastik Durumu",
+        "type": "select",
+        "options": [
+          "yeni",
+          "yeni gibi",
+          "degimeli"
+        ],
+        "required": true
+      },
+      {
+        "name": "import mu",
+        "label": "Import mu",
+        "type": "select",
+        "options": [
+          "ta malta",
+          "ingiltere",
+          "japonya",
+          "other"
+        ],
+        "required": true
+      },
+      {
+        "name": "cekis",
+        "label": "Çekiş",
+        "type": "select",
+        "options": [
+          "Arkadan İtiş",
+          "Önden Çekiş",
+          "4x4"
+        ],
+        "required": true
+      },
+      {
+        "name": "vites tipi",
+        "label": "Vites Tipi",
+        "type": "select",
+        "options": [
+          "Manuel",
+          "Otomatik"
+        ],
+        "required": true
+      },
+      {
+        "name": "yakit turu",
+        "label": "Yakit Türü",
+        "type": "select",
+        "options": [
+          "Benzin",
+          "Dizel"
+        ],
+        "required": true
+      },
+      {
+        "name": "arac durumu",
+        "label": "Araç Durumu",
+        "type": "select",
+        "options": [
+          "Yeni",
+          "İkinci El"
+        ],
+        "required": true
+      },
+      {
+        "name": "km",
+        "label": "KM",
+        "type": "number",
+        "required": true
+      },
+      {
+        "name": "motor gucu(hp)",
+        "label": "Motor Gücü (HP)",
+        "type": "number",
+        "required": false
+      },
+      {
+        "name": "motor hacmi(cc)",
+        "label": "Motor Hacmi (cc)",
+        "type": "number",
+        "required": false
+      },
+      {
+        "name": "garanti",
+        "label": "Garanti",
+        "type": "select",
+        "options": [
+          "Var",
+          "Yok"
+        ],
+        "required": true
+      },
+      {
+        "name": "abs",
+        "label": "ABS",
+        "type": "select",
+        "options": [
+          "Var",
+          "Yok"
+        ],
+        "required": true
+      },
+      {
+        "name": "seats",
+        "label": "Seats",
+        "type": "select",
+        "options": [
+          "1",
+          "2",
+          "+3"
+        ],
+        "required": true
+      }
+    ]
+  },
+  "ATV For Rent": {
+    "fields": [
+      {
+        "name": "renk",
+        "label": "Renk",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "cekis",
+        "label": "Çekiş",
+        "type": "select",
+        "options": [
+          "Arkadan İtiş",
+          "Önden Çekiş",
+          "4x4"
+        ],
+        "required": true
+      },
+      {
+        "name": "vites tipi",
+        "label": "Vites Tipi",
+        "type": "select",
+        "options": [
+          "Manuel",
+          "Otomatik"
+        ],
+        "required": true
+      },
+      {
+        "name": "yakit turu",
+        "label": "Yakit Türü",
+        "type": "select",
+        "options": [
+          "Benzin",
+          "Dizel"
+        ],
+        "required": true
+      },
+      {
+        "name": "arac durumu",
+        "label": "Araç Durumu",
+        "type": "select",
+        "options": [
+          "Yeni",
+          "İkinci El"
+        ],
+        "required": true
+      },
+      {
+        "name": "km",
+        "label": "KM",
+        "type": "number",
+        "required": true
+      },
+      {
+        "name": "abs",
+        "label": "ABS",
+        "type": "select",
+        "options": [
+          "Var",
+          "Yok"
+        ],
+        "required": true
+      },
+      {
+        "name": "seats",
+        "label": "Seats",
+        "type": "select",
+        "options": [
+          "1",
+          "2",
+          "+3"
+        ],
+        "required": true
+      }
+    ]
+  },
+  "Car Parts": {
+    "fields": [
+      {
+        "name": "part_category",
+        "label": "Parça Grubu",
+        "type": "select",
+        "options": [
+          "Kaporta (Kapı/Tampon/Çamurluk)",
+          "İç Aksam (Koltuk/Konsol/Direksiyon)",
+          "Ayna & Cam",
+          "Kilit & Kapı Kolu",
+          "Klima & Isıtma",
+          "Airbag & Güvenlik"
+        ],
+        "required": true
+      },
+      {
+        "name": "part_name",
+        "label": "Parça Adı (Örn: Sol Ön Kapı, Torpido)",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "compatible_car",
+        "label": "Uyumlu Araç (Marka/Model/Yıl)",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "placement",
+        "label": "Yön / Taraf",
+        "type": "select",
+        "options": [
+          "Ön Sol (Sürücü)",
+          "Ön Sağ (Yolcu)",
+          "Arka Sol",
+          "Arka Sağ",
+          "Bagaj / Arka",
+          "Tavan",
+          "Fark Etmez / Takım"
+        ],
+        "required": true
+      },
+      {
+        "name": "paint_code",
+        "label": "Boya Kodu / Renk",
+        "type": "text",
+        "required": false
+      },
+      {
+        "name": "condition",
+        "label": "Durum",
+        "type": "select",
+        "options": [
+          "Çıkma (Orijinal/Hasarsız)",
+          "Çıkma (Boyalı/İşlemli)",
+          "Sıfır (Yan Sanayi)",
+          "Sıfır (Orijinal)"
+        ],
+        "required": true
+      }
+    ]
+  },
+  "Motorcycle Parts": {
+    "fields": [
+      {
+        "name": "part_type",
+        "label": "Parça Tipi",
+        "type": "select",
+        "options": [
+          "Grenaj & Kaporta",
+          "Egzoz & Susturucu",
+          "Motor Bloğu & Şanzıman",
+          "Gidon & Ayna & Elcik",
+          "Sele / Koltuk",
+          "Elektrik & Gösterge",
+          "Çanta & Demir"
+        ],
+        "required": true
+      },
+      {
+        "name": "compatible_moto",
+        "label": "Uyumlu Motor (Marka/Model)",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "part_condition",
+        "label": "Durum",
+        "type": "select",
+        "options": [
+          "Çiziksiz / Hatasız",
+          "Kılcal Çizikler Var",
+          "Kırık / Tamir Gerekli",
+          "Sıfır"
+        ],
+        "required": true
+      },
+      {
+        "name": "brand",
+        "label": "Parça Markası (Orijinal/Akrapovic/Givi vb.)",
+        "type": "text",
+        "required": false
+      }
+    ]
+  },
+  "Marine Parts": {
+    "fields": [
+      {
+        "name": "category",
+        "label": "Kategori",
+        "type": "select",
+        "options": [
+          "Dıştan Takma Motor (Outboard)",
+          "İçten Takma Motor (Inboard)",
+          "Pervane & Şaft",
+          "Tekne Elektroniği (Radar/Sonar)",
+          "Yelken & Arma",
+          "Güverte Malzemesi (Çapa/Halat)"
+        ],
+        "required": true
+      },
+      {
+        "name": "engine_power",
+        "label": "Motor Gücü (HP) / Özellik",
+        "type": "text",
+        "required": false
+      },
+      {
+        "name": "brand",
+        "label": "Marka (Yamaha, Mercury, Garmin vb.)",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "condition",
+        "label": "Kullanım Ortamı",
+        "type": "select",
+        "options": [
+          "Tatlı Suda Kullanıldı",
+          "Tuzlu Suda Kullanıldı (Bakımlı)",
+          "Tuzlu Suda Kullanıldı (Korozyon Var)",
+          "Sıfır"
+        ],
+        "required": true
+      }
+    ]
+  },
+  "Accessories": {
+    "fields": [
+      {
+        "name": "accessory_type",
+        "label": "Aksesuar Tipi",
+        "type": "select",
+        "options": [
+          "İç Aksesuar (Paspas/Kılıf/Telefon Tutucu)",
+          "Dış Aksesuar (Rüzgarlık/Krom/Cam Filmi)",
+          "Multimedya & Ses Sistemi",
+          "Taşıyıcı (Port Bagaj/Bisiklet)",
+          "Bakım & Temizlik Ürünleri"
+        ],
+        "required": true
+      },
+      {
+        "name": "compatibility",
+        "label": "Uyumluluk",
+        "type": "select",
+        "options": [
+          "Üniversal (Her Araca Uyar)",
+          "Araca Özel (Belirli Model)"
+        ],
+        "required": true
+      },
+      {
+        "name": "brand_model",
+        "label": "Uyumlu Marka / Model (Özel ise)",
+        "type": "text",
+        "required": false
+      },
+      {
+        "name": "condition",
+        "label": "Durum",
+        "type": "select",
+        "options": [
+          "Sıfır (Paketinde)",
+          "Yeni Gibi",
+          "Kullanılmış"
+        ],
+        "required": true
+      }
+    ]
+  },
+  "Engine Parts": {
+    "fields": [
+      {
+        "name": "part_name",
+        "label": "Parça Adı (Turbo, Enjektör, Şarj Dinamosu)",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "engine_code",
+        "label": "Motor Kodu (Örn: 1.6 TDI CAYC, N47)",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "fuel_type",
+        "label": "Yakıt Tipi",
+        "type": "select",
+        "options": [
+          "Dizel",
+          "Benzin / LPG",
+          "Hibrit / Elektrik"
+        ],
+        "required": true
+      },
+      {
+        "name": "oem_number",
+        "label": "Parça Numarası (OEM No)",
+        "type": "text",
+        "required": false
+      },
+      {
+        "name": "mileage",
+        "label": "Çıkma İse Kaç KM'de Söküldü?",
+        "type": "text",
+        "required": false
+      },
+      {
+        "name": "condition",
+        "label": "Durum",
+        "type": "select",
+        "options": [
+          "Çıkma (Çalışır Durumda)",
+          "Rektifiye / Revize Edilmiş",
+          "Sıfır (Orijinal)",
+          "Sıfır (Yan Sanayi)",
+          "Arızalı / Parça Niyetine"
+        ],
+        "required": true
+      }
+    ]
+  },
+  "Wheels & Tires": {
+    "fields": [
+      {
+        "name": "product_type",
+        "label": "Ürün Tipi",
+        "type": "select",
+        "options": [
+          "Jant & Lastik Takım",
+          "Sadece Jant",
+          "Sadece Lastik",
+          "Jant Kapağı / Bijon"
+        ],
+        "required": true
+      },
+      {
+        "name": "rim_size",
+        "label": "Jant Boyutu (İnç)",
+        "type": "select",
+        "options": [
+          "13",
+          "14",
+          "15",
+          "16",
+          "17",
+          "18",
+          "19",
+          "20",
+          "21+"
+        ],
+        "required": true
+      },
+      {
+        "name": "bolt_pattern",
+        "label": "Bijon Aralığı (Örn: 5x112, 4x100)",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "tire_width_profile",
+        "label": "Lastik Ebatı (Örn: 205/55/R16)",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "tire_season",
+        "label": "Lastik Mevsimi",
+        "type": "select",
+        "options": [
+          "Yaz Lastiği",
+          "Kış Lastiği",
+          "Dört Mevsim"
+        ],
+        "required": false
+      },
+      {
+        "name": "tire_year",
+        "label": "Lastik Üretim Yılı (DOT)",
+        "type": "text",
+        "required": false
+      },
+      {
+        "name": "condition",
+        "label": "Durum",
+        "type": "select",
+        "options": [
+          "Sıfır",
+          "Az Kullanılmış (%90 Diş)",
+          "Orta (%50-70 Diş)",
+          "Hasarlı / Kaynaklı"
+        ],
+        "required": true
+      }
+    ]
+  },
+  "Lighting & Electric": {
+    "fields": [
+      {
+        "name": "part_type",
+        "label": "Parça Tipi",
+        "type": "select",
+        "options": [
+          "Ön Far",
+          "Arka Stop",
+          "Sinyal / Sis Farı",
+          "ECU (Motor Beyni) / Sigorta Kutusu",
+          "Sensör / Müşür",
+          "Akü",
+          "Kablo Tesisatı"
+        ],
+        "required": true
+      },
+      {
+        "name": "placement",
+        "label": "Yön",
+        "type": "select",
+        "options": [
+          "Sol (Sürücü)",
+          "Sağ (Yolcu)",
+          "Takım (Sağ+Sol)"
+        ],
+        "required": true
+      },
+      {
+        "name": "technology",
+        "label": "Aydınlatma Teknolojisi",
+        "type": "select",
+        "options": [
+          "Halojen (Sarı)",
+          "Xenon / Bi-Xenon",
+          "LED / Matrix LED",
+          "Lazer"
+        ],
+        "required": false
+      },
+      {
+        "name": "oem_number",
+        "label": "Parça Numarası (Beyinler için Şart)",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "condition",
+        "label": "Durum",
+        "type": "select",
+        "options": [
+          "Sıfır",
+          "Çıkma (Temiz)",
+          "Çıkma (Ayakları Tamirli/Kırık)",
+          "Camı Çatlak"
+        ],
+        "required": true
+      }
+    ]
+  },
+  "Mechanical Parts": {
+    "fields": [
+      {
+        "name": "system",
+        "label": "Sistem",
+        "type": "select",
+        "options": [
+          "Fren Sistemi (Balata/Disk)",
+          "Süspansiyon (Amortisör/Yay)",
+          "Şanzıman & Debriyaj & Vites",
+          "Direksiyon Kutusu & Pompa",
+          "Egzoz Sistemi (Katalizör/DPF)",
+          "Soğutma (Radyatör/Devirdaim)"
+        ],
+        "required": true
+      },
+      {
+        "name": "transmission_type",
+        "label": "Vites Tipi (Şanzıman için)",
+        "type": "select",
+        "options": [
+          "Manuel",
+          "Otomatik (DSG/EDC/ZF)",
+          "Yarı Otomatik",
+          "İlgisiz"
+        ],
+        "required": false
+      },
+      {
+        "name": "compatible_vehicle",
+        "label": "Uyumlu Araç",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "condition",
+        "label": "Durum",
+        "type": "select",
+        "options": [
+          "Sıfır",
+          "Çıkma (Sorunsuz)",
+          "Revizyonlu (Tamir Görmüş)",
+          "Arızalı"
+        ],
+        "required": true
+      }
+    ]
+  },
+  "Helmet & Protection": {
+    "fields": [
+      {
+        "name": "urun durumu",
+        "label": "Ürün Durumu",
+        "type": "select",
+        "options": [
+          "Yeni",
+          "Kullanılmış"
+        ],
+        "required": true
+      },
+      {
+        "name": "kullanım alanı",
+        "label": "Kullanım Alanı",
+        "type": "select",
+        "options": [
+          "motor",
+          "su sporları"
+        ],
+        "required": false
+      },
+      {
+        "name": "urun tipi",
+        "label": "Ürün Tipi",
+        "type": "select",
+        "options": [
+          "Kask",
+          "Eldiven",
+          "Mont",
+          "Bot",
+          "Diğer"
+        ],
+        "required": false
+      },
+      {
+        "name": "beden",
+        "label": "Beden",
+        "type": "select",
+        "options": [
+          "S",
+          "M",
+          "L",
+          "XL",
+          "XXL"
+        ],
+        "required": false
+      },
+      {
+        "name": "mevsim",
+        "label": "Mevsim",
+        "type": "select",
+        "options": [
+          "Yaz",
+          "Kış",
+          "Dört Mevsim"
+        ],
+        "required": false
+      },
+      {
+        "name": "kaza gecırdı mı",
+        "label": "Kaza Geçirdi Mi",
+        "type": "select",
+        "options": [
+          "Evet",
+          "Hayır"
+        ],
+        "required": false
+      },
+      {
+        "name": "x3 ",
+        "label": "x3",
+        "type": "text",
+        "required": false
+      }
+    ]
+  },
+  "Tires & Rims": {
+    "fields": [
+      {
+        "name": "product_content",
+        "label": "İlan İçeriği",
+        "type": "select",
+        "options": [
+          "Sadece Lastik",
+          "Sadece Jant",
+          "Jant & Lastik Takım",
+          "İç Lastik (Şambre)"
+        ],
+        "required": true
+      },
+      {
+        "name": "compatibility",
+        "label": "Motosiklet Tipi",
+        "type": "select",
+        "options": [
+          "Scooter",
+          "Racing / Sport",
+          "Enduro / Cross",
+          "Chopper / Cruiser",
+          "Naked / Commuter",
+          "Touring",
+          "ATV"
+        ],
+        "required": true
+      },
+      {
+        "name": "position",
+        "label": "Konum",
+        "type": "select",
+        "options": [
+          "Ön",
+          "Arka",
+          "Takım (Ön & Arka)"
+        ],
+        "required": true
+      },
+      {
+        "name": "rim_diameter",
+        "label": "Jant Çapı (İnç)",
+        "type": "select",
+        "options": [
+          "10",
+          "12",
+          "13",
+          "14",
+          "15",
+          "16",
+          "17",
+          "18",
+          "19",
+          "21"
+        ],
+        "required": true
+      },
+      {
+        "name": "tire_width",
+        "label": "Taban Genişliği (mm)",
+        "type": "select",
+        "options": [
+          "80",
+          "90",
+          "100",
+          "110",
+          "120",
+          "130",
+          "140",
+          "150",
+          "160",
+          "180",
+          "190",
+          "200",
+          "240+"
+        ],
+        "required": false
+      },
+      {
+        "name": "aspect_ratio",
+        "label": "Yanak (Profil)",
+        "type": "select",
+        "options": [
+          "50",
+          "55",
+          "60",
+          "65",
+          "70",
+          "80",
+          "90",
+          "100"
+        ],
+        "required": false
+      },
+      {
+        "name": "rim_type",
+        "label": "Jant Materyali",
+        "type": "select",
+        "options": [
+          "Çelik / Alaşım (Alloy)",
+          "Tel Jant (Spoked)",
+          "Karbon Fiber"
+        ],
+        "required": false
+      },
+      {
+        "name": "tire_type",
+        "label": "Lastik Yapısı",
+        "type": "select",
+        "options": [
+          "Tubeless (Dublek)",
+          "Tube Type (İç Lastikli)",
+          "Dolgu"
+        ],
+        "required": false
+      },
+      {
+        "name": "brand",
+        "label": "Marka",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "production_year",
+        "label": "Üretim Yılı (DOT)",
+        "type": "number",
+        "required": true
+      },
+      {
+        "name": "condition",
+        "label": "Kondisyon",
+        "type": "select",
+        "options": [
+          "Sıfır (Paketinde)",
+          "Yeni Gibi (<1000km)",
+          "İyi Durumda",
+          "Orta / İdare Eder",
+          "Pist / Yarış Çıkması"
+        ],
+        "required": true
+      }
+    ]
+  },
+  "Hull & Deck": {
+    "fields": [
+      {
+        "name": "sub_category",
+        "label": "Ürün Tipi",
+        "type": "select",
+        "options": [
+          "Güverte Donanımı (Koç Boynuzu, Vardavela vb.)",
+          "Pencere & Havalandırma (Lumboz, Hatch)",
+          "Boya & Bakım Kimyasalları",
+          "Zemin & Döşeme (Teak, Halı)",
+          "Gövde Parçaları (Salma, Dümen vb.)",
+          "Diğer"
+        ],
+        "required": true
+      },
+      {
+        "name": "material",
+        "label": "Malzeme",
+        "type": "select",
+        "options": [
+          "316 Krom (Paslanmaz)",
+          "Alüminyum",
+          "Fiberglass / GRP",
+          "Plastik / PVC",
+          "Ahşap (Teak / Maun)",
+          "Kimyasal / Sıvı",
+          "Kompozit",
+          "Diğer"
+        ],
+        "required": true
+      },
+      {
+        "name": "dimensions_volume",
+        "label": "Ebat / Ölçü / Miktar (Örn: 50x50cm veya 5 Litre)",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "condition",
+        "label": "Kullanım Durumu",
+        "type": "select",
+        "options": [
+          "Sıfır (Paketinde)",
+          "Sıfır (Açık Paket / Atıl Stok)",
+          "İkinci El (Sorunsuz)",
+          "İkinci El (Tamir Gerekli)"
+        ],
+        "required": true
+      },
+      {
+        "name": "brand",
+        "label": "Marka",
+        "type": "text",
+        "required": false
+      },
+      {
+        "name": "color",
+        "label": "Renk / Görünüm",
+        "type": "select",
+        "options": [
+          "Beyaz",
+          "Mavi",
+          "Siyah",
+          "Gri",
+          "Krom / Metalik",
+          "Ahşap",
+          "Şeffaf",
+          "Diğer"
+        ],
+        "required": false
+      }
+    ]
+  },
+  "Electronics & Navigation": {
+    "fields": [
+      {
+        "name": "device_type",
+        "label": "Cihaz Tipi",
+        "type": "select",
+        "options": [
+          "Harita Çizici (Chartplotter)",
+          "Radar",
+          "Balık Bulucu (Sonar)",
+          "Otopilot",
+          "VHF Telsiz & AIS",
+          "Gösterge (Rüzgar/Hız/Derinlik)",
+          "Harita Kartı (Navionics/C-Map)",
+          "Anten & Uydu",
+          "Ses Sistemi",
+          "Diğer"
+        ],
+        "required": true
+      },
+      {
+        "name": "brand",
+        "label": "Marka",
+        "type": "select",
+        "options": [
+          "Garmin",
+          "Raymarine",
+          "Simrad",
+          "Lowrance",
+          "Furuno",
+          "B&G",
+          "Humminbird",
+          "Icom",
+          "Standard Horizon",
+          "Fusion",
+          "Diğer"
+        ],
+        "required": true
+      },
+      {
+        "name": "model",
+        "label": "Model Adı/Numarası",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "screen_size",
+        "label": "Ekran Boyutu (İnç - Varsa)",
+        "type": "number",
+        "required": false
+      },
+      {
+        "name": "connectivity",
+        "label": "Bağlantı Arayüzü",
+        "type": "select",
+        "options": [
+          "NMEA 2000",
+          "NMEA 0183 (Eski Tip)",
+          "SeaTalk / SeaTalkNG",
+          "Ethernet",
+          "Bağımsız (Standalone)",
+          "Bluetooth/Wi-Fi",
+          "Bilinmiyor"
+        ],
+        "required": false
+      },
+      {
+        "name": "condition",
+        "label": "Kozmetik ve Çalışma Durumu",
+        "type": "select",
+        "options": [
+          "Sıfır (Kutulu)",
+          "Yeni Gibi (Teşhir/Az     Kullanılmış)",
+          "İkinci El (Sorunsuz)",
+          "Yedek Parça Niyetine/Arızalı",
+          "Yenilenmiş (Refurbished)"
+        ],
+        "required": true
+      }
+    ]
+  },
+  "Car Accessories": {
+    "fields": []
+  },
+  "Motorcycle Accessories": {
+    "fields": []
+  },
+  "Marine Accessories": {
+    "fields": []
+  },
+  "Furniture": {
+    "fields": [
+      {
+        "name": "furniture_type",
+        "label": "Mobilya Tipi",
+        "type": "select",
+        "options": [
+          "Koltuk / Kanepe / L-Koltuk",
+          "Yatak / Baza / Başlık",
+          "Yemek Masası & Sandalye",
+          "Gardırop / Dolap",
+          "TV Ünitesi",
+          "Komodin / Şifonyer",
+          "Kitaplık / Raf",
+          "Çalışma Masası / Ofis",
+          "Sehpa",
+          "Bahçe Mobilyası",
+          "Diğer"
+        ],
+        "required": true
+      },
+      {
+        "name": "material",
+        "label": "Ana Malzeme",
+        "type": "select",
+        "options": [
+          "Ahşap (Masif)",
+          "MDF / Sunta (Kaplama)",
+          "Metal",
+          "Kumaş / Döşeme",
+          "Deri / Suni Deri",
+          "Cam",
+          "Plastik / Mika",
+          "Bambu / Hasır"
+        ],
+        "required": true
+      },
+      {
+        "name": "dimensions",
+        "label": "Ölçüler (En x Boy x Yükseklik cm)",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "color",
+        "label": "Renk",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "disassembly",
+        "label": "Demonte (Sökülebilir) Durumu",
+        "type": "select",
+        "options": [
+          "Evet, sökülebilir (Kolay Taşınır)",
+          "Hayır, tek parça (Büyük Araç Gerekir)",
+          "Şu an sökülmüş durumda"
+        ],
+        "required": true
+      },
+      {
+        "name": "condition",
+        "label": "Kullanım Durumu",
+        "type": "select",
+        "options": [
+          "Yeni (Kutusunda)",
+          "Yeni Gibi (Çiziksiz)",
+          "İyi (Ufak İzler Var)",
+          "Orta (Yıpranmış)",
+          "Tamir/Yenileme Gerekli"
+        ],
+        "required": true
+      },
+      {
+        "name": "brand",
+        "label": "Marka (IKEA, Bellona vb.)",
+        "type": "text",
+        "required": false
+      }
+    ]
+  },
+  "Decor": {
+    "fields": [
+      {
+        "name": "decor_type",
+        "label": "Dekor Tipi",
+        "type": "select",
+        "options": [
+          "Vazo",
+          "Tablo",
+          "Ayna",
+          "Lamba",
+          "Diğer"
+        ],
+        "required": true
+      },
+      {
+        "name": "material",
+        "label": "Malzeme",
+        "type": "select",
+        "options": [
+          "Ahşap",
+          "Metal",
+          "Cam",
+          "Plastik",
+          "Seramik",
+          "Diğer"
+        ],
+        "required": true
+      },
+      {
+        "name": "dimensions",
+        "label": "Ölçüler (En x Boy x Yükseklik cm)",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "color",
+        "label": "Renk",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "condition",
+        "label": "Kullanım Durumu",
+        "type": "select",
+        "options": [
+          "Yeni (Kutusunda)",
+          "Yeni Gibi (Çiziksiz)",
+          "İyi (Ufak İzler Var)",
+          "Orta (Yıpranmış)",
+          "Tamir/Yenileme Gerekli"
+        ],
+        "required": true
+      },
+      {
+        "name": "brand",
+        "label": "Marka",
+        "type": "text",
+        "required": false
+      }
+    ]
+  },
+  "Other Decor": {
+    "fields": []
+  },
+  "Women Fashion": {
+    "fields": [
+      {
+        "name": "category",
+        "label": "Kategori",
+        "type": "select",
+        "options": [
+          "Elbise",
+          "Üst Giyim (Tişört/Gömlek/Bluz)",
+          "Alt Giyim (Pantolon/Etek)",
+          "Dış Giyim (Mont/Ceket)",
+          "Ayakkabı",
+          "Çanta",
+          "Aksesuar / Takı",
+          "Abiye / Gelinlik",
+          "Spor Giyim",
+          "Plaj Giyim",
+          "Hamile Giyim"
+        ],
+        "required": true
+      },
+      {
+        "name": "size",
+        "label": "Beden / Numara (Örn: M, 38, Standart)",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "brand",
+        "label": "Marka",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "condition",
+        "label": "Kullanım Durumu",
+        "type": "select",
+        "options": [
+          "Yeni (Etiketli)",
+          "Yeni (Etiketsiz)",
+          "Az Kullanılmış / Yeni Gibi",
+          "İyi Durumda",
+          "Vintage / Retro",
+          "Defolu / Hasarlı"
+        ],
+        "required": true
+      },
+      {
+        "name": "material",
+        "label": "Materyal (Deri, İpek, Kot vb.)",
+        "type": "text",
+        "required": false
+      }
+    ]
+  },
+  "Men Fashion": {
+    "fields": [
+      {
+        "name": "category",
+        "label": "Kategori",
+        "type": "select",
+        "options": [
+          "Takım Elbise & Blazer",
+          "Gömlek",
+          "Tişört & Polo",
+          "Pantolon & Jeans",
+          "Dış Giyim (Mont/Kaban)",
+          "Ayakkabı",
+          "Spor Giyim",
+          "Aksesuar (Saat/Kemer/Cüzdan)",
+          "İç Giyim & Ev Giyim"
+        ],
+        "required": true
+      },
+      {
+        "name": "size",
+        "label": "Beden / Numara (Örn: L, 50, 32/32, 43 No)",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "brand",
+        "label": "Marka",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "fit_type",
+        "label": "Kalıp / Kesim (Fit)",
+        "type": "select",
+        "options": [
+          "Slim Fit (Dar)",
+          "Regular (Standart)",
+          "Skinny (Çok Dar)",
+          "Oversize (Bol Kesim)",
+          "Comfort / Rahat"
+        ],
+        "required": false
+      },
+      {
+        "name": "condition",
+        "label": "Kullanım Durumu",
+        "type": "select",
+        "options": [
+          "Yeni (Etiketli)",
+          "Yeni (Etiketsiz)",
+          "Az Kullanılmış / Yeni Gibi",
+          "İyi Durumda",
+          "Vintage / Retro",
+          "Hasarlı / Tamir Görmüş"
+        ],
+        "required": true
+      },
+      {
+        "name": "color",
+        "label": "Renk",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "material",
+        "label": "Materyal (Deri, Yün, Pamuk, Keten vb.)",
+        "type": "text",
+        "required": false
+      }
+    ]
+  },
+  "Children Fashion": {
+    "fields": [
+      {
+        "name": "target_audience",
+        "label": "Cinsiyet / Grup",
+        "type": "select",
+        "options": [
+          "Kız Çocuk",
+          "Erkek Çocuk",
+          "Unisex / Bebek"
+        ],
+        "required": true
+      },
+      {
+        "name": "category",
+        "label": "Kategori",
+        "type": "select",
+        "options": [
+          "Bebek Giyim (0-24 Ay)",
+          "Çocuk Giyim",
+          "Ayakkabı",
+          "Dış Giyim (Mont/Kaban)",
+          "Okul Üniforması",
+          "Abiye / Özel Gün",
+          "Aksesuar"
+        ],
+        "required": true
+      },
+      {
+        "name": "size_detail",
+        "label": "Beden / Yaş / Numara (Örn: 3-4 Yaş, 104cm, 32 No)",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "brand",
+        "label": "Marka (Zara, Next, Nike vb.)",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "condition",
+        "label": "Durum",
+        "type": "select",
+        "options": [
+          "Yeni (Etiketli)",
+          "Yeni Gibi (Az Giyilmiş)",
+          "İyi Durumda",
+          "Oyunluk (Playwear/Ufak Kusurlu)"
+        ],
+        "required": true
+      },
+      {
+        "name": "color",
+        "label": "Renk",
+        "type": "text",
+        "required": false
+      },
+      {
+        "name": "bundle",
+        "label": "Toplu Satış (Bundle) mı?",
+        "type": "select",
+        "options": [
+          "Evet (Birden fazla ürün)",
+          "Hayır (Tek ürün)"
+        ],
+        "required": false
+      }
+    ]
+  },
+  "Baby Fashion": {
+    "fields": [
+      {
+        "name": "gender",
+        "label": "Cinsiyet",
+        "type": "select",
+        "options": [
+          "Kız Bebek",
+          "Erkek Bebek",
+          "Unisex / Nötr"
+        ],
+        "required": true
+      },
+      {
+        "name": "category",
+        "label": "Kategori",
+        "type": "select",
+        "options": [
+          "Zıbın & Body",
+          "Tulum & Pijama (Uyku Tulumu)",
+          "Takım & Set",
+          "Elbise",
+          "Dış Giyim (Mont/Kozmonot)",
+          "Ayakkabı & Patik & Çorap",
+          "Aksesuar (Önlük/Şapka/Eldiven)",
+          "Kostüm / Özel Gün",
+          "Hastane Çıkışı"
+        ],
+        "required": true
+      },
+      {
+        "name": "size_month",
+        "label": "Beden / Ay (Örn: 0-3 Ay, 68 cm)",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "is_bundle",
+        "label": "Toplu Satış (Paket) mı?",
+        "type": "select",
+        "options": [
+          "Evet (Birden Fazla Ürün)",
+          "Hayır (Tek Parça)"
+        ],
+        "required": true
+      },
+      {
+        "name": "brand",
+        "label": "Marka",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "condition",
+        "label": "Durum",
+        "type": "select",
+        "options": [
+          "Yeni (Etiketli)",
+          "Yeni (Etiketsiz/Yıkanmış)",
+          "Az Kullanılmış / Yeni Gibi",
+          "İyi Durumda",
+          "Oyunluk (Lekeli/Yıpranmış)"
+        ],
+        "required": true
+      },
+      {
+        "name": "material",
+        "label": "Materyal (Organik Pamuk, Bambu vb.)",
+        "type": "text",
+        "required": false
+      },
+      {
+        "name": "color",
+        "label": "Renk",
+        "type": "text",
+        "required": false
+      }
+    ]
+  },
+  "Other Fashion": {
+    "fields": [
+      {
+        "name": "product_type",
+        "label": "Ürün Tipi",
+        "type": "select",
+        "options": [
+          "Kostüm & Parti (Karnaval/Cadılar Bayramı)",
+          "İş Kıyafeti & Üniforma (Sağlık/Aşçı/İnşaat)",
+          "Valiz & Bavul & Seyahat",
+          "Kumaş & Dikiş Malzemesi",
+          "Unisex Aksesuar (Şemsiye/Atkı/Şapka)",
+          "Yöresel & Geleneksel Kıyafet",
+          "Diğer"
+        ],
+        "required": true
+      },
+      {
+        "name": "target_audience",
+        "label": "Kime Uygun?",
+        "type": "select",
+        "options": [
+          "Unisex / Herkes",
+          "Kadın",
+          "Erkek",
+          "Çocuk"
+        ],
+        "required": true
+      },
+      {
+        "name": "size_detail",
+        "label": "Beden / Ölçü / Metraj (Örn: Kabin Boy, 5 Metre, L Beden)",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "brand",
+        "label": "Marka",
+        "type": "text",
+        "required": false
+      },
+      {
+        "name": "condition",
+        "label": "Durum",
+        "type": "select",
+        "options": [
+          "Sıfır (Paketinde)",
+          "Yeni Gibi / Az Kullanılmış",
+          "İyi Durumda",
+          "Yıpranmış / Tamir Gerekli"
+        ],
+        "required": true
+      },
+      {
+        "name": "color",
+        "label": "Renk",
+        "type": "text",
+        "required": false
+      },
+      {
+        "name": "material",
+        "label": "Materyal (Sert Plastik, Pamuk, Polyester vb.)",
+        "type": "text",
+        "required": false
+      }
+    ]
+  },
+  "Pushchairs & Prams": {
+    "fields": [
+      {
+        "name": "pram_type",
+        "label": "Tip / Model",
+        "type": "select",
+        "options": [
+          "Travel Sistem (3'ü 1 Arada / Pusetli)",
+          "Baston Puset (Baston / Hafif)",
+          "Standart Bebek Arabası (Konfor)",
+          "İkiz / Kardeş Arabası (Double)",
+          "Jogging / 3 Tekerlekli"
+        ],
+        "required": true
+      },
+      {
+        "name": "brand",
+        "label": "Marka (Chicco, Bugaboo, Kraft vb.)",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "car_seat_included",
+        "label": "Oto Koltuğu (Ana Kucağı) Dahil mi?",
+        "type": "select",
+        "options": [
+          "Evet",
+          "Hayır"
+        ],
+        "required": true
+      },
+      {
+        "name": "condition",
+        "label": "Durum",
+        "type": "select",
+        "options": [
+          "Yeni (Kutusunda)",
+          "Yeni Gibi (Az Kullanılmış)",
+          "İyi Durumda",
+          "Çok Kullanılmış / Yıpranmış"
+        ],
+        "required": true
+      },
+      {
+        "name": "color",
+        "label": "Renk",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "accessories",
+        "label": "Dahil Olan Aksesuarlar (Yağmurluk, Çanta, Ayak Örtüsü vb.)",
+        "type": "text",
+        "required": false
+      }
+    ]
+  },
+  "High Chairs": {
+    "fields": [
+      {
+        "name": "type",
+        "label": "Tip / Model",
+        "type": "select",
+        "options": [
+          "Standart Mama Sandalyesi (Plastik/Metal)",
+          "Ahşap / Büyüyen Sandalye (Tripp Trapp vb.)",
+          "Yükseltici (Booster / Sandalye Üstü)",
+          "Masaya Monte (Portatif)"
+        ],
+        "required": true
+      },
+      {
+        "name": "brand",
+        "label": "Marka (Ikea, Chicco, Stokke, Joie vb.)",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "condition",
+        "label": "Durum",
+        "type": "select",
+        "options": [
+          "Yeni (Kutusunda)",
+          "Yeni Gibi (Az Kullanılmış)",
+          "İyi Durumda",
+          "Yıpranmış / Minderi Eksik"
+        ],
+        "required": true
+      },
+      {
+        "name": "features",
+        "label": "Özellikler (Katlanabilir, Yükseklik Ayarlı, Çift Tepsi vb.)",
+        "type": "text",
+        "required": false
+      },
+      {
+        "name": "material",
+        "label": "Materyal",
+        "type": "select",
+        "options": [
+          "Plastik & Metal",
+          "Tamamen Ahşap",
+          "Ahşap & Metal"
+        ],
+        "required": false
+      }
+    ]
+  },
+  "Other Baby": {
+    "fields": [
+      {
+        "name": "product_category",
+        "label": "Ürün Tipi",
+        "type": "select",
+        "options": [
+          "Oyuncak & Aktivite (Eğitici/Peluş)",
+          "Beslenme & Emzirme (Pompa/Biberon/Sterilizatör)",
+          "Güvenlik (Telsiz/Kamera/Merdiven Kapısı)",
+          "Banyo & Tuvalet Eğitimi (Küvet/Lazımlık)",
+          "Uyku & Tekstil (Nevresim/Yastık/Dönence)",
+          "Yürüteç & Hoppala",
+          "Ana Kucağı (Ev Tipi Sallanan)",
+          "Diğer"
+        ],
+        "required": true
+      },
+      {
+        "name": "brand",
+        "label": "Marka (Fisher Price, Avent, Lansinoh vb.)",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "age_group",
+        "label": "Uygun Yaş Grubu",
+        "type": "select",
+        "options": [
+          "Yenidoğan (0-6 Ay)",
+          "Bebek (6-12 Ay)",
+          "Yürümeye Başlayan (1-3 Yaş)",
+          "Okul Öncesi (3+ Yaş)",
+          "Her Yaş"
+        ],
+        "required": false
+      },
+      {
+        "name": "condition",
+        "label": "Durum",
+        "type": "select",
+        "options": [
+          "Sıfır (Paketinde)",
+          "Yeni Gibi (Az Kullanılmış)",
+          "İyi Durumda",
+          "Eksik Parçalı / Kusurlu"
+        ],
+        "required": true
+      },
+      {
+        "name": "details",
+        "label": "Özellikler (Elektronik, Müzikli, Ahşap vb.)",
+        "type": "text",
+        "required": false
+      }
+    ]
+  },
+  "English Books": {
+    "fields": [
+      {
+        "name": "genre",
+        "label": "Tür / Kategori",
+        "type": "select",
+        "options": [
+          "Fiction (Roman/Kurgu)",
+          "Non-Fiction (Kurgu Dışı/Bilgi)",
+          "Academic & Textbooks (Eğitim/Ders)",
+          "Children & Young Adult (Çocuk/Genç)",
+          "Comics & Manga (Çizgi Roman)",
+          "Biographies (Biyografi)",
+          "Self-Help (Kişisel Gelişim)",
+          "Dictionaries & Language (Sözlük/Dil)"
+        ],
+        "required": true
+      },
+      {
+        "name": "book_title",
+        "label": "Kitap Adı",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "author",
+        "label": "Yazar",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "format",
+        "label": "Format / Kapak",
+        "type": "select",
+        "options": [
+          "Paperback (Karton Kapak)",
+          "Hardcover (Ciltli)",
+          "Pocket (Cep Boy)",
+          "Audiobook (CD/Kaset)"
+        ],
+        "required": true
+      },
+      {
+        "name": "condition",
+        "label": "Durum",
+        "type": "select",
+        "options": [
+          "Yeni (Okunmamış)",
+          "Yeni Gibi (Hasarsız)",
+          "İyi (Okunmuş/Temiz)",
+          "Kullanılmış (Notlar/Çizikler Var)",
+          "Eski / Koleksiyonluk"
+        ],
+        "required": true
+      },
+      {
+        "name": "isbn",
+        "label": "ISBN Kodu (Varsa)",
+        "type": "text",
+        "required": false
+      },
+      {
+        "name": "publication_year",
+        "label": "Basım Yılı",
+        "type": "number",
+        "required": false
+      }
+    ]
+  },
+  "Spanish Books": {
+    "fields": [
+      {
+        "name": "genre",
+        "label": "Tür / Kategori",
+        "type": "select",
+        "options": [
+          "Fiction (Novela/Roman)",
+          "Non-Fiction (Ensayo/Bilgi)",
+          "Textbooks & Learning (Eğitim/Dil Öğrenimi)",
+          "Children (Infantil/Çocuk)",
+          "Comics (Tebeos/Çizgi Roman)",
+          "Dictionaries (Sözlük)"
+        ],
+        "required": true
+      },
+      {
+        "name": "book_title",
+        "label": "Kitap Adı (Título)",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "author",
+        "label": "Yazar (Autor)",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "proficiency_level",
+        "label": "Dil Seviyesi / Hedef Kitle",
+        "type": "select",
+        "options": [
+          "Ana Dil (Native / Advanced)",
+          "Başlangıç (A1-A2 Beginner)",
+          "Orta Seviye (B1-B2 Intermediate)",
+          "Çift Dilli (Bilingual Edition)"
+        ],
+        "required": false
+      },
+      {
+        "name": "condition",
+        "label": "Durum",
+        "type": "select",
+        "options": [
+          "Yeni (Nuevo)",
+          "Yeni Gibi (Como Nuevo)",
+          "İyi (Buen Estado)",
+          "Kullanılmış (Notlar Var/Subrayado)"
+        ],
+        "required": true
+      },
+      {
+        "name": "format",
+        "label": "Format",
+        "type": "select",
+        "options": [
+          "Paperback (Karton Kapak)",
+          "Hardcover (Ciltli)",
+          "Pocket (Cep Boy)"
+        ],
+        "required": true
+      },
+      {
+        "name": "isbn",
+        "label": "ISBN",
+        "type": "text",
+        "required": false
+      }
+    ]
+  },
+  "Match": {
+    "fields": [
+      {
+        "name": "education_level",
+        "label": "Eğitim Seviyesi",
+        "type": "select",
+        "options": [
+          "İlkokul (Primary)",
+          "Ortaokul (Secondary/O-Level)",
+          "Lise / A-Level (Matsec)",
+          "Üniversite / Akademik",
+          "Genel / Hobi"
+        ],
+        "required": true
+      },
+      {
+        "name": "topic",
+        "label": "Konu / Branş",
+        "type": "select",
+        "options": [
+          "Genel Matematik",
+          "Geometri",
+          "Cebir (Algebra)",
+          "İstatistik",
+          "Calculus / Analiz",
+          "Mekanik (Applied Math)",
+          "Zeka Oyunları / Mantık"
+        ],
+        "required": true
+      },
+      {
+        "name": "book_type",
+        "label": "Kitap Tipi",
+        "type": "select",
+        "options": [
+          "Ders Kitabı (Textbook)",
+          "Çalışma Kitabı (Workbook)",
+          "Soru Bankası / Past Papers",
+          "Konu Anlatımlı"
+        ],
+        "required": true
+      },
+      {
+        "name": "is_written",
+        "label": "İçi Çözülmüş mü?",
+        "type": "select",
+        "options": [
+          "Hayır, Tertemiz (Clean)",
+          "Az Miktarda Kurşun Kalemle",
+          "Evet, Çoğu Çözülmüş",
+          "Tükenmez Kalemle Yazılmış"
+        ],
+        "required": true
+      },
+      {
+        "name": "book_title",
+        "label": "Kitap Adı",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "author",
+        "label": "Yazar / Yayınevi",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "condition",
+        "label": "Kondisyon (Fiziksel)",
+        "type": "select",
+        "options": [
+          "Yeni Gibi",
+          "İyi",
+          "Yıpranmış"
+        ],
+        "required": true
+      },
+      {
+        "name": "isbn",
+        "label": "ISBN",
+        "type": "text",
+        "required": false
+      }
+    ]
+  },
+  "Physics": {
+    "fields": [
+      {
+        "name": "education_level",
+        "label": "Eğitim Seviyesi",
+        "type": "select",
+        "options": [
+          "Ortaöğretim (O-Level/GCSE)",
+          "Lise (A-Level/IB)",
+          "Üniversite (Lisans/Yüksek)",
+          "Popüler Bilim / Genel İlgi"
+        ],
+        "required": true
+      },
+      {
+        "name": "topic",
+        "label": "Alt Dal / Konu",
+        "type": "select",
+        "options": [
+          "Genel Fizik",
+          "Mekanik",
+          "Elektrik & Manyetizma",
+          "Termodinamik",
+          "Kuantum & Modern Fizik",
+          "Astrofizik",
+          "Optik",
+          "Nükleer Fizik"
+        ],
+        "required": false
+      },
+      {
+        "name": "book_type",
+        "label": "Kitap Tipi",
+        "type": "select",
+        "options": [
+          "Ders Kitabı (Textbook)",
+          "Problem Çözümü (Solutions)",
+          "Laboratuvar Kılavuzu",
+          "Sınav Hazırlık (Revision)"
+        ],
+        "required": true
+      },
+      {
+        "name": "book_title",
+        "label": "Kitap Adı",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "author",
+        "label": "Yazar / Yayınevi",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "markings",
+        "label": "İşaretleme / Karalama Durumu",
+        "type": "select",
+        "options": [
+          "Hayır, Tertemiz",
+          "Az Miktarda Kurşun Kalem",
+          "Fosforlu Kalem / Notlar Var",
+          "Çok Yıpranmış"
+        ],
+        "required": true
+      },
+      {
+        "name": "isbn",
+        "label": "ISBN (Varsa)",
+        "type": "text",
+        "required": false
+      }
+    ]
+  },
+  "Novel": {
+    "fields": [
+      {
+        "name": "sub_genre",
+        "label": "Tür (Genre)",
+        "type": "select",
+        "options": [
+          "Suç & Gizem (Crime/Thriller)",
+          "Bilim Kurgu & Fantastik (Sci-Fi)",
+          "Romantik (Romance)",
+          "Tarihi Kurgu",
+          "Korku (Horror)",
+          "Klasikler",
+          "Dram & Edebiyat",
+          "Macera"
+        ],
+        "required": true
+      },
+      {
+        "name": "book_title",
+        "label": "Kitap Adı",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "author",
+        "label": "Yazar",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "language",
+        "label": "Dil",
+        "type": "select",
+        "options": [
+          "İngilizce",
+          "Maltaca",
+          "İtalyanca",
+          "Türkçe",
+          "Fransızca",
+          "Diğer"
+        ],
+        "required": true
+      },
+      {
+        "name": "format",
+        "label": "Format",
+        "type": "select",
+        "options": [
+          "Karton Kapak (Paperback)",
+          "Ciltli (Hardcover)",
+          "Cep Boy (Pocket)"
+        ],
+        "required": true
+      },
+      {
+        "name": "condition",
+        "label": "Durum",
+        "type": "select",
+        "options": [
+          "Yeni (Okunmamış)",
+          "Yeni Gibi (Hasarsız)",
+          "İyi (Okunmuş)",
+          "Yıpranmış"
+        ],
+        "required": true
+      },
+      {
+        "name": "edition",
+        "label": "Baskı Özelliği",
+        "type": "select",
+        "options": [
+          "Standart",
+          "İlk Baskı (First Edition)",
+          "İmzalı (Signed)",
+          "Özel Seri (Box Set)"
+        ],
+        "required": false
+      }
+    ]
+  },
+  "Education": {
+    "fields": [
+      {
+        "name": "subject",
+        "label": "Ders / Konu",
+        "type": "select",
+        "options": [
+          "Biyoloji",
+          "Kimya",
+          "Tarih",
+          "Coğrafya",
+          "Ekonomi & İşletme",
+          "Bilgisayar (ICT)",
+          "Psikoloji & Sosyoloji",
+          "Din Kültürü / Felsefe",
+          "Sanat & Müzik",
+          "Genel / Karışık"
+        ],
+        "required": true
+      },
+      {
+        "name": "level",
+        "label": "Eğitim Seviyesi",
+        "type": "select",
+        "options": [
+          "İlkokul (Primary)",
+          "Ortaokul (Secondary / O-Level)",
+          "Lise (A-Level / Sixth Form)",
+          "Üniversite",
+          "Yetişkin / Mesleki"
+        ],
+        "required": true
+      },
+      {
+        "name": "item_type",
+        "label": "Materyal Tipi",
+        "type": "select",
+        "options": [
+          "Ders Kitabı (Textbook)",
+          "Çalışma Kitabı (Workbook)",
+          "Sınav Hazırlık (Revision / Past Papers)",
+          "Ders Notları / Özet",
+          "Okul Çantası / Kırtasiye"
+        ],
+        "required": true
+      },
+      {
+        "name": "title",
+        "label": "Ürün / Kitap Adı",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "author",
+        "label": "Yazar / Yayınevi",
+        "type": "text",
+        "required": false
+      },
+      {
+        "name": "condition",
+        "label": "Durum",
+        "type": "select",
+        "options": [
+          "Yeni (Kullanılmamış)",
+          "Yeni Gibi (Temiz)",
+          "İyi (Az Yıpranmış)",
+          "Kullanılmış (Yıpranmış)"
+        ],
+        "required": true
+      },
+      {
+        "name": "markings",
+        "label": "İşaretleme / Karalama Var mı?",
+        "type": "select",
+        "options": [
+          "Hayır, Tertemiz",
+          "Az Miktarda Kurşun Kalem",
+          "Evet, Fosforlu/Tükenmez Kalemli"
+        ],
+        "required": true
+      }
+    ]
+  },
+  "Other Books": {
+    "fields": [
+      {
+        "name": "genre",
+        "label": "Tür / Kategori",
+        "type": "select",
+        "options": [
+          "Yemek (Cookbooks)",
+          "Seyahat (Travel)",
+          "Sanat & Tasarım (Art)",
+          "Biyografi & Anı",
+          "Din & Spiritüel",
+          "Sağlık & Yaşam",
+          "Hobi & El İşi",
+          "Dergi / Katalog",
+          "Diğer"
+        ],
+        "required": true
+      },
+      {
+        "name": "language",
+        "label": "Dil",
+        "type": "select",
+        "options": [
+          "Maltaca",
+          "İtalyanca",
+          "Almanca",
+          "Fransızca",
+          "Türkçe",
+          "Rusça",
+          "Arapça",
+          "Çok Dilli / Diğer"
+        ],
+        "required": true
+      },
+      {
+        "name": "book_title",
+        "label": "Kitap Adı",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "author",
+        "label": "Yazar",
+        "type": "text",
+        "required": false
+      },
+      {
+        "name": "condition",
+        "label": "Durum",
+        "type": "select",
+        "options": [
+          "Yeni (Okunmamış)",
+          "Yeni Gibi (Hasarsız)",
+          "İyi (Okunmuş)",
+          "Yıpranmış / Eski"
+        ],
+        "required": true
+      },
+      {
+        "name": "format",
+        "label": "Format",
+        "type": "select",
+        "options": [
+          "Ciltli (Hardcover)",
+          "Karton Kapak (Paperback)",
+          "Büyük Boy (Coffee Table Book)",
+          "Cep Boy"
+        ],
+        "required": false
+      }
+    ]
+  },
+  "Instruments": {
+    "fields": [
+      {
+        "name": "instrument_category",
+        "label": "Kategori",
+        "type": "select",
+        "options": [
+          "Gitar (Elektro/Akustik/Klasik)",
+          "Bas Gitar",
+          "Piyano & Tuşlu (Klavye)",
+          "Davul & Perküsyon",
+          "Yaylı (Keman/Viyolonsel)",
+          "Üflemeli (Nefesli)",
+          "Stüdyo & Ses Ekipmanı",
+          "Geleneksel / Diğer"
+        ],
+        "required": true
+      },
+      {
+        "name": "brand",
+        "label": "Marka",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "model",
+        "label": "Model",
+        "type": "text",
+        "required": false
+      },
+      {
+        "name": "condition",
+        "label": "Kondisyon",
+        "type": "select",
+        "options": [
+          "Sıfır (Kutusunda)",
+          "Yeni Gibi (Az Kullanılmış)",
+          "İyi Durumda",
+          "Vintage / Koleksiyonluk",
+          "Bakım Gerekir",
+          "Arızalı / Parça Niyetine"
+        ],
+        "required": true
+      },
+      {
+        "name": "hand_orientation",
+        "label": "Yön (Gitar/Bas İçin)",
+        "type": "select",
+        "options": [
+          "Sağlak (Standart)",
+          "Solak"
+        ],
+        "required": false
+      },
+      {
+        "name": "case_included",
+        "label": "Kılıf / Çanta Dahil mi?",
+        "type": "select",
+        "options": [
+          "Evet (Hard Case / Sert Çanta)",
+          "Evet (Soft Case / Kılıf)",
+          "Hayır"
+        ],
+        "required": true
+      },
+      {
+        "name": "accessories",
+        "label": "Ekstralar (Amfi, Stand, Pedal vb.)",
+        "type": "text",
+        "required": false
+      }
+    ]
+  },
+  "Studio Equipment": {
+    "fields": [
+      {
+        "name": "equipment_type",
+        "label": "Ekipman Tipi",
+        "type": "select",
+        "options": [
+          "Ses Kartı (Audio Interface)",
+          "Mikrofon",
+          "Stüdyo Monitörü (Hoparlör)",
+          "Kulaklık",
+          "MIDI Klavye / Controller",
+          "Synthesizer / Drum Machine",
+          "Mikser",
+          "Analog İşlemci / Pedal",
+          "Akustik & İzolasyon",
+          "Kablo & Stand"
+        ],
+        "required": true
+      },
+      {
+        "name": "brand",
+        "label": "Marka",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "model",
+        "label": "Model",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "connectivity",
+        "label": "Bağlantı Arayüzü",
+        "type": "select",
+        "options": [
+          "USB / USB-C",
+          "Thunderbolt",
+          "Firewire (Eski Tip)",
+          "XLR / Analog",
+          "MIDI",
+          "Bluetooth"
+        ],
+        "required": false
+      },
+      {
+        "name": "condition",
+        "label": "Kondisyon",
+        "type": "select",
+        "options": [
+          "Sıfır (Kutusunda)",
+          "Ev Stüdyosu (Çok Temiz)",
+          "Sahne / Dışarıda Kullanılmış",
+          "Kozmetik Kusurlu",
+          "Arızalı / Parça Niyetine"
+        ],
+        "required": true
+      },
+      {
+        "name": "box_included",
+        "label": "Kutu & İçerik",
+        "type": "select",
+        "options": [
+          "Orijinal Kutu ve Tüm İçerik Var",
+          "Sadece Cihaz ve Adaptör",
+          "Sadece Cihaz"
+        ],
+        "required": true
+      }
+    ]
+  },
+  "Other Music": {
+    "fields": [
+      {
+        "name": "product_type",
+        "label": "Ürün Tipi",
+        "type": "select",
+        "options": [
+          "Plak (Vinyl / LP / 45lik)",
+          "CD / DVD / Kaset",
+          "DJ Ekipmanı (Controller/Turntable)",
+          "Merch & Giyim (Tişört/Şapka)",
+          "Poster & Hatıra & İmzalı",
+          "Nota Kitabı / Metot",
+          "Sahne Işık & Efekt",
+          "Diğer Aksesuar (Sehpa/Tuner/Metronom)"
+        ],
+        "required": true
+      },
+      {
+        "name": "artist_brand",
+        "label": "Sanatçı / Grup / Marka",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "title_name",
+        "label": "Albüm / Ürün Adı",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "genre_style",
+        "label": "Müzik Türü (Medya İçin)",
+        "type": "select",
+        "options": [
+          "Rock / Metal",
+          "Pop",
+          "Jazz / Blues",
+          "Elektronik / Techno / House",
+          "Hip-Hop / Rap",
+          "Klasik",
+          "Halk Müziği / Yerel",
+          "Soundtrack / Diğer"
+        ],
+        "required": false
+      },
+      {
+        "name": "condition_grading",
+        "label": "Kondisyon (Plak/CD İçin)",
+        "type": "select",
+        "options": [
+          "Sıfır (Ambalajında/Sealed)",
+          "Mint (Mükemmel/Çiziksiz)",
+          "Very Good (Çok İyi / Hafif İzli)",
+          "Good (İyi / Çalınabilir)",
+          "Fair (Yıpranmış / Dekorluk)",
+          "Standart İkinci El"
+        ],
+        "required": true
+      },
+      {
+        "name": "special_edition",
+        "label": "Baskı Özelliği",
+        "type": "select",
+        "options": [
+          "Standart Baskı",
+          "İlk Baskı (First Press)",
+          "Sınırlı Üretim (Limited Edition)",
+          "İmzalı (Signed/Autographed)",
+          "Japon Baskı (Obi Strip)"
+        ],
+        "required": false
+      }
+    ]
+  },
+  "Fitness": {
+    "fields": [
+      {
+        "name": "equipment_type",
+        "label": "Ekipman Tipi",
+        "type": "select",
+        "options": [
+          "Koşu Bandı",
+          "Kondisyon Bisikleti / Eliptik",
+          "Ağırlık Seti (Dumbbell/Plaka/Bar)",
+          "Çoklu Çalışma İstasyonu (Home Gym)",
+          "Ağırlık Sehpası / Bench",
+          "Kürek & Step",
+          "Yoga & Pilates & Mat",
+          "Sporcu Gıdası / Supplement",
+          "Giyim & Aksesuar"
+        ],
+        "required": true
+      },
+      {
+        "name": "brand",
+        "label": "Marka (Voit, Dynamic, Decathlon vb.)",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "specs",
+        "label": "Teknik Özellik / Ağırlık (Örn: 2x10kg, 2.5HP Motor, 120kg Taşıma)",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "mechanical_condition",
+        "label": "Mekanik / Elektronik Durum",
+        "type": "select",
+        "options": [
+          "Sorunsuz / Tamamen Çalışıyor",
+          "Ufak Arızalı (Ekran/Kayış/Pedal)",
+          "Mekanik Sorunlu / Sesli Çalışıyor",
+          "Parça Niyetine / Arızalı",
+          "Manuel / Elektronik Değil"
+        ],
+        "required": true
+      },
+      {
+        "name": "transport",
+        "label": "Nakliye / Taşınabilirlik",
+        "type": "select",
+        "options": [
+          "Elde Taşınabilir (Hafif)",
+          "Otomobil Bagajına Sığar (Demonte)",
+          "Panelvan / Büyük Araç Gerekir",
+          "Ağır / Yerinde Teslim"
+        ],
+        "required": true
+      },
+      {
+        "name": "condition",
+        "label": "Kozmetik Durum",
+        "type": "select",
+        "options": [
+          "Yeni (Kutusunda)",
+          "Yeni Gibi (Az Kullanılmış)",
+          "İyi (Ter/Pas İzi Yok)",
+          "Orta (Yıpranmış)"
+        ],
+        "required": true
+      }
+    ]
+  },
+  "Outdoor": {
+    "fields": [
+      {
+        "name": "activity_type",
+        "label": "Aktivite / Tür",
+        "type": "select",
+        "options": [
+          "Kamp (Çadır/Uyku Tulumu)",
+          "Dağcılık & Tırmanış",
+          "Balıkçılık (Olta/Makine)",
+          "Outdoor Giyim & Ayakkabı",
+          "Avcılık",
+          "Dürbün & Optik",
+          "Termos & Mutfak Gereçleri"
+        ],
+        "required": true
+      },
+      {
+        "name": "product_name",
+        "label": "Ürün Adı / Model",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "brand",
+        "label": "Marka (North Face, Quechua, Shimano vb.)",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "specs",
+        "label": "Özellikler (Örn: 3 Kişilik, 50 Litre, -10 Derece, 42 Numara)",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "condition",
+        "label": "Durum",
+        "type": "select",
+        "options": [
+          "Yeni (Etiketli/Kutusunda)",
+          "Az Kullanılmış / Temiz",
+          "İyi (Tamirat Görmüş)",
+          "Yıpranmış / Parça Eksik"
+        ],
+        "required": true
+      },
+      {
+        "name": "durability",
+        "label": "Su Geçirmezlik / Yırtık Durumu",
+        "type": "select",
+        "options": [
+          "Sorunsuz / Su Geçirmez",
+          "Ufak Yırtık/Yama Var",
+          "Su Geçirmezlik Özelliği Yok/Bitmiş"
+        ],
+        "required": false
+      }
+    ]
+  },
+  "Other Sports": {
+    "fields": [
+      {
+        "name": "sport_category",
+        "label": "Spor Dalı",
+        "type": "select",
+        "options": [
+          "Futbol / Basketbol / Voleybol (Top/Forma)",
+          "Tenis & Masa Tenisi & Raket",
+          "Kaykay / Paten / Scooter",
+          "Su Sporları (Sörf/Dalış)",
+          "Dövüş Sporları (Boks/Karate)",
+          "Bilardo / Dart / Bowling",
+          "Kış Sporları (Kayak/Snowboard)"
+        ],
+        "required": true
+      },
+      {
+        "name": "item_type",
+        "label": "Ürün Tipi",
+        "type": "select",
+        "options": [
+          "Ekipman (Raket/Tahta/Kask)",
+          "Giyim & Ayakkabı",
+          "Aksesuar / Koruma"
+        ],
+        "required": true
+      },
+      {
+        "name": "size_spec",
+        "label": "Beden / Ölçü / Numara (Örn: 43 No, Grip 2, 8.5 Inch)",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "brand",
+        "label": "Marka",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "condition",
+        "label": "Durum",
+        "type": "select",
+        "options": [
+          "Yeni",
+          "Yeni Gibi",
+          "Kullanılmış",
+          "Yıpranmış"
+        ],
+        "required": true
+      }
+    ]
+  },
+  "Garden Landscaping": {
+    "fields": [
+      {
+        "name": "material_type",
+        "label": "Malzeme Tipi",
+        "type": "select",
+        "options": [
+          "Saksı & Bitki Yetiştirme",
+          "Çit / Panel / Tel Örgü",
+          "Dekoratif Taş / Çakıl / Toprak",
+          "Bahçe Aydınlatma",
+          "Süs Havuzu / Fıskiye",
+          "Zemin Döşeme (Ahşap/Taş)"
+        ],
+        "required": true
+      },
+      {
+        "name": "quantity_dimensions",
+        "label": "Miktar / Boyut (Örn: 10 adet, 50 m2, 20 Litre)",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "transport",
+        "label": "Nakliye / Ağırlık Durumu",
+        "type": "select",
+        "options": [
+          "Elde Taşınabilir (Hafif)",
+          "Araba Bagajına Sığar",
+          "Kamyonet / Nakliye Gerekir (Ağır/Hacimli)"
+        ],
+        "required": true
+      },
+      {
+        "name": "condition",
+        "label": "Durum",
+        "type": "select",
+        "options": [
+          "Sıfır (Paketinde)",
+          "Kullanılmış / Sökülmüş (İyi)",
+          "Hasarlı / Kusurlu"
+        ],
+        "required": true
+      },
+      {
+        "name": "price_unit",
+        "label": "Fiyatlandırma Şekli",
+        "type": "select",
+        "options": [
+          "Toplu Fiyat (Hepsine)",
+          "Adet / Metrekare Başına Fiyat"
+        ],
+        "required": true
+      }
+    ]
+  },
+  "Hand Tools": {
+    "fields": [
+      {
+        "name": "tool_type",
+        "label": "Alet Tipi",
+        "type": "select",
+        "options": [
+          "Çim Biçme Makinesi",
+          "Budama (Makas/Testere)",
+          "Toprak İşleme (Kürek/Kazma/Tırmık)",
+          "Sulama Ekipmanı (Hortum/Fıskiye)",
+          "İlaçlama Pompası",
+          "El Arabası"
+        ],
+        "required": true
+      },
+      {
+        "name": "power_source",
+        "label": "Güç Kaynağı",
+        "type": "select",
+        "options": [
+          "Manuel (El Aleti)",
+          "Benzinli Motor",
+          "Elektrikli (Kablolu)",
+          "Akülü (Şarjlı)"
+        ],
+        "required": true
+      },
+      {
+        "name": "brand",
+        "label": "Marka (Bosch, Makita, Gardena vb.)",
+        "type": "text",
+        "required": false
+      },
+      {
+        "name": "condition",
+        "label": "Çalışma Durumu",
+        "type": "select",
+        "options": [
+          "Sıfır",
+          "Sorunsuz Çalışıyor",
+          "Bakım Gerekir (Körleşmiş/Paslı)",
+          "Arızalı / Parça Niyetine"
+        ],
+        "required": true
+      },
+      {
+        "name": "extras",
+        "label": "Dahil Olanlar (Yedek Bıçak, Şarj Cihazı vb.)",
+        "type": "text",
+        "required": false
+      }
+    ]
+  },
+  "Other Garden": {
+    "fields": [
+      {
+        "name": "category",
+        "label": "Kategori",
+        "type": "select",
+        "options": [
+          "Barbekü / Mangal / Grill",
+          "Şemsiye / Tente / Gölgelik",
+          "Bahçe Depolama (Kulübe/Dolap)",
+          "Isıtıcı / Şömine",
+          "Havuz & Jakuzi (Şişme/Prefabrik)",
+          "Hamak / Salıncak"
+        ],
+        "required": true
+      },
+      {
+        "name": "dimensions",
+        "label": "Boyutlar (En x Boy x Yükseklik)",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "material",
+        "label": "Malzeme",
+        "type": "text",
+        "required": false
+      },
+      {
+        "name": "condition",
+        "label": "Durum",
+        "type": "select",
+        "options": [
+          "Yeni",
+          "Az Kullanılmış (Temiz)",
+          "Dış Mekan Yıpranması Var (Pas/Solma)",
+          "Tamir Gerekli"
+        ],
+        "required": true
+      },
+      {
+        "name": "disassembly",
+        "label": "Demonte Edilebilir mi? (Taşıma İçin)",
+        "type": "select",
+        "options": [
+          "Evet, Sökülür",
+          "Hayır, Tek Parça (Büyük Araç Lazım)"
+        ],
+        "required": true
+      }
+    ]
+  },
+  "Office Machines": {
+    "fields": [
+      {
+        "name": "machine_type",
+        "label": "Makine Tipi",
+        "type": "select",
+        "options": [
+          "Yazıcı (Printer)",
+          "Fotokopi Makinesi",
+          "Tarayıcı (Scanner)",
+          "Kağıt İmha (Shredder)",
+          "Projeksiyon Cihazı",
+          "Laminasyon / Ciltleme",
+          "Para Sayma Makinesi"
+        ],
+        "required": true
+      },
+      {
+        "name": "brand",
+        "label": "Marka (HP, Canon, Epson, Xerox vb.)",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "model",
+        "label": "Model Numarası (Önemli)",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "technology",
+        "label": "Baskı Teknolojisi (Yazıcı İçin)",
+        "type": "select",
+        "options": [
+          "Lazer (Tonerli)",
+          "Mürekkep Püskürtmeli (Kartuş/Tank)",
+          "Nokta Vuruşlu",
+          "Termal",
+          "Diğer/İlgisiz"
+        ],
+        "required": false
+      },
+      {
+        "name": "consumable_status",
+        "label": "Kartuş / Toner / Lamba Durumu",
+        "type": "select",
+        "options": [
+          "Dolu / Yeni Takıldı",
+          "Yarı Dolu / Kullanılabilir",
+          "Bitik / Değişim Gerekli",
+          "Bilinmiyor"
+        ],
+        "required": true
+      },
+      {
+        "name": "condition",
+        "label": "Genel Durum",
+        "type": "select",
+        "options": [
+          "Sıfır (Kutusunda)",
+          "Sorunsuz / Ofis Çıkması",
+          "Bakım Gerekir (Kağıt Sıkıştırıyor/İz Bırakıyor)",
+          "Arızalı / Parça Niyetine"
+        ],
+        "required": true
+      }
+    ]
+  },
+  "Stationery": {
+    "fields": [
+      {
+        "name": "product_category",
+        "label": "Ürün Tipi",
+        "type": "select",
+        "options": [
+          "Kalem & Yazı Gereçleri (Lüks/Standart)",
+          "Defter & Kağıt Ürünleri",
+          "Dosyalama & Arşivleme",
+          "Masaüstü Gereçleri (Zımba/Delgeç/Bant)",
+          "Sanat & Çizim Malzemeleri (Boya/Fırça)",
+          "Okul Gereçleri (Çanta/Matara)",
+          "Teknik Çizim (Cetvel/Pergel)"
+        ],
+        "required": true
+      },
+      {
+        "name": "brand",
+        "label": "Marka (Faber-Castell, Moleskine, Montblanc vb.)",
+        "type": "text",
+        "required": false
+      },
+      {
+        "name": "condition",
+        "label": "Durum",
+        "type": "select",
+        "options": [
+          "Sıfır (Paketinde)",
+          "Paketi Açık / Kullanılmamış",
+          "Az Kullanılmış / Eksik",
+          "Vintage / Koleksiyonluk (Eski Kalemler)"
+        ],
+        "required": true
+      },
+      {
+        "name": "quantity_type",
+        "label": "Satış Şekli",
+        "type": "select",
+        "options": [
+          "Tek Ürün (Örn: Dolma Kalem)",
+          "Set / Paket (Örn: 12'li Boya)",
+          "Koli / Toptan (Stok Fazlası)"
+        ],
+        "required": true
+      }
+    ]
+  },
+  "Other Office": {
+    "fields": [
+      {
+        "name": "item_type",
+        "label": "Eşya Tipi",
+        "type": "select",
+        "options": [
+          "Sunum & Tahta (Whiteboard/Mantar Pano)",
+          "Ofis Güvenlik (Kasa/Para Çekmecesi)",
+          "Masaüstü Düzenleyici & Evrak Rafı",
+          "Çöp Kovası & Geri Dönüşüm",
+          "Ofis Mutfak & İkram (Sebil/Makine)",
+          "Telefon & Santral Sistemleri",
+          "Aydınlatma (Masa Lambası)",
+          "Tabela & Yönlendirme"
+        ],
+        "required": true
+      },
+      {
+        "name": "condition",
+        "label": "Durum",
+        "type": "select",
+        "options": [
+          "Yeni",
+          "Yeni Gibi (Temiz)",
+          "İyi (Kullanım İzi Var)",
+          "Hasarlı / Tamir Gerekli"
+        ],
+        "required": true
+      },
+      {
+        "name": "dimensions",
+        "label": "Boyutlar (Tahta ve Kasa için Önemli)",
+        "type": "text",
+        "required": false
+      },
+      {
+        "name": "brand",
+        "label": "Marka",
+        "type": "text",
+        "required": false
+      }
+    ]
+  },
+  "Mix": {
+    "fields": [
+      {
+        "name": "bundle_theme",
+        "label": "Paket / Kutu İçeriği Teması",
+        "type": "select",
+        "options": [
+          "Ev Eşyaları Karışık",
+          "Elektronik & Kablo & Adaptör",
+          "Hobi & Koleksiyon",
+          "Tamirat & Hırdavat",
+          "Giyim & Tekstil",
+          "Bit Pazarı / Garaj Satışı (Her Şey Var)",
+          "Taşınma Fazlası"
+        ],
+        "required": true
+      },
+      {
+        "name": "description",
+        "label": "İçerik Detayı (Kutuda Neler Var?)",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "total_items",
+        "label": "Tahmini Parça Sayısı",
+        "type": "select",
+        "options": [
+          "2-5 Parça",
+          "5-10 Parça",
+          "10-20 Parça",
+          "20+ Parça / Koli"
+        ],
+        "required": false
+      },
+      {
+        "name": "condition_summary",
+        "label": "Genel Durum",
+        "type": "select",
+        "options": [
+          "Hepsi Sıfır/Yeni",
+          "Karışık (Yeni ve İkinci El)",
+          "Hepsi İkinci El",
+          "Bazıları Arızalı / Bakım Gerektirir"
+        ],
+        "required": true
+      },
+      {
+        "name": "sale_type",
+        "label": "Satış Yöntemi",
+        "type": "select",
+        "options": [
+          "Sadece Toplu Satış (Hepsine Tek Fiyat)",
+          "İçinden Seçip Alınabilir (Parça Parça Satılık)",
+          "Ücretsiz / Bağış"
+        ],
+        "required": true
+      }
+    ]
+  },
+  "Dog": {
+    "fields": [
+      {
+        "name": "breed",
+        "label": "Irk / Cins (Örn: Golden, Teriyer, Kırma)",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "age",
+        "label": "Yaş",
+        "type": "select",
+        "options": [
+          "Yavru (0-6 Ay)",
+          "Genç (6 Ay - 2 Yaş)",
+          "Yetişkin (2-7 Yaş)",
+          "Yaşlı (7+ Yaş)"
+        ],
+        "required": true
+      },
+      {
+        "name": "gender",
+        "label": "Cinsiyet",
+        "type": "select",
+        "options": [
+          "Dişi",
+          "Erkek"
+        ],
+        "required": true
+      },
+      {
+        "name": "health_status",
+        "label": "Sağlık Durumu",
+        "type": "select",
+        "options": [
+          "Aşılı & Karneli",
+          "Kısırlaştırılmış",
+          "Aşılı & Kısırlaştırılmış",
+          "Henüz İşlem Yapılmadı"
+        ],
+        "required": true
+      },
+      {
+        "name": "size",
+        "label": "Boyut",
+        "type": "select",
+        "options": [
+          "Küçük Irk (Small)",
+          "Orta Irk (Medium)",
+          "Büyük Irk (Large/X-Large)"
+        ],
+        "required": true
+      },
+      {
+        "name": "chip_status",
+        "label": "Çip / Pasaport Durumu",
+        "type": "select",
+        "options": [
+          "Çipli ve Pasaportlu",
+          "Çipi Yok"
+        ],
+        "required": true
+      }
+    ]
+  },
+  "Cat": {
+    "fields": [
+      {
+        "name": "breed",
+        "label": "Irk / Cins (Örn: British, Scottish, Tekir)",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "age",
+        "label": "Yaş",
+        "type": "select",
+        "options": [
+          "Yavru (0-6 Ay)",
+          "Genç (6 Ay - 2 Yaş)",
+          "Yetişkin (2-10 Yaş)",
+          "Yaşlı (10+ Yaş)"
+        ],
+        "required": true
+      },
+      {
+        "name": "gender",
+        "label": "Cinsiyet",
+        "type": "select",
+        "options": [
+          "Dişi",
+          "Erkek"
+        ],
+        "required": true
+      },
+      {
+        "name": "health_status",
+        "label": "Sağlık Durumu",
+        "type": "select",
+        "options": [
+          "Aşılı & Karneli",
+          "Kısırlaştırılmış",
+          "Aşılı & Kısırlaştırılmış",
+          "Henüz İşlem Yapılmadı"
+        ],
+        "required": true
+      },
+      {
+        "name": "hair_length",
+        "label": "Tüy Yapısı",
+        "type": "select",
+        "options": [
+          "Kısa Tüylü",
+          "Uzun Tüylü",
+          "Tüysüz (Sfenks vb.)"
+        ],
+        "required": false
+      },
+      {
+        "name": "location_status",
+        "label": "Mekan Uyumu",
+        "type": "select",
+        "options": [
+          "Ev Kedisi",
+          "Bahçe / Dışarıya Uygun"
+        ],
+        "required": false
+      }
+    ]
+  },
+  "Dog Accessories": {
+    "fields": [
+      {
+        "name": "product_type",
+        "label": "Ürün Tipi",
+        "type": "select",
+        "options": [
+          "Tasma & Kayış",
+          "Yatak & Minder",
+          "Kıyafet & Yağmurluk",
+          "Taşıma Çantası / Kafes (Kennel)",
+          "Mama & Su Kabı",
+          "Oyuncak",
+          "Bakım & Tarak",
+          "Kulübe (Dış Mekan)"
+        ],
+        "required": true
+      },
+      {
+        "name": "size_spec",
+        "label": "Beden / Ölçü (Örn: L Beden, 50cm, 10kg Kapasiteli)",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "brand",
+        "label": "Marka",
+        "type": "text",
+        "required": false
+      },
+      {
+        "name": "condition",
+        "label": "Durum",
+        "type": "select",
+        "options": [
+          "Sıfır (Paketinde)",
+          "Yeni Gibi (Temiz)",
+          "Kullanılmış (Yıkanmış)",
+          "Yıpranmış / Diş İzleri Var"
+        ],
+        "required": true
+      },
+      {
+        "name": "material",
+        "label": "Malzeme (Plastik, Deri, Metal vb.)",
+        "type": "text",
+        "required": false
+      }
+    ]
+  },
+  "Cat Accessories": {
+    "fields": [
+      {
+        "name": "product_type",
+        "label": "Ürün Tipi",
+        "type": "select",
+        "options": [
+          "Tırmalama Tahtası / Ağacı",
+          "Kum Kabı / Tuvalet",
+          "Taşıma Çantası (Box)",
+          "Yatak & Ev",
+          "Mama & Su Kabı",
+          "Oyuncak",
+          "Tarak & Makas",
+          "Kedi Kapısı / Filesi"
+        ],
+        "required": true
+      },
+      {
+        "name": "brand",
+        "label": "Marka",
+        "type": "text",
+        "required": false
+      },
+      {
+        "name": "condition",
+        "label": "Durum",
+        "type": "select",
+        "options": [
+          "Sıfır (Paketinde)",
+          "Yeni Gibi (Az Kullanılmış)",
+          "İyi (Temizlenmiş)",
+          "Yıpranmış (Tırmalanmış)"
+        ],
+        "required": true
+      },
+      {
+        "name": "hygiene",
+        "label": "Hijyen Durumu",
+        "type": "select",
+        "options": [
+          "Hiç Kullanılmadı",
+          "Dezenfekte Edildi / Yıkandı",
+          "Temizlik Gerektirir"
+        ],
+        "required": true
+      },
+      {
+        "name": "features",
+        "label": "Özellik (Otomatik, Kapalı, Filtreli vb.)",
+        "type": "text",
+        "required": false
+      }
+    ]
+  },
+  "Dry Food": {
+    "fields": [
+      {
+        "name": "animal_type",
+        "label": "Hangi Hayvan İçin?",
+        "type": "select",
+        "options": [
+          "Köpek Maması",
+          "Kedi Maması"
+        ],
+        "required": true
+      },
+      {
+        "name": "brand",
+        "label": "Marka (Proplan, Royal Canin, ND vb.)",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "life_stage",
+        "label": "Yaş Grubu",
+        "type": "select",
+        "options": [
+          "Yavru (Puppy/Kitten)",
+          "Yetişkin (Adult)",
+          "Yaşlı (Senior)",
+          "Kısırlaştırılmış (Sterilised)"
+        ],
+        "required": true
+      },
+      {
+        "name": "content_type",
+        "label": "İçerik / Aroma (Somonlu, Kuzulu, Tahılsız vb.)",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "package_status",
+        "label": "Paket Durumu",
+        "type": "select",
+        "options": [
+          "Kapalı Paket (Orijinal)",
+          "Açılmış Paket (Ağzı Kapatılmış)"
+        ],
+        "required": true
+      },
+      {
+        "name": "weight",
+        "label": "Mevcut Miktar / Ağırlık (kg)",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "expiry_date",
+        "label": "Son Kullanma Tarihi (SKT)",
+        "type": "text",
+        "required": true
+      }
+    ]
+  },
+  "Wet Food": {
+    "fields": [
+      {
+        "name": "animal_type",
+        "label": "Hangi Hayvan İçin?",
+        "type": "select",
+        "options": [
+          "Kedi",
+          "Köpek"
+        ],
+        "required": true
+      },
+      {
+        "name": "packaging",
+        "label": "Paket Tipi",
+        "type": "select",
+        "options": [
+          "Konserve (Teneke)",
+          "Pouch (Poşet)",
+          "Ödül Maması / Çubuk"
+        ],
+        "required": true
+      },
+      {
+        "name": "brand",
+        "label": "Marka",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "quantity",
+        "label": "Adet Sayısı (Örn: 12'li Koli, 5 Adet)",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "flavor",
+        "label": "Aroma (Tavuk, Balık, Sığır vb.)",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "expiry_date",
+        "label": "Son Kullanma Tarihi (SKT)",
+        "type": "text",
+        "required": true
+      }
+    ]
+  },
+  "Bird Food": {
+    "fields": [
+      {
+        "name": "bird_type",
+        "label": "Kuş Türü",
+        "type": "select",
+        "options": [
+          "Muhabbet Kuşu",
+          "Papağan (Büyük/Küçük)",
+          "Kanarya",
+          "Güvercin",
+          "Tavuk / Kümes Hayvanı",
+          "Dış Mekan / Yabani Kuşlar"
+        ],
+        "required": true
+      },
+      {
+        "name": "food_type",
+        "label": "Yem Tipi",
+        "type": "select",
+        "options": [
+          "Karışık Yem (Tohum)",
+          "Pellet Yem",
+          "Ballı Kraker / Ödül",
+          "Dal Darı",
+          "Mama (Yumurta Maması)"
+        ],
+        "required": true
+      },
+      {
+        "name": "brand",
+        "label": "Marka (Versele Laga, Gold Wings vb.)",
+        "type": "text",
+        "required": false
+      },
+      {
+        "name": "weight",
+        "label": "Miktar / Ağırlık (gr/kg)",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "package_status",
+        "label": "Paket Durumu",
+        "type": "select",
+        "options": [
+          "Kapalı Paket",
+          "Açık / Dökme Yem"
+        ],
+        "required": true
+      },
+      {
+        "name": "expiry_date",
+        "label": "Son Kullanma Tarihi",
+        "type": "text",
+        "required": false
+      }
+    ]
+  },
+  "Desktops": {
+    "fields": [
+      {
+        "name": "type",
+        "label": "Bilgisayar Tipi",
+        "type": "select",
+        "options": [
+          "Oyun Bilgisayarı (Gaming)",
+          "Ofis / Ev Bilgisayarı",
+          "All-in-One (Monitör Dahil)",
+          "Mini PC / Mac Mini",
+          "Sunucu / Workstation"
+        ],
+        "required": true
+      },
+      {
+        "name": "cpu",
+        "label": "İşlemci (Örn: i7 12700K, Ryzen 5 5600)",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "ram",
+        "label": "RAM Bellek",
+        "type": "select",
+        "options": [
+          "4 GB ve altı",
+          "8 GB",
+          "16 GB",
+          "32 GB",
+          "64 GB+"
+        ],
+        "required": true
+      },
+      {
+        "name": "storage",
+        "label": "Depolama (SSD/HDD)",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "gpu",
+        "label": "Ekran Kartı (Örn: RTX 3060, Onboard)",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "monitor_included",
+        "label": "Monitör Fiyata Dahil mi?",
+        "type": "select",
+        "options": [
+          "Evet",
+          "Hayır (Sadece Kasa)"
+        ],
+        "required": true
+      }
+    ]
+  },
+  "Laptop": {
+    "fields": [
+      {
+        "name": "brand",
+        "label": "Marka (Apple, Lenovo, Asus vb.)",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "model",
+        "label": "Model",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "cpu",
+        "label": "İşlemci",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "ram_storage",
+        "label": "RAM ve Disk (Örn: 16GB RAM / 512 SSD)",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "screen_size",
+        "label": "Ekran Boyutu",
+        "type": "select",
+        "options": [
+          "13\" ve altı (Mini/Air)",
+          "14\" - 15\" (Standart)",
+          "16\" - 17\" (Büyük/Gaming)"
+        ],
+        "required": true
+      },
+      {
+        "name": "battery_condition",
+        "label": "Pil Durumu",
+        "type": "select",
+        "options": [
+          "Çok İyi (Uzun Süre Gidiyor)",
+          "Normal",
+          "Zayıf / Kabloya Bağlı Çalışıyor",
+          "Pil Yok / Arızalı"
+        ],
+        "required": true
+      },
+      {
+        "name": "keyboard_layout",
+        "label": "Klavye Düzeni",
+        "type": "select",
+        "options": [
+          "Q Türkçe",
+          "F Türkçe",
+          "Q İngilizce (US/UK)",
+          "Almanca/Diğer"
+        ],
+        "required": true
+      }
+    ]
+  },
+  "Android": {
+    "fields": [
+      {
+        "name": "brand",
+        "label": "Marka (Samsung, Xiaomi, Huawei vb.)",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "model",
+        "label": "Model (Örn: S23 Ultra, Redmi Note 10)",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "storage",
+        "label": "Hafıza",
+        "type": "select",
+        "options": [
+          "32 GB",
+          "64 GB",
+          "128 GB",
+          "256 GB",
+          "512 GB",
+          "1 TB"
+        ],
+        "required": true
+      },
+      {
+        "name": "ram",
+        "label": "RAM",
+        "type": "select",
+        "options": [
+          "4 GB",
+          "6 GB",
+          "8 GB",
+          "12 GB",
+          "16 GB+"
+        ],
+        "required": false
+      },
+      {
+        "name": "condition",
+        "label": "Kozmetik Durum",
+        "type": "select",
+        "options": [
+          "Çiziksiz / Hatasız",
+          "Kılcal Çizikler Var",
+          "Ekranda Çatlak/Kırık Var",
+          "Arka Kapak Kırık"
+        ],
+        "required": true
+      },
+      {
+        "name": "warranty",
+        "label": "Garanti Durumu",
+        "type": "select",
+        "options": [
+          "Devam Ediyor (TR Garantili)",
+          "Bitti",
+          "Yurt Dışı (Kayıtlı)",
+          "Yurt Dışı (Kayısız)"
+        ],
+        "required": true
+      }
+    ]
+  },
+  "iPhone": {
+    "fields": [
+      {
+        "name": "model",
+        "label": "Model",
+        "type": "select",
+        "options": [
+          "iPhone 15 Serisi",
+          "iPhone 14 Serisi",
+          "iPhone 13 Serisi",
+          "iPhone 12 Serisi",
+          "iPhone 11 Serisi",
+          "iPhone X / XS / XR",
+          "iPhone SE",
+          "iPhone 8 ve Öncesi"
+        ],
+        "required": true
+      },
+      {
+        "name": "storage",
+        "label": "Hafıza",
+        "type": "select",
+        "options": [
+          "64 GB",
+          "128 GB",
+          "256 GB",
+          "512 GB",
+          "1 TB"
+        ],
+        "required": true
+      },
+      {
+        "name": "battery_health",
+        "label": "Pil Sağlığı (%)",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "faceid_status",
+        "label": "FaceID / TouchID Çalışıyor mu?",
+        "type": "select",
+        "options": [
+          "Evet, Sorunsuz",
+          "Hayır, Çalışmıyor"
+        ],
+        "required": true
+      },
+      {
+        "name": "repair_history",
+        "label": "Değişen Parça / Tamir",
+        "type": "select",
+        "options": [
+          "Hatasız / Tamirsiz",
+          "Ekran Değişti",
+          "Pil Değişti",
+          "Arka Cam Değişti",
+          "Ankart Tamiri Var"
+        ],
+        "required": true
+      }
+    ]
+  },
+  "Other Technology": {
+    "fields": [
+      {
+        "name": "category",
+        "label": "Kategori",
+        "type": "select",
+        "options": [
+          "Tablet (iPad/Android)",
+          "Akıllı Saat / Bileklik",
+          "Kulaklık (Bluetooth/Kablolu)",
+          "VR Gözlük / Sanal Gerçeklik",
+          "E-Kitap Okuyucu",
+          "Akıllı Ev Aletleri (Robot Süpürge vb.)",
+          "Diğer"
+        ],
+        "required": true
+      },
+      {
+        "name": "brand_model",
+        "label": "Marka ve Model",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "specs",
+        "label": "Özellikler (Örn: 64GB, 44mm, WiFi+Cellular)",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "condition",
+        "label": "Durum",
+        "type": "select",
+        "options": [
+          "Sıfır",
+          "Az Kullanılmış",
+          "Yıpranmış",
+          "Arızalı"
+        ],
+        "required": true
+      }
+    ]
+  },
+  "Action Cameras": {
+    "fields": [
+      {
+        "name": "brand",
+        "label": "Marka (GoPro, DJI, Insta360 vb.)",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "model",
+        "label": "Model",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "resolution",
+        "label": "Çözünürlük",
+        "type": "select",
+        "options": [
+          "4K / 5.3K",
+          "2K / 1080p",
+          "360 Derece",
+          "720p / Eski Nesil"
+        ],
+        "required": false
+      },
+      {
+        "name": "accessories",
+        "label": "Dahil Olan Aksesuarlar (Housing, Batarya, Stick)",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "condition",
+        "label": "Durum",
+        "type": "select",
+        "options": [
+          "Lens Çiziksiz / Sorunsuz",
+          "Lensi Çizik",
+          "Su Geçirmezlik Özelliği Bozuk",
+          "Ekran Kırık"
+        ],
+        "required": true
+      }
+    ]
+  },
+  "Digital Cameras": {
+    "fields": [
+      {
+        "name": "type",
+        "label": "Makine Tipi",
+        "type": "select",
+        "options": [
+          "DSLR (Profesyonel)",
+          "Aynasız (Mirrorless)",
+          "Kompakt / Point & Shoot",
+          "Analog / Film",
+          "Video Kamera"
+        ],
+        "required": true
+      },
+      {
+        "name": "brand",
+        "label": "Marka (Canon, Sony, Nikon, Fujifilm)",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "shutter_count",
+        "label": "Shutter (Perde) Sayısı",
+        "type": "text",
+        "required": false
+      },
+      {
+        "name": "lens_included",
+        "label": "Lens Durumu",
+        "type": "select",
+        "options": [
+          "Sadece Body (Gövde)",
+          "Kit Lens Dahil",
+          "Özel Lens Dahil (Detay Yazın)"
+        ],
+        "required": true
+      },
+      {
+        "name": "condition",
+        "label": "Kondisyon",
+        "type": "select",
+        "options": [
+          "Çok Temiz / Profesyonel",
+          "Hobi Amaçlı Kullanılmış",
+          "Yıpranmış / Kauçuk Atması Var"
+        ],
+        "required": true
+      }
+    ]
+  },
+  "Frames": {
+    "fields": [
+      {
+        "name": "type",
+        "label": "Tip",
+        "type": "select",
+        "options": [
+          "Dijital Fotoğraf Çerçevesi",
+          "Akıllı Ekran (Google Nest/Echo Show)"
+        ],
+        "required": true
+      },
+      {
+        "name": "screen_size",
+        "label": "Ekran Boyutu",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "connectivity",
+        "label": "Bağlantı",
+        "type": "select",
+        "options": [
+          "WiFi / Cloud",
+          "USB / SD Kart",
+          "Sadece Dahili Hafıza"
+        ],
+        "required": false
+      },
+      {
+        "name": "condition",
+        "label": "Durum",
+        "type": "select",
+        "options": [
+          "Sıfır",
+          "İkinci El"
+        ],
+        "required": true
+      }
+    ]
+  },
+  "Other Cameras": {
+    "fields": [
+      {
+        "name": "category",
+        "label": "Kategori",
+        "type": "select",
+        "options": [
+          "Drone / İHA",
+          "Güvenlik Kamerası / CCTV",
+          "Webcam / Yayıncı Kamerası",
+          "Bebek Kamerası",
+          "Araç Kamerası (Dashcam)",
+          "Dürbün / Teleskop"
+        ],
+        "required": true
+      },
+      {
+        "name": "brand_model",
+        "label": "Marka ve Model",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "specs",
+        "label": "Özellikler (Menzil, Çözünürlük, Pil Sayısı)",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "flight_time",
+        "label": "Uçuş Süresi / Batarya Döngüsü (Drone İçin)",
+        "type": "text",
+        "required": false
+      }
+    ]
+  },
+  "TVs & Displays": {
+    "fields": [
+      {
+        "name": "type",
+        "label": "Ürün Tipi",
+        "type": "select",
+        "options": [
+          "Televizyon (TV)",
+          "Bilgisayar Monitörü",
+          "Projeksiyon"
+        ],
+        "required": true
+      },
+      {
+        "name": "screen_size",
+        "label": "Ekran Boyutu (İnç)",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "resolution",
+        "label": "Çözünürlük",
+        "type": "select",
+        "options": [
+          "4K / UHD",
+          "1080p / Full HD",
+          "2K / QHD",
+          "8K",
+          "HD Ready (Eski)"
+        ],
+        "required": true
+      },
+      {
+        "name": "smart_status",
+        "label": "Smart TV Özelliği",
+        "type": "select",
+        "options": [
+          "Var (Android/WebOS/Tizen)",
+          "Yok (Standart)",
+          "Monitör (Geçerli Değil)"
+        ],
+        "required": false
+      },
+      {
+        "name": "screen_condition",
+        "label": "Ekran Sağlığı",
+        "type": "select",
+        "options": [
+          "Sorunsuz / Temiz",
+          "Ölü Piksel Var",
+          "Ghosting / Gölge Var",
+          "Ekranda Çizik Var"
+        ],
+        "required": true
+      }
+    ]
+  },
+  "Accessory Mix": {
+    "fields": [
+      {
+        "name": "accessory_type",
+        "label": "Aksesuar Tipi",
+        "type": "select",
+        "options": [
+          "Şarj Aleti / Adaptör / Kablo",
+          "Telefon Kılıfı / Kapak",
+          "Powerbank",
+          "Hafıza Kartı / USB Bellek",
+          "Tripod / Stand",
+          "Çanta / Kılıf (Laptop/Kamera)"
+        ],
+        "required": true
+      },
+      {
+        "name": "compatibility",
+        "label": "Uyumluluk (Hangi Cihaz İçin?)",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "brand",
+        "label": "Marka",
+        "type": "text",
+        "required": false
+      },
+      {
+        "name": "condition",
+        "label": "Durum",
+        "type": "select",
+        "options": [
+          "Sıfır (Paketinde)",
+          "Kullanılmış",
+          "Orijinal Değil / Yan Sanayi"
+        ],
+        "required": true
+      }
+    ]
+  },
+  "Audio Systems": {
+    "fields": [
+      {
+        "name": "audio_type",
+        "label": "Sistem Tipi",
+        "type": "select",
+        "options": [
+          "Bluetooth Hoparlör (Taşınabilir)",
+          "Soundbar & TV Ses Sistemi",
+          "Hi-Fi Stereo Amfi / Receiver",
+          "Ev Sinema Sistemi (5.1 / 7.1)",
+          "Kule / Raf Tipi Hoparlör",
+          "Pikap (Plak Çalar)",
+          "Subwoofer"
+        ],
+        "required": true
+      },
+      {
+        "name": "brand",
+        "label": "Marka (JBL, Sony, Bose, Marshall vb.)",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "connectivity",
+        "label": "Bağlantı",
+        "type": "select",
+        "options": [
+          "Bluetooth / Kablosuz",
+          "Kablolu (Aux/RCA/Optik)",
+          "Wi-Fi / Network",
+          "Hem Kablolu Hem Kablosuz"
+        ],
+        "required": true
+      },
+      {
+        "name": "condition",
+        "label": "Kondisyon",
+        "type": "select",
+        "options": [
+          "Sıfır (Kutusunda)",
+          "Yeni Gibi (Az Kullanılmış)",
+          "İyi (Kozmetik Kusurlu)",
+          "Arızalı / Parça Niyetine"
+        ],
+        "required": true
+      },
+      {
+        "name": "power",
+        "label": "Güç / Watt (Biliyorsanız)",
+        "type": "text",
+        "required": false
+      }
+    ]
+  },
+  "Other Electronics": {
+    "fields": [
+      {
+        "name": "product_name",
+        "label": "Ürün Adı",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "category",
+        "label": "Kategori",
+        "type": "select",
+        "options": [
+          "Pil & Şarj Cihazı",
+          "Akıllı Ev / IoT",
+          "Hesap Makinesi / Sözlük",
+          "Hava İstasyonu / Termometre",
+          "Radyo / Telsiz",
+          "Diğer"
+        ],
+        "required": true
+      },
+      {
+        "name": "brand",
+        "label": "Marka",
+        "type": "text",
+        "required": false
+      },
+      {
+        "name": "condition",
+        "label": "Durum",
+        "type": "select",
+        "options": [
+          "Çalışıyor",
+          "Arızalı"
+        ],
+        "required": true
+      }
+    ]
+  },
+  "Kitchen Appliances": {
+    "fields": [
+      {
+        "name": "appliance_type",
+        "label": "Cihaz Tipi",
+        "type": "select",
+        "options": [
+          "Airfryer / Fritöz",
+          "Kahve Makinesi",
+          "Blender / Mutfak Robotu",
+          "Tost / Ekmek Kızartma",
+          "Su Isıtıcı (Kettle) / Çaycı",
+          "Mikrodalga / Fırın",
+          "Meyve Sıkacağı"
+        ],
+        "required": true
+      },
+      {
+        "name": "brand",
+        "label": "Marka (Philips, Arzum, Karaca vb.)",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "capacity",
+        "label": "Kapasite / Hacim (Örn: 5.5 Litre, 12 Fincan)",
+        "type": "text",
+        "required": false
+      },
+      {
+        "name": "condition",
+        "label": "Durum & Hijyen",
+        "type": "select",
+        "options": [
+          "Sıfır (Kutusunda)",
+          "Az Kullanılmış / Temiz",
+          "Çok Kullanılmış / İzler Var",
+          "Tamir Görmüş"
+        ],
+        "required": true
+      },
+      {
+        "name": "power",
+        "label": "Güç (Watt)",
+        "type": "text",
+        "required": false
+      }
+    ]
+  },
+  "Cleaning Appliances": {
+    "fields": [
+      {
+        "name": "type",
+        "label": "Süpürge Tipi",
+        "type": "select",
+        "options": [
+          "Robot Süpürge",
+          "Dikey / Şarjlı Süpürge",
+          "Toz Torbalı Standart",
+          "Toz Torbasız / Hazneli",
+          "Buharlı Temizleyici",
+          "Halı Yıkama"
+        ],
+        "required": true
+      },
+      {
+        "name": "brand",
+        "label": "Marka (Dyson, Roborock, Philips vb.)",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "battery_status",
+        "label": "Pil Durumu (Kablosuz İse)",
+        "type": "select",
+        "options": [
+          "Pil Sağlam / İyi Gidiyor",
+          "Pil Zayıf / Değişim Gerekli",
+          "Kablolu Model"
+        ],
+        "required": true
+      },
+      {
+        "name": "condition",
+        "label": "Kozmetik Durum",
+        "type": "select",
+        "options": [
+          "Yeni Gibi",
+          "Çizikler Var",
+          "Yıpranmış"
+        ],
+        "required": true
+      }
+    ]
+  },
+  "Other Home Electronics": {
+    "fields": [
+      {
+        "name": "category",
+        "label": "Kategori",
+        "type": "select",
+        "options": [
+          "Ütü & Bakım",
+          "Dikiş Makinesi",
+          "Vantilatör / Isıtıcı / Klima",
+          "Hava Temizleyici / Nemlendirici",
+          "Saç Kurutma / Şekillendirici"
+        ],
+        "required": true
+      },
+      {
+        "name": "brand",
+        "label": "Marka",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "condition",
+        "label": "Durum",
+        "type": "select",
+        "options": [
+          "Sorunsuz Çalışıyor",
+          "Bakım Gerekir",
+          "Arızalı"
+        ],
+        "required": true
+      }
+    ]
+  },
+  "Mechanical Watches": {
+    "fields": [
+      {
+        "name": "brand",
+        "label": "Marka (Rolex, Seiko, Orient vb.)",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "movement",
+        "label": "Mekanizma",
+        "type": "select",
+        "options": [
+          "Otomatik (Automatic)",
+          "Kurmalı (Hand-wound)"
+        ],
+        "required": true
+      },
+      {
+        "name": "case_size",
+        "label": "Kasa Çapı (mm)",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "box_paper",
+        "label": "Kutu ve Sertifika Var mı?",
+        "type": "select",
+        "options": [
+          "Evet, Full Set (Kutu+Sertifika)",
+          "Sadece Kutu Var",
+          "Sadece Sertifika Var",
+          "Hayır, Sadece Saat"
+        ],
+        "required": true
+      },
+      {
+        "name": "authenticity",
+        "label": "Orijinallik",
+        "type": "select",
+        "options": [
+          "%100 Orijinal",
+          "Replika / Yan Sanayi"
+        ],
+        "required": true
+      },
+      {
+        "name": "condition",
+        "label": "Kondisyon",
+        "type": "select",
+        "options": [
+          "Sıfır / Takılmamış",
+          "Çok Temiz / Kılcal Çiziksiz",
+          "Kullanıma Bağlı Çizikler Var",
+          "Camında Çizik/Kırık Var"
+        ],
+        "required": true
+      }
+    ]
+  },
+  "Smart Watches": {
+    "fields": [
+      {
+        "name": "brand",
+        "label": "Marka (Apple, Samsung, Garmin, Huawei)",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "model",
+        "label": "Model ve Seri (Örn: Series 8, Watch 5 Pro)",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "case_size",
+        "label": "Kasa Boyutu (Örn: 41mm, 44mm, 49mm)",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "battery_health",
+        "label": "Pil Sağlığı / Süresi",
+        "type": "text",
+        "required": false
+      },
+      {
+        "name": "connectivity",
+        "label": "Bağlantı",
+        "type": "select",
+        "options": [
+          "Sadece GPS / Bluetooth",
+          "Cellular / LTE (eSIM)"
+        ],
+        "required": false
+      },
+      {
+        "name": "condition",
+        "label": "Ekran Durumu",
+        "type": "select",
+        "options": [
+          "Çiziksiz",
+          "Kılcal Çizik Var",
+          "Derin Çizik / Çatlak Var"
+        ],
+        "required": true
+      }
+    ]
+  },
+  "Other Watches": {
+    "fields": [
+      {
+        "name": "type",
+        "label": "Saat Tipi",
+        "type": "select",
+        "options": [
+          "Pilli (Quartz) Analog",
+          "Dijital (Casio Tarzı)",
+          "Cep Saati",
+          "Duvar / Masa Saati"
+        ],
+        "required": true
+      },
+      {
+        "name": "brand",
+        "label": "Marka",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "battery_status",
+        "label": "Pil Durumu",
+        "type": "select",
+        "options": [
+          "Çalışıyor (Pili Yeni)",
+          "Pili Bitik (Değişim Gerekir)",
+          "Arızalı"
+        ],
+        "required": true
+      },
+      {
+        "name": "condition",
+        "label": "Durum",
+        "type": "select",
+        "options": [
+          "Yeni",
+          "İkinci El"
+        ],
+        "required": true
+      }
+    ]
+  },
+  "PC Accessories": {
+    "fields": [
+      {
+        "name": "type",
+        "label": "Aksesuar Tipi",
+        "type": "select",
+        "options": [
+          "Klavye (Keyboard)",
+          "Mouse",
+          "Kulaklık (Headset)",
+          "Webcam",
+          "Mousepad",
+          "Mikrofon",
+          "Oyun Kolu (Gamepad)"
+        ],
+        "required": true
+      },
+      {
+        "name": "brand",
+        "label": "Marka (Logitech, Razer, Steelseries vb.)",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "connectivity",
+        "label": "Bağlantı",
+        "type": "select",
+        "options": [
+          "Kablolu (USB)",
+          "Kablosuz (USB Alıcılı)",
+          "Bluetooth"
+        ],
+        "required": true
+      },
+      {
+        "name": "feature",
+        "label": "Özellik (Mekanik Hisli, RGB, yüksek DPI)",
+        "type": "text",
+        "required": false
+      },
+      {
+        "name": "condition",
+        "label": "Durum",
+        "type": "select",
+        "options": [
+          "Sıfır",
+          "Az Kullanılmış / Temiz",
+          "Yıpranmış / Tuş Silinmesi Var"
+        ],
+        "required": true
+      }
+    ]
+  },
+  "Console": {
+    "fields": [
+      {
+        "name": "platform",
+        "label": "Platform",
+        "type": "select",
+        "options": [
+          "PlayStation 5",
+          "PlayStation 4",
+          "Xbox Series X/S",
+          "Xbox One",
+          "Nintendo Switch",
+          "Eski Nesil / Retro"
+        ],
+        "required": true
+      },
+      {
+        "name": "model_detail",
+        "label": "Model Detayı (Slim, Pro, OLED, Lite)",
+        "type": "text",
+        "required": false
+      },
+      {
+        "name": "storage",
+        "label": "Depolama",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "controller_count",
+        "label": "Yanındaki Kol (Gamepad) Sayısı",
+        "type": "select",
+        "options": [
+          "Kol Yok",
+          "1 Adet",
+          "2 Adet",
+          "3+ Adet"
+        ],
+        "required": true
+      },
+      {
+        "name": "disc_status",
+        "label": "Disk Sürücü Var mı?",
+        "type": "select",
+        "options": [
+          "Diskli Sürüm (Standart)",
+          "Dijital Sürüm (Disksiz)"
+        ],
+        "required": true
+      },
+      {
+        "name": "condition",
+        "label": "Kondisyon",
+        "type": "select",
+        "options": [
+          "Sıfır (Açılmamış)",
+          "Çok Temiz / Ev Cihazı",
+          "Tamir Görmüş",
+          "Banlı / Arızalı"
+        ],
+        "required": true
+      }
+    ]
+  },
+  "Other Gaming": {
+    "fields": [
+      {
+        "name": "type",
+        "label": "Ekipman Tipi",
+        "type": "select",
+        "options": [
+          "Direksiyon Seti (Steering Wheel)",
+          "VR Gözlük (Sanal Gerçeklik)",
+          "Joystick / Flight Stick",
+          "Retro Oyun Kaseti / Kartuşu",
+          "Konsol Aksesuarı (Dock, Çanta)"
+        ],
+        "required": true
+      },
+      {
+        "name": "compatibility",
+        "label": "Uyumluluk (PC, PS5, Xbox)",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "brand",
+        "label": "Marka",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "condition",
+        "label": "Durum",
+        "type": "select",
+        "options": [
+          "Sorunsuz",
+          "Ufak Sorunlu",
+          "Arızalı"
+        ],
+        "required": true
+      }
+    ]
+  },
+  "Circuit Elements": {
+    "fields": [
+      {
+        "name": "component_type",
+        "label": "Eleman Tipi",
+        "type": "select",
+        "options": [
+          "Entegre (IC)",
+          "Direnç / Kondansatör / Diyot",
+          "Transistör / Mosfet",
+          "Röle",
+          "Breadboard / PCB",
+          "LED / Display"
+        ],
+        "required": true
+      },
+      {
+        "name": "value_spec",
+        "label": "Değer / Kod (Örn: 10k Ohm, NE555, 12V)",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "quantity",
+        "label": "Miktar",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "condition",
+        "label": "Durum",
+        "type": "select",
+        "options": [
+          "Sıfır (Kullanılmamış)",
+          "Söküm (Çıkma Parça)"
+        ],
+        "required": true
+      }
+    ]
+  },
+  "Sensor & Module": {
+    "fields": [
+      {
+        "name": "type",
+        "label": "Modül Tipi",
+        "type": "select",
+        "options": [
+          "Geliştirme Kartı (Arduino/ESP/Raspberry)",
+          "Sensör (Sıcaklık/Mesafe/Hareket)",
+          "Motor Sürücü",
+          "Ekran Modülü (LCD/OLED)",
+          "Güç Modülü (Regülatör)",
+          "Kablosuz Haberleşme (Wi-Fi/BT/RF)"
+        ],
+        "required": true
+      },
+      {
+        "name": "model",
+        "label": "Model (Örn: Uno R3, DHT11, HC-06)",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "condition",
+        "label": "Durum",
+        "type": "select",
+        "options": [
+          "Sıfır (Paketinde)",
+          "Lehimlenmiş / Kullanılmış",
+          "Arızalı / Test Edilmemiş"
+        ],
+        "required": true
+      }
+    ]
+  },
+  "Other Games": {
+    "fields": [
+      {
+        "name": "platform",
+        "label": "Platform",
+        "type": "select",
+        "options": [
+          "PS5",
+          "PS4",
+          "Nintendo Switch",
+          "Xbox Series",
+          "Xbox One",
+          "PC",
+          "Retro / Diğer"
+        ],
+        "required": true
+      },
+      {
+        "name": "game_name",
+        "label": "Oyun Adı",
+        "type": "text",
+        "required": true
+      },
+      {
+        "name": "genre",
+        "label": "Tür",
+        "type": "select",
+        "options": [
+          "Aksiyon / Macera",
+          "Spor (FIFA/NBA)",
+          "FPS / Savaş",
+          "RPG / Rol Yapma",
+          "Yarış",
+          "Çocuk / Aile"
+        ],
+        "required": false
+      },
+      {
+        "name": "condition",
+        "label": "Disk / Kutu Durumu",
+        "type": "select",
+        "options": [
+          "Jelatinli (Sıfır)",
+          "Çiziksiz / Temiz",
+          "Kılcal Çizikler Var (Çalışıyor)",
+          "Kutusuz"
+        ],
+        "required": true
+      },
+      {
+        "name": "exchange",
+        "label": "Takas Olur mu?",
+        "type": "select",
+        "options": [
+          "Evet",
+          "Hayır"
+        ],
+        "required": false
+      }
+    ]
+  }
+};
+
+        // SUPABASE CONFIG
+        const SUPABASE_URL = 'https://sxtfbxgeatfzjzsobjmq.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN4dGZieGdlYXRmemp6c29iam1xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc3MTM1NjIsImV4cCI6MjA4MzI4OTU2Mn0.547hJ_d0ETKIio_CP5aXatGruZrhpZC-nI2LZYKAYJo';
+        
+        let supabaseClient;
+        try {
+            supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        } catch(e) {
+            console.error('Supabase init failed', e);
+            document.getElementById('log').innerHTML += '<div class="error">Failed to initialize Supabase client. Check console.</div>';
+        }
+
+        function log(msg, type='info') {
+            const el = document.getElementById('log');
+            const div = document.createElement('div');
+            div.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+            div.className = type;
+            el.appendChild(div);
+            el.scrollTop = el.scrollHeight;
+        }
+
+        async function startMigration() {
+            const btn = document.querySelector('button');
+            const status = document.getElementById('status');
+            
+            if (!supabaseClient) {
+                alert('Supabase client not initialized.');
+                return;
+            }
+
+            btn.disabled = true;
+            status.textContent = 'Authenticating...';
+            
+            try {
+                // Auth check
+                // Since this is a migration tool, we need high privileges.
+                // If the user provides a Service Role Key, we use that.
+                
+                let serviceKey = prompt('Please enter your Supabase SERVICE_ROLE KEY (secret) to authorize migration.\n\n(Find this in Supabase Dashboard -> Project Settings -> API)');
+                
+                if (serviceKey) {
+                    // Re-initialize with Service Key (Admin rights, bypasses RLS)
+                    supabaseClient = window.supabase.createClient(SUPABASE_URL, serviceKey);
+                    log('Authorized with Service Role Key (Admin Mode)', 'success');
+                } else {
+                    // Fallback to existing session (if any) or existing client
+                    const { data: { user } } = await supabaseClient.auth.getUser();
+                    if (user) {
+                         log('Logged in as ' + user.email, 'success');
+                    } else {
+                         throw new Error('Authorization failed. Please provide the Service Role Key.');
+                    }
+                }
+
+                status.textContent = 'Migrating...';
+                log('Starting migration for ' + categories.length + ' categories...');
+                
+                // Sort by level to ensure parents exist before children
+                const sortedCategories = [...categories].sort((a, b) => (a.level || 0) - (b.level || 0));
+
+                let successCount = 0;
+                let failCount = 0;
+
+                for (const cat of sortedCategories) {
+                    let config = categoryFieldsConfig[cat.name] || null;
+                    
+                    const dbCat = {
+                        id: cat.id,
+                        name: cat.name,
+                        slug: cat.slug,
+                        parent_id: cat.parentId,
+                        icon: cat.icon,
+                        icon_color: cat.iconColor,
+                        level: cat.level,
+                        extra_fields_config: config
+                    };
+
+                    try {
+                        const { error } = await supabaseClient.from('categories').upsert(dbCat);
+                        if (error) throw error;
+                        log('Saved: ' + cat.name, 'success');
+                        successCount++;
+                    } catch (err) {
+                        log('FAILED: ' + cat.name + ' - ' + err.message, 'error');
+                        failCount++;
+                    }
+                }
+                
+                status.textContent = 'Completed';
+                log('Migration finished. Success: ' + successCount + ', Failed: ' + failCount, successCount > 0 ? 'success' : 'error');
+                alert('Migration process finished!');
+
+            } catch (e) {
+                status.textContent = 'Error';
+                log('PROCESS FAILED: ' + e.message, 'error');
+                alert('Error: ' + e.message);
+            } finally {
+                btn.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>
+    

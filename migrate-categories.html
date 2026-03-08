@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kategori Taşıma Aracı</title>
+    <style>
+        body { font-family: system-ui, sans-serif; padding: 20px; max-width: 800px; margin: 0 auto; background: #f4f4f4; }
+        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        h1 { margin-top: 0; color: #333; }
+        button { background: #3b82f6; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-size: 16px; }
+        button:hover { background: #2563eb; }
+        button:disabled { background: #9ca3af; cursor: not-allowed; }
+        #log { background: #1e293b; color: #a5f3fc; padding: 15px; border-radius: 4px; overflow-y: auto; height: 300px; font-family: monospace; margin-top: 20px; }
+        .error { color: #fca5a5; }
+        .success { color: #86efac; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>🚀 Kategori Taşıma Aracı</h1>
+        <p>Bu araç <code>category-data.js</code> içindeki sabit kategorileri Supabase veritabanına aktarır.</p>
+        
+        <div style="margin-bottom: 20px; padding: 10px; background: #fff7ed; border-left: 4px solid #f97316;">
+            <strong>ÖNEMLİ:</strong> Bu işlemi yapmadan önce yönetici hesabıyla giriş yapmış olmalısınız.
+            Ayrıca Supabase'de <code>categories</code> tablosunu oluşturmuş olmalısınız.
+        </div>
+
+        <button id="migrateBtn">Taşımayı Başlat</button>
+        <div id="status" style="margin-top: 10px; font-weight: bold;"></div>
+    </div>
+
+    <pre id="log">Hazır...</pre>
+
+    <script type="module">
+        import { categories } from './js/category-data.js';
+        import { supabase } from './js/supabase.js';
+        import { categoryFieldsConfig } from './js/ilan-ver-form.js'; // Form sorularını almak için
+
+        const btn = document.getElementById('migrateBtn');
+        const logEl = document.getElementById('log');
+        const statusEl = document.getElementById('status');
+
+        function log(msg, type = 'info') {
+            const div = document.createElement('div');
+            div.textContent = `> ${msg}`;
+            if (type === 'error') div.className = 'error';
+            if (type === 'success') div.className = 'success';
+            logEl.appendChild(div);
+            logEl.scrollTop = logEl.scrollHeight;
+        }
+
+        btn.addEventListener('click', async () => {
+            btn.disabled = true;
+            statusEl.textContent = 'İşlem başlıyor...';
+            log('Başlatılıyor...', 'info');
+
+            try {
+                // 1. Yetki Kontrolü
+                const { data: { user } } = await supabase.auth.getUser();
+                if (!user) throw new Error('Lütfen önce giriş yapın!');
+
+                // Admin kontrolü (basit)
+                // Gerçek ortamda RLS policy admin olup olmadığını kontrol edecektir.
+                
+                log(`${categories.length} adet kategori bulundu.`, 'info');
+
+                // 2. Verileri Hazırla ve Yükle
+                let successCount = 0;
+                let errorCount = 0;
+
+                // Parent ID bağımlılığı olmaması için önce level 0, sonra 1, sonra 2 yüklüyoruz
+                // Ancak ID'leri koruduğumuz için sırası çok fark etmez ama Supabase foreign key hatası verebilir
+                // O yüzden level sırasına göre gitmek en güvenlisi.
+                
+                const sortedCategories = [...categories].sort((a, b) => (a.level || 0) - (b.level || 0));
+
+                for (const cat of sortedCategories) {
+                    // Config'i bul
+                    let config = categoryFieldsConfig[cat.id] || null;
+                    
+                    // Veritabanına uygun obje
+                    const dbCat = {
+                        id: cat.id,
+                        name: cat.name,
+                        slug: cat.slug,
+                        parent_id: cat.parentId,
+                        icon: cat.icon,
+                        icon_color: cat.iconColor,
+                        level: cat.level,
+                        extra_fields_config: config // JSON olarak gidecek
+                    };
+
+                    log(`Yükleniyor: ${cat.name} (ID: ${cat.id})...`);
+
+                    const { error } = await supabase
+                        .from('categories')
+                        .upsert(dbCat); // Varsa güncelle, yoksa ekle
+
+                    if (error) {
+                        console.error(error);
+                        log(`HATA: ${cat.name} yüklenemedi - ${error.message}`, 'error');
+                        errorCount++;
+                    } else {
+                        log(`OK: ${cat.name}`, 'success');
+                        successCount++;
+                    }
+                }
+
+                statusEl.textContent = 'İşlem Tamamlandı!';
+                log('-----------------------------------');
+                log(`Toplam Başarılı: ${successCount}`);
+                log(`Toplam Hatalı: ${errorCount}`);
+
+                if (errorCount === 0) {
+                    alert('Tüm kategoriler başarıyla taşındı!');
+                } else {
+                    alert('Bazı kategoriler taşınamadı. Logları kontrol edin.');
+                }
+
+            } catch (err) {
+                log(`KRİTİK HATA: ${err.message}`, 'error');
+                statusEl.textContent = 'Hata oluştu!';
+                console.error(err);
+            } finally {
+                btn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>

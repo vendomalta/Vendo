@@ -1,0 +1,467 @@
+/* ============================================
+   İLAN SORU-CEVAP BÖLÜMÜ STİLLERİ
+   ============================================ */
+
+.qa-section {
+    max-width: 1200px;
+    margin: 3rem auto;
+    padding: 0 100px;
+}
+
+.qa-section .card-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.qa-section .card-title i {
+    color: var(--primary);
+}
+
+/* Soru Sorma Formu */
+.qa-ask-form {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.qa-ask-form textarea {
+    width: 100%;
+    min-height: 100px;
+    padding: 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 0.95rem;
+    resize: vertical;
+    margin-bottom: 1rem;
+    transition: all 0.2s ease;
+}
+
+.qa-ask-form textarea:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+}
+
+.qa-ask-form .form-actions {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+}
+
+.qa-ask-form .btn-submit {
+    background: var(--primary);
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 8px;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.2s ease;
+}
+
+.qa-ask-form .btn-submit:hover {
+    background: var(--primary-dark);
+    transform: translateY(-1px);
+}
+
+.qa-ask-form .btn-submit:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.qa-ask-form .btn-cancel {
+    background: var(--gray-200);
+    color: var(--text);
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.qa-ask-form .btn-cancel:hover {
+    background: var(--gray-300);
+}
+
+.qa-ask-form .char-count {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-left: auto;
+}
+
+/* Sorular Listesi */
+.qa-questions-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.qa-question-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 1.5rem;
+    transition: all 0.2s ease;
+}
+
+.qa-question-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.qa-question-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.qa-user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--primary);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    flex-shrink: 0;
+}
+
+.qa-user-avatar img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.qa-question-meta {
+    flex: 1;
+}
+
+.qa-user-name {
+    font-weight: 600;
+    color: var(--text);
+    font-size: 0.95rem;
+}
+
+.qa-question-time {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.25rem;
+}
+
+.qa-edited-badge {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    font-style: italic;
+}
+
+.qa-question-text {
+    font-size: 1rem;
+    color: var(--text);
+    line-height: 1.6;
+    margin-bottom: 1rem;
+}
+
+.qa-question-actions {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.qa-action-btn {
+    background: none;
+    border: none;
+    color: var(--primary);
+    font-size: 0.9rem;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.2s ease;
+}
+
+.qa-action-btn:hover {
+    background: rgba(16, 185, 129, 0.1);
+}
+
+.qa-action-btn.edit {
+    color: var(--warning);
+}
+
+.qa-action-btn.edit:hover {
+    background: rgba(245, 158, 11, 0.1);
+}
+
+.qa-action-btn.delete {
+    color: var(--danger);
+}
+
+.qa-action-btn.delete:hover {
+    background: rgba(239, 68, 68, 0.1);
+}
+
+.qa-answer-count {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    margin-left: auto;
+}
+
+/* Cevaplar Bölümü */
+.qa-answers-section {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.qa-answers-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.qa-answer-card {
+    padding: 1rem;
+    background: var(--gray-50);
+    border-radius: 8px;
+    border-left: 3px solid transparent;
+    transition: all 0.2s ease;
+}
+
+.qa-answer-card:hover {
+    background: var(--gray-100);
+}
+
+.qa-answer-card.owner-answer {
+    border-left-color: var(--primary);
+    background: rgba(16, 185, 129, 0.05);
+}
+
+.qa-answer-card.owner-answer:hover {
+    background: rgba(16, 185, 129, 0.1);
+}
+
+.qa-answer-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+}
+
+.qa-answer-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--gray-400);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 0.85rem;
+    flex-shrink: 0;
+}
+
+.qa-answer-avatar img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.qa-answer-meta {
+    flex: 1;
+}
+
+.qa-answer-user-name {
+    font-weight: 600;
+    color: var(--text);
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.qa-owner-badge {
+    background: var(--primary);
+    color: white;
+    font-size: 0.7rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-weight: 500;
+}
+
+.qa-answer-time {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-top: 0.25rem;
+}
+
+.qa-answer-text {
+    font-size: 0.95rem;
+    color: var(--text);
+    line-height: 1.5;
+    margin-bottom: 0.5rem;
+}
+
+.qa-answer-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.qa-answer-actions .qa-action-btn {
+    font-size: 0.85rem;
+    padding: 0.35rem 0.75rem;
+}
+
+/* Cevap Formu */
+.qa-answer-form {
+    margin-top: 1rem;
+}
+
+.qa-answer-form textarea {
+    width: 100%;
+    min-height: 80px;
+    padding: 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 0.9rem;
+    resize: vertical;
+    margin-bottom: 0.75rem;
+}
+
+.qa-answer-form textarea:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+}
+
+.qa-answer-form .form-actions {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.qa-answer-form .btn-submit {
+    background: var(--primary);
+    color: white;
+    padding: 0.6rem 1.25rem;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.2s ease;
+}
+
+.qa-answer-form .btn-submit:hover {
+    background: var(--primary-dark);
+}
+
+.qa-answer-form .btn-cancel {
+    background: var(--gray-200);
+    color: var(--text);
+    padding: 0.6rem 1.25rem;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    cursor: pointer;
+}
+
+.qa-answer-form .btn-cancel:hover {
+    background: var(--gray-300);
+}
+
+/* Boş Durum */
+.qa-empty-state {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: var(--text-muted);
+}
+
+.qa-empty-state i {
+    font-size: 3rem;
+    color: var(--gray-400);
+    margin-bottom: 1rem;
+}
+
+.qa-empty-state h3 {
+    font-size: 1.25rem;
+    color: var(--text);
+    margin-bottom: 0.5rem;
+}
+
+.qa-empty-state p {
+    font-size: 0.95rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .qa-section {
+        padding: 0 0.5rem;
+        margin: 2rem auto;
+    }
+
+    .qa-ask-form,
+    .qa-question-card {
+        padding: 1rem;
+    }
+
+    .qa-question-header {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .qa-question-actions {
+        font-size: 0.85rem;
+    }
+
+    .qa-answer-count {
+        margin-left: 0;
+        margin-top: 0.5rem;
+    }
+}
+
+/* Loading State */
+.qa-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem;
+    color: var(--text-muted);
+}
+
+.qa-loading i {
+    font-size: 2rem;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}

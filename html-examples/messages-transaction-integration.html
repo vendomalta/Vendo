@@ -1,0 +1,298 @@
+<!-- 
+    💬 Mesajlaşma Sayfası - İşlem Onay Sistem Entegrasyonu HTML Örneği
+    Bu dosya, transaction approval sisteminin HTML'de nasıl gösterilmesi gerektiğini gösterir
+-->
+
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mesajlar - VERDE</title>
+    
+    <!-- ============================================
+         🆕 İşlem Onay Sistem CSS'i Ekle
+         ============================================ -->
+    <link rel="stylesheet" href="css/transaction-approval.css">
+    
+    <!-- Varolan CSS Dosyaları -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/pages/messages.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="page-wrapper">
+        <!-- Header ve Sidebar -->
+        <div id="header"></div>
+        <div id="sidebar"></div>
+        
+        <!-- Ana İçerik -->
+        <main class="messages-main">
+            <div class="messages-container">
+                
+                <!-- ============================================
+                     SOL PANEL: KONUŞMALAR LİSTESİ
+                     ============================================ -->
+                <div class="messages-sidebar">
+                    <div class="conversations-header">
+                        <h2>Mesajlar</h2>
+                        <button class="btn-new-message">
+                            <i class="fas fa-plus"></i> Yeni Mesaj
+                        </button>
+                    </div>
+                    
+                    <div id="conversationsList" class="conversations-list">
+                        <div class="loading-placeholder">
+                            <i class="fas fa-spinner fa-spin"></i> Konuşmalar yükleniyor...
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- ============================================
+                     SAĞ PANEL: MESAJ İÇERİĞİ
+                     ============================================ -->
+                <div class="messages-content-area">
+                    
+                    <!-- Mesaj Başlığı -->
+                    <div id="messageDetail" class="message-header">
+                        <img id="otherUserAvatar" src="" alt="" class="user-avatar">
+                        <div class="message-header-info">
+                            <h3 id="otherUserName">Konuşma seçin</h3>
+                            <span id="adReference" class="ad-reference">-</span>
+                        </div>
+                        <div class="message-header-actions">
+                            <button class="btn-call"><i class="fas fa-phone"></i></button>
+                            <button class="btn-more"><i class="fas fa-ellipsis-v"></i></button>
+                        </div>
+                    </div>
+                    
+                    <!-- ============================================
+                         🆕 İŞLEM ONAY SİSTEMİ KONTEYNER
+                         Bu div'e MessageTransactionUI tarafından
+                         butonlar ve durumlar eklenir
+                         ============================================ -->
+                    <div id="transaction-container" class="transaction-area">
+                        <!-- İşlem Onay Sisteminin HTML'si dinamik olarak buraya eklenir
+                        
+                             Şablonu:
+                             <div class="transaction-approval-section" data-approval-id="UUID">
+                                <div class="approval-header">
+                                    <i class="fas fa-handshake"></i>
+                                    <span>İşlem Onayı</span>
+                                </div>
+                                <div class="approval-status">
+                                    <div class="status-item buyer-status">
+                                        <span class="user-label">Alıcı</span>
+                                        <span class="status-indicator approved">
+                                            <i class="fas fa-check-circle"></i>
+                                            Onaylandı
+                                        </span>
+                                    </div>
+                                    <div class="status-item seller-status">
+                                        <span class="user-label">Satıcı</span>
+                                        <span class="status-indicator pending">
+                                            <i class="fas fa-hourglass-half"></i>
+                                            Bekleniyor
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="approval-actions">
+                                    <button class="btn-approve seller-approval-btn">
+                                        <i class="fas fa-check"></i>
+                                        Ürünü Sattım
+                                    </button>
+                                </div>
+                             </div>
+                        -->
+                    </div>
+                    
+                    <!-- Mesajlar Listesi -->
+                    <div id="messagesContent" class="messages-list">
+                        <div class="loading-placeholder">
+                            <i class="fas fa-spinner fa-spin"></i> Mesajlar yükleniyor...
+                        </div>
+                    </div>
+                    
+                    <!-- Mesaj Giriş Alanı -->
+                    <div class="message-input-area">
+                        <div class="input-tools">
+                            <button class="input-tool" data-tool="attachment">
+                                <i class="fas fa-paperclip"></i>
+                            </button>
+                            <button class="input-tool" data-tool="emoji">
+                                <i class="fas fa-smile"></i>
+                            </button>
+                        </div>
+                        
+                        <input type="text" 
+                               id="messageInput" 
+                               class="message-input" 
+                               placeholder="Mesaj yazın...">
+                        
+                        <button class="send-btn">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <!-- ============================================
+         🆕 MODULE IMPORTS
+         ============================================ -->
+    <script type="module">
+        // Temel imports
+        import { supabase } from './js/supabase.js';
+        import { loadHeader } from './js/layout.js';
+        
+        // 🆕 İşlem Onay Sistem Imports
+        import MessageTransactionUI from './js/message-transaction-ui.js';
+        import TransactionApprovalManager from './js/transaction-approval.js';
+        
+        // Varolan modules
+        import messages from './js/messages.js';
+        
+        // ============================================
+        // İŞLEM ONAY SİSTEMİ BAŞLATMA
+        // ============================================
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                // Header ve sidebar yükle
+                await loadHeader();
+                
+                // 🆕 İşlem Onay Sistemini Başlat
+                window.messageTransactionUI = new MessageTransactionUI(supabase);
+                window.transactionApprovalManager = new TransactionApprovalManager(supabase);
+                
+                console.log('✅ İşlem Onay Sistemi başarıyla yüklendi');
+                
+                // Varolan mesajlar sistemini başlat
+                // (Bu, transaction approval'ı otomatik olarak çağıracak)
+                
+            } catch (error) {
+                console.error('❌ Sayfa yükleme hatası:', error);
+            }
+        });
+        
+        // ============================================
+        // CONSOLE KOMUTLARI (Test için)
+        // ============================================
+        
+        // Kullanım örneği:
+        // F12 > Console > Yapıştır > Enter
+        
+        window.testTransactionSystem = {
+            // Tüm bekleyen onayları göster
+            showAllApprovals: async () => {
+                const approvals = await window.transactionApprovalManager
+                    .getPendingApprovals('CURRENT_USER_ID');
+                console.table(approvals);
+            },
+            
+            // Değerlendirme yapabilme kontrolü
+            canRate: async (listingId, sellerId) => {
+                const result = await window.transactionApprovalManager
+                    .canUserRate(listingId, sellerId, 'CURRENT_USER_ID');
+                console.log('Can Rate:', result);
+                return result;
+            },
+            
+            // İşlem onayını güncelle
+            approve: async (approvalId) => {
+                const result = await window.transactionApprovalManager
+                    .updateApproval(approvalId, true, null);
+                console.log('Updated:', result);
+                return result;
+            }
+        };
+        
+        // Örnek kullanım:
+        // testTransactionSystem.showAllApprovals()
+        // testTransactionSystem.canRate('listing-123', 'seller-456')
+    </script>
+    
+    <!-- Varolan Scripts -->
+    <script src="js/layout.js"></script>
+</body>
+</html>
+
+<!-- 
+    ============================================
+    CSS KLASLARı REFERANSI
+    ============================================
+    
+    transaction-approval-section
+    ├─ approval-header
+    ├─ approval-status
+    │  ├─ status-item
+    │  ├─ status-item.buyer-status
+    │  ├─ status-item.seller-status
+    │  ├─ status-indicator
+    │  ├─ status-indicator.approved
+    │  └─ status-indicator.pending
+    ├─ approval-actions
+    └─ btn-approve
+    
+    transaction-complete-message
+    └─ (Tamamlama mesajı için)
+    
+    ============================================
+    RESPONSIVE BREAKPOINTS
+    ============================================
+    
+    @media (max-width: 1024px)
+    - Sidebar saklı olabilir
+    - Konteyner tam genişlik
+    
+    @media (max-width: 768px)
+    - approval-status tek sütun
+    - btn-approve tam genişlik
+    - Font boyutları küçültüldü
+    
+    @media (max-width: 480px)
+    - Kompakt görünüm
+    - İkon boyutları azaltıldı
+    
+    ============================================
+    JAVASCRIPT ENTEGRASYONU
+    ============================================
+    
+    1. MessageTransactionUI başlatılır
+    2. TransactionApprovalManager başlatılır
+    3. messages.js yüklenir
+    4. selectConversation() çağrılırken:
+       ├─ renderTransactionButtons() çalıştırılır
+       └─ transaction-container doldurulur
+    
+    5. Butonlara tıklandığında:
+       ├─ updateApproval() çalıştırılır
+       ├─ Database güncellenirse
+       └─ UI yenilenir
+    
+    ============================================
+    VERİTABANı BAĞLANTISI
+    ============================================
+    
+    transaction_approvals tablosu:
+    - listing_id → listings.id
+    - buyer_id → auth.users.id
+    - seller_id → auth.users.id
+    - RLS: Kulllanıcı kendi verilerini görebilir
+    
+    seller_ratings tablosu:
+    - transaction_approval_id → transaction_approvals.id
+    - RLS: transaction_completed = true olması zorunlu
+    
+    ============================================
+    HATA HANDLING
+    ============================================
+    
+    1. Network hatası → "Bağlantı hatası" mesajı
+    2. RLS hatası → "Yetki hatası" mesajı
+    3. Logic hatası → "İşlem başarısız" mesajı
+    
+    Tüm hatalar console'da loglanır
+    
+    ============================================
+-->

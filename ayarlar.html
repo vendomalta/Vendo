@@ -1,0 +1,1267 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ayarlar - VENDO</title>
+    <link rel="icon" type="image/svg+xml" href="assets/images/verde-logo.svg" sizes="any">
+    <link rel="shortcut icon" href="assets/images/verde-logo.svg">
+    <link rel="apple-touch-icon" href="assets/images/verde-logo.svg">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/profile-buttons.css">
+    <link rel="stylesheet" href="css/phone-input.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Session Management Styles -->
+    <style>
+        .session-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            background: white;
+            transition: all 0.3s ease;
+            gap: 0.8rem;
+        }
+
+        .session-item:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            border-color: #d1d5db;
+        }
+
+        .session-item.current {
+            border-color: #10b981;
+            background: rgba(16, 185, 129, 0.03);
+        }
+
+        .session-item.current:hover {
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.15);
+        }
+
+        .session-info {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+        }
+
+        .session-device {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            font-weight: 500;
+            color: #1f2937;
+            flex-wrap: wrap;
+        }
+
+        .session-device i {
+            width: 1.6rem;
+            height: 1.6rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f3f4f6;
+            border-radius: 6px;
+            color: #10b981;
+            flex-shrink: 0;
+        }
+
+        .current-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: #10b981;
+            color: white;
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+        }
+
+        .session-details {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+
+        .session-details span {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .session-details i {
+            width: 1rem;
+            text-align: center;
+            color: #9ca3af;
+        }
+
+        .session-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            flex-shrink: 0;
+        }
+
+        .revoke-session-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.625rem 1rem;
+            font-size: 0.875rem;
+            white-space: nowrap;
+            background-color: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: 500;
+        }
+
+        .revoke-session-btn:hover {
+            background-color: #fecaca;
+            border-color: #f87171;
+            color: #7f1d1d;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(220, 38, 38, 0.2);
+        }
+
+        .revoke-session-btn:active {
+            transform: translateY(0);
+        }
+
+        .revoke-session-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        .revoke-session-btn i {
+            font-size: 0.85rem;
+        }
+
+        .session-warning-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            background-color: #fef3c7;
+            color: #92400e;
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 0.35rem 0.65rem;
+            border-radius: 6px;
+            border: 1px solid #fcd34d;
+        }
+
+        .session-warning-badge i {
+            font-size: 0.875rem;
+        }
+
+        .sessions-loading {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        .sessions-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .sessions-error {
+            padding: 1rem;
+            background-color: #fee2e2;
+            border: 1px solid #fecaca;
+            border-radius: 8px;
+            color: #991b1b;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .sessions-error i {
+            font-size: 1.25rem;
+            flex-shrink: 0;
+        }
+
+        .session-description {
+            color: #6b7280;
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+        }
+
+        #revokeAllSessionsBtn {
+            width: 100%;
+        }
+
+        @media (max-width: 768px) {
+            .session-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .session-actions {
+                width: 100%;
+                margin-top: 1rem;
+                flex-direction: column;
+            }
+
+            .revoke-session-btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .session-warning-badge {
+                align-self: flex-start;
+            }
+
+            .session-device {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="header-placeholder"></div>
+
+    <!-- Ayarlar Sayfası İçeriği -->
+    <main class="settings-page">
+        <div class="container">
+            <!-- Sayfa Başlığı -->
+            <div class="page-header">
+                <div class="header-content">
+                    <h1><i class="fas fa-cog"></i> Hesap Ayarları</h1>
+                </div>
+            </div>
+
+            <div class="settings-container">
+                <!-- Ayarlar Menüsü -->
+                <div class="settings-sidebar">
+                    <nav class="settings-nav">
+                        <a href="#security" class="nav-item active">
+                            <i class="fas fa-shield-alt"></i>
+                            <span>Güvenlik</span>
+                        </a>
+                        <a href="#notifications" class="nav-item">
+                            <i class="fas fa-bell"></i>
+                            <span>Bildirimler</span>
+                        </a>
+                        <a href="#appearance" class="nav-item">
+                            <i class="fas fa-palette"></i>
+                            <span>Görünüm</span>
+                        </a>
+                        <a href="#data" class="nav-item">
+                            <i class="fas fa-download"></i>
+                            <span>Veri Yönetimi</span>
+                        </a>
+                    </nav>
+                </div>
+
+                <!-- Ayarlar İçeriği -->
+                <div class="settings-content">
+                    <!-- Güvenlik -->
+                    <div id="security" class="settings-section active">
+                        <div class="section-header">
+                            <h2>Güvenlik Ayarları</h2>
+                        </div>
+
+                        <div class="settings-card">
+                            <h3>Şifre Değiştir</h3>
+                            <form id="passwordChangeForm" class="password-form">
+                                <div class="form-group">
+                                    <label>Mevcut Şifre</label>
+                                    <div class="password-input">
+                                        <input type="password" id="currentPassword" placeholder="Mevcut şifrenizi girin"
+                                            required>
+                                        <button type="button" class="toggle-password"
+                                            onclick="togglePasswordVisibility(this)">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label>Yeni Şifre</label>
+                                    <div class="password-input">
+                                        <input type="password" id="newPassword" placeholder="Yeni şifrenizi girin"
+                                            required>
+                                        <button type="button" class="toggle-password"
+                                            onclick="togglePasswordVisibility(this)">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </div>
+                                    <div class="password-strength">
+                                        <div class="strength-bar">
+                                            <div id="newPasswordStrengthFill" class="strength-fill weak"></div>
+                                        </div>
+                                        <span id="newPasswordStrengthText" class="strength-text">Zayıf</span>
+                                    </div>
+                                    <!-- Password Requirements -->
+                                    <div class="password-requirements" id="passwordRequirements"
+                                        style="margin-top: 1rem; font-size: 0.85rem;">
+                                        <p style="margin: 0 0 0.5rem 0; font-weight: 500;">Gereksinimler:</p>
+                                        <ul style="list-style: none; padding: 0; margin: 0;">
+                                            <li id="req-length" style="color: #ef4444; margin-bottom: 0.25rem;">
+                                                <i class="fas fa-times"></i> En az 8 karakter
+                                            </li>
+                                            <li id="req-uppercase" style="color: #ef4444; margin-bottom: 0.25rem;">
+                                                <i class="fas fa-times"></i> En az 1 büyük harf
+                                            </li>
+                                            <li id="req-lowercase" style="color: #ef4444;">
+                                                <i class="fas fa-times"></i> En az 1 küçük harf
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label>Yeni Şifre (Tekrar)</label>
+                                    <div class="password-input">
+                                        <input type="password" id="confirmPassword"
+                                            placeholder="Yeni şifrenizi tekrar girin" required>
+                                        <button type="button" class="toggle-password"
+                                            onclick="togglePasswordVisibility(this)">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </div>
+                                    <small id="passwordMatchError"
+                                        style="color: #ef4444; display: none; margin-top: 0.5rem;">
+                                        <i class="fas fa-exclamation-circle"></i> Şifreler eşleşmiyor
+                                    </small>
+                                    <small id="passwordMatchSuccess"
+                                        style="color: #10b981; display: none; margin-top: 0.5rem;">
+                                        <i class="fas fa-check-circle"></i> Şifreler eşleşiyor
+                                    </small>
+                                </div>
+                                <button type="submit" class="btn-primary" id="passwordChangeBtn">
+                                    <i class="fas fa-key"></i>
+                                    Şifreyi Güncelle
+                                </button>
+                            </form>
+                        </div>
+
+
+
+                    </div>
+
+
+
+                    <!-- Bildirimler -->
+                    <div id="notifications" class="settings-section">
+                        <div class="section-header">
+                            <h2>Bildirim Ayarları</h2>
+                        </div>
+
+                        <div class="settings-card">
+                            <h3>E-posta Bildirimleri</h3>
+                            <div class="toggle-setting">
+                                <div class="setting-info">
+                                    <h4>Yeni Mesajlar</h4>
+                                    <p>Yeni mesaj aldığınızda e-posta gönderilir</p>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="notifyMessages" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div class="toggle-setting">
+                                <div class="setting-info">
+                                    <h4>Fiyat Değişiklikleri</h4>
+                                    <p>Favori ilanlarınızın fiyatı değiştiğinde bildirim alın</p>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="notifyPriceChanges" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div class="toggle-setting">
+                                <div class="setting-info">
+                                    <h4>İlan Güncellemeleri</h4>
+                                    <p>İlanlarınızla ilgili önemli güncellemeler</p>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="notifyListingsUpdates" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="settings-card">
+                            <h3>Pazarlama Bildirimleri</h3>
+                            <div class="toggle-setting">
+                                <div class="setting-info">
+                                    <h4>Kampanyalar ve İndirimler</h4>
+                                    <p>Özel teklifler ve kampanyalardan haberdar olun</p>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="notifyMarketing" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Görünüm -->
+                    <div id="appearance" class="settings-section">
+                        <div class="section-header">
+                            <h2>Görünüm Ayarları</h2>
+                        </div>
+
+
+                        <div class="settings-card">
+                            <h3>Dil ve Bölge</h3>
+                            <div class="form-group">
+                                <label>Dil</label>
+                                <select disabled style="background-color: #f0f0f0; cursor: not-allowed;">
+                                    <option selected>English</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Para Birimi</label>
+                                <select disabled style="background-color: #f0f0f0; cursor: not-allowed;">
+                                    <option selected>EUR (Euro)</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Veri Yönetimi -->
+                    <div id="data" class="settings-section">
+                        <div class="section-header">
+                            <h2>Veri Yönetimi</h2>
+                            <p>Verilerinizi yönetin ve hesabınızı kontrol edin</p>
+                        </div>
+
+                        <div class="settings-card">
+                            <h3>Admin Paneli</h3>
+                            <p>Platform yönetimi için admin paneline erişin</p>
+                            <button class="btn-secondary" onclick="window.location.href='admin/login.html'">
+                                <i class="fas fa-shield-alt"></i>
+                                Admin Paneline Git
+                            </button>
+                        </div>
+
+                        <div class="settings-card danger-zone">
+                            <h3>Hesap İşlemleri</h3>
+                            <div class="danger-actions">
+
+                                <!-- Mobile Logout Button -->
+                                <style>
+                                    @media (min-width: 769px) {
+                                        .mobile-logout-action {
+                                            display: none !important;
+                                        }
+                                    }
+                                    .mobile-logout-action .btn-secondary {
+                                        background-color: #f3f4f6;
+                                        color: #374151;
+                                        border: 1px solid #d1d5db;
+                                    }
+                                    .mobile-logout-action .btn-secondary:hover {
+                                        background-color: #e5e7eb;
+                                        color: #111827;
+                                    }
+                                </style>
+                                <div class="danger-action mobile-logout-action" style="margin-bottom: 1.5rem; padding-bottom: 1.5rem; border-bottom: 1px solid #e5e7eb;">
+                                    <div class="action-info">
+                                        <h4>Hesaptan Çıkış Yap</h4>
+                                        <p>Mevcut oturumunuzu güvenle sonlandırır</p>
+                                    </div>
+                                    <button class="btn-secondary" onclick="if(window.handleLogout) window.handleLogout(); else { localStorage.clear(); sessionStorage.clear(); window.location.href='login.html'; }">
+                                        <i class="fas fa-sign-out-alt"></i>
+                                        Çıkış Yap
+                                    </button>
+                                </div>
+
+                                <div class="danger-action">
+                                    <div class="action-info">
+                                        <h4 style="color: #ef4444;">Hesabı Kalıcı Sil</h4>
+                                        <p>Tüm verileriniz kalıcı olarak silinir</p>
+                                    </div>
+                                    <button class="btn-danger" id="deleteAccountBtn">
+                                        <i class="fas fa-trash"></i>
+                                        Hesabı Sil
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Profil fotoğrafı değiştirme
+        function handleProfilePictureChange(event) {
+            const file = event.target.files[0];
+            const button = document.querySelector('.btn-primary-action');
+            const img = document.getElementById('settingsProfileImage');
+
+            if (file) {
+                // Loading state
+                button.classList.add('loading');
+                button.innerHTML = '<i class="fas fa-spinner"></i><span>Yükleniyor...</span>';
+
+                // Simulate upload process
+                setTimeout(() => {
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        img.src = e.target.result;
+
+                        // Success state
+                        button.classList.remove('loading');
+                        button.classList.add('success');
+                        button.innerHTML = '<i class="fas fa-check"></i><span>Başarılı!</span>';
+
+                        // Reset button after 2 seconds
+                        setTimeout(() => {
+                            button.classList.remove('success');
+                            button.innerHTML = '<i class="fas fa-camera"></i><span>Fotoğraf Değiştir</span>';
+                        }, 2000);
+                    };
+                    reader.readAsDataURL(file);
+                }, 1500);
+            }
+        }
+
+        // Profil fotoğrafını kaldırma
+        function removeProfilePicture() {
+            const button = document.querySelector('.btn-danger-action');
+            const img = document.getElementById('settingsProfileImage');
+
+            // Loading state
+            button.classList.add('loading');
+            button.innerHTML = '<i class="fas fa-spinner"></i><span>Kaldırılıyor...</span>';
+
+            // Simulate removal process
+            setTimeout(() => {
+                // Set default avatar
+                img.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="150" height="150" viewBox="0 0 150 150"><circle cx="75" cy="75" r="75" fill="%2310b981"/><text x="75" y="85" text-anchor="middle" fill="white" font-family="Arial" font-size="48" font-weight="bold">U</text></svg>';
+
+                // Success state
+                button.classList.remove('loading');
+                button.classList.add('success');
+                button.innerHTML = '<i class="fas fa-check"></i><span>Kaldırıldı!</span>';
+
+                // Show success notification
+                showSaveNotification('Profil fotoğrafı başarıyla kaldırıldı!', 'success');
+
+                // Reset button after 2 seconds
+                setTimeout(() => {
+                    button.classList.remove('success');
+                    button.innerHTML = '<i class="fas fa-trash"></i><span>Fotoğrafı Kaldır</span>';
+                }, 2000);
+            }, 1000);
+        }
+
+        // Settings navigation
+        function showSection(sectionId) {
+            // Hide all sections
+            const sections = document.querySelectorAll('.settings-section');
+            sections.forEach(section => section.classList.remove('active'));
+
+            // Remove active class from nav items
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach(item => item.classList.remove('active'));
+
+            // Show selected section
+            const targetSection = document.getElementById(sectionId);
+            if (targetSection) {
+                targetSection.classList.add('active');
+            }
+
+            // Add active class to clicked nav item
+            const clickedNavItem = event.target.closest('.nav-item');
+            if (clickedNavItem) {
+                clickedNavItem.classList.add('active');
+            }
+        }
+
+        // Save notification
+        function showSaveNotification(message, type = 'success') {
+            const notification = document.createElement('div');
+            notification.className = `save-notification ${type}`;
+            notification.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i>
+                <span>${message}</span>
+            `;
+
+            // Style
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: ${type === 'success' ? 'var(--success)' : 'var(--danger)'};
+                color: white;
+                padding: 1rem 1.5rem;
+                border-radius: 10px;
+                box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+                z-index: 1000;
+                display: flex;
+                align-items: center;
+                gap: 0.75rem;
+                font-weight: 500;
+                animation: slideInRight 0.3s ease-out;
+            `;
+
+            document.body.appendChild(notification);
+
+            // Remove after 3 seconds
+            setTimeout(() => {
+                notification.style.animation = 'slideOutRight 0.3s ease-in';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+
+        // Add notification animations
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideInRight {
+                from {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+            
+            @keyframes slideOutRight {
+                from {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+                to {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Example save function
+        function saveAccountSettings() {
+            showSaveNotification('Hesap bilgileri başarıyla güncellendi!', 'success');
+        }
+
+        // Phone number formatting
+        function formatPhoneNumber(input) {
+            let value = input.value.replace(/\D/g, ''); // Remove non-digits
+
+            // Malta phone number formatting (8 digits: XXXX XXXX)
+            if (value.length <= 8) {
+                value = value.replace(/(\d{4})(\d{1,4})/, '$1 $2');
+            }
+
+            input.value = value;
+        }
+
+        // Initialize phone input functionality
+        document.addEventListener('DOMContentLoaded', function () {
+            const phoneInput = document.querySelector('.phone-number-input');
+            const areaCodeSelect = document.querySelector('.area-code-select');
+
+            if (phoneInput) {
+                phoneInput.addEventListener('input', function () {
+                    formatPhoneNumber(this);
+                });
+
+                // Prevent non-numeric input (except spaces)
+                phoneInput.addEventListener('keypress', function (e) {
+                    const char = String.fromCharCode(e.which);
+                    if (!/[\d\s]/.test(char) && e.which !== 8) {
+                        e.preventDefault();
+                    }
+                });
+            }
+
+            if (areaCodeSelect) {
+                areaCodeSelect.addEventListener('change', function () {
+                    // Update placeholder based on selected country
+                    const selectedOption = this.options[this.selectedIndex];
+                    const countryCode = this.value;
+
+                    // Set appropriate placeholder for different countries
+                    const placeholders = {
+                        '+1': '555 123 4567',    // US/Canada
+                        '+7': '495 123 4567',    // Russia/Kazakhstan
+                        '+20': '10 1234 5678',   // Egypt
+                        '+27': '82 123 4567',    // South Africa
+                        '+30': '694 123 4567',   // Greece
+                        '+31': '6 12345678',     // Netherlands
+                        '+32': '470 12 34 56',   // Belgium
+                        '+33': '6 12 34 56 78',  // France
+                        '+34': '612 34 56 78',   // Spain
+                        '+36': '70 123 4567',    // Hungary
+                        '+39': '320 123 4567',   // Italy
+                        '+40': '712 345 678',    // Romania
+                        '+41': '79 123 45 67',   // Switzerland
+                        '+43': '664 123 4567',   // Austria
+                        '+44': '7911 123456',    // UK
+                        '+45': '12 34 56 78',    // Denmark
+                        '+46': '70 123 45 67',   // Sweden
+                        '+47': '412 34 567',     // Norway
+                        '+48': '512 345 678',    // Poland
+                        '+49': '1512 3456789',   // Germany
+                        '+51': '987 654 321',    // Peru
+                        '+52': '55 1234 5678',   // Mexico
+                        '+53': '5123 4567',      // Cuba
+                        '+54': '11 1234 5678',   // Argentina
+                        '+55': '11 91234 5678',  // Brazil
+                        '+56': '9 8765 4321',    // Chile
+                        '+57': '321 123 4567',   // Colombia
+                        '+58': '412 123 4567',   // Venezuela
+                        '+60': '12 345 6789',    // Malaysia
+                        '+61': '412 345 678',    // Australia
+                        '+62': '812 345 6789',   // Indonesia
+                        '+63': '917 123 4567',   // Philippines
+                        '+64': '21 123 4567',    // New Zealand
+                        '+65': '8123 4567',      // Singapore
+                        '+66': '81 234 5678',    // Thailand
+                        '+81': '90 1234 5678',   // Japan
+                        '+82': '10 1234 5678',   // South Korea
+                        '+84': '912 345 678',    // Vietnam
+                        '+86': '138 0013 8000',  // China
+                        '+90': '555 123 4567',   // Turkey
+                        '+91': '98765 43210',    // India
+                        '+92': '300 123 4567',   // Pakistan
+                        '+93': '70 123 4567',    // Afghanistan
+                        '+94': '71 234 5678',    // Sri Lanka
+                        '+95': '9 123 456 789',  // Myanmar
+                        '+98': '912 345 6789',   // Iran
+                        '+212': '612 345678',    // Morocco
+                        '+213': '551 23 45 67',  // Algeria
+                        '+216': '20 123 456',    // Tunisia
+                        '+218': '91 234 5678',   // Libya
+                        '+220': '123 4567',      // Gambia
+                        '+221': '77 123 45 67',  // Senegal
+                        '+222': '22 12 34 56',   // Mauritania
+                        '+223': '65 12 34 56',   // Mali
+                        '+224': '601 12 34 56',  // Guinea
+                        '+225': '01 23 45 67 89', // Côte d'Ivoire
+                        '+226': '70 12 34 56',   // Burkina Faso
+                        '+227': '96 12 34 56',   // Niger
+                        '+228': '90 11 22 33',   // Togo
+                        '+229': '97 12 34 56',   // Benin
+                        '+230': '5251 2345',     // Mauritius
+                        '+231': '770 123 456',   // Liberia
+                        '+232': '25 123456',     // Sierra Leone
+                        '+233': '23 123 4567',   // Ghana
+                        '+234': '802 123 4567',  // Nigeria
+                        '+235': '66 12 34 56',   // Chad
+                        '+236': '70 12 34 56',   // Central African Republic
+                        '+237': '6 71 23 45 67', // Cameroon
+                        '+238': '991 12 34',     // Cape Verde
+                        '+239': '981 2345',      // São Tomé and Príncipe
+                        '+240': '222 123 456',   // Equatorial Guinea
+                        '+241': '06 03 12 34',   // Gabon
+                        '+242': '06 612 3456',   // Congo
+                        '+243': '997 123 456',   // Congo (DRC)
+                        '+244': '923 123 456',   // Angola
+                        '+245': '955 12 34 56',  // Guinea-Bissau
+                        '+246': '438 1234',      // British Indian Ocean Territory
+                        '+248': '2 510 123',     // Seychelles
+                        '+249': '91 123 1234',   // Sudan
+                        '+250': '788 123 456',   // Rwanda
+                        '+251': '91 123 4567',   // Ethiopia
+                        '+252': '61 2345678',    // Somalia
+                        '+253': '77 12 34 56',   // Djibouti
+                        '+254': '712 123456',    // Kenya
+                        '+255': '621 123 456',   // Tanzania
+                        '+256': '712 345678',    // Uganda
+                        '+257': '79 56 12 34',   // Burundi
+                        '+258': '82 123 4567',   // Mozambique
+                        '+260': '97 123 4567',   // Zambia
+                        '+261': '32 12 345 67',  // Madagascar
+                        '+262': '692 12 34 56',  // Réunion
+                        '+263': '71 123 4567',   // Zimbabwe
+                        '+264': '81 123 4567',   // Namibia
+                        '+265': '991 23 45 67',  // Malawi
+                        '+266': '6012 3456',     // Lesotho
+                        '+267': '71 123 456',    // Botswana
+                        '+268': '7612 3456',     // Swaziland
+                        '+269': '321 12 34',     // Comoros
+                        '+290': '51234',         // Saint Helena
+                        '+291': '7 123 456',     // Eritrea
+                        '+297': '560 1234',      // Aruba
+                        '+298': '211234',        // Faroe Islands
+                        '+299': '22 12 34',      // Greenland
+                        '+350': '5412 3456',     // Gibraltar
+                        '+351': '912 345 678',   // Portugal
+                        '+352': '628 123 456',   // Luxembourg
+                        '+353': '85 123 4567',   // Ireland
+                        '+354': '611 1234',      // Iceland
+                        '+355': '67 212 3456',   // Albania
+                        '+356': '9912 3456',     // Malta
+                        '+357': '96 123456',     // Cyprus
+                        '+358': '50 123 4567',   // Finland
+                        '+359': '87 123 4567',   // Bulgaria
+                        '+370': '612 12345',     // Lithuania
+                        '+371': '21 234 567',    // Latvia
+                        '+372': '512 3456',      // Estonia
+                        '+373': '621 12 345',    // Moldova
+                        '+374': '77 123456',     // Armenia
+                        '+375': '29 123 45 67',  // Belarus
+                        '+376': '312 345',       // Andorra
+                        '+377': '6 12 34 56 78', // Monaco
+                        '+378': '66 12 34 567',  // San Marino
+                        '+380': '50 123 4567',   // Ukraine
+                        '+381': '64 123 4567',   // Serbia
+                        '+382': '67 123 456',    // Montenegro
+                        '+383': '43 123 456',    // Kosovo
+                        '+385': '91 234 5678',   // Croatia
+                        '+386': '31 123 456',    // Slovenia
+                        '+387': '61 123 456',    // Bosnia and Herzegovina
+                        '+389': '70 123 456',    // Macedonia
+                        '+420': '601 123 456',   // Czech Republic
+                        '+421': '905 123 456',   // Slovakia
+                        '+423': '661 12 34',     // Liechtenstein
+                        '+500': '51234',         // Falkland Islands
+                        '+501': '622 1234',      // Belize
+                        '+502': '5123 4567',     // Guatemala
+                        '+503': '7012 3456',     // El Salvador
+                        '+504': '9123 4567',     // Honduras
+                        '+505': '8123 4567',     // Nicaragua
+                        '+506': '8312 3456',     // Costa Rica
+                        '+507': '6123 4567',     // Panama
+                        '+508': '55 12 34',      // Saint Pierre and Miquelon
+                        '+509': '34 12 3456',    // Haiti
+                        '+590': '690 12 34 56',  // Guadeloupe
+                        '+591': '612 12345',     // Bolivia
+                        '+592': '609 1234',      // Guyana
+                        '+593': '99 123 4567',   // Ecuador
+                        '+594': '694 12 34 56',  // French Guiana
+                        '+595': '961 123456',    // Paraguay
+                        '+596': '696 12 34 56',  // Martinique
+                        '+597': '123 4567',      // Suriname
+                        '+598': '94 123 456',    // Uruguay
+                        '+599': '9 512 3456',    // Netherlands Antilles
+                        '+670': '7721 2345',     // Timor-Leste
+                        '+672': '412 345 678',   // Norfolk Island
+                        '+673': '712 3456',      // Brunei
+                        '+674': '555 1234',      // Nauru
+                        '+675': '7012 3456',     // Papua New Guinea
+                        '+676': '771 5123',      // Tonga
+                        '+677': '123 4567',      // Solomon Islands
+                        '+678': '591 2345',      // Vanuatu
+                        '+679': '701 2345',      // Fiji
+                        '+680': '620 1234',      // Palau
+                        '+681': '72 12 34',      // Wallis and Futuna
+                        '+682': '71 234',        // Cook Islands
+                        '+683': '4567',          // Niue
+                        '+684': '733 1234',      // American Samoa
+                        '+685': '72 12345',      // Samoa
+                        '+686': '71234',         // Kiribati
+                        '+687': '75 12 34',      // New Caledonia
+                        '+688': '901 23',        // Tuvalu
+                        '+689': '87 12 34 56',   // French Polynesia
+                        '+690': '1234',          // Tokelau
+                        '+691': '320 1234',      // Micronesia
+                        '+692': '456 1234',      // Marshall Islands
+                        '+850': '191 234 567',   // North Korea
+                        '+852': '5123 4567',     // Hong Kong
+                        '+853': '6123 4567',     // Macao
+                        '+855': '12 345 678',    // Cambodia
+                        '+856': '20 2312 3456',  // Laos
+                        '+880': '1812 345678',   // Bangladesh
+                        '+886': '912 345 678',   // Taiwan
+                        '+960': '771 2345',      // Maldives
+                        '+961': '3 123 456',     // Lebanon
+                        '+962': '7 9012 3456',   // Jordan
+                        '+963': '944 567 890',   // Syria
+                        '+964': '7901 234567',   // Iraq
+                        '+965': '500 12345',     // Kuwait
+                        '+966': '50 123 4567',   // Saudi Arabia
+                        '+967': '1 234 567',     // Yemen
+                        '+968': '9212 3456',     // Oman
+                        '+970': '599 123 456',   // Palestine
+                        '+971': '50 123 4567',   // United Arab Emirates
+                        '+972': '50 123 4567',   // Israel
+                        '+973': '3612 3456',     // Bahrain
+                        '+974': '3312 3456',     // Qatar
+                        '+975': '17 12 34 56',   // Bhutan
+                        '+976': '8812 3456',     // Mongolia
+                        '+977': '98 1234 5678',  // Nepal
+                        '+992': '37 123 4567',   // Tajikistan
+                        '+993': '65 123456',     // Turkmenistan
+                        '+994': '40 123 45 67',  // Azerbaijan
+                        '+995': '555 12 34 56',  // Georgia
+                        '+996': '555 123 456',   // Kyrgyzstan
+                        '+998': '90 123 45 67'   // Uzbekistan
+                    };
+
+                    phoneInput.placeholder = placeholders[countryCode] || 'Phone number';
+                });
+            }
+        });
+    </script>
+
+    <script type="module">
+        import { supabase } from './js/supabase.js';
+
+        // In-App Notification System
+        function showNotification(message, type = 'info') {
+            const container = document.getElementById('notification-container');
+            if (!container) return;
+
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+        padding: 16px 20px;
+        border-radius: 12px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 14px;
+        font-weight: 500;
+        animation: slideIn 0.3s ease-out;
+        backdrop-filter: blur(10px);
+        border: 1px solid;
+        min-width: 300px;
+    `;
+
+            let icon, bgColor, borderColor, textColor;
+
+            switch (type) {
+                case 'success':
+                    icon = '✅';
+                    bgColor = 'rgba(16, 185, 129, 0.95)';
+                    borderColor = '#059669';
+                    textColor = '#ffffff';
+                    break;
+                case 'error':
+                    icon = '❌';
+                    bgColor = 'rgba(239, 68, 68, 0.95)';
+                    borderColor = '#dc2626';
+                    textColor = '#ffffff';
+                    break;
+                case 'warning':
+                    icon = '⚠️';
+                    bgColor = 'rgba(245, 158, 11, 0.95)';
+                    borderColor = '#d97706';
+                    textColor = '#ffffff';
+                    break;
+                default:
+                    icon = 'ℹ️';
+                    bgColor = 'rgba(59, 130, 246, 0.95)';
+                    borderColor = '#2563eb';
+                    textColor = '#ffffff';
+            }
+
+            notification.style.background = bgColor;
+            notification.style.borderColor = borderColor;
+            notification.style.color = textColor;
+
+            notification.innerHTML = `
+        <span style="font-size: 20px;">${icon}</span>
+        <span style="flex: 1;">${message}</span>
+        <button onclick="this.parentElement.remove()" style="
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            line-height: 1;
+        ">×</button>
+    `;
+
+            container.appendChild(notification);
+
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease-in';
+                setTimeout(() => notification.remove(), 300);
+            }, 5000);
+        }
+
+        // Add animation styles
+        const style = document.createElement('style');
+        style.textContent = `
+    @keyframes slideIn {
+        from {
+            transform: translateX(400px);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+    @keyframes slideOut {
+        from {
+            transform: translateX(0);
+            opacity: 1;
+        }
+        to {
+            transform: translateX(400px);
+            opacity: 0;
+        }
+    }
+`;
+        document.head.appendChild(style);
+
+        // Password visibility toggle - Improved version
+        window.togglePasswordVisibility = function (btn) {
+            console.log('🔍 Toggle fonksiyonu çağrıldı!', btn);
+            try {
+                const passwordInputDiv = btn.parentElement;
+                console.log('📦 Parent div:', passwordInputDiv);
+
+                const input = passwordInputDiv.querySelector('input[type="password"], input[type="text"]');
+                console.log('📝 Input bulundu:', input);
+
+                const icon = btn.querySelector('i');
+                console.log('👁️ Icon bulundu:', icon);
+
+                if (!input || !icon) {
+                    console.error('❌ Input veya icon bulunamadı');
+                    return;
+                }
+
+                console.log('🔒 Şu anki input type:', input.type);
+
+                if (input.type === 'password') {
+                    input.type = 'text';
+                    icon.classList.remove('fa-eye');
+                    icon.classList.add('fa-eye-slash');
+                    console.log('✅ Şifre görünür yapıldı');
+                } else {
+                    input.type = 'password';
+                    icon.classList.remove('fa-eye-slash');
+                    icon.classList.add('fa-eye');
+                    console.log('✅ Şifre gizli yapıldı');
+                }
+            } catch (error) {
+                console.error('💥 Şifre görünürlük hatası:', error);
+            }
+        };
+
+        console.log('✅ togglePasswordVisibility fonksiyonu yüklendi:', typeof window.togglePasswordVisibility);
+
+        // Password validation
+        const newPasswordInput = document.getElementById('newPassword');
+        const confirmPasswordInput = document.getElementById('confirmPassword');
+        const passwordMatchError = document.getElementById('passwordMatchError');
+        const passwordMatchSuccess = document.getElementById('passwordMatchSuccess');
+        const passwordStrengthFill = document.getElementById('newPasswordStrengthFill');
+        const passwordStrengthText = document.getElementById('newPasswordStrengthText');
+
+        const requirements = {
+            length: document.getElementById('req-length'),
+            uppercase: document.getElementById('req-uppercase'),
+            lowercase: document.getElementById('req-lowercase')
+        };
+
+        function validatePassword(password) {
+            return {
+                length: password.length >= 8,
+                uppercase: /[A-Z]/.test(password),
+                lowercase: /[a-z]/.test(password)
+            };
+        }
+
+        function updatePasswordStrength(password) {
+            const validations = validatePassword(password);
+
+            // Update requirements
+            Object.keys(validations).forEach(key => {
+                const req = requirements[key];
+                if (validations[key]) {
+                    req.style.color = '#10b981';
+                    req.querySelector('i').className = 'fas fa-check';
+                } else {
+                    req.style.color = '#ef4444';
+                    req.querySelector('i').className = 'fas fa-times';
+                }
+            });
+
+            // Calculate strength
+            let strength = 0;
+            if (validations.length) strength++;
+            if (validations.uppercase) strength++;
+            if (validations.lowercase) strength++;
+
+            let strengthClass = 'weak';
+            let strengthText = 'Zayıf';
+
+            if (strength === 3) {
+                strengthClass = 'good';
+                strengthText = 'Güçlü';
+            } else if (strength === 2) {
+                strengthClass = 'fair';
+                strengthText = 'Orta';
+            }
+
+            passwordStrengthFill.className = `strength-fill ${strengthClass}`;
+            passwordStrengthText.textContent = strengthText;
+        }
+
+        function checkPasswordMatch() {
+            const newPass = newPasswordInput.value;
+            const confirmPass = confirmPasswordInput.value;
+
+            if (confirmPass === '') {
+                passwordMatchError.style.display = 'none';
+                passwordMatchSuccess.style.display = 'none';
+                return false;
+            }
+
+            if (newPass === confirmPass && newPass !== '') {
+                passwordMatchError.style.display = 'none';
+                passwordMatchSuccess.style.display = 'block';
+                return true;
+            } else {
+                passwordMatchSuccess.style.display = 'none';
+                passwordMatchError.style.display = 'block';
+                return false;
+            }
+        }
+
+        if (newPasswordInput) {
+            newPasswordInput.addEventListener('input', function () {
+                updatePasswordStrength(this.value);
+                checkPasswordMatch();
+            });
+        }
+
+        if (confirmPasswordInput) {
+            confirmPasswordInput.addEventListener('input', checkPasswordMatch);
+        }
+
+        // Password change form submission
+        const passwordChangeForm = document.getElementById('passwordChangeForm');
+        if (passwordChangeForm) {
+            passwordChangeForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                const currentPassword = document.getElementById('currentPassword').value;
+                const newPassword = document.getElementById('newPassword').value;
+                const confirmPassword = document.getElementById('confirmPassword').value;
+                const btn = document.getElementById('passwordChangeBtn');
+
+                // Validate
+                if (!currentPassword || !newPassword || !confirmPassword) {
+                    showNotification('Tüm alanları doldurun', 'error');
+                    return;
+                }
+
+                if (newPassword !== confirmPassword) {
+                    showNotification('Yeni şifreler eşleşmiyor', 'error');
+                    return;
+                }
+
+                const validations = validatePassword(newPassword);
+                if (!validations.length || !validations.uppercase || !validations.lowercase) {
+                    showNotification('Şifre gereksinimleri sağlanmadı', 'error');
+                    return;
+                }
+
+                if (currentPassword === newPassword) {
+                    showNotification('Yeni şifre eski şifre ile aynı olamaz', 'error');
+                    return;
+                }
+
+                // Show loading state
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> İşleniyor...';
+                btn.disabled = true;
+
+                try {
+                    // Get current user
+                    const { data: { user } } = await supabase.auth.getUser();
+                    if (!user) {
+                        throw new Error('Kullanıcı bulunamadı');
+                    }
+
+                    // First: Re-authenticate with current password
+                    const { error: signInError } = await supabase.auth.signInWithPassword({
+                        email: user.email,
+                        password: currentPassword
+                    });
+
+                    if (signInError) {
+                        throw new Error('Mevcut şifre yanlış');
+                    }
+
+                    // Second: Update password
+                    const { error: updateError } = await supabase.auth.updateUser({
+                        password: newPassword
+                    });
+
+                    if (updateError) {
+                        throw new Error(updateError.message);
+                    }
+
+                    // Success
+                    showNotification('Şifreniz başarıyla güncellendi!', 'success');
+                    passwordChangeForm.reset();
+                    updatePasswordStrength('');
+                    checkPasswordMatch();
+
+                } catch (error) {
+                    console.error('Şifre değiştirme hatası:', error);
+                    showNotification(error.message, 'error');
+                } finally {
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                }
+            });
+        }
+    </script>
+
+    <script type="module" src="js/auth.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/listings.js"></script>
+    <script src="js/layout.js"></script>
+    <script type="module">
+        // Import Supabase ve account settings
+        import { supabase } from './js/supabase.js';
+        import { initAccountSettings } from './js/account-settings.js';
+
+        // Sayfa yüklendiğinde account settings'i başlat
+        document.addEventListener('DOMContentLoaded', async function () {
+            try {
+                // Supabase kontrol et
+                const { data: { user }, error } = await supabase.auth.getUser();
+
+                if (error || !user) {
+                    console.log('Kullanıcı girişi gerekli');
+                    window.location.href = 'login.html';
+                    return;
+                }
+
+                // Account settings'i başlat
+                initAccountSettings();
+            } catch (error) {
+                console.error('Sayfa başlatılırken hata:', error);
+            }
+        });
+    </script>
+    <script type="module" src="js/script.js"></script>
+</body>
+
+<!-- Notification Container -->
+<div id="notification-container"
+    style="position: fixed; top: 80px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; max-width: 400px;">
+</div>
+
+</html>

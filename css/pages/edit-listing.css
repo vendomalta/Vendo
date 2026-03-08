@@ -1,0 +1,634 @@
+/* VENDO - Edit Ad Page Styles */
+
+/* Edit Form Container */
+/* Body/Page background override for contrast */
+body:has(.edit-form-container) .ad-detail-page {
+    background: #f1f5f9 !important;
+    /* Slightly darker slate-gray background */
+}
+
+/* Override parent ad-detail-container grid in edit mode */
+.ad-detail-container:has(.edit-form-container) {
+    display: block !important;
+    max-width: 1300px;
+    padding: 0 20px;
+}
+
+.edit-form-container {
+    max-width: 1200px;
+    /* Increased from 1000px to avoid narrow look */
+    margin: 40px auto 4rem;
+    /* Adjusted margin-top now that parent is block */
+    padding: 0;
+    animation: fadeIn 0.4s ease-out;
+}
+
+/* Hide mobile footer in edit mode */
+body:has(.edit-form-container) .mobile-action-footer {
+    display: none !important;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Edit Header */
+.edit-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.edit-header h1 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.edit-header h1 i {
+    color: var(--primary);
+}
+
+.btn-back {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem 1.2rem;
+    background: var(--surface);
+    border: 1px solid var(--gray-200);
+    border-radius: 8px;
+    color: var(--text-secondary);
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-back:hover {
+    background: var(--gray-50);
+    border-color: var(--gray-300);
+    color: var(--text);
+}
+
+/* Edit Form Layout */
+.edit-form {
+    display: grid;
+    grid-template-columns: 2fr 1.2fr;
+    /* Adjusted ratio for better field width */
+    gap: 2.5rem;
+    align-items: start;
+}
+
+/* Sections */
+.form-section {
+    background: var(--surface);
+    border-radius: 16px;
+    padding: 2rem;
+    border: 1px solid rgba(0, 0, 0, 0.02);
+    /* Almost invisible border */
+    box-shadow: 0 15px 50px rgba(0, 0, 0, 0.12);
+    /* Deep premium shadow */
+    margin-bottom: 2rem;
+}
+
+.form-section h2 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: var(--text);
+}
+
+.section-number {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    background: var(--primary);
+    color: white;
+    border-radius: 50%;
+    font-size: 0.85rem;
+    font-weight: 700;
+}
+
+/* Info Banner */
+.info-banner {
+    background: rgba(16, 185, 129, 0.08);
+    border-left: 4px solid var(--primary);
+    padding: 1.25rem;
+    border-radius: 8px;
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.info-banner i {
+    color: var(--primary);
+    font-size: 1.25rem;
+    margin-top: 2px;
+}
+
+.info-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.info-content strong {
+    font-weight: 600;
+    color: var(--primary);
+}
+
+.info-content span {
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+}
+
+/* Form Groups */
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem;
+}
+
+.form-group.full-width {
+    grid-column: 1 / -1;
+}
+
+.form-group label {
+    display: block;
+    font-weight: 500;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
+}
+
+.form-group label i {
+    margin-right: 0.25rem;
+    width: 16px;
+    color: var(--gray-400);
+}
+
+.required {
+    color: var(--danger);
+    margin-left: 2px;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--gray-200);
+    border-radius: 10px;
+    font-size: 1rem;
+    font-family: inherit;
+    transition: all 0.2s ease;
+    background: var(--surface);
+    color: var(--text);
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
+}
+
+.form-group textarea {
+    resize: vertical;
+    min-height: 150px;
+}
+
+.char-counter {
+    display: block;
+    text-align: right;
+    font-size: 0.8rem;
+    color: var(--gray-400);
+    margin-top: 0.5rem;
+}
+
+/* Photo Management */
+.photos-manager {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.photos-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    /* 3 columns for photos to use more space */
+    gap: 1rem;
+}
+
+.photo-item {
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden;
+    aspect-ratio: 4/3;
+    border: 1px solid rgba(0, 0, 0, 0.03);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    /* Deep shadow for photos */
+}
+
+.photo-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.remove-photo,
+.remove-new-photo {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 28px;
+    height: 28px;
+    background: rgba(239, 68, 68, 0.9);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+    z-index: 2;
+}
+
+.remove-photo:hover,
+.remove-new-photo:hover {
+    transform: scale(1.1);
+}
+
+.photo-badge {
+    position: absolute;
+    bottom: 8px;
+    left: 8px;
+    background: rgba(16, 185, 129, 0.9);
+    color: white;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.photo-badge.new {
+    background: rgba(59, 130, 246, 0.9);
+}
+
+.add-photo-section {
+    border: 2px dashed var(--gray-200);
+    border-radius: 12px;
+    padding: 2rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.add-photo-section:hover {
+    border-color: var(--primary);
+    background: rgba(16, 185, 129, 0.02);
+}
+
+.btn-add-photo {
+    background: none;
+    border: none;
+    color: var(--primary);
+    font-weight: 600;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+    cursor: pointer;
+}
+
+.add-photo-section .help-text {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    line-height: 1.4;
+}
+
+/* Form Actions */
+.form-actions {
+    display: flex;
+    gap: 1rem;
+}
+
+.btn-save,
+.btn-cancel {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    padding: 1rem;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-save {
+    background: var(--primary);
+    color: white;
+    border: none;
+}
+
+.btn-save:hover {
+    background: var(--primary-dark);
+    box-shadow: 0 8px 16px rgba(16, 185, 129, 0.2);
+    transform: translateY(-2px);
+}
+
+.btn-save:disabled {
+    background: var(--gray-300);
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+/* Sticky Footer Actions */
+.sticky-form-actions {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(12px);
+    border-top: 1px solid var(--gray-200);
+    padding: 1.25rem 0;
+    z-index: 1000;
+    box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.1);
+    animation: slideUp 0.4s ease-out;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(100%);
+    }
+
+    to {
+        transform: translateY(0);
+    }
+}
+
+.sticky-form-actions .actions-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.status-indicator {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: var(--gray-400);
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.status-indicator i {
+    font-size: 1rem;
+    display: none;
+}
+
+.status-indicator.has-changes {
+    color: #f59e0b;
+}
+
+.status-indicator.has-changes i {
+    display: block;
+}
+
+.sticky-form-actions .buttons {
+    display: flex;
+    gap: 1rem;
+}
+
+.sticky-form-actions .btn-save,
+.sticky-form-actions .btn-cancel {
+    padding: 0.75rem 2rem;
+    min-width: 140px;
+}
+
+/* Rich Text Toolbar */
+.rich-text-toolbar {
+    display: flex;
+    gap: 0.25rem;
+    background: var(--gray-50);
+    padding: 0.5rem;
+    border: 1px solid var(--gray-200);
+    border-bottom: none;
+    border-radius: 10px 10px 0 0;
+}
+
+.rich-text-toolbar button {
+    width: 34px;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: white;
+    border: 1px solid var(--gray-200);
+    border-radius: 6px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.rich-text-toolbar button:hover {
+    background: var(--primary-light);
+    color: var(--primary);
+    border-color: var(--primary);
+}
+
+.form-group textarea {
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+}
+
+/* Form Group Validation States */
+.form-group.is-valid input,
+.form-group.is-valid select,
+.form-group.is-valid textarea {
+    border-color: var(--primary);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2310b981'%3E%3Cpath d='M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 20px;
+    padding-right: 40px;
+}
+
+.form-group.is-invalid input,
+.form-group.is-invalid select,
+.form-group.is-invalid textarea {
+    border-color: var(--danger);
+    background-color: rgba(239, 68, 68, 0.02);
+    box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.05);
+}
+
+/* Photo Drag & Drop */
+.photo-item {
+    cursor: grab;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.photo-item.dragging {
+    opacity: 0.5;
+    transform: scale(0.9);
+    cursor: grabbing;
+    z-index: 100;
+}
+
+.photo-item.drag-over {
+    transform: scale(1.05);
+    border: 2px solid var(--primary);
+    box-shadow: 0 15px 35px rgba(16, 185, 129, 0.2);
+}
+
+.photo-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.2s;
+    pointer-events: none;
+}
+
+.photo-item:hover .photo-overlay {
+    opacity: 1;
+}
+
+.photo-overlay i {
+    color: white;
+    font-size: 1.5rem;
+}
+
+/* Category Visualization */
+.category-visual {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    background: var(--gray-50);
+    border: 1px solid var(--gray-200);
+    border-radius: 10px;
+}
+
+.cat-chip {
+    padding: 4px 12px;
+    background: white;
+    border: 1px solid var(--gray-200);
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--primary);
+}
+
+/* Success Overlay */
+.success-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(8px);
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.3s ease;
+}
+
+.success-message {
+    text-align: center;
+    animation: scaleIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes scaleIn {
+    from {
+        transform: scale(0.8);
+        opacity: 0;
+    }
+
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.success-message i {
+    font-size: 4rem;
+    color: var(--primary);
+    margin-bottom: 1rem;
+}
+
+.success-message h3 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.success-message p {
+    color: var(--text-secondary);
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+    .edit-form {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 576px) {
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .edit-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .btn-back {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .form-actions {
+        flex-direction: column;
+    }
+
+    .photos-grid {
+        grid-template-columns: 1fr;
+    }
+}

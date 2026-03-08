@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Favorilerim - VERDE</title>
+    <link rel="icon" type="image/svg+xml" href="assets/images/verde-logo.svg" sizes="any">
+    <link rel="shortcut icon" href="assets/images/verde-logo.svg">
+    <link rel="apple-touch-icon" href="assets/images/verde-logo.svg">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="header-placeholder"></div>
+
+    <!-- Favorilerim Sayfası İçeriği -->
+    <main class="my-ads-page">
+        <div class="container">
+            <!-- Sayfa Başlığı -->
+            <div class="page-header">
+                <div class="header-content">
+                    <h1>Favorilerim</h1>
+                    <p class="header-subtitle">Beğendiğiniz ilanları takip edin ve kaçırmayın</p>
+                </div>
+            </div>
+
+            <!-- İstatistik Kartları -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-heart" style="color: var(--danger);"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3>0</h3>
+                        <p>Toplam Favori</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-eye" style="color: var(--primary);"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3>0</h3>
+                        <p>Bu Hafta Eklenen</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-tag" style="color: var(--warning);"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3>0</h3>
+                        <p>Fiyatı Düşen</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-star" style="color: var(--accent);"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3>0</h3>
+                        <p>Öne Çıkan</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filtre ve Sıralama -->
+            <div class="ads-controls">
+                <div class="filter-tabs">
+                    <button class="tab-btn active" data-filter="all">
+                        Tümü (0)
+                    </button>
+                    <button class="tab-btn" data-filter="emlak">
+                        Emlak (0)
+                    </button>
+                    <button class="tab-btn" data-filter="vasita">
+                        Vasıta (0)
+                    </button>
+                    <button class="tab-btn" data-filter="elektronik">
+                        Elektronik (0)
+                    </button>
+                    <button class="tab-btn" data-filter="ev_esyasi">
+                        Ev Eşyası (0)
+                    </button>
+                </div>
+                
+                <div class="search-sort">
+                    <div class="search-input-wrapper">
+                        <i class="fas fa-search"></i>
+                        <input type="text" placeholder="Favorilerinde ara..." class="ads-search">
+                    </div>
+                    <select class="sort-select">
+                        <option value="date-desc">Son Eklenenler</option>
+                        <option value="date-asc">İlk Eklenenler</option>
+                        <option value="price-asc">Fiyat (Artan)</option>
+                        <option value="price-desc">Fiyat (Azalan)</option>
+                        <option value="title-asc">A-Z Sırala</option>
+                    </select>
+
+                </div>
+            </div>
+
+            <!-- Favori İlanlar Listesi -->
+            <div class="favorites-grid">
+                <!-- Kartlar JavaScript tarafından yüklenecek -->
+            </div>
+           
+    </main>
+    
+    
+    <script type="module" src="js/supabase.js"></script>
+    <script type="module" src="js/auth.js"></script>
+    <script type="module" src="js/realtime-notifications.js"></script>
+    <script type="module" src="js/favorites-loader.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/layout.js"></script>
+    
+</body>
+</html>

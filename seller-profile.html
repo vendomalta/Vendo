@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Satıcı Profili - VERDE</title>
+    <meta name="description" content="Satıcı profili, ilanları ve yorumları görmek için.">
+    <link rel="icon" type="image/svg+xml" href="assets/images/verde-logo.svg">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/seller-profile.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.6/dist/purify.min.js"></script>
+</head>
+<body class="seller-profile-page">
+    <div class="scroll-progress" aria-hidden="true">
+        <div class="scroll-progress__bar"></div>
+    </div>
+
+    <!-- Header Placeholder -->
+    <div id="header-placeholder"></div>
+
+    <!-- Ana İçerik -->
+    <main class="seller-profile-main">
+        <!-- Satıcı Banner Header -->
+        <section class="seller-banner-section">
+            <div class="seller-banner-background"></div>
+            
+            <div class="seller-header-wrapper">
+                <!-- Satıcı Profil Kartı -->
+                <div class="seller-profile-card">
+                    <img id="seller-avatar-large" src="https://via.placeholder.com/120x120" alt="Satıcı" class="seller-avatar-large">
+                    
+                    <div class="seller-header-content">
+                        <h1 id="seller-display-name" class="seller-name">Yükleniyor...</h1>
+                        <p id="seller-member-since" class="seller-member-info"></p>
+                        <div class="seller-badges">
+                            <span id="seller-verified-check" class="badge verified-badge" style="display:none;">
+                                <i class="fas fa-check-circle"></i> Doğrulanmış
+                            </span>
+                            <span class="badge status-badge"></span>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="seller-action-buttons">
+                        <button class="btn-contact">
+                            <i class="fas fa-phone"></i> Telefonu Goster
+                        </button>
+                        <button class="btn-contact secondary">
+                            <i class="fas fa-comment"></i> Mesaj Gönder
+                        </button>
+                    </div>
+                </div>
+
+                <!-- İstatistikler -->
+                <div class="seller-header-right">
+                    <div class="seller-stats-panel">
+                        <div class="stat-box">
+                            <div class="stat-number" id="stat-active-ads">0</div>
+                            <div class="stat-label">Aktif İlan</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-number" id="stat-sold-ads">0</div>
+                            <div class="stat-label">Satılmış</div>
+                        </div>
+                    </div>
+                    <div class="about-section-header">
+                        <h2 class="section-title-small">Satıcı Hakkında</h2>
+                        <p id="seller-about-text" class="about-text-small">Bu satıcı hakkında daha fazla bilgi yakında eklenecektir.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Sekme Başlıkları -->
+        <section class="seller-tabs-section">
+            <div class="tabs-container">
+                <button class="tab-button active" data-tab="listings">
+                    <i class="fas fa-list"></i> İlanlar
+                </button>
+                <button class="tab-button" data-tab="reviews">
+                    <i class="fas fa-star"></i> Değerlendirmeler (<span id="review-count">0</span>)
+                </button>
+            </div>
+        </section>
+
+        <!-- İçerik Bölümü -->
+        <div class="seller-content-wrapper">
+            
+            <!-- İlanlar Sekme -->
+            <section class="tab-content active" id="tab-listings">
+                <div class="listings-section">
+                    <!-- Filtreleme Başlıkları -->
+                    <div class="listings-header">
+                        <div class="listings-title">
+                            <span id="total-listings-text">0</span> ilan
+                        </div>
+                        <div class="listings-controls">
+                            <button class="view-btn active" data-view="grid" title="Izgara görünüm">
+                                <i class="fas fa-th-large"></i>
+                            </button>
+                            <button class="view-btn" data-view="list" title="Liste görünüm">
+                                <i class="fas fa-list"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Alt Sekme: Aktif/Satılmış -->
+                    <div class="sub-tabs">
+                        <button class="sub-tab-btn active" data-sub-tab="active">
+                            <i class="fas fa-check-circle"></i> Aktif İlanlar
+                        </button>
+                        <button class="sub-tab-btn" data-sub-tab="sold">
+                            <i class="fas fa-check"></i> Satılmış İlanlar
+                        </button>
+                    </div>
+
+                    <!-- Kategori Filtresi -->
+                    <div class="category-filter" id="category-filter">
+                        <!-- Dinamik olarak doldurulacak -->
+                    </div>
+
+                    <!-- Aktif İlanlar Görünümü (Grid) -->
+                    <div class="listings-container grid" id="active-listings">
+                        <div class="loading-placeholder">
+                            <i class="fas fa-spinner fa-spin"></i> İlanlar yükleniyor...
+                        </div>
+                    </div>
+
+                    <!-- Aktif İlanlar Görünümü (List) -->
+                    <div class="listings-table" id="active-listings-table" style="display: none;">
+                        <div class="table-header">
+                            <div class="col-image">Görsel</div>
+                            <div class="col-title">İlan Başlığı</div>
+                            <div class="col-price">Fiyat</div>
+                            <div class="col-date">İlan Tarihi</div>
+                        </div>
+                        <div class="table-body" id="active-listings-list">
+                            <div class="loading-placeholder">
+                                <i class="fas fa-spinner fa-spin"></i> İlanlar yükleniyor...
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Satılmış İlanlar Görünümü (Grid) -->
+                    <div class="listings-container grid" id="sold-listings" style="display: none;">
+                        <div class="loading-placeholder">
+                            <i class="fas fa-spinner fa-spin"></i> İlanlar yükleniyor...
+                        </div>
+                    </div>
+
+                    <!-- Satılmış İlanlar Görünümü (List) -->
+                    <div class="listings-table" id="sold-listings-table" style="display: none;">
+                        <div class="table-header">
+                            <div class="col-image">Görsel</div>
+                            <div class="col-title">İlan Başlığı</div>
+                            <div class="col-price">Fiyat</div>
+                            <div class="col-date">İlan Tarihi</div>
+                        </div>
+                        <div class="table-body" id="sold-listings-list">
+                            <div class="loading-placeholder">
+                                <i class="fas fa-spinner fa-spin"></i> İlanlar yükleniyor...
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Değerlendirmeler Sekme -->
+            <section class="tab-content" id="tab-reviews">
+                <div class="reviews-section">
+                    <h2 class="section-title">
+                        <i class="fas fa-star"></i> Müşteri Değerlendirmeleri
+                    </h2>
+                    
+                    <div class="reviews-container" id="reviews-list">
+                        <div class="loading-placeholder">
+                            <i class="fas fa-spinner fa-spin"></i> Değerlendirmeler yükleniyor...
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer id="main-footer"></footer>
+
+    <!-- Script'ler -->
+    <script src="js/supabase.js" type="module"></script>
+    <script src="js/auth.js" type="module"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/layout.js"></script>
+    <script src="js/header-badges.js"></script>
+    <script src="js/lazy-loading.js"></script>
+    <script src="js/scroll-progress.js"></script>
+    <script type="module">
+        import { supabase } from './js/supabase.js';
+        import { initSellerProfile } from './js/seller-profile.js';
+        
+        document.addEventListener('DOMContentLoaded', async () => {
+            const params = new URLSearchParams(window.location.search);
+            const sellerId = params.get('id');
+            
+            if (!sellerId) {
+                document.body.innerHTML = '<div style="padding: 2rem; text-align: center;"><h2>Satıcı bulunamadı</h2><p><a href="/">Anasayfaya dön</a></p></div>';
+                return;
+            }
+            
+            await initSellerProfile(supabase, sellerId);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,76 @@
+{
+  "name": "VERDE - İlan Platformu",
+  "short_name": "VERDE",
+  "description": "Emlak, vasıta, elektronik ilanları kolayca paylaşın ve bulun",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#ffffff",
+  "theme_color": "#10b981",
+  "icons": [
+    {
+      "src": "/assets/images/verde-logo.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/images/verde-logo-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/images/verde-logo-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/images/verde-logo-192-maskable.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/assets/images/screenshot-mobile.png",
+      "sizes": "540x720",
+      "type": "image/png",
+      "form_factor": "narrow"
+    },
+    {
+      "src": "/assets/images/screenshot-desktop.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide"
+    }
+  ],
+  "categories": ["shopping", "productivity"],
+  "prefer_related_applications": false,
+  "shortcuts": [
+    {
+      "name": "İlan Ver",
+      "short_name": "İlan Ver",
+      "description": "Yeni bir ilan oluşturun",
+      "url": "/ilan-ver.html",
+      "icons": [{ "src": "/assets/images/verde-logo-96.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "İlanlarım",
+      "short_name": "İlanlarım",
+      "description": "Yayınladığınız ilanları görüntüleyin",
+      "url": "/ilanlarim.html",
+      "icons": [{ "src": "/assets/images/verde-logo-96.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Favorilerim",
+      "short_name": "Favorilerim",
+      "description": "Kaydettiğiniz ilanları görmek",
+      "url": "/favorilerim.html",
+      "icons": [{ "src": "/assets/images/verde-logo-96.png", "sizes": "96x96" }]
+    }
+  ]
+}

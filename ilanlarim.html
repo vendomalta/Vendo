@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>İlanlarım - VERDE</title>
+    <link rel="icon" type="image/svg+xml" href="assets/images/verde-logo.svg" sizes="any">
+    <link rel="shortcut icon" href="assets/images/verde-logo.svg">
+    <link rel="apple-touch-icon" href="assets/images/verde-logo.svg">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/load-more.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="header-placeholder"></div>
+
+    <!-- İlanlarım Sayfası İçeriği -->
+    <main class="my-ads-page">
+        <div class="container">
+            <!-- Sayfa Başlığı ve İstatistikler -->
+            <div class="page-header">
+                <div class="header-content">
+                    <h1>İlanlarım</h1>
+                    <p class="header-subtitle">İlanlarınızı yönetin, düzenleyin ve performansını takip edin</p>
+                </div>
+            </div>
+
+            <!-- İstatistik Kartları -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-eye" style="color: var(--primary);"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3>0</h3>
+                        <p>Toplam Görüntülenme</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-check-circle" style="color: var(--success);"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3>0</h3>
+                        <p>Aktif İlan</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-pause-circle" style="color: var(--warning);"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3>0</h3>
+                        <p>Pasif İlan</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-clock" style="color: var(--danger);"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3>0</h3>
+                        <p>Satıldı</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filtre ve Arama Bölümü -->
+            <div class="ads-controls">
+                <div class="filter-tabs">
+                    <button class="tab-btn active" data-filter="all">
+                        Tümü (0)
+                    </button>
+                    <button class="tab-btn" data-filter="active">
+                        Aktif (0)
+                    </button>
+                    <button class="tab-btn" data-filter="inactive">
+                        Pasif (0)
+                    </button>
+                    <button class="tab-btn" data-filter="sold">
+                        Satıldı (0)
+                    </button>
+                </div>
+                
+                <div class="search-sort">
+                    <div class="search-input-wrapper">
+                        <i class="fas fa-search"></i>
+                        <input type="text" placeholder="İlanlarınızda arama yapın..." class="ads-search">
+                    </div>
+                    <select class="sort-select">
+                        <option value="date-desc">En Yeni</option>
+                        <option value="date-asc">En Eski</option>
+                        <option value="views-desc">En Çok Görüntülenen</option>
+                        <option value="price-asc">Fiyat (Artan)</option>
+                        <option value="price-desc">Fiyat (Azalan)</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- İlanlar Listesi -->
+            <div class="ads-container">
+                <!-- Aktif İlan Örnekleri -->
+                <div class="ad-card" data-listing-id="demo-active-1" data-status="active" data-category="vasita" data-href="ilan-detay.html?id=demo-active-1">
+                    <div class="ad-image">
+                        <img src="pexels-mikebirdy-170811.jpg" alt="İlan Görseli">
+                        <div class="ad-badge active">Aktif</div>
+                        <div class="ad-views">
+                            <i class="fas fa-eye"></i> 324
+                        </div>
+                    </div>
+                    <div class="ad-content">
+                        <h3 class="ad-title">2019 Model Volkswagen Golf</h3>
+                        <p class="ad-price">450.000 TL</p>
+                        <p class="ad-location">
+                            <i class="fas fa-map-marker-alt"></i>
+                            İstanbul, Kadıköy
+                        </p>
+                        <div class="ad-meta">
+                            <span class="ad-date">
+                                <i class="fas fa-calendar"></i>
+                                15 Ekim 2024
+                            </span>
+                            <span class="ad-expires">
+                                <i class="fas fa-clock"></i>
+                                15 gün kaldı
+                            </span>
+                        </div>
+                    </div>
+                    <div class="ad-actions">
+                        <button class="action-btn primary edit-btn" data-id="demo-active-1" title="Düzenle">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="action-btn success stats-btn" data-id="demo-active-1" title="İstatistikler">
+                            <i class="fas fa-chart-bar"></i>
+                        </button>
+                        <button class="action-btn warning pause-btn" data-id="demo-active-1" title="Duraklat">
+                            <i class="fas fa-pause"></i>
+                        </button>
+                        <button class="action-btn danger delete-btn" data-id="demo-active-1" title="Sil">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                        <div class="action-menu">
+                            <button class="menu-toggle">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                            <div class="menu-dropdown">
+                                <a href="#" class="menu-item">
+                                    <i class="fas fa-rocket"></i>
+                                    Öne Çıkar
+                                </a>
+                                <a href="#" class="menu-item">
+                                    <i class="fas fa-copy"></i>
+                                    Kopyala
+                                </a>
+                                <a href="#" class="menu-item">
+                                    <i class="fas fa-share"></i>
+                                    Paylaş
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+              
+
+                <!-- Pasif İlan Örneği -->
+                <div class="ad-card" data-listing-id="demo-inactive-1" data-status="inactive" data-category="elektronik" data-href="ilan-detay.html?id=demo-inactive-1">
+                    <div class="ad-image">
+                        <img src="pexels-mikebirdy-170811.jpg" alt="İlan Görseli">
+                        <div class="ad-badge inactive">Pasif</div>
+                        <div class="ad-views">
+                            <i class="fas fa-eye"></i> 89
+                        </div>
+                    </div>
+                    <div class="ad-content">
+                        <h3 class="ad-title">Gaming Laptop - Az Kullanılmış</h3>
+                        <p class="ad-price">22.999 TL</p>
+                        <p class="ad-location">
+                            <i class="fas fa-map-marker-alt"></i>
+                            Ankara, Çankaya
+                        </p>
+                        <div class="ad-meta">
+                            <span class="ad-date">
+                                <i class="fas fa-calendar"></i>
+                                5 Ekim 2024
+                            </span>
+                            <span class="ad-status-reason">
+                                <i class="fas fa-info-circle"></i>
+                                Manuel olarak durduruldu
+                            </span>
+                        </div>
+                    </div>
+                    <div class="ad-actions">
+                        <button class="action-btn primary edit-btn" data-id="demo-inactive-1" title="Düzenle">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="action-btn success activate-btn" data-id="demo-inactive-1" title="Aktifleştir">
+                            <i class="fas fa-play"></i>
+                        </button>
+                        <button class="action-btn info stats-btn" data-id="demo-inactive-1" title="İstatistikler">
+                            <i class="fas fa-chart-bar"></i>
+                        </button>
+                        <button class="action-btn danger delete-btn" data-id="demo-inactive-1" title="Sil">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                        <div class="action-menu">
+                            <button class="menu-toggle">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                            <div class="menu-dropdown">
+                                <a href="#" class="menu-item">
+                                    <i class="fas fa-copy"></i>
+                                    Kopyala
+                                </a>
+                                <a href="#" class="menu-item">
+                                    <i class="fas fa-share"></i>
+                                    Paylaş
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Süresi Dolmuş İlan Örneği -->
+                <div class="ad-card" data-status="expired" data-category="ev_esyasi">
+                    <div class="ad-image">
+                        <img src="pexels-mikebirdy-170811.jpg" alt="İlan Görseli">
+                        <div class="ad-badge expired">Süresi Dolmuş</div>
+                        <div class="ad-views">
+                            <i class="fas fa-eye"></i> 156
+                        </div>
+                    </div>
+                    <div class="ad-content">
+                        <h3 class="ad-title">Modern Köşe Koltuk Takımı</h3>
+                        <p class="ad-price">8.500 TL</p>
+                        <p class="ad-location">
+                            <i class="fas fa-map-marker-alt"></i>
+                            İzmir, Karşıyaka
+                        </p>
+                        <div class="ad-meta">
+                            <span class="ad-date">
+                                <i class="fas fa-calendar"></i>
+                                15 Eylül 2024
+                            </span>
+                            <span class="ad-expired">
+                                <i class="fas fa-exclamation-circle"></i>
+                                15 Ekim'de süresi doldu
+                            </span>
+                        </div>
+                    </div>
+                    <div class="ad-actions">
+                        <button class="action-btn primary" title="Yeniden Yayınla">
+                            <i class="fas fa-redo"></i>
+                        </button>
+                        <button class="action-btn secondary" title="Düzenle">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="action-btn info" title="İstatistikler">
+                            <i class="fas fa-chart-bar"></i>
+                        </button>
+                        <button class="action-btn danger" title="Sil">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                        <div class="action-menu">
+                            <button class="menu-toggle">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                            <div class="menu-dropdown">
+                                <a href="#" class="menu-item">
+                                    <i class="fas fa-copy"></i>
+                                    Kopyala
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sayfalama -->
+            <div class="pagination">
+                <button class="page-btn" disabled>
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <button class="page-btn active">1</button>
+                <button class="page-btn">2</button>
+                <button class="page-btn">3</button>
+                <button class="page-btn">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+    </main>
+    <script type="module" src="js/supabase.js"></script>
+    <script type="module" src="js/auth.js"></script>
+    <script type="module" src="js/realtime-notifications.js"></script>
+    <script type="module" src="js/my-listings-loader.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/layout.js"></script>
+</body>
+</html>

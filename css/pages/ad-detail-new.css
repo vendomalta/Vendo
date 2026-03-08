@@ -1,0 +1,2009 @@
+﻿/* Ä°lan Detay SayfasÄ± - Modern TasarÄ±m */
+
+/* ===== LIGHTBOX MODAL ===== */
+.lightbox-modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.95);
+  z-index: 10000;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.lightbox-modal.active {
+  display: flex;
+  opacity: 1;
+}
+
+.lightbox-modal img {
+  max-width: 90%;
+  max-height: 90vh;
+  object-fit: contain;
+  user-select: none;
+  cursor: zoom-in;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.lightbox-modal img.zoom-mode {
+  transform: scale(2);
+  cursor: grab;
+}
+
+.lightbox-modal img.zoom-mode:active {
+  cursor: grabbing;
+}
+
+.lightbox-close {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  color: white;
+  font-size: 2rem;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  z-index: 10001;
+}
+
+.lightbox-close:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: rotate(90deg);
+}
+
+.lightbox-prev,
+.lightbox-next {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  color: white;
+  font-size: 2rem;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  z-index: 10001;
+}
+
+.lightbox-prev {
+  left: 30px;
+}
+
+.lightbox-next {
+  right: 30px;
+}
+
+.lightbox-prev:hover,
+.lightbox-next:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-50%) scale(1.1);
+}
+
+.lightbox-counter {
+  position: absolute;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 10px 20px;
+  border-radius: 20px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  backdrop-filter: blur(10px);
+  z-index: 10001;
+}
+
+/* Mobile lightbox adjustments */
+@media (max-width: 768px) {
+  .lightbox-modal img {
+    max-width: 95%;
+    max-height: 80vh;
+  }
+
+  .lightbox-close {
+    top: 10px;
+    right: 10px;
+    width: 40px;
+    height: 40px;
+    font-size: 1.5rem;
+  }
+
+  .lightbox-prev,
+  .lightbox-next {
+    width: 45px;
+    height: 45px;
+    font-size: 1.5rem;
+  }
+
+  .lightbox-prev {
+    left: 10px;
+  }
+
+  .lightbox-next {
+    right: 10px;
+  }
+
+  .lightbox-counter {
+    bottom: 20px;
+    padding: 8px 16px;
+    font-size: 0.9rem;
+  }
+}
+
+.ad-detail-page {
+  background: var(--gray-50);
+  min-height: 100vh;
+  padding: 2rem 0 2rem 0;
+}
+
+/* ===== REKLAM BANNER ===== */
+.ad-banner-container {
+  max-width: 1600px;
+  margin: 0 auto 10px auto;
+  padding: 0 100px;
+}
+
+.ad-banner-wrapper {
+  position: relative;
+  background: var(--surface);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--gray-200);
+}
+
+.ad-banner-wrapper a {
+  display: block;
+  width: 100%;
+  transition: opacity 0.3s ease;
+}
+
+.ad-banner-wrapper a:hover {
+  opacity: 0.95;
+}
+
+.ad-banner-wrapper img {
+  width: 100%;
+  height: auto;
+  max-height: 100px;
+  object-fit: cover;
+  display: block;
+}
+
+.ad-banner-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+  z-index: 10;
+}
+
+.ad-banner-close:hover {
+  background: rgba(0, 0, 0, 0.8);
+  transform: scale(1.1);
+}
+
+/* ===== BREADCRUMB NAVÄ°GASYON ===== */
+.breadcrumb-container {
+  max-width: 1600px;
+  margin: 0 auto 1.5rem auto;
+  padding: 0 100px;
+}
+
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 0;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--gray-200);
+  font-size: 0.9rem;
+}
+
+.breadcrumb-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--gray-600);
+  text-decoration: none;
+  transition: color 0.2s ease;
+  font-weight: 500;
+}
+
+.breadcrumb-item i {
+  font-size: 0.85rem;
+}
+
+.breadcrumb-item:hover {
+  color: var(--primary);
+}
+
+.breadcrumb-item:last-of-type {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.breadcrumb-item.loading {
+  color: var(--gray-400);
+}
+
+.breadcrumb-separator {
+  color: var(--gray-400);
+  font-size: 0.7rem;
+  display: flex;
+  align-items: center;
+}
+
+.ad-detail-container {
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 0 100px;
+  display: grid;
+  grid-template-columns: 1fr 350px 380px;
+  gap: 1.5rem;
+}
+
+/* ===== BAÅLIK CONTAINER - TAM GENÄ°ÅLÄ°K ===== */
+.title-header-container {
+  max-width: 1600px;
+  margin: 0 auto 10px auto;
+  padding: 0 100px;
+}
+
+/* ===== GALERÄ° BÃ–LÃœMÃœ ===== */
+.ad-gallery-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* BaÅŸlÄ±k Header KartÄ± - FotoÄŸrafÄ±n ÃœstÃ¼nde */
+.title-header-card {
+  background: var(--surface);
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  border: 1px solid var(--gray-200);
+}
+
+.title-header-card h1 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 0.75rem;
+  line-height: 1.3;
+  display: inline-block;
+}
+
+.premium-badge {
+  display: inline-block;
+  background: #10b981;
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  margin-left: 0.5rem;
+  letter-spacing: 0.5px;
+}
+
+@media (max-width: 768px) {
+  .premium-badge {
+    display: inline-block;
+    background: #10b981;
+    color: white;
+    padding: 0.3rem 0.6rem;
+    border-radius: 4px;
+    font-size: 0.65rem;
+    font-weight: 700;
+    margin-left: 0.5rem;
+  }
+}
+
+.title-meta-row {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+.meta-item-inline {
+  display: flex;
+  gap: 0.5rem;
+  align-items: baseline;
+}
+
+.meta-label {
+  font-size: 0.85rem;
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.meta-value {
+  font-size: 0.9rem;
+  color: var(--text);
+  font-weight: 600;
+}
+
+.gallery-main {
+  position: relative;
+  background: #000;
+  border-radius: 16px;
+  overflow: hidden;
+  aspect-ratio: 4/3;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.gallery-main img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.3s ease-out;
+  will-change: transform, opacity;
+}
+
+/* Kaydırma Animasyon Sınıfları */
+.gallery-main img.slide-out-left {
+  transform: translateX(-100%);
+  opacity: 0;
+}
+
+.gallery-main img.slide-out-right {
+  transform: translateX(100%);
+  opacity: 0;
+}
+
+.gallery-main img.slide-in-right {
+  transform: translateX(100%);
+  opacity: 0;
+}
+
+.gallery-main img.slide-in-left {
+  transform: translateX(-100%);
+  opacity: 0;
+}
+
+.gallery-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(0, 0, 0, 0.5);
+  border: none;
+  color: #fff;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  transition: all 0.3s ease;
+  z-index: 10;
+}
+
+.gallery-nav:hover {
+  background: var(--primary);
+  transform: translateY(-50%) scale(1.1);
+}
+
+.gallery-nav.prev {
+  left: 1rem;
+}
+
+.gallery-nav.next {
+  right: 1rem;
+}
+
+.gallery-counter {
+  position: absolute;
+  bottom: 1rem;
+  right: 1rem;
+  background: rgba(0, 0, 0, 0.7);
+  color: #fff;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+/* ===== TEKNÄ°K DETAYLAR LÄ°STESÄ° ===== */
+.tech-details-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1rem;
+}
+
+.tech-details-list li {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  font-size: 0.95rem;
+  color: var(--text);
+  background: #f8fafc; /* Daha aÃ§Ä±k, temiz bir arka plan */
+  padding: 0.85rem 1rem;
+  border-radius: 10px;
+  border: 1px solid var(--gray-200);
+  border: 1px solid var(--gray-200);
+  /* Hover efektleri kaldÄ±rÄ±ldÄ± */
+}
+
+/* Ä°kon Stili */
+.tech-details-list li i {
+  color: #10b981;
+  font-size: 1rem;
+  flex-shrink: 0;
+  background: rgba(16, 185, 129, 0.1); /* Ä°kon arkasÄ±nda hafif yeÅŸil daire */
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+.tech-details-list li span {
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+/* Mobilde daha kompakt gÃ¶rÃ¼nÃ¼m */
+@media (max-width: 768px) {
+  .tech-details-list {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 0.75rem;
+  }
+
+  .tech-details-list li {
+    padding: 0.65rem 0.8rem;
+    font-size: 0.85rem;
+    gap: 0.6rem;
+  }
+
+  .tech-details-list li i {
+    width: 24px;
+    height: 24px;
+    font-size: 0.9rem;
+  }
+}
+
+.gallery-thumbnails {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 0.75rem;
+}
+
+.gallery-thumbnail {
+  aspect-ratio: 1;
+  border-radius: 8px;
+  overflow: hidden;
+  cursor: pointer;
+  border: 3px solid transparent;
+  transition: all 0.2s ease;
+}
+
+.gallery-thumbnail:hover {
+  border-color: var(--primary);
+  transform: scale(1.05);
+}
+
+.gallery-thumbnail.active {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 1px var(--primary);
+}
+
+.gallery-thumbnail img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ===== DETAYLAR BÃ–LÃœMÃœ ===== */
+.ad-details-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  height: fit-content;
+}
+
+.ad-details-section .specs-card {
+  flex: 1;
+  min-height: 0;
+}
+
+/* ===== SATICI BÃ–LÃœMÃœ ===== */
+.ad-seller-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  position: sticky;
+  top: 90px;
+  align-self: start;
+}
+
+/* ===== KARTLAR ===== */
+.price-card,
+.title-card,
+.specs-card,
+.description-card,
+.seller-card {
+  background: var(--surface);
+  border-radius: 14px;
+  padding: 1.25rem 1.3rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+  border: 1px solid var(--gray-200);
+}
+
+/* SatÄ±cÄ± DeÄŸerlendirmesi */
+.seller-rating-section {
+  margin: 1.5rem 0;
+  padding: 1.25rem;
+  background: #f0fdf4;
+  border-left: 4px solid var(--primary);
+  border-radius: 8px;
+}
+
+.rating-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.rating-title {
+  font-weight: 600;
+  color: #1e293b;
+  font-size: 0.95rem;
+}
+
+.rating-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.star-rating {
+  display: flex;
+  gap: 0.3rem;
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+}
+
+.star-rating i {
+  color: #fbbf24;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.star-rating i.empty {
+  color: #e5e7eb;
+}
+
+.rating-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.stat-label {
+  font-size: 0.8rem;
+  color: #64748b;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.stat-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.btn-see-reviews {
+  width: 100%;
+  padding: 0.75rem;
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: all 0.2s ease;
+  font-size: 0.9rem;
+}
+
+.btn-see-reviews:hover {
+  background: #059669;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.btn-add-rating {
+  width: 100%;
+  padding: 0.75rem;
+  background: #f59e0b;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: all 0.2s ease;
+  font-size: 0.9rem;
+}
+
+.btn-add-rating:hover {
+  background: #d97706;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+}
+
+/* Fiyat KartÄ± */
+.price-card {
+  background: linear-gradient(135deg, var(--primary) 0%, #059669 100%);
+  color: #fff;
+  text-align: center;
+  padding: 1rem;
+}
+
+.price-amount {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+  letter-spacing: -0.5px;
+}
+
+.price-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.btn-favorite {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: #fff;
+  padding: 0.875rem 1.5rem;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: all 0.2s ease;
+}
+
+.btn-favorite:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: translateY(-2px);
+}
+
+.btn-favorite.active {
+  background: var(--danger);
+  border-color: var(--danger);
+}
+
+/* BaÅŸlÄ±k KartÄ± */
+.title-card h1 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 1rem;
+  line-height: 1.3;
+}
+
+.ad-meta-info {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.meta-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.meta-item i {
+  color: var(--primary);
+  font-size: 0.85rem;
+}
+
+/* Ã–zellikler KartÄ± */
+.card-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid var(--gray-200);
+}
+
+.specs-card {
+  height: 100%;
+  overflow-y: auto;
+}
+
+.specs-table {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.spec-row {
+  display: grid;
+  grid-template-columns: 140px 1fr;
+  gap: 1rem;
+  padding: 0.15rem 0;
+  border-bottom: 1px solid var(--gray-100);
+}
+
+.spec-row:last-child {
+  border-bottom: none;
+}
+
+.spec-label {
+  font-size: 0.9rem;
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.spec-value {
+  font-size: 0.95rem;
+  color: var(--text);
+  font-weight: 600;
+}
+
+/* AÃ§Ä±klama Tam GeniÅŸlik Container */
+.description-full-width {
+  max-width: 1600px;
+  margin: 1.5rem auto 2rem;
+  /* AÃ§Ä±klama ile footer arasÄ±nda boÅŸluk */
+  padding: 0 100px;
+}
+
+/* AÃ§Ä±klama KartÄ± */
+.description-card {
+  min-height: 200px;
+}
+
+.description-text {
+  font-size: 0.95rem;
+  line-height: 1.8;
+  color: var(--text);
+  white-space: pre-wrap;
+  min-height: 180px;
+  /* Ä°Ã§erik kadar uzasÄ±n: dahili scroll'u kaldÄ±rÄ±yoruz */
+  max-height: none;
+  overflow: visible;
+  padding: 0.5rem;
+}
+
+/* DiÄŸer global .description-text kurallarÄ±nÄ± geÃ§ersiz kÄ±l (listings.css) */
+.ad-detail-page .description-text {
+  display: block !important;
+  -webkit-line-clamp: unset !important;
+  line-clamp: unset !important;
+  -webkit-box-orient: unset !important;
+  max-height: none !important;
+  overflow: visible !important;
+  opacity: 1 !important;
+}
+
+/* SatÄ±cÄ± KartÄ± */
+.seller-card-title {
+  margin-bottom: 1rem;
+}
+
+.seller-profile-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.1rem;
+}
+
+.seller-profile-info.compact {
+  gap: 0.9rem;
+}
+
+.seller-avatar-wrapper {
+  position: relative;
+}
+
+.seller-avatar-wrapper img {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid var(--gray-200);
+}
+
+.seller-status-dot {
+  position: absolute;
+  bottom: 0px;
+  right: -4px;
+  width: 12px;
+  height: 12px;
+  background: #10b981;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  box-shadow: 0 0 0 2px var(--surface);
+}
+
+.seller-verified {
+  position: absolute;
+  bottom: -6px;
+  right: -6px;
+  background: var(--primary);
+  color: #fff;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  border: 2px solid var(--surface);
+}
+
+.seller-info-text h3 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 0.25rem;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.seller-info-text h3:hover {
+  color: var(--primary);
+  text-decoration: underline;
+}
+
+.seller-stats {
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin: 0;
+}
+
+.seller-meta-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.95rem;
+  color: #1f2937;
+  margin: 0.1rem 0 0.25rem;
+  font-weight: 600;
+}
+
+.rating-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  color: #f59e0b;
+}
+
+.rating-inline i {
+  color: #f59e0b;
+  font-size: 0.95rem;
+}
+
+.meta-separator {
+  color: var(--gray-400);
+  font-weight: 700;
+}
+
+.seller-member {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #6b7280;
+}
+
+.seller-rating-inline {
+  display: none;
+}
+
+.seller-action-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.btn-message,
+.btn-phone {
+  width: 100%;
+  padding: 0.9rem 1.2rem;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.65rem;
+  transition: all 0.2s ease;
+}
+
+.btn-message {
+  background: var(--primary);
+  color: #fff;
+  box-shadow: 0 6px 16px rgba(16, 185, 129, 0.25);
+}
+
+.btn-message:hover {
+  background: #059669;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(16, 185, 129, 0.3);
+}
+
+.btn-phone {
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--gray-300);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.btn-phone:hover {
+  background: var(--gray-50);
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.mobile-action-footer {
+  display: none;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 1200px) {
+  .ad-detail-container {
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+  }
+
+  .ad-gallery-section {
+    grid-column: 1 / -1;
+  }
+
+  .ad-seller-section {
+    position: static;
+  }
+}
+
+@media (max-width: 1024px) {
+  .ad-detail-container {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .ad-details-section,
+  .ad-seller-section {
+    position: static;
+    max-height: none;
+  }
+
+  .gallery-main {
+    aspect-ratio: 16/9;
+  }
+}
+
+@media (max-width: 768px) {
+  .ad-detail-page {
+    background: #f5f5f5;
+    padding: 0;
+    padding-bottom: 80px;
+    min-height: 100vh;
+    height: auto;
+    overflow-y: visible !important;
+  }
+
+  /* Mobilde scroll garantisi */
+  html,
+  body {
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: contain;
+  }
+
+  .ad-banner-container {
+    display: none !important;
+  }
+
+  .breadcrumb-container {
+    display: none;
+  }
+
+  .title-header-container {
+    display: none;
+  }
+
+  /* GALERÄ° - EN BAÅTA */
+  .ad-gallery-section {
+    order: 1;
+  }
+
+  .gallery-main {
+    aspect-ratio: 1;
+    border-radius: 0;
+    box-shadow: none;
+    background: #000;
+  }
+
+  .gallery-counter {
+    bottom: 0.75rem;
+    right: 0.75rem;
+    font-size: 0.8rem;
+    padding: 6px 12px;
+    background: rgba(0, 0, 0, 0.7);
+  }
+
+  .gallery-nav {
+    width: 40px;
+    height: 40px;
+    font-size: 1rem;
+  }
+
+  .gallery-thumbnails {
+    display: none;
+  }
+
+  /* MOBÄ°L BAÅLIK KARTI */
+  .mobile-title-card {
+    background: white;
+    padding: 1rem;
+    display: block !important;
+    order: 2;
+    box-shadow: none;
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  .mobile-title-card h1 {
+    font-size: 1.35rem;
+    font-weight: 700;
+    margin: 0 0 0.75rem 0;
+    line-height: 1.2;
+    color: #1e293b;
+    display: inline;
+    letter-spacing: -0.3px;
+  }
+
+  .premium-badge {
+    display: inline-block;
+    background: #10b981;
+    color: white;
+    padding: 0.25rem 0.65rem;
+    border-radius: 2px;
+    font-size: 0.65rem;
+    font-weight: 700;
+    margin-left: 0.75rem;
+    letter-spacing: 0.5px;
+    vertical-align: top;
+  }
+
+  .mobile-price {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #10b981;
+    margin: 0.75rem 0;
+    letter-spacing: -0.5px;
+  }
+
+  .mobile-posted,
+  .mobile-location {
+    display: inline;
+    font-size: 0.8rem;
+    color: #64748b;
+    margin: 0;
+  }
+
+  .mobile-posted::after {
+    content: " â€¢ ";
+    margin: 0 0.25rem;
+  }
+
+  .mobile-location i {
+    display: none;
+  }
+
+  .mobile-location span::before {
+    content: "";
+  }
+
+  /* MAIN CONTAINER */
+  .ad-detail-container {
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    gap: 0;
+    max-width: 100%;
+    margin: 0;
+    background: #f5f5f5;
+  }
+
+  /* MOBİL ÖZET SATICI BİLGİSİ */
+  .mobile-seller-summary {
+    display: flex !important;
+    align-items: center;
+    background: white;
+    padding: 0.8rem 1rem 0;
+    font-size: 0.85rem;
+    color: #64748b;
+    order: 1; /* Tab menüsünden hemen önce (order: 2 idi) */
+  }
+
+  .mobile-seller-summary i {
+    color: #10b981;
+    margin-right: 0.4rem;
+    font-size: 1rem;
+  }
+
+  .mobile-seller-summary #mobile-seller-name-preview {
+    font-weight: 600;
+    color: #334155;
+    cursor: pointer;
+    transition: color 0.2s ease;
+  }
+
+  .mobile-seller-summary #mobile-seller-name-preview:hover,
+  .mobile-seller-summary #mobile-seller-name-preview:active {
+    color: #10b981;
+    text-decoration: underline;
+  }
+
+  .mobile-seller-divider {
+    margin: 0 0.4rem;
+    color: #cbd5e1;
+  }
+
+  /* MOBİL TAB MENÜSÜ */
+  .mobile-ad-tabs {
+    display: flex !important;
+    justify-content: space-between;
+    background: white;
+    padding: 0.5rem 1rem;
+    border-bottom: 1px solid #e5e7eb;
+    margin-bottom: 0.5rem;
+    gap: 0.5rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+    order: 2; /* İlan başlığı/galeriden sonra, specs-card'dan önce */
+  }
+
+  .mobile-ad-tabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  .ad-tab-btn {
+    flex: 1 0 auto;
+    background: transparent;
+    border: none;
+    padding: 0.75rem 1rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #64748b;
+    border-bottom: 2px solid transparent;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+
+  .ad-tab-btn.active {
+    color: #10b981;
+    border-bottom-color: #10b981;
+  }
+
+  /* Sekme İçerikleri - Mobilde varsayılan olarak gizli (aktif hariç) */
+  #tab-content-info.mobile-hidden,
+  #tab-content-tech.mobile-hidden,
+  #tab-content-desc.mobile-hidden,
+  #tab-content-loc.mobile-hidden,
+  #tab-content-qa.mobile-hidden {
+    display: none !important;
+  }
+
+  /* Sekme başlıklarını gizle */
+  #tab-content-tech .card-title,
+  #tab-content-desc .card-title,
+  #tab-content-loc .card-title,
+  #tab-content-qa .card-title {
+    display: none;
+  }
+
+  /* ÖZELLIKLERI İKONLU GRID */
+  .specs-card {
+    background: white;
+    border: none;
+    border-radius: 0;
+    padding: 1rem;
+    margin: 0;
+    box-shadow: none;
+    border-bottom: 1px solid #e5e7eb;
+    order: 3;
+  }
+
+  .specs-card .card-title {
+    display: none;
+  }
+
+  .specs-table {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .spec-row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    background: white;
+    padding: 0.8rem 1rem;
+    border-radius: 0;
+    border: none;
+    border-bottom: 1px solid #e5e7eb;
+  }
+  
+  .spec-row:last-child {
+    border-bottom: none;
+  }
+
+  .spec-icon {
+    font-size: 1.2rem;
+    color: #94a3b8;
+    margin-right: 1rem;
+    margin-bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+  }
+
+  .spec-row .spec-label {
+    font-size: 0.85rem;
+    color: #64748b;
+    font-weight: 500;
+    margin-bottom: 0;
+    flex: 1;
+    text-align: left;
+  }
+
+  .spec-row .spec-value {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #1e293b;
+    text-align: right;
+  }
+
+  /* SATICI KARTI */
+  .seller-card {
+    background: white;
+    border: none;
+    border-radius: 0;
+    padding: 1rem;
+    margin: 0;
+    box-shadow: none;
+    border-bottom: 1px solid #e5e7eb;
+    order: 4;
+  }
+
+  .seller-card .card-title {
+    display: none;
+  }
+
+  .seller-profile-info.compact {
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-start;
+  }
+
+  .seller-avatar-wrapper {
+    flex-shrink: 0;
+    position: relative;
+  }
+
+  .seller-avatar-wrapper img {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+
+  .seller-verified {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    font-size: 0.8rem;
+  }
+
+  .seller-info-text {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .seller-info-text h3 {
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin: 0 0 0.25rem 0;
+    color: var(--text);
+  }
+
+  .seller-info-text > a {
+    display: block;
+    margin-top: 0.5rem;
+  }
+
+  .seller-meta-row {
+    display: flex;
+    gap: 0.5rem;
+    font-size: 0.8rem;
+    color: var(--gray-600);
+    margin-bottom: 0.25rem;
+    align-items: center;
+  }
+
+  .rating-inline {
+    display: flex;
+    gap: 0.25rem;
+    align-items: center;
+  }
+
+  .rating-inline i {
+    color: #fbbf24;
+    font-size: 0.8rem;
+  }
+
+  .view-profile-link {
+    font-size: 0.8rem !important;
+    color: var(--primary) !important;
+    text-decoration: none !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+    margin-top: 0.5rem !important;
+    display: inline-block !important;
+  }
+
+  .seller-member {
+    font-size: 0.75rem;
+    color: var(--gray-500);
+    margin: 0;
+  }
+
+  .seller-rating-inline {
+    display: none;
+  }
+
+  /* SELLER ACTION BUTTONS */
+  .seller-action-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+    margin-top: 1rem;
+  }
+
+  .btn-message,
+  .btn-phone {
+    padding: 0.75rem 1rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    border-radius: 8px;
+    border: 1.5px solid var(--primary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+  }
+
+  .btn-phone {
+    background: white;
+    color: var(--primary);
+  }
+
+  .btn-phone:active,
+  .btn-phone:hover {
+    background: #f0f9f6;
+  }
+
+  .btn-message {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
+  }
+
+  .btn-message:active,
+  .btn-message:hover {
+    background: #0d9668;
+  }
+
+  /* AÃ‡IKLAMA */
+  .description-full-width {
+    padding: 0;
+    margin: 0;
+    background: transparent;
+    order: 5;
+  }
+
+  .description-card {
+    background: white;
+    border: none;
+    border-radius: 0;
+    padding: 1rem;
+    margin: 0;
+    box-shadow: none;
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  .description-card .card-title {
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+    color: var(--text);
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    user-select: none;
+  }
+
+  .description-card .card-title::after {
+    content: "â–¼";
+    font-size: 0.6rem;
+    transition: transform 0.3s ease;
+  }
+
+  .description-card .card-title.collapsed::after {
+    transform: rotate(-90deg);
+  }
+
+  .tech-details-content {
+    transition: all 0.3s ease;
+  }
+
+  .tech-details-content[style*="display: none"]
+    ~ .description-card
+    .card-title::after {
+    transform: rotate(-90deg);
+  }
+
+  .description-text {
+    font-size: 0.9rem;
+    line-height: 1.6;
+    color: var(--gray-700);
+  }
+
+  /* QA SECTION */
+  .qa-section {
+    padding: 1rem;
+    background: white;
+    order: 6;
+  }
+
+  /* DÄ°ÄER KARTLAR */
+  .price-card,
+  .title-card {
+    display: none;
+  }
+
+  .ad-details-section {
+    padding: 0;
+    gap: 0;
+    height: auto;
+    order: 3;
+  }
+
+  .ad-seller-section {
+    position: static;
+    top: auto;
+    align-self: auto;
+    padding: 0;
+    gap: 0;
+    order: 4;
+  }
+
+  /* MOBÄ°L GALLERY CONTROLS */
+  .mobile-gallery-controls {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: space-between;
+    padding: 1rem;
+    z-index: 20;
+  }
+
+  .mobile-back-btn,
+  .mobile-share-btn,
+  .mobile-favorite-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.4);
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    color: #fff;
+    font-size: 1rem;
+    transition: all 0.2s ease;
+  }
+
+  .mobile-back-btn:active,
+  .mobile-share-btn:active,
+  .mobile-favorite-btn:active {
+    transform: scale(0.95);
+  }
+
+  .mobile-action-btns {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .mobile-favorite-btn.active i {
+    color: #ef4444;
+  }
+
+  .mobile-favorite-btn.active i::before {
+    content: "\f004";
+    font-weight: 900;
+  }
+
+  /* MOBÄ°L FIXED FOOTER */
+  .mobile-action-footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: white;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    padding-bottom: 1rem;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+    z-index: 100;
+  }
+
+  .btn-phone-footer,
+  .btn-message-footer {
+    padding: 0.9rem 1rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    transition: all 0.2s ease;
+  }
+
+  .btn-phone-footer {
+    background: white;
+    color: var(--primary);
+    border: 1.5px solid var(--primary);
+  }
+
+  .btn-phone-footer:active {
+    background: #f0f9f6;
+    transform: scale(0.98);
+  }
+
+  .btn-message-footer {
+    background: var(--primary);
+    color: white;
+    border: 1.5px solid var(--primary);
+  }
+
+  .btn-message-footer:active {
+    background: #0d9668;
+    transform: scale(0.98);
+  }
+
+  /* Orijinal butonlarÄ± gizle */
+  .seller-action-buttons {
+    display: none;
+  }
+
+  /* Padding bottom ekle sayfa iÃ§eriÄŸine */
+  .ad-detail-page {
+    padding-bottom: 80px;
+  }
+
+  /* Spec ikonlarÄ±nÄ± gri yap */
+  .spec-icon {
+    color: #94a3b8;
+  }
+
+  /* Posted ve location aynÄ± satÄ±rda */
+  .mobile-posted {
+    display: inline;
+    margin: 0;
+  }
+
+  .mobile-location {
+    display: inline;
+  }
+
+  .mobile-location i {
+    display: none;
+  }
+}
+
+/* Reviews Modal Styling */
+.reviews-modal {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+}
+
+.reviews-modal h3 {
+  color: #1e293b;
+  margin-bottom: 1rem;
+}
+
+.reviews-modal .review-item {
+  padding: 1rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.reviews-modal .review-item:last-child {
+  border-bottom: none;
+}
+
+/* ===== DETAIL PAGE FOOTER ===== */
+.detail-page-footer {
+  background: var(--background);
+  border-top: 1px solid var(--gray-200);
+  margin-top: 2rem;
+}
+
+.detail-page-footer .footer-container {
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.footer-warning {
+  background: var(--muted-surface);
+  border: 1px solid var(--gray-200);
+  border-radius: 8px;
+  padding: 1rem 1.25rem;
+  color: var(--gray-800);
+  font-size: 0.9rem;
+}
+
+.footer-columns {
+  display: grid;
+  /* Dinamik kolonlar: zoom ve orta geniÅŸliklerde bozulmayÄ± Ã¶nler */
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 2rem;
+  margin: 1.5rem 0 1rem 0;
+}
+
+.footer-col h4 {
+  margin: 0 0 0.75rem 0;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.footer-col ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.footer-col ul li {
+  margin: 0.4rem 0;
+}
+
+.footer-col a {
+  color: var(--gray-700);
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+
+.footer-col a:hover {
+  color: var(--primary);
+}
+
+.social-list i {
+  color: var(--primary);
+  width: 18px;
+}
+
+.footer-bottom {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.25rem;
+  padding: 1rem 0;
+  border-top: 1px solid var(--gray-200);
+}
+
+.bottom-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: #fff;
+  border: 1px solid var(--gray-100);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+}
+
+.bottom-item i {
+  color: var(--primary);
+}
+
+.bottom-item.qr {
+  justify-content: center;
+  flex-direction: column;
+  text-align: center;
+}
+
+.bottom-item.qr img {
+  width: 80px;
+  height: 80px;
+  border-radius: 8px;
+  border: 1px solid var(--gray-300);
+}
+
+.bottom-item.qr small {
+  color: var(--gray-600);
+}
+
+.footer-lang-select {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: 2px solid var(--gray-300);
+  border-radius: 6px;
+  background: white;
+  color: var(--text);
+}
+
+.footer-legal-note {
+  margin-top: 0.75rem;
+  font-size: 0.85rem;
+  color: var(--gray-600);
+}
+
+@media (max-width: 1280px) {
+  .footer-columns {
+    gap: 1.5rem;
+  }
+}
+
+@media (max-width: 1024px) {
+  .footer-columns {
+    gap: 1.25rem;
+  }
+
+  .footer-bottom {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .detail-page-footer .footer-container {
+    padding: 1rem;
+  }
+
+  .footer-columns {
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+
+  .footer-bottom {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ===== UNAUTHENTICATED USER SELLER CARD PROTECTION ===== */
+.seller-card.blurred {
+  position: relative;
+}
+
+.seller-card.blurred .seller-profile-info,
+.seller-card.blurred .seller-rating-section,
+.seller-card.blurred .seller-action-buttons {
+  filter: blur(2px);
+  pointer-events: none;
+  user-select: none;
+  opacity: 0.9;
+  transition: all 0.3s ease;
+}
+
+.seller-card-login-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.75);
+  border-radius: 12px;
+  z-index: 10;
+  padding: 2rem;
+  text-align: center;
+  backdrop-filter: blur(2px);
+}
+
+.seller-card-login-overlay i {
+  font-size: 3rem;
+  color: var(--primary);
+  margin-bottom: 1rem;
+}
+
+.seller-card-login-overlay p {
+  margin: 0 0 1.5rem 0;
+  font-size: 1rem;
+  color: var(--text);
+  font-weight: 500;
+}
+
+.seller-card-login-overlay .btn-login {
+  background: var(--primary);
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.seller-card-login-overlay .btn-login:hover {
+  background: var(--primary-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* LEAFLET ATTRIBUTION STYLING */
+.leaflet-control-attribution {
+  font-size: 0.65rem !important;
+  color: #94a3b8 !important;
+  background: rgba(255, 255, 255, 0.8) !important;
+  padding: 0 4px !important;
+  line-height: 1.2 !important;
+}
+
+.leaflet-control-attribution a {
+  color: #64748b !important;
+  text-decoration: none !important;
+}
+
+/* Galeri oklarini gizle (Kullanici istegi) */
+.gallery-nav {
+  display: none !important;
+}
+
+/* Mobil Galeri Kontrolleri - Masaüstünde Gizle */
+.mobile-gallery-controls {
+  display: none;
+}
+
+/* Mobil görünüm için kontroller */
+@media (max-width: 768px) {
+  .mobile-gallery-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    right: 15px;
+    z-index: 20;
+    pointer-events: none;
+  }
+
+  .mobile-back-btn,
+  .mobile-share-btn,
+  .mobile-favorite-btn {
+    pointer-events: auto;
+    background: rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    color: #ffffff;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .mobile-back-btn:active,
+  .mobile-share-btn:active,
+  .mobile-favorite-btn:active {
+    transform: scale(0.9);
+    background: rgba(255, 255, 255, 0.4);
+  }
+
+  .mobile-action-btns {
+    display: flex;
+    gap: 12px;
+  }
+
+  /* Favori aktif durumu */
+  .mobile-favorite-btn.active i {
+    color: #ef4444;
+    font-weight: 900;
+  }
+
+  /* Hide header on mobile detail page */
+  .listing-detail-page #header-placeholder {
+    display: none !important;
+  }
+  .listing-detail-page {
+    padding-top: 0 !important;
+    margin-top: 0 !important;
+  }
+}

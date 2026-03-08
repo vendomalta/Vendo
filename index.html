@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, maximum-scale=5.0">
+    <title>VENDO - Emlak, Vasıta, Elektronik İlanları | Türkiye'nin İlan Platformu</title>
+    <meta name="description"
+        content="VENDO ile emlak, vasıta, elektronik ve daha fazlasında ilan verin, arayın ve bulun. Güvenli, hızlı ve modern ilan deneyimi.">
+    <meta name="keywords" content="ilan, emlak, vasıta, otomobil, elektronik, kiralık, satılık, ikinci el">
+    <meta name="robots" content="index,follow">
+    <meta name="theme-color" content="#10b981">
+    
+    <!-- Supabase Configuration -->
+    <meta name="supabase-url" content="https://sxtfbxgeatfzjzsobjmq.supabase.co">
+    <meta name="supabase-key" content="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN4dGZieGdlYXRmemp6c29iam1xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc3MTM1NjIsImV4cCI6MjA4MzI4OTU2Mn0.547hJ_d0ETKIio_CP5aXatGruZrhpZC-nI2LZYKAYJo">
+    <!-- Canonical: Yayına alırken ekleyin (alan adı hazır olunca) -->
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="VENDO - Emlak, Vasıta, Elektronik İlanları">
+    <meta property="og:description"
+        content="Emlak, vasıta ve elektronik ilanlarını keşfedin. Kolay filtreleme, favoriler, mesajlaşma ve daha fazlası.">
+    <meta property="og:image" content="/assets/images/vendo-logo-og.png">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="VENDO - İlan Platformu">
+    <meta name="twitter:description" content="Emlak, vasıta ve elektronik ilanları tek yerde.">
+    <meta name="twitter:image" content="/assets/images/verde-logo-og.png">
+    <link rel="icon" type="image/svg+xml" href="/assets/images/verde-logo.svg" sizes="any">
+    <link rel="shortcut icon" href="/assets/images/verde-logo.svg">
+    <link rel="apple-touch-icon" href="/assets/images/verde-logo.svg">
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest/manifest.webmanifest">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/list-view.css">
+    <link rel="stylesheet" href="/css/load-more.css">
+    <link rel="stylesheet" href="/css/mobile-loading.css">
+    <link rel="stylesheet" href="/css/filters.css">
+    <link rel="stylesheet" href="/css/breadcrumb.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- ✅ GÜVENLIK: DOMPurify XSS koruması -->
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@latest/dist/purify.min.js"></script>
+
+    <!-- Structured Data: Alan adı hazır olunca ekleyin (WebSite JSON-LD) -->
+</head>
+
+<body class="home">
+    <div class="scroll-progress" aria-hidden="true">
+        <div class="scroll-progress__bar"></div>
+    </div>
+    <div id="header-placeholder"></div>
+
+
+    <!-- Ana İçerik Wrapper -->
+    <div class="page-wrapper">
+        <!-- Sol Sidebar - Kategoriler -->
+        <aside class="sidebar-categories">
+            <div class="sidebar-header">
+                <button class="sidebar-toggle-btn" aria-label="Kategorileri aç/kapat" title="Kategorileri aç/kapat">
+                    <i class="fas fa-chevron-down expand-icon"></i>
+                    <span>Kategoriler</span>
+                </button>
+                <button class="sidebar-close-btn" aria-label="Sidebar kapat">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <nav class="sidebar-nav sidebar-categories-content">
+                <div class="categories-loading">
+                    <i class="fas fa-spinner fa-spin"></i> Kategoriler yükleniyor...
+                </div>
+                <!-- Kategoriler dinamik olarak JS tarafından yüklenecek -->
+            </nav>
+            
+            <!-- Sol Sidebar - Filtreler -->
+            <div class="sidebar-header filters-header">
+                <button class="sidebar-toggle-btn" id="toggleFiltersBtn" aria-label="Filtreleri aç/kapat" title="Filtreleri aç/kapat">
+                    <i class="fas fa-chevron-down expand-icon"></i>
+                    <span>Filtreler</span>
+                </button>
+            </div>
+            <div id="sidebarFilters" class="sidebar-filters sidebar-filters-content">
+                <!-- Sabit ve dinamik filtreler buraya gelecek -->
+            </div>
+        </aside>
+
+        <!-- Ana İçerik -->
+        <main class="main-content">
+            <!-- Ana Sayfa Banner -->
+            <div class="homepage-banner-container" id="homepage-banner-section" style="display: none;">
+                <div class="homepage-banner-wrapper">
+                    <a href="#" id="homepage-banner-link" target="_blank" rel="noopener noreferrer">
+                        <img id="homepage-banner-image" src="" alt="Reklam">
+                    </a>
+                    <button class="homepage-banner-close" id="homepage-banner-close" title="Kapat">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Breadcrumb Navigation (moved below banner) -->
+            <nav class="breadcrumb-nav" aria-label="Breadcrumb"></nav>
+
+            <!-- Vitrin İlanları -->
+            <section class="featured-listings">
+                <div class="section-header">
+                    <h2>Vitrin İlanları</h2>
+                    <div class="header-actions">
+                        <div class="view-controls">
+                            <button class="view-button active" data-view="grid" aria-label="Izgara görünüm"
+                                title="Izgara görünüm">
+                                <i class="fas fa-th-large" aria-hidden="true"></i>
+                                <span class="view-label">Izgara</span>
+                            </button>
+                            <button class="view-button" data-view="table" aria-label="Tablo görünüm" title="Tablo görünüm">
+                                <i class="fas fa-table" aria-hidden="true"></i>
+                                <span class="view-label">Tablo</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="listings-table-header" aria-hidden="true">
+                    <div>Model</div>
+                    <div>Listing Title</div>
+                    <div class="table-km">KM</div>
+                    <div class="table-color">Renk</div>
+                    <div class="table-year">Yıl</div>
+                    <div>Date/City</div>
+                    <div>Price</div>
+                </div>
+                <!-- Dinamik ilan kartları buraya yüklenecek -->
+                <div class="listings-grid"></div>
+
+                <!-- Sayfalama (butonlar burada render edilecek) -->
+                <nav class="pagination" aria-label="Sayfalama"></nav>
+
+                <!-- Devamını Göster Butonu -->
+                <div class="load-more-container" style="display: none;">
+                    <button class="load-more-btn">
+                        <span class="load-more-text">Devamını Göster</span>
+                        <span class="loading-text" style="display: none;">Yükleniyor...</span>
+                    </button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Hızlı İlan Verme Butonu -->
+    <button class="post-ad-fab" aria-label="İlan Ver">
+        <i class="fas fa-plus"></i>
+        <span>İlan Ver</span>
+    </button>
+
+
+
+    <!-- JS BAĞLANTILARI -->
+    <!-- type="module" olanlar Supabase kullanan dosyalardır -->
+    <script type="module" src="/js/supabase.js"></script>
+    <script type="module" src="/js/auth.js"></script>
+    <script type="module" src="/js/category-router.js"></script>
+    <script type="module" src="/js/breadcrumb.js"></script>
+    <script type="module" src="/js/realtime-notifications.js"></script>
+    <script type="module" src="/js/sidebar-manager.js"></script>
+    <script type="module" src="/js/script.js"></script>
+    <script type="module" src="/js/listings-loader.js"></script>
+    <script type="module" src="/js/search-filter.js"></script>
+    <script type="module" src="/js/pagination.js"></script>
+
+    <!-- Diğer yardımcı dosyalar (varsa) -->
+    <script type="module" src="/js/sidebar-filters.js"></script>
+    <script src="/js/ui.js"></script>
+    <script src="/js/layout.js"></script>
+
+    <!-- Arama sistemini başlat -->
+    <script type="module">
+        import { initializeSearchAndFilters } from '/js/search-filter.js';
+        document.addEventListener('DOMContentLoaded', initializeSearchAndFilters);
+    </script>
+
+    <!-- Service Worker Kaydı -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/js/sw.js').then((reg) => {
+                    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                        console.log('[SW] Registered:', reg);
+                    }
+                }).catch((err) => {
+                    console.warn('[SW] Registration failed:', err);
+                });
+            });
+        }
+    </script>
+
+    <!-- Global hata yöneticisi ve toast -->
+    <script type="module" src="js/toast.js"></script>
+
+    <!-- Viewport Optimizer - Ekran ölçülerine göre otomatik optimizasyon -->
+    <script src="js/viewport-optimizer.js"></script>
+
+    <!-- Mobile Enhancements - Touch gestures, bottom nav, pull-to-refresh -->
+    <script src="js/mobile-enhancements.js"></script>
+
+    <!-- Scroll to Top Button -->
+    <script src="js/scroll-to-top.js"></script>
+
+    <!-- Lazy Loading Images -->
+    <script src="js/lazy-loading.js"></script>
+
+    <!-- Scroll Progress Bar -->
+    <script src="js/scroll-progress.js"></script>
+
+    <!-- Homepage Banner Loader -->
+    <script type="module">
+        import { supabase } from './js/supabase.js';
+
+        async function loadHomepageBanner() {
+            try {
+                const { data, error } = await supabase
+                    .from('site_settings')
+                    .select('*')
+                    .eq('setting_key', 'homepage_banner')
+                    .single();
+
+                const bannerSection = document.getElementById('homepage-banner-section');
+                const bannerImage = document.getElementById('homepage-banner-image');
+                const bannerLink = document.getElementById('homepage-banner-link');
+                const closeBtn = document.getElementById('homepage-banner-close');
+
+                if (!bannerSection) return;
+
+                if (!error && data && data.setting_value && data.is_active) {
+                    const bannerData = typeof data.setting_value === 'string'
+                        ? JSON.parse(data.setting_value)
+                        : data.setting_value;
+
+                    if (bannerData.image_url) {
+                        bannerImage.src = bannerData.image_url;
+                        bannerImage.alt = bannerData.alt_text || 'Reklam';
+
+                        if (bannerData.link_url) {
+                            bannerLink.href = bannerData.link_url;
+                        } else {
+                            bannerLink.style.cursor = 'default';
+                            bannerLink.onclick = (e) => e.preventDefault();
+                        }
+
+                        bannerSection.style.display = 'block';
+
+                        const handleClose = (e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            bannerSection.style.display = 'none';
+                            localStorage.setItem('homepageBannerClosed', 'true');
+                        };
+
+                        closeBtn.addEventListener('click', handleClose);
+                        closeBtn.addEventListener('touchstart', handleClose, { passive: false });
+
+                        if (localStorage.getItem('homepageBannerClosed') === 'true') {
+                            bannerSection.style.display = 'none';
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('Homepage banner yükleme hatası:', error);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', loadHomepageBanner);
+    </script>
+
+</body>
+
+</html>

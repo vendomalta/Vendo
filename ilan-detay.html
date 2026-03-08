@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>İlan Detayı - VENDO</title>
+    <link rel="icon" type="image/svg+xml" href="assets/images/vendo-logo.svg" sizes="any">
+    <link rel="shortcut icon" href="assets/images/vendo-logo.svg">
+    <link rel="apple-touch-icon" href="assets/images/vendo-logo.svg">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/pages/ad-detail-new.css">
+    <link rel="stylesheet" href="css/pages/edit-listing.css">
+    <link rel="stylesheet" href="css/pages/qa-section.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+</head>
+
+<body class="listing-detail-page">
+    <div id="header-placeholder"></div>
+
+    <!-- İlan Detay Bölümü -->
+    <main class="ad-detail-page">
+        <!-- Reklam Banner -->
+        <div class="ad-banner-container" id="ad-banner-section">
+            <div class="ad-banner-wrapper">
+                <a href="#" id="ad-banner-link" target="_blank" rel="noopener noreferrer">
+                    <img id="ad-banner-image"
+                        src="https://placehold.co/1200x135/10b981/ffffff?text=BANNER+ALANI+-+Admin+Panelinden+Yonetilebilir"
+                        alt="Reklam">
+                </a>
+                <button class="ad-banner-close" id="ad-banner-close" title="Kapat">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Başlık - Tam Genişlikte -->
+        <div class="title-header-container">
+            <div class="title-header-card">
+                <h1 id="detail-title">Yükleniyor...</h1>
+
+                <!-- Breadcrumb Navigation -->
+                <nav class="breadcrumb" id="breadcrumb-nav">
+                    <a href="index.html" class="breadcrumb-item">
+                        <i class="fas fa-home"></i>
+                        Ana Sayfa
+                    </a>
+                    <span class="breadcrumb-separator"><i class="fas fa-chevron-right"></i></span>
+                    <span class="breadcrumb-item loading">Yükleniyor...</span>
+                </nav>
+            </div>
+        </div>
+
+        <div class="ad-detail-container">
+            <!-- Mobil Başlık Kartı -->
+            <div class="mobile-title-card" style="display: none;">
+                <h1 id="mobile-title">Yükleniyor...</h1>
+                <div id="mobile-price" class="mobile-price">--- €</div>
+                <div id="mobile-posted" class="mobile-posted" style="margin-bottom: 0.5rem;">Yükleniyor...</div>
+                <div id="mobile-location" class="mobile-location">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <span>Belirtilmemiş</span>
+                </div>
+            </div>
+
+            <!-- Sol Taraf: Fotoğraf Galerisi -->
+            <div class="ad-gallery-section">
+                <div class="gallery-main">
+                    <!-- Mobile Gallery Controls (Icons on Image) -->
+                    <div class="mobile-gallery-controls">
+                        <button class="mobile-back-btn" id="mobile-back-btn" aria-label="Geri">
+                            <i class="fas fa-arrow-left"></i>
+                        </button>
+                        <div class="mobile-action-btns">
+                            <button class="mobile-share-btn" id="mobile-share-btn" aria-label="Paylaş">
+                                <i class="fas fa-share-square"></i>
+                            </button>
+                            <button class="mobile-favorite-btn" id="mobile-favorite-btn" aria-label="Favoriye Ekle">
+                                <i class="far fa-heart"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <img id="main-image" src="" alt="İlan Görseli">
+                    <!-- Navigasyon Butonları Kaldırıldı -->
+                    <div class="gallery-counter"><span id="current-image">1</span> / <span id="total-images">1</span>
+                    </div>
+                </div>
+                <div class="gallery-thumbnails" id="thumbnails-grid"></div>
+            </div>
+
+            <!-- Orta: İlan Detayları -->
+            <div class="ad-details-section">
+                <!-- Mobil Özel Satıcı Özeti (Sekmelerin Üstünde) -->
+                <div class="mobile-seller-summary" style="display: none;">
+                    <i class="fas fa-user-circle"></i>
+                    <span id="mobile-seller-name-preview">Satıcı</span>
+                    <span class="mobile-seller-divider">•</span>
+                    <span id="mobile-seller-date-preview">Üyelik tarihi yükleniyor...</span>
+                </div>
+
+                <!-- Mobil Tab Butonları -->
+                <div class="mobile-ad-tabs" style="display: none;">
+                    <button class="ad-tab-btn active" data-target="info">Detay</button>
+                    <button class="ad-tab-btn" data-target="desc">Açıklama</button>
+                    <button class="ad-tab-btn" data-target="loc">Konum</button>
+                    <button class="ad-tab-btn" data-target="tech">Teknik</button>
+                    <button class="ad-tab-btn" data-target="qa">Q&A</button>
+                </div>
+
+                <!-- İlan Özellikleri Tablosu -->
+                <div class="specs-card" id="tab-content-info">
+                    <h2 class="card-title">İlan Bilgileri</h2>
+                    <div class="specs-table" id="specs-table">
+                        <!-- JavaScript ile doldurulacak -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sağ: Satıcı ve Fiyat -->
+            <div class="ad-seller-section">
+                <!-- Fiyat Kartı -->
+                <div class="price-card">
+                    <div class="price-amount" id="detail-price">--- €</div>
+                    <div class="price-actions">
+                        <button class="btn-favorite" id="favorite-btn">
+                            <i class="far fa-heart"></i>
+                            <span>Favorilere Ekle</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Satıcı Bilgileri -->
+                <div class="seller-card" id="seller-card">
+                    <h2 class="card-title seller-card-title">Seller Information</h2>
+                    <div class="seller-profile-info compact">
+                        <div class="seller-avatar-wrapper">
+                            <img src="https://placehold.co/60x60" alt="Satıcı" id="seller-avatar">
+                            <span class="seller-status-dot" aria-hidden="true"></span>
+                            <div class="seller-verified" id="seller-verified-badge" style="display:none;">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                        </div>
+                        <div class="seller-info-text">
+                            <h3 id="seller-name">Satıcı</h3>
+                            <div class="seller-meta-row">
+                                <span class="rating-inline">
+                                    <i class="fas fa-star"></i>
+                                    <span id="seller-avg-rating">-</span>
+                                </span>
+                                <span class="meta-separator">•</span>
+                                <span class="active-listings"><span id="seller-active-count">0</span> Active
+                                    Listings</span>
+                            </div>
+                            <p class="seller-member" id="seller-member-since">Member since</p>
+                            <p class="seller-stats" id="seller-stats" style="display:none;">Üye bilgisi</p>
+                        </div>
+                    </div>
+
+                    <!-- Gizli ama JS için gerekli rating alanları -->
+                    <div class="seller-rating-inline" aria-hidden="true">
+                        <div class="star-rating" id="seller-stars">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <div class="rating-stats">
+                            <div class="stat-item">
+                                <span class="stat-label">Güvenli Alışveriş:</span>
+                                <span class="stat-value" id="safe-purchases">0</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Toplam Puan:</span>
+                                <span class="stat-value" id="total-ratings">0</span>
+                            </div>
+                        </div>
+                        <button class="btn-see-reviews" id="see-reviews-btn">
+                            <i class="fas fa-comments"></i> Yorumları Gör
+                        </button>
+                        <button class="btn-add-rating" id="add-rating-btn" style="display: none;">
+                            <i class="fas fa-star"></i> Yorum Yap
+                        </button>
+                    </div>
+
+                    <div class="seller-action-buttons">
+                        <button class="btn-message" id="message-btn">
+                            <i class="fas fa-comment"></i>
+                            <span>Send Message</span>
+                        </button>
+                        <button class="btn-phone" id="phone-btn">
+                            <i class="fas fa-phone"></i>
+                            <span>Show Number</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Satıcı Konumu Haritası -->
+                <div class="seller-map-card" id="tab-content-loc">
+                    <h2 class="card-title" style="border-bottom: none; margin-bottom: 0.5rem;">Seller Location</h2>
+                    <div id="seller-map-container" style="height: 250px; width: 100%; border-radius: 8px; z-index: 1;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Teknik Detaylar - Mobilde Collapsible -->
+        <div class="description-full-width" id="tab-content-tech">
+            <div class="description-card tech-details-card">
+                <h2 class="card-title">Technical Details</h2>
+                <div class="tech-details-content" style="display: none;">
+                    <div class="specs-table" id="specs-table-mobile">
+                        <!-- JavaScript ile doldurulacak -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- İlan Açıklaması - Tam Genişlik -->
+        <div class="description-full-width" id="tab-content-desc">
+            <div class="description-card">
+                <h2 class="card-title">Description</h2>
+                <p class="description-text" id="detail-description">Yükleniyor...</p>
+            </div>
+        </div>
+
+        <!-- Soru-Cevap Bölümü -->
+        <section class="qa-section" id="tab-content-qa">
+            <h2 class="card-title">
+                <i class="fas fa-comments"></i>
+                Sorular ve Cevaplar
+            </h2>
+
+            <!-- Soru Sor Butonu -->
+            <button class="btn-primary" id="qa-ask-btn"
+                style="margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                <i class="fas fa-question-circle"></i>
+                Soru Sor
+            </button>
+
+            <!-- Soru Sorma Formu -->
+            <div class="qa-ask-form" id="qa-ask-form" style="display: none;">
+                <textarea id="qa-question-input" placeholder="Bu ilan hakkında merak ettiğiniz soruyu yazın..."
+                    maxlength="1000"></textarea>
+                <div class="form-actions">
+                    <button class="btn-submit" id="qa-submit-question">
+                        <i class="fas fa-paper-plane"></i>
+                        Gönder
+                    </button>
+                    <button class="btn-cancel" id="qa-cancel-ask">İptal</button>
+                    <span class="char-count" id="qa-char-count">0/1000</span>
+                </div>
+            </div>
+
+            <!-- Sorular Listesi -->
+            <div class="qa-questions-list" id="qa-questions-list">
+                <div class="qa-loading">
+                    <i class="fas fa-spinner fa-spin"></i>
+                </div>
+            </div>
+        </section>
+
+        <!-- Lightbox Modal -->
+        <div class="lightbox-modal" id="lightbox-modal">
+            <button class="lightbox-close" id="lightbox-close">
+                <i class="fas fa-times"></i>
+            </button>
+            <button class="lightbox-prev" id="lightbox-prev">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <button class="lightbox-next" id="lightbox-next">
+                <i class="fas fa-chevron-right"></i>
+            </button>
+            <img id="lightbox-image" src="" alt="">
+            <div class="lightbox-counter">
+                <span id="lightbox-current">1</span> / <span id="lightbox-total">1</span>
+            </div>
+        </div>
+    </main>
+
+    <!-- Mobil Fixed Footer Buttons -->
+    <div class="mobile-action-footer">
+        <button class="btn-phone-footer" id="phone-btn-footer">
+            <i class="fas fa-phone"></i>
+            <span>Call</span>
+        </button>
+        <button class="btn-message-footer" id="message-btn-footer">
+            <i class="fas fa-comment"></i>
+            <span>Message</span>
+        </button>
+    </div>
+
+    <script type="module" src="js/supabase.js"></script>
+    <script type="module" src="js/auth.js"></script>
+    <script type="module" src="js/listing-detail-loader.js"></script>
+    <script type="module" src="js/qa-system.js"></script>
+    <script src="js/rating-form.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/layout.js"></script>
+</body>
+
+</html>

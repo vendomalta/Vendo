@@ -1,0 +1,268 @@
+/* Liste Görünümü - Modern Tablo Stili */
+
+.listings-grid.list-view {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+.listings-grid.list-view .listing-card {
+    display: grid;
+    grid-template-columns: 140px 1fr auto;
+    gap: 1.5rem;
+    padding: 1.25rem;
+    border-radius: 0;
+    border-bottom: 1px solid var(--gray-200);
+    background: var(--surface);
+    transition: all 0.2s ease;
+}
+
+.listings-grid.list-view .listing-card:first-child {
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+}
+
+.listings-grid.list-view .listing-card:last-child {
+    border-bottom-left-radius: 12px;
+    border-bottom-right-radius: 12px;
+    border-bottom: none;
+}
+
+.listings-grid.list-view .listing-card:hover {
+    background: var(--hover-bg);
+    transform: none;
+    box-shadow: none;
+    border-left: 3px solid var(--primary);
+    padding-left: calc(1.25rem - 3px);
+}
+
+/* Liste görünümünde resim */
+.listings-grid.list-view .listing-image {
+    width: 140px;
+    height: 100px;
+    border-radius: 8px;
+    overflow: hidden;
+    position: relative;
+    flex-shrink: 0;
+}
+
+.listings-grid.list-view .listing-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.listings-grid.list-view .favorite-button {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 32px;
+    height: 32px;
+    font-size: 0.9rem;
+}
+
+.listings-grid.list-view .gallery-count {
+    bottom: 8px;
+    right: 8px;
+    font-size: 0.75rem;
+    padding: 4px 8px;
+}
+
+/* Liste görünümünde içerik */
+.listings-grid.list-view .listing-content {
+    display: grid;
+    grid-template-columns: 2fr 120px 100px 80px 140px 120px 150px;
+    gap: 1rem;
+    align-items: center;
+    flex: 1;
+}
+
+.listings-grid.list-view .price-title {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.listings-grid.list-view .price-title h3 {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text);
+    margin: 0;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.listings-grid.list-view .listing-price {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--primary);
+    white-space: nowrap;
+}
+
+/* Liste görünümünde özellikler */
+.listings-grid.list-view .listing-specs {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 0.85rem;
+}
+
+.listings-grid.list-view .listing-specs .spec {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--muted);
+}
+
+.listings-grid.list-view .listing-specs .spec i {
+    font-size: 0.75rem;
+    width: 14px;
+    color: var(--gray-400);
+}
+
+/* Liste görünümünde ekstra bilgiler */
+.listings-grid.list-view .list-extra-info {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 0.85rem;
+    color: var(--muted);
+}
+
+.listings-grid.list-view .list-year {
+    font-weight: 600;
+    color: var(--text);
+}
+
+.listings-grid.list-view .list-color {
+    display: none; /* Hide color information */
+}
+
+.listings-grid.list-view .list-color i {
+    font-size: 0.75rem;
+}
+
+/* Liste görünümünde konum ve tarih */
+.listings-grid.list-view .listing-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 0;
+    background: transparent;
+    border-radius: 0;
+}
+
+.listings-grid.list-view .listing-location {
+    font-size: 0.85rem;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.listings-grid.list-view .listing-location i {
+    font-size: 0.75rem;
+    color: var(--gray-400);
+}
+
+.listings-grid.list-view .listing-date {
+    font-size: 0.85rem;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 500;
+}
+
+.listings-grid.list-view .listing-date i {
+    font-size: 0.75rem;
+    color: var(--primary);
+}
+
+/* Liste görünümünde aksiyon butonları */
+.listings-grid.list-view .listing-actions {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 12px;
+    margin: 0;
+    grid-column: -1;
+    justify-self: end;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+}
+
+.listings-grid.list-view .message-button {
+    min-width: 110px;
+}
+
+.listings-grid.list-view .listing-meta-inline {
+    flex: 1 1 auto;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 10px;
+}
+
+.listings-grid.list-view .message-button {
+    padding: 8px 16px;
+    font-size: 0.85rem;
+    white-space: nowrap;
+}
+
+/* Liste görünümünde satıcı bilgisi */
+.listings-grid.list-view .listing-seller {
+    display: none;
+}
+
+/* Liste görünümünde badge'ler */
+.listings-grid.list-view .listing-badge {
+    position: static;
+    display: inline-flex;
+    font-size: 0.7rem;
+    padding: 4px 8px;
+    margin-bottom: 4px;
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+    .listings-grid.list-view .listing-content {
+        grid-template-columns: 2fr 100px 80px 150px 120px;
+        gap: 0.75rem;
+    }
+    
+    .listings-grid.list-view .list-extra-info {
+        display: none;
+    }
+}
+
+@media (max-width: 768px) {
+    .listings-grid.list-view .listing-card {
+        grid-template-columns: 100px 1fr;
+        gap: 1rem;
+    }
+    
+    .listings-grid.list-view .listing-image {
+        width: 100px;
+        height: 75px;
+    }
+    
+    .listings-grid.list-view .listing-content {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+    
+    .listings-grid.list-view .listing-specs {
+        flex-direction: row;
+        gap: 1rem;
+    }
+    
+    .listings-grid.list-view .listing-actions {
+        width: 100%;
+    }
+}

@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Görünüm - VENDO</title>
+    <link rel="icon" type="image/svg+xml" href="assets/images/verde-logo.svg" sizes="any">
+    <link rel="shortcut icon" href="assets/images/verde-logo.svg">
+    <link rel="apple-touch-icon" href="assets/images/verde-logo.svg">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+
+<body>
+    <div id="header-placeholder"></div>
+
+    <main class="settings-page">
+        <div class="container">
+            <div class="page-header">
+                <div class="breadcrumb">
+                    <a href="ayarlar.html"><i class="fas fa-cog"></i> Ayarlar</a>
+                    <i class="fas fa-chevron-right"></i>
+                    <span>Görünüm</span>
+                </div>
+                <h1><i class="fas fa-palette"></i> Görünüm Ayarları</h1>
+                <p class="header-subtitle">Arayüz tercihlerinizi özelleştirin</p>
+            </div>
+
+            <div class="settings-container">
+                <div class="settings-sidebar">
+                    <nav class="settings-nav">
+                        <a href="hesap-bilgileri.html" class="nav-item"><i class="fas fa-user"></i><span>Hesap
+                                Bilgileri</span></a>
+                        <a href="guvenlik.html" class="nav-item"><i
+                                class="fas fa-shield-alt"></i><span>Güvenlik</span></a>
+                        <a href="gizlilik.html" class="nav-item"><i class="fas fa-lock"></i><span>Gizlilik</span></a>
+                        <a href="bildirimler.html" class="nav-item"><i
+                                class="fas fa-bell"></i><span>Bildirimler</span></a>
+                        <a href="gorunum.html" class="nav-item active"><i
+                                class="fas fa-palette"></i><span>Görünüm</span></a>
+                        <a href="premium.html" class="nav-item"><i class="fas fa-crown"></i><span>Premium</span></a>
+                        <a href="veri-yonetimi.html" class="nav-item"><i class="fas fa-download"></i><span>Veri
+                                Yönetimi</span></a>
+                    </nav>
+                </div>
+
+                <div class="settings-content">
+                    <div class="settings-section active">
+                        <!-- Tema Seçimi -->
+                        <div class="settings-card">
+                            <h3>Tema Seçimi</h3>
+                            <div class="theme-options">
+                                <label class="theme-option">
+                                    <input type="radio" name="theme" value="light" checked>
+                                    <div class="theme-preview light">
+                                        <div class="preview-header"></div>
+                                        <div class="preview-content">
+                                            <div class="preview-card"></div>
+                                            <div class="preview-card"></div>
+                                        </div>
+                                    </div>
+                                    <span>Açık Tema</span>
+                                </label>
+
+                                <label class="theme-option">
+                                    <input type="radio" name="theme" value="dark">
+                                    <div class="theme-preview dark">
+                                        <div class="preview-header"></div>
+                                        <div class="preview-content">
+                                            <div class="preview-card"></div>
+                                            <div class="preview-card"></div>
+                                        </div>
+                                    </div>
+                                    <span>Koyu Tema</span>
+                                </label>
+
+                                <label class="theme-option">
+                                    <input type="radio" name="theme" value="auto">
+                                    <div class="theme-preview auto">
+                                        <div class="preview-header"></div>
+                                        <div class="preview-content">
+                                            <div class="preview-card"></div>
+                                            <div class="preview-card"></div>
+                                        </div>
+                                    </div>
+                                    <span>Sistem Ayarı</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Yazı Tipi Ayarları -->
+                        <div class="settings-card">
+                            <h3>Yazı Tipi Ayarları</h3>
+                            <div class="font-settings">
+                                <div class="form-group">
+                                    <label for="fontSize">Yazı Boyutu</label>
+                                    <div class="font-size-slider">
+                                        <span>A</span>
+                                        <input type="range" id="fontSize" min="12" max="20" value="16" step="1">
+                                        <span style="font-size: 1.2em;">A</span>
+                                    </div>
+                                    <span class="current-size">16px</span>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="fontFamily">Yazı Tipi</label>
+                                    <select id="fontFamily">
+                                        <option value="system">Sistem Varsayılanı</option>
+                                        <option value="arial">Arial</option>
+                                        <option value="helvetica">Helvetica</option>
+                                        <option value="georgia">Georgia</option>
+                                        <option value="times">Times New Roman</option>
+                                    </select>
+                                </div>
+
+                                <div class="font-preview">
+                                    <h4>Önizleme</h4>
+                                    <p id="fontPreview">Bu metin seçtiğiniz yazı tipi ayarlarıyla görüntülenir.
+                                        İlanlarınızda ve site genelinde bu görünüm kullanılacaktır.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Renk Tercihleri -->
+                        <div class="settings-card">
+                            <h3>Renk Tercihleri</h3>
+                            <div class="color-settings">
+                                <div class="color-option">
+                                    <label for="accentColor">Ana Renk</label>
+                                    <div class="color-picker-container">
+                                        <input type="color" id="accentColor" value="#10b981">
+                                        <div class="color-presets">
+                                            <button class="color-preset" data-color="#10b981"
+                                                style="background: #10b981;"></button>
+                                            <button class="color-preset" data-color="#3b82f6"
+                                                style="background: #3b82f6;"></button>
+                                            <button class="color-preset" data-color="#8b5cf6"
+                                                style="background: #8b5cf6;"></button>
+                                            <button class="color-preset" data-color="#f59e0b"
+                                                style="background: #f59e0b;"></button>
+                                            <button class="color-preset" data-color="#ef4444"
+                                                style="background: #ef4444;"></button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Liste Görünümü -->
+                        <div class="settings-card">
+                            <h3>Liste Görünümü</h3>
+                            <div class="view-options">
+                                <div class="view-setting">
+                                    <div class="setting-info">
+                                        <h4>İlan Görünümü</h4>
+                                        <p>İlanların nasıl listeleneceğini seçin</p>
+                                    </div>
+                                    <div class="view-modes">
+                                        <label class="view-mode">
+                                            <input type="radio" name="listView" value="grid" checked>
+                                            <div class="mode-icon">
+                                                <i class="fas fa-th"></i>
+                                            </div>
+                                            <span>Kart Görünümü</span>
+                                        </label>
+                                        <label class="view-mode">
+                                            <input type="radio" name="listView" value="list">
+                                            <div class="mode-icon">
+                                                <i class="fas fa-list"></i>
+                                            </div>
+                                            <span>Liste Görünümü</span>
+                                        </label>
+                                        <label class="view-mode">
+                                            <input type="radio" name="listView" value="compact">
+                                            <div class="mode-icon">
+                                                <i class="fas fa-align-justify"></i>
+                                            </div>
+                                            <span>Kompakt Görünüm</span>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div class="view-setting">
+                                    <div class="setting-info">
+                                        <h4>Sayfa Başına İlan Sayısı</h4>
+                                        <p>Her sayfada gösterilecek ilan sayısını belirleyin</p>
+                                    </div>
+                                    <select class="setting-select">
+                                        <option value="12">12 İlan</option>
+                                        <option value="24" selected>24 İlan</option>
+                                        <option value="48">48 İlan</option>
+                                        <option value="96">96 İlan</option>
+                                    </select>
+                                </div>
+
+                                <div class="view-setting">
+                                    <div class="setting-info">
+                                        <h4>Animasyonlar</h4>
+                                        <p>Sayfa geçişleri ve etkileşim animasyonları</p>
+                                    </div>
+                                    <div class="toggle-switch">
+                                        <input type="checkbox" id="animations" class="toggle-input" checked>
+                                        <label for="animations" class="toggle-label"></label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Erişilebilirlik -->
+                        <div class="settings-card">
+                            <h3>Erişilebilirlik</h3>
+                            <div class="accessibility-settings">
+                                <div class="accessibility-setting">
+                                    <div class="setting-info">
+                                        <h4>Yüksek Kontrast</h4>
+                                        <p>Metinlerin daha net okunması için kontrast artırın</p>
+                                    </div>
+                                    <div class="toggle-switch">
+                                        <input type="checkbox" id="highContrast" class="toggle-input">
+                                        <label for="highContrast" class="toggle-label"></label>
+                                    </div>
+                                </div>
+
+                                <div class="accessibility-setting">
+                                    <div class="setting-info">
+                                        <h4>Odak Göstergeleri</h4>
+                                        <p>Klavye navigasyonu için güçlü görsel ipuçları</p>
+                                    </div>
+                                    <div class="toggle-switch">
+                                        <input type="checkbox" id="focusIndicators" class="toggle-input">
+                                        <label for="focusIndicators" class="toggle-label"></label>
+                                    </div>
+                                </div>
+
+                                <div class="accessibility-setting">
+                                    <div class="setting-info">
+                                        <h4>Hareket Azaltma</h4>
+                                        <p>Animasyon ve geçiş efektlerini minimize edin</p>
+                                    </div>
+                                    <div class="toggle-switch">
+                                        <input type="checkbox" id="reduceMotion" class="toggle-input">
+                                        <label for="reduceMotion" class="toggle-label"></label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button class="btn-primary" onclick="saveAppearanceSettings()">
+                                <i class="fas fa-save"></i>
+                                Görünüm Ayarlarını Kaydet
+                            </button>
+                            <button class="btn-secondary" onclick="resetAppearance()">
+                                <i class="fas fa-undo"></i>
+                                Varsayılana Sıfırla
+                            </button>
+                            <button class="btn-secondary" onclick="previewChanges()">
+                                <i class="fas fa-eye"></i>
+                                Değişiklikleri Önizle
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+
+    <script src="js/auth.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/listings.js"></script>
+    <script src="js/layout.js"></script>
+    <script src="js/script.js"></script>
+
+    <script>
+        // Font size slider
+        const fontSizeSlider = document.getElementById('fontSize');
+        const fontPreview = document.getElementById('fontPreview');
+        const currentSizeSpan = document.querySelector('.current-size');
+
+        fontSizeSlider.addEventListener('input', function () {
+            const size = this.value + 'px';
+            fontPreview.style.fontSize = size;
+            currentSizeSpan.textContent = size;
+        });
+
+        // Font family selector
+        document.getElementById('fontFamily').addEventListener('change', function () {
+            const fontMap = {
+                'system': 'system-ui, -apple-system, sans-serif',
+                'arial': 'Arial, sans-serif',
+                'helvetica': 'Helvetica, Arial, sans-serif',
+                'georgia': 'Georgia, serif',
+                'times': 'Times New Roman, serif'
+            };
+            fontPreview.style.fontFamily = fontMap[this.value];
+        });
+
+        // Color picker
+        const accentColorPicker = document.getElementById('accentColor');
+        const colorPresets = document.querySelectorAll('.color-preset');
+
+        colorPresets.forEach(preset => {
+            preset.addEventListener('click', function () {
+                const color = this.dataset.color;
+                accentColorPicker.value = color;
+                applyAccentColor(color);
+            });
+        });
+
+        accentColorPicker.addEventListener('change', function () {
+            applyAccentColor(this.value);
+        });
+
+        function applyAccentColor(color) {
+            document.documentElement.style.setProperty('--verde-green', color);
+            document.documentElement.style.setProperty('--verde-green-dark', adjustColor(color, -20));
+            document.documentElement.style.setProperty('--verde-green-light', adjustColor(color, 20));
+        }
+
+        function adjustColor(hex, amount) {
+            const num = parseInt(hex.replace('#', ''), 16);
+            const r = Math.max(0, Math.min(255, (num >> 16) + amount));
+            const g = Math.max(0, Math.min(255, (num >> 8 & 0x00FF) + amount));
+            const b = Math.max(0, Math.min(255, (num & 0x0000FF) + amount));
+            return '#' + (0x1000000 + (r << 16) + (g << 8) + b).toString(16).slice(1);
+        }
+
+        // Theme switching
+        document.querySelectorAll('input[name="theme"]').forEach(radio => {
+            radio.addEventListener('change', function () {
+                applyTheme(this.value);
+            });
+        });
+
+        function applyTheme(theme) {
+            document.body.className = document.body.className.replace(/theme-\w+/g, '');
+            if (theme !== 'auto') {
+                document.body.classList.add('theme-' + theme);
+            }
+        }
+
+        function saveAppearanceSettings() {
+            const settings = {
+                theme: document.querySelector('input[name="theme"]:checked').value,
+                fontSize: fontSizeSlider.value,
+                fontFamily: document.getElementById('fontFamily').value,
+                accentColor: accentColorPicker.value,
+                listView: document.querySelector('input[name="listView"]:checked').value,
+                animations: document.getElementById('animations').checked,
+                highContrast: document.getElementById('highContrast').checked,
+                focusIndicators: document.getElementById('focusIndicators').checked,
+                reduceMotion: document.getElementById('reduceMotion').checked
+            };
+
+            localStorage.setItem('verdeAppearanceSettings', JSON.stringify(settings));
+            showNotification('Görünüm ayarlarınız başarıyla kaydedildi!', 'success');
+        }
+
+        async function resetAppearance() {
+            let ok = false;
+            if (typeof showConfirmDialog === 'function') {
+                ok = await showConfirmDialog('Görünümü sıfırla', 'Tüm görünüm ayarlarını varsayılan değerlere döndürmek istediğinizden emin misiniz?');
+            } else {
+                if (typeof showNotification === 'function') showNotification('Onay gerekiyor: görünüm ayarlarını sıfırlamak için onaylayın', 'info');
+                return;
+            }
+            if (!ok) return;
+            // Reset all controls to default values
+            document.querySelector('input[name="theme"][value="light"]').checked = true;
+            fontSizeSlider.value = 16;
+            document.getElementById('fontFamily').value = 'system';
+            accentColorPicker.value = '#10b981';
+            document.querySelector('input[name="listView"][value="grid"]').checked = true;
+            document.getElementById('animations').checked = true;
+            document.getElementById('highContrast').checked = false;
+            document.getElementById('focusIndicators').checked = false;
+            document.getElementById('reduceMotion').checked = false;
+
+            // Apply changes
+            fontPreview.style.fontSize = '16px';
+            fontPreview.style.fontFamily = 'system-ui, -apple-system, sans-serif';
+            currentSizeSpan.textContent = '16px';
+            applyAccentColor('#10b981');
+            applyTheme('light');
+
+            showNotification('Görünüm ayarları varsayılan değerlere sıfırlandı.', 'info');
+        }
+
+        function previewChanges() {
+            showNotification('Değişiklikler önizleme modunda uygulandı. Kaydetmeyi unutmayın!', 'info');
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,113 @@
+/* Phone input styling */
+.phone-input-container {
+    display: flex;
+    gap: 8px;
+    align-items: stretch;
+    width: 100%;
+}
+
+.area-code-select {
+    flex: 0 0 130px;
+    padding: 1rem 0.5rem;
+    border: 2px solid var(--gray-200);
+    border-radius: 12px;
+    font-size: 0.85rem;
+    transition: all 0.3s ease;
+    background: var(--surface);
+    color: var(--text);
+    cursor: pointer;
+    font-weight: 500;
+    max-height: 300px;
+    overflow-y: auto;
+    text-overflow: ellipsis;
+}
+
+.area-code-select:hover {
+    border-color: var(--gray-300);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.area-code-select:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+}
+
+.phone-number-input {
+    flex: 1;
+    min-width: 0;
+    padding: 1rem;
+    border: 2px solid var(--gray-200);
+    border-radius: 12px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background: var(--surface);
+    color: var(--text);
+}
+
+.phone-number-input:hover {
+    border-color: var(--gray-300);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.phone-number-input:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+}
+
+/* Responsive design for phone input */
+@media (max-width: 768px) {
+    .phone-input-container {
+        flex-direction: column;
+    }
+    
+    .area-code-select {
+        flex: none;
+        width: 100%;
+    }
+}
+
+/* Flag emoji styling for better display */
+.area-code-select option {
+    padding: 8px 12px;
+    font-size: 0.85rem;
+    line-height: 1.4;
+    white-space: nowrap;
+}
+
+.area-code-select:disabled,
+.phone-number-input:read-only {
+    background: var(--muted-surface) !important;
+    cursor: not-allowed !important;
+    border-color: var(--gray-200) !important;
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+.area-code-select.editing:not(:disabled),
+.phone-number-input.editing {
+    background: var(--surface) !important;
+    border-color: var(--primary) !important;
+}
+
+/* Better scrollbar for dropdown */
+.area-code-select::-webkit-scrollbar {
+    width: 6px;
+}
+
+.area-code-select::-webkit-scrollbar-track {
+    background: var(--gray-100);
+    border-radius: 3px;
+}
+
+.area-code-select::-webkit-scrollbar-thumb {
+    background: var(--gray-400);
+    border-radius: 3px;
+}
+
+.area-code-select::-webkit-scrollbar-thumb:hover {
+    background: var(--gray-500);
+}

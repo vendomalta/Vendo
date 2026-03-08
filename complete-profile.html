@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Profili Tamamla - VENDO</title>
+    
+    <!-- CSP & Security -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com https://cdn.jsdelivr.net https://sxtfbxgeatfzjzsobjmq.supabase.co wss://sxtfbxgeatfzjzsobjmq.supabase.co 'unsafe-inline' 'unsafe-eval'; img-src 'self' data: https:; blob-src 'self' data: https:;">
+    <meta name="csrf-token" content="">
+
+    <!-- Supabase Config -->
+    <meta name="supabase-url" content="https://sxtfbxgeatfzjzsobjmq.supabase.co">
+    <meta name="supabase-key" content="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN4dGZieGdlYXRmemp6c29iam1xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc3MTM1NjIsImV4cCI6MjA4MzI4OTU2Mn0.547hJ_d0ETKIio_CP5aXatGruZrhpZC-nI2LZYKAYJo">
+
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/reset.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/forms.css">
+    <link rel="stylesheet" href="css/buttons.css">
+    <link rel="stylesheet" href="css/login.css">
+    <link rel="stylesheet" href="css/phone-input.css">
+    
+    <style>
+        /* Premium Design Enhancements */
+        body.login-page {
+            background: linear-gradient(135deg, #f0f4f8 0%, #d9e2ec 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        .auth-container {
+            max-width: 550px;
+            width: 100%;
+            margin: auto;
+            padding: 1.5rem 2rem;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+            position: relative;
+            z-index: 10;
+        }
+
+        /* Ambient Background Elements */
+        body.login-page::before {
+            content: '';
+            position: absolute;
+            top: -10%;
+            left: -10%;
+            width: 50%;
+            height: 50%;
+            background: radial-gradient(circle, var(--primary) 0%, rgba(var(--primary-rgb), 0) 70%);
+            opacity: 0.15;
+            filter: blur(80px);
+            z-index: 0;
+            animation: float 10s ease-in-out infinite alternate;
+        }
+
+        body.login-page::after {
+            content: '';
+            position: absolute;
+            bottom: -10%;
+            right: -10%;
+            width: 50%;
+            height: 50%;
+            background: radial-gradient(circle, #4F46E5 0%, rgba(79, 70, 229, 0) 70%);
+            opacity: 0.1;
+            filter: blur(80px);
+            z-index: 0;
+            animation: float 12s ease-in-out infinite alternate-reverse;
+        }
+
+        @keyframes float {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(5%, 5%); }
+        }
+
+        .auth-header {
+            text-align: center;
+            margin-bottom: 1.25rem;
+        }
+
+        .auth-logo {
+            width: 100px;
+            margin-bottom: 0.75rem;
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.05));
+        }
+
+        .auth-title {
+            font-size: 1.35rem;
+            color: var(--text-dark);
+            margin-bottom: 0.25rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, var(--text-dark) 0%, var(--primary-dark) 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .auth-subtitle {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            line-height: 1.3;
+            padding: 0 0.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.4rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            font-size: 0.85rem;
+        }
+
+        .phone-input-group {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+
+
+        .form-control {
+            padding: 0.75rem 1rem;
+            border: 2px solid var(--gray-300);
+            border-radius: 10px;
+            background: var(--surface);
+            font-family: inherit;
+            color: var(--text);
+            font-size: 0.95rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .country-code-select:hover,
+        .form-control:hover {
+            border-color: var(--primary-light);
+            background: var(--gray-50);
+        }
+
+        .country-code-select:focus,
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.15);
+            background: var(--surface);
+            transform: translateY(-1px);
+        }
+
+
+        .checkbox-group {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.6rem;
+            margin: 1rem 0;
+            padding: 0.75rem;
+            background: linear-gradient(145deg, rgba(var(--primary-rgb), 0.03) 0%, rgba(var(--primary-rgb), 0.08) 100%);
+            border-radius: 10px;
+            border: 1px solid rgba(var(--primary-rgb), 0.15);
+            transition: all 0.3s ease;
+        }
+
+        /* Custom Verde Select Component */
+        .verde-select {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            flex: 0 0 110px;
+        }
+
+        .phone-input-group {
+            display: flex;
+            gap: 0.5rem;
+            align-items: stretch;
+            height: 42px;
+        }
+
+        .phone-input-group .form-control {
+            height: 100%;
+            box-sizing: border-box;
+            padding: 0 0.75rem;
+        }
+
+        .verde-select-trigger {
+            display: flex;
+            align-items: center;
+            padding: 0 0.75rem;
+            padding-right: 2rem;
+            font-size: 0.95rem;
+            font-weight: 500;
+            border-radius: 10px;
+            border: 2px solid var(--gray-300);
+            background: var(--surface);
+            cursor: pointer;
+            transition: all 0.2s;
+            user-select: none;
+            height: 100%;
+            width: 100%;
+            color: var(--text);
+            box-sizing: border-box;
+        }
+
+        .verde-select-trigger:hover {
+            border-color: var(--primary-light);
+            background: var(--gray-50);
+        }
+
+        .verde-select.active .verde-select-trigger {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.15);
+            background: var(--surface);
+        }
+
+        .verde-select-trigger::after {
+            content: '\f107';
+            font-family: 'Font Awesome 5 Free';
+            font-weight: 900;
+            position: absolute;
+            right: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray-400);
+            transition: transform 0.2s;
+            font-size: 0.8rem;
+        }
+
+        .verde-select.active .verde-select-trigger::after {
+            transform: translateY(-50%) rotate(180deg);
+            color: var(--primary);
+        }
+
+        .verde-select-options {
+            position: absolute;
+            top: calc(100% + 5px);
+            left: 0;
+            min-width: 100%;
+            width: max-content;
+            max-width: 300px;
+            max-height: 250px;
+            background: white;
+            border: 1px solid var(--gray-200);
+            border-radius: 12px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.12);
+            z-index: 2000;
+            overflow-y: auto;
+            display: none;
+            animation: verdeSlideDown 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes verdeSlideDown {
+            from { opacity: 0; transform: translateY(-5px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .verde-select.active .verde-select-options {
+            display: block;
+        }
+
+        .verde-select-option {
+            padding: 0.7rem 1rem;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.15s;
+            color: var(--gray-700);
+            border-bottom: 1px solid var(--gray-50);
+        }
+
+        .verde-select-option:last-child {
+            border-bottom: none;
+        }
+
+        .verde-select-option:hover {
+            background: var(--muted-surface);
+            color: var(--primary);
+            padding-left: 1.25rem;
+        }
+
+        .verde-select-option.selected {
+            background: rgba(16, 185, 129, 0.08);
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .verde-select-options::-webkit-scrollbar { width: 5px; }
+        .verde-select-options::-webkit-scrollbar-track { background: transparent; }
+        .verde-select-options::-webkit-scrollbar-thumb { background: var(--gray-200); border-radius: 10px; }
+        .verde-select-options::-webkit-scrollbar-thumb:hover { background: var(--gray-300); }
+
+        .checkbox-group:hover {
+            border-color: rgba(var(--primary-rgb), 0.3);
+            background: linear-gradient(145deg, rgba(var(--primary-rgb), 0.05) 0%, rgba(var(--primary-rgb), 0.1) 100%);
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            margin-top: 0.2rem;
+            width: 18px;
+            height: 18px;
+            accent-color: var(--primary);
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
+        .checkbox-group label {
+            font-size: 0.85rem;
+            color: var(--text-dark);
+            line-height: 1.4;
+            cursor: pointer;
+        }
+
+        .checkbox-group a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 700;
+            position: relative;
+        }
+
+        .checkbox-group a::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 2px;
+            bottom: -2px;
+            left: 0;
+            background-color: var(--primary);
+            transform: scaleX(0);
+            transform-origin: bottom right;
+            transition: transform 0.3s ease-out;
+        }
+
+        .checkbox-group a:hover::after {
+            transform: scaleX(1);
+            transform-origin: bottom left;
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 0.875rem;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            box-shadow: 0 4px 8px rgba(var(--primary-rgb), 0.25);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-submit::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: all 0.5s ease;
+        }
+
+        .btn-submit:hover::before {
+            left: 100%;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 24px rgba(var(--primary-rgb), 0.35);
+        }
+
+        .btn-submit:active {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 12px rgba(var(--primary-rgb), 0.25);
+        }
+
+        .logout-link {
+            display: inline-block;
+            width: 100%;
+            text-align: center;
+            margin-top: 0.75rem;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            padding: 0.5rem;
+        }
+
+        .logout-link:hover {
+            color: var(--error-color);
+            transform: translateY(-1px);
+        }
+
+        /* Terms Modal (Copied from login.html) */
+        .terms-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .terms-modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .terms-modal {
+            background: white;
+            width: 90%;
+            max-width: 600px;
+            max-height: 85vh;
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            transform: translateY(20px) scale(0.95);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .terms-modal-overlay.active .terms-modal {
+            transform: translateY(0) scale(1);
+        }
+
+        .terms-modal-header {
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--bg-light);
+            border-radius: 20px 20px 0 0;
+        }
+
+        .terms-modal-title {
+            margin: 0;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+
+        .terms-modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 0.5rem;
+            line-height: 1;
+            border-radius: 50%;
+            transition: all 0.2s ease;
+        }
+
+        .terms-modal-close:hover {
+            background: rgba(0, 0, 0, 0.05);
+            color: var(--error-color);
+        }
+
+        .terms-modal-body {
+            padding: 2rem;
+            overflow-y: auto;
+            color: var(--text-regular);
+            line-height: 1.6;
+        }
+
+        .terms-modal-body h3 {
+            color: var(--text-dark);
+            font-size: 1.1rem;
+            margin: 1.5rem 0 0.75rem;
+            font-weight: 600;
+        }
+
+        .terms-modal-body h3:first-child {
+            margin-top: 0;
+        }
+
+        .terms-modal-body p {
+            margin-bottom: 1rem;
+        }
+
+        .terms-modal-body ul {
+            margin-bottom: 1rem;
+            padding-left: 1.5rem;
+        }
+
+        .terms-modal-body li {
+            margin-bottom: 0.5rem;
+        }
+
+        .terms-modal-footer {
+            padding: 1.5rem 2rem;
+            border-top: 1px solid var(--border-color);
+            background: var(--bg-light);
+            border-radius: 0 0 20px 20px;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .terms-modal-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.75rem 2rem;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .terms-modal-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body class="login-page">
+
+    <!-- Toast Container -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <div class="auth-container">
+        <div class="auth-header">
+            <a href="index.html">
+                <img src="assets/verde-logo.svg" alt="VENDO" class="auth-logo">
+            </a>
+            <h1 class="auth-title">Hoş Geldiniz!</h1>
+            <p class="auth-subtitle">Hesabınızı güvenle kullanmaya başlamak için lütfen aşağıdaki eksik bilgileri tamamlayın.</p>
+        </div>
+
+        <form id="completeProfileForm" onsubmit="event.preventDefault(); submitProfileCompletion();">
+            
+
+            <!-- Telefon -->
+            <div class="form-group">
+                <label class="form-label" for="phoneInput">Telefon Numaranız <span class="text-error">*</span></label>
+                <div class="phone-input-group">
+                    <div class="verde-select" id="customCountrySelector">
+                        <div class="verde-select-trigger">
+                            <span id="selectedCountryText">+356</span>
+                        </div>
+                        <div class="verde-select-options" id="countryOptionsList">
+                            <!-- Populated by JS -->
+                        </div>
+                        <select id="countryCode" required style="position: absolute; opacity: 0; pointer-events: none; width: 1px; height: 1px;">
+                            <option value="+356" selected>Malta (+356)</option>
+                            <option value="+90">Turkey (+90)</option>
+                            <option value="+1">United States (+1)</option>
+                            <option value="+44">United Kingdom (+44)</option>
+                            <option value="+49">Germany (+49)</option>
+                            <option value="+33">France (+33)</option>
+                            <option value="+39">Italy (+39)</option>
+                            <option value="+34">Spain (+34)</option>
+                            <option value="+7">Russia (+7)</option>
+                            <option value="+971">UAE (+971)</option>
+                        </select>
+                    </div>
+                    <input type="tel" id="phoneInput" class="form-control" placeholder="XX XXX XXXX" required style="flex: 1;">
+                </div>
+                <small style="color: var(--text-muted); margin-top: 0.5rem; display: block; font-size: 0.8rem; line-height: 1.3;">Telefon numaranız alıcı/satıcılarla iletişim kurabilmeniz için gereklidir.</small>
+            </div>
+
+            <!-- Kullanım Şartları -->
+            <div class="checkbox-group">
+                <input type="checkbox" id="acceptTerms" required>
+                <label for="acceptTerms">
+                    <a href="#" id="openTermsModal">Kullanım Şartları ve Gizlilik Politikası</a>'nı okudum ve kabul ediyorum. VENDO platformu kurallarına uymayı taahhüt ederim.
+                </label>
+            </div>
+
+            <button type="submit" class="btn-submit" id="submitBtn">
+                <i class='bx bx-check-shield'></i> Kaydı Tamamla ve Başla
+            </button>
+        </form>
+
+        <a href="#" class="logout-link" onclick="handleLogout(event)">
+            Farklı bir hesapla giriş yap
+        </a>
+    </div>
+
+    <!-- Kullanım Şartları Modal -->
+    <div class="terms-modal-overlay" id="termsModal">
+        <div class="terms-modal">
+            <div class="terms-modal-header">
+                <h2 class="terms-modal-title">Kullanım Şartları ve Gizlilik Politikası</h2>
+                <button class="terms-modal-close" id="closeTermsModal" aria-label="Kapat">&times;</button>
+            </div>
+            <div class="terms-modal-body">
+                <h3>1. Giriş ve Kabul</h3>
+                <p>Bu Kullanım Şartları ("Sözleşme"), VENDO platformuna ("Platform") erişiminizi ve kullanımınızı düzenler. Platforma kayıt olarak veya kullanarak, bu Sözleşme'deki tüm şartları kabul etmiş sayılırsınız. Avrupa Birliği Genel Veri Koruma Tüzüğü (GDPR) kapsamında haklarınız güvence altındadır.</p>
+                
+                <h3>2. Kullanıcı Hesapları</h3>
+                <p>Bir hesap oluşturduğunuzda, doğru, eksiksiz ve güncel bilgiler sağlamalısınız. Hesabınızın güvenliğinden ve şifrenizin gizliliğinden siz sorumlusunuz.</p>
+                
+                <h3>3. İlan Verme Kuralları</h3>
+                <ul>
+                    <li>İlanlarınız yasadışı, yanıltıcı veya telif hakkı ihlali içeren materyaller içermemelidir.</li>
+                    <li>Silah, uyuşturucu, çalıntı mal gibi yasaklı ürünlerin satışı kesinlikle yasaktır.</li>
+                    <li>Sadece sahip olduğunuz veya yasal olarak satmaya yetkili olduğunuz ürünleri listeleyebilirsiniz.</li>
+                </ul>
+
+                <h3>4. Güvenlik ve Dolandırıcılık</h3>
+                <p>VENDO, işlemler sırasında oluşabilecek anlaşmazlıklarda aracı kurum değildir. İşlem güvenliğinizi sağlamak kendi sorumluluğunuzdadır. Şüpheli durumları derhal yönetime bildirmelisiniz.</p>
+
+                <h3>5. Veri Gizliliği (GDPR)</h3>
+                <p>Kişisel verileriniz (isim, e-posta, telefon, konum bilgileri) sadece platformun işleyişi amacıyla, açık rızanıza ve yasal dayanaklara uygun olarak işlenir. İstediğiniz zaman verilerinizi silme, aktarma ve düzeltme hakkına (Unutulma Hakkı vb.) sahipsiniz.</p>
+
+                <h3>6. Hesabın İptali ve Fesih</h3>
+                <p>Kurallara uymayan hesaplar önceden haber verilmeksizin askıya alınabilir veya kalıcı olarak silinebilir. Kullanıcılar hesaplarını istedikleri an sistem üzerinden tamamen silebilirler.</p>
+            </div>
+            <div class="terms-modal-footer">
+                <button class="terms-modal-btn" id="acceptTermsModalBtn">Okudum ve Anladım</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <!-- Supabase ve Auth mantığını modül olarak yükle -->
+    <script type="module" src="js/auth.js"></script>
+    <script type="module" src="js/profile-manager.js"></script>
+    
+    <script type="module">
+        import { supabase } from './js/supabase.js';
+        import { updateProfile } from './js/profile-manager.js';
+
+        // Toast Notification System
+        window.showNotification = function(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            if (!container) return;
+            
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            
+            const icon = type === 'success' ? 'bx-check-circle' : 
+                         type === 'error' ? 'bx-error-circle' : 
+                         type === 'warning' ? 'bx-error' : 'bx-info-circle';
+                         
+            toast.innerHTML = `
+                <i class='bx ${icon}'></i>
+                <div class="toast-content">${message}</div>
+                <button class="toast-close"><i class='bx bx-x'></i></button>
+            `;
+            
+            container.appendChild(toast);
+            
+            // Animation setup
+            requestAnimationFrame(() => {
+                toast.style.transform = 'translateX(0)';
+                toast.style.opacity = '1';
+            });
+            
+            const removeToast = () => {
+                toast.style.transform = 'translateX(100%)';
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 300);
+            };
+            
+            toast.querySelector('.toast-close').addEventListener('click', removeToast);
+            setTimeout(removeToast, 5000);
+        };
+
+        // UI Interactions
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Check session
+            const { data: { session } } = await supabase.auth.getSession();
+            if (!session) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            // Modal Logic
+            const termsModal = document.getElementById('termsModal');
+            const openTermsLink = document.getElementById('openTermsModal');
+            const closeTermsBtn = document.getElementById('closeTermsModal');
+            const acceptTermsBtn = document.getElementById('acceptTermsModalBtn');
+            const acceptTermsCheckbox = document.getElementById('acceptTerms');
+
+            if (openTermsLink && termsModal) {
+                openTermsLink.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    termsModal.classList.add('active');
+                });
+            }
+
+            const closeTerms = () => termsModal.classList.remove('active');
+
+            if (closeTermsBtn) closeTermsBtn.addEventListener('click', closeTerms);
+            if (acceptTermsBtn) {
+                acceptTermsBtn.addEventListener('click', () => {
+                    closeTerms();
+                    if (acceptTermsCheckbox) acceptTermsCheckbox.checked = true;
+                });
+            }
+
+            if (termsModal) {
+                termsModal.addEventListener('click', (e) => {
+                    if (e.target === termsModal) closeTerms();
+                });
+            }
+
+            // Custom Generic Select Logic
+            function initVerdeSelect(config) {
+                const selector = document.getElementById(config.selectorId);
+                const optionsList = document.getElementById(config.optionsListId);
+                const nativeSelect = document.getElementById(config.nativeSelectId);
+                const selectedText = document.getElementById(config.selectedTextId);
+                const trigger = selector ? selector.querySelector('.verde-select-trigger') : null;
+                
+                if (!selector || !optionsList || !nativeSelect || !selectedText || !trigger) return;
+
+                // Clear and populate custom options from native select
+                optionsList.innerHTML = '';
+                Array.from(nativeSelect.options).forEach(opt => {
+                    if (opt.disabled) return;
+
+                    const div = document.createElement('div');
+                    div.className = 'verde-select-option';
+                    
+                    if (opt.selected) {
+                        div.classList.add('selected');
+                        selectedText.textContent = config.displayFormatter ? config.displayFormatter(opt.textContent) : opt.textContent;
+                    }
+                    div.textContent = opt.textContent;
+                    div.dataset.value = opt.value;
+
+                    div.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        nativeSelect.value = opt.value;
+                        selectedText.textContent = config.displayFormatter ? config.displayFormatter(opt.textContent) : opt.textContent;
+                        
+                        optionsList.querySelectorAll('.verde-select-option').forEach(el => el.classList.remove('selected'));
+                        div.classList.add('selected');
+                        selector.classList.remove('active');
+
+                        // Trigger change event for linked logic (like phone formatting)
+                        nativeSelect.dispatchEvent(new Event('change'));
+                    });
+
+                    optionsList.appendChild(div);
+                });
+
+                // Toggle dropdown
+                trigger.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    
+                    // Close other open components
+                    document.querySelectorAll('.verde-select').forEach(el => {
+                        if (el !== selector) el.classList.remove('active');
+                    });
+                    
+                    selector.classList.toggle('active');
+                    
+                    // Ensure active item is visible
+                    if (selector.classList.contains('active')) {
+                        const selected = optionsList.querySelector('.verde-select-option.selected');
+                        if (selected) {
+                            setTimeout(() => selected.scrollIntoView({ block: 'nearest' }), 50);
+                        }
+                    }
+                });
+
+                // Close when clicking outside
+                document.addEventListener('click', (e) => {
+                    if (!selector.contains(e.target)) {
+                        selector.classList.remove('active');
+                    }
+                });
+            }
+
+            // Initialize Custom Country Select
+            initVerdeSelect({
+                selectorId: 'customCountrySelector',
+                optionsListId: 'countryOptionsList',
+                nativeSelectId: 'countryCode',
+                selectedTextId: 'selectedCountryText',
+                displayFormatter: (text) => {
+                    const match = text.match(/\(\+(\d+)\)/);
+                    return match ? `+${match[1]}` : text;
+                }
+            });
+
+        });
+
+
+
+        // Handle Logout
+        window.handleLogout = async function(e) {
+            e.preventDefault();
+            await supabase.auth.signOut();
+            window.location.href = 'login.html';
+        };
+
+        window.submitProfileCompletion = async function() {
+            const btn = document.getElementById('submitBtn');
+            const countryCode = document.getElementById('countryCode').value;
+            const phoneStr = document.getElementById('phoneInput').value;
+            const termsAccepted = document.getElementById('acceptTerms').checked;
+
+            if (!phoneStr || phoneStr.length < 5) {
+                showNotification("Lütfen geçerli bir telefon numarası girin.", "warning");
+                return;
+            }
+
+            if (!termsAccepted) {
+                showNotification("Devam etmek için Kuralları kabul etmelisiniz.", "warning");
+                return;
+            }
+
+            const phone = `${countryCode} ${phoneStr.replace(/\s+/g, '')}`;
+
+            try {
+                btn.classList.add('loading');
+                btn.innerHTML = 'Kaydediliyor...';
+
+                // 1. Update Profile Table (Postgres)
+                await updateProfile({
+                    phone: phone
+                });
+
+                // 2. Update User Metadata (Supabase Auth) to mark terms accepted
+                const { error: userError } = await supabase.auth.updateUser({
+                    data: {
+                        terms_accepted: true,
+                        phone: phone
+                    }
+                });
+
+                if (userError) throw userError;
+
+                showNotification("Profiliniz başarıyla tamamlandı!", "success");
+                
+                // Redirect to home
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 1500);
+
+            } catch (error) {
+                console.error("Profile completion error:", error);
+                showNotification("Bir hata oluştu: " + error.message, "error");
+                btn.classList.remove('loading');
+                btn.innerHTML = "<i class='bx bx-check-shield'></i> Kaydı Tamamla ve Başla";
+            }
+        };
+    </script>
+</body>
+</html>

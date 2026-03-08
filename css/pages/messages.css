@@ -1,0 +1,1455 @@
+/* MESSAGES.CSS - Düzeltilmiş Versiyon
+    Sorun Çözümü: Header ve Footer boşluklarını Flexbox ile otomatik doldurma.
+*/
+
+:root {
+    --primary-color: #10b981;
+    --primary-dark: #059669;
+    --bg-light: #f5f5f5;
+    --bg-white: #ffffff;
+    --bg-chat: #e5ddd5;
+    --text-dark: #111827;
+    --text-muted: #6b7280;
+    --border-color: #e5e7eb;
+    --green-message: #dcf8c6;
+    --gray-message: #ffffff;
+}
+
+/* 1. ADIM: Sayfa İskeletini Sabitle - SADECE MESAJLAR SAYFASINDA */
+html.messages-page-active,
+body.messages-page-active {
+    height: 100%;       /* Ekranın tamamını kapla */
+    margin: 0;
+    padding: 0;
+    overflow: hidden;   /* Sayfa genelinde scroll'u kapat (sadece mesajlar kayacak) */
+}
+
+body {
+    display: flex;      /* Alt alta dizilim modu */
+    flex-direction: column;
+}
+
+/* Header Placeholder'ı esnemesin, sabit kalsın */
+#header-placeholder {
+    flex-shrink: 0;
+}
+
+/* 2. ADIM: Mesaj Alanını Kalan Boşluğa Yay */
+.messages-page {
+    flex: 1;            /* Header'dan kalan TÜM alanı kapla */
+    display: flex;
+    flex-direction: column;
+    min-height: 0;      /* İçerik taşmasını engellemek için kritik */
+    padding: 0 !important; /* Eski paddingleri zorla sıfırla */
+    margin: 0 !important;
+    background: var(--bg-light);
+}
+
+.messages-container {
+    flex: 1;            /* Parent'ın (%100) yüksekliğini al */
+    display: flex;      /* Yan yana dizilim (Liste - Chat) */
+    background: var(--bg-white);
+    overflow: hidden;   /* Taşmaları gizle */
+    height: 100%;
+}
+
+/* --- SOL LİSTE (CONVERSATIONS) --- */
+.conversations-list {
+    width: 304px;
+    height: 100%;
+    border-right: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    background: var(--bg-white);
+    flex-shrink: 0;     /* Asla daralmasın */
+}
+
+/* Message List Header Styles */
+.conversations-header {
+    padding: 12px 16px;
+    background: var(--bg-white);
+    border-bottom: 1px solid var(--border-color);
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+/* New layout: Search bar + Bulk Delete button */
+#conversationSearch {
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+#conversationSearch:focus {
+    border-color: var(--primary-color) !important;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+}
+
+/* Bulk delete toggle button - now next to search */
+#bulkDeleteToggleBtn {
+    position: static; /* Reset absolute positioning */
+    width: 42px;
+    height: 40px; /* Match search input height approximately */
+    border-radius: 8px;
+    background: var(--bg-light); 
+    color: var(--text-muted);
+    border: 1px solid var(--border-color);
+    box-shadow: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+#bulkDeleteToggleBtn:hover {
+    background: #fee2e2;
+    color: #ef4444;
+    border-color: #fca5a5;
+}
+
+#bulkDeleteToggleBtn i {
+    font-size: 1rem;
+}
+
+/* Active state for bulk delete (when selection mode is on) */
+#bulkDeleteToggleBtn.active {
+    background: #ef4444;
+    color: white;
+    border-color: #ef4444;
+}
+
+/* --- ARAMA FİLTRELERİ --- */
+.search-filters {
+    display: flex;
+    gap: 8px;
+    padding: 2px 0 4px 0; /* Tighten up vertical padding */
+    overflow-x: auto;
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE/Edge */
+}
+
+.search-filters::-webkit-scrollbar {
+    display: none; /* Chrome/Safari */
+}
+
+.filter-chip {
+    padding: 6px 14px;
+    border: 1px solid var(--border-color);
+    border-radius: 20px; /* More rounded pill shape */
+    background: var(--bg-light);
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    font-weight: 500;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    flex-shrink: 0; /* Prevent shrinking */
+}
+
+.filter-chip:hover {
+    background: #e5e7eb;
+    color: var(--text-dark);
+}
+
+.filter-chip.active {
+    background: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+    box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
+}
+
+.conversations {
+    flex: 1;            /* Listeyi kalan alana yay */
+    overflow-y: auto;   /* Sadece burası scroll olsun */
+    background: var(--bg-white);
+    min-height: 0;      /* Flexbox overflow fix */
+}
+
+/* Mobil görünümde scroll'u kaldır */
+@media (max-width: 768px) {
+    .conversations {
+        overflow-y: visible;
+        flex: none;
+        height: auto;
+    }
+    
+    .conversations-list {
+        overflow-y: visible;
+        height: auto;
+        min-height: 100vh;
+    }
+}
+
+/* Mobile: fix input to bottom and allow page to scroll when keyboard opens */
+@media (max-width: 768px) {
+    /* Keep the overall page fixed; only the chat area should scroll */
+    html.messages-page-active, 
+    body.messages-page-active {
+        height: 100% !important;
+        overflow: hidden !important;
+    }
+
+    .messages-container,
+    .message-detail {
+        height: 100% !important;
+        overflow: hidden !important;
+        min-height: 0 !important;
+        display: flex !important;
+        flex-direction: column !important;
+    }
+
+    .message-input-area {
+        position: fixed !important;
+        left: 0;
+        right: 0;
+        bottom: env(safe-area-inset-bottom, 0);
+        z-index: 12000;
+        box-shadow: 0 -6px 20px rgba(0,0,0,0.08);
+        background: var(--bg-white);
+        width: 100%;
+    }
+
+    .messages-content {
+        /* reserve space for the fixed input (adjust if your input is taller) */
+        padding-bottom: calc(72px + env(safe-area-inset-bottom, 0));
+        /* Keep the messages area scrollable on mobile so infinite-scroll works */
+        overflow-y: auto !important;
+        max-height: calc(100vh - 140px);
+    }
+    /* Hide native scrollbars on mobile but keep scroll functionality */
+    .messages-content,
+    .conversations,
+    .conversations-list {
+        -ms-overflow-style: none; /* IE and Edge */
+        scrollbar-width: none; /* Firefox */
+    }
+
+    .messages-content::-webkit-scrollbar,
+    .conversations::-webkit-scrollbar,
+    .conversations-list::-webkit-scrollbar {
+        display: none; /* Chrome, Safari, Opera */
+        width: 0;
+        height: 0;
+    }
+}
+
+/* Bottom sheet for mobile action menu */
+#ad-action-sheet {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    top: 0;
+    display: block;
+    z-index: 10000;
+    pointer-events: none;
+}
+
+#ad-action-sheet .sheet-backdrop {
+    position: absolute;
+    left: 0; right: 0; top: 0; bottom: 0;
+    background: rgba(0,0,0,0.35);
+    opacity: 0;
+    transition: opacity 200ms ease;
+}
+
+#ad-action-sheet.open .sheet-backdrop,
+#ad-action-sheet.open .sheet-backdrop {
+    opacity: 1;
+}
+
+#ad-action-sheet .sheet-panel {
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    background: white;
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+    padding: 12px;
+    box-shadow: 0 -8px 30px rgba(0,0,0,0.15);
+    transform: translateY(100%);
+    transition: transform 240ms cubic-bezier(.2,.9,.2,1);
+    pointer-events: auto;
+}
+
+#ad-action-sheet.open .sheet-panel { transform: translateY(0); }
+
+.sheet-handle { width: 36px; height: 4px; background: var(--border-color); border-radius: 4px; margin: 6px auto 12px auto; }
+.sheet-action { display: block; width: 100%; padding: 12px; font-size: 1rem; border: none; background: transparent; text-align: left; cursor: pointer; border-radius: 8px; }
+.sheet-action:hover { background: var(--bg-light); }
+
+
+.conversation-item {
+    display: flex;
+    gap: 12px;
+    padding: 16px 16px;
+    border-bottom: 1px solid var(--border-color);
+    cursor: pointer;
+    transition: background 0.2s, transform 0.2s;
+    background: var(--bg-white);
+    position: relative;
+}
+
+.conversation-item:hover {
+    background: var(--bg-light);
+    transform: translateX(4px);
+}
+
+.conversation-item.active {
+    background: #eefdf5;
+    border-left: 4px solid var(--primary-color);
+}
+
+/* 🟢 Yeni: Unread conversation state */
+.conversation-item.unread {
+    background: #f0fdf4;
+    border-left: 4px solid var(--primary-color);
+}
+
+.conversation-item.unread .unread-text {
+    font-weight: 600;
+    color: var(--text-dark);
+}
+
+.conversation-avatar img {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+    object-position: center;
+    aspect-ratio: 1/1;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.conversation-content {
+    flex: 1;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+/* 🟢 Yeni: Conversation header (name + time) */
+.conversation-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 4px;
+}
+
+.conversation-content h4 {
+    margin: 0;
+    font-size: 1rem;
+    color: var(--text-dark);
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.conversation-time {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    flex-shrink: 0;
+    white-space: nowrap;
+}
+
+.conversation-listing-title {
+    margin: 0 0 4px 0;
+    color: var(--primary-color);
+    font-size: 0.85rem;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.last-message {
+    margin: 0;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* --- OKUNMAMIŞ MESAJ BADGE'İ --- */
+.unread-badge {
+    background: var(--primary-color);
+    color: white;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 12px;
+    min-width: 20px;
+    text-align: center;
+    margin-left: auto;
+}
+
+/* --- YAZIYOR GÖSTERGESİ --- */
+.typing-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    color: var(--primary-color);
+    font-style: italic;
+    font-size: 0.85rem;
+}
+
+.typing-indicator .dot {
+    width: 6px;
+    height: 6px;
+    background: var(--primary-color);
+    border-radius: 50%;
+    animation: typing-bounce 1.4s infinite;
+}
+
+.typing-indicator .dot:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.typing-indicator .dot:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+@keyframes typing-bounce {
+    0%, 60%, 100% { transform: translateY(0); }
+    30% { transform: translateY(-8px); }
+}
+
+/* --- KAYDIRMA EYLEMLERİ (SWIPE ACTIONS) --- */
+.conversation-item {
+    position: relative;
+    transition: transform 0.3s ease;
+}
+
+.conversation-item.swiped-left {
+    transform: translateX(-80px);
+}
+
+.conversation-swipe-actions {
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #ef4444;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+.conversation-item.swiped-left .conversation-swipe-actions {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.swipe-action-btn {
+    background: transparent;
+    border: none;
+    color: white;
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 8px;
+}
+
+/* --- ARAMA FİLTRELERİ --- */
+.search-filters {
+    display: flex;
+    gap: 6px;
+    padding: 8px 15px;
+    background: var(--bg-white);
+    border-bottom: 1px solid var(--border-color);
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+
+.search-filters::-webkit-scrollbar {
+    display: none;
+}
+
+.filter-chip {
+    padding: 6px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    background: white;
+    color: var(--text-dark);
+    font-size: 0.8rem;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.filter-chip:hover {
+    background: var(--bg-light);
+}
+
+.filter-chip.active {
+    background: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+}
+
+.filter-chip i {
+    margin-right: 4px;
+}
+
+/* --- SAĞ TARAF (CHAT ALANI) --- */
+.message-detail {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background: var(--bg-chat);
+    position: relative;
+    overflow: hidden;
+    min-width: 0;
+}
+
+.ad-reference {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 9.6px 20px;
+    background: var(--bg-white);
+    border-bottom: 1px solid var(--border-color);
+    flex-shrink: 0;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    z-index: 10;
+    position: relative; /* allow absolute positioning for action buttons */
+}
+
+/* Tweak: reduce header vertical size and constrain title area */
+.ad-reference {
+    padding: 6px 12px; /* reduce overall header padding */
+}
+
+.ad-info {
+    flex: 0 0 80%;
+    max-width: 80%;
+    overflow: hidden;
+}
+
+.ad-info h5 {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.ad-actions {
+    display: flex;
+    align-items: center; /* align actions vertically with title */
+    gap: 8px;
+}
+
+.view-ad-btn {
+    align-self: center; /* center the button vertically with title */
+    margin-left: 8px;
+    padding: 6px 10px;
+}
+
+/* Ad actions (view + three-dots) */
+.ad-actions {
+    /* place actions in the upper-right of the ad header to avoid large white area */
+    position: absolute;
+    top: 10px;
+    right: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: 0;
+    z-index: 20;
+}
+
+/* ensure title area doesn't get covered by the absolute buttons */
+.ad-info { padding-right: 120px; }
+
+.action-menu-wrapper {
+    position: relative;
+}
+
+.three-dots-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    font-size: 1.05rem;
+    cursor: pointer;
+    padding: 6px;
+    border-radius: 6px;
+}
+.three-dots-btn:hover { background: rgba(0,0,0,0.04); }
+
+.ad-action-menu {
+    position: absolute;
+    right: 0;
+    top: 36px;
+    background: white;
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-sm);
+    border-radius: 8px;
+    min-width: 160px;
+    display: none;
+    z-index: 200;
+    padding: 6px;
+}
+
+.ad-action {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 8px 10px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: var(--text-dark);
+    border-radius: 6px;
+    font-size: 0.95rem;
+}
+.ad-action:hover { background: var(--bg-light); }
+
+/* Mobile adjustments: ensure three-dots and menu are visible */
+@media (max-width: 768px) {
+    .ad-reference {
+        padding: 6px 10px;
+        gap: 6px;
+        flex-wrap: wrap;
+        align-items: center;
+    }
+
+    .ad-actions {
+        /* keep actions top-right on mobile as well */
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        gap: 6px;
+        flex-shrink: 0;
+        width: auto;
+        justify-content: flex-end;
+    }
+
+    .view-ad-btn {
+        margin-left: 0;
+        padding: 6px 10px;
+        font-size: 0.85rem;
+    }
+
+    .ad-info {
+        flex: 1 1 auto;
+        min-width: 0;
+        padding-right: 100px; /* smaller on mobile, leave space for buttons */
+    }
+
+    .three-dots-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+    }
+
+    /* Make the back button compact so image sits closer */
+    .back-to-list-btn {
+        background: transparent;
+        border: none;
+        padding: 6px 6px;
+        margin: 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--text-dark);
+        font-size: 1.05rem;
+    }
+
+    .back-to-list-btn i { font-size: 1.1rem; }
+
+    /* slightly smaller image on mobile to fit tighter */
+    .ad-reference img {
+        width: 40px;
+        height: 40px;
+    }
+
+
+/* Completely hide ad image on small/mobile screens */
+@media (max-width: 480px) {
+    .ad-reference img {
+        display: none !important;
+    }
+
+    /* Reduce gap further when image hidden */
+    .ad-reference {
+        gap: 4px;
+    }
+
+    /* Ensure back button and title align nicely */
+    .ad-info h5 { font-size: 0.95rem; }
+}
+    /* Place menu as fixed so it won't be clipped and stays visible */
+    .ad-action-menu {
+        position: fixed !important;
+        right: 8px !important;
+        top: 58px !important;
+        z-index: 10000 !important;
+        min-width: 180px;
+    }
+
+    /* Allow the messages container to show overflow on mobile so menu isn't clipped */
+    .messages-container {
+        overflow: visible;
+    }
+}
+
+
+.ad-reference img {
+    width: 48px;
+    height: 48px;
+    border-radius: 8px;
+    object-fit: cover;
+}
+
+.ad-info h5 {
+    margin: 0 0 4px 0;
+    color: var(--text-dark);
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.ad-price {
+    margin: 0;
+    color: var(--text-dark);
+    font-size: 1.1rem;
+    font-weight: 700;
+}
+
+.view-ad-btn {
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-left: auto;
+    transition: background 0.2s;
+}
+
+.view-ad-btn:hover { background: var(--primary-dark); }
+
+/* Chat İçeriği */
+.messages-content {
+    flex: 1;            /* Giriş alanını en alta itmek için */
+    overflow-y: auto;   /* Scroll sadece mesajlarda */
+    padding: 20px;
+    padding-bottom: 90px; /* Input alanı için yer bırak (absolute positioning olduğu için) */
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    background: #e5ddd5;
+    /* WhatsApp benzeri hafif desen (isteğe bağlı) */
+    background-image: linear-gradient(rgba(229, 221, 213, 0.9), rgba(229, 221, 213, 0.9));
+}
+
+.message {
+    max-width: 65%;
+    display: flex;
+    flex-direction: column;
+}
+
+.message.sent { align-self: flex-end; align-items: flex-end; }
+.message.received { align-self: flex-start; }
+
+.message-bubble {
+    padding: 10px 14px;
+    border-radius: 8px;
+    position: relative;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    word-wrap: break-word;
+}
+
+.received .message-bubble {
+    background: var(--gray-message);
+    color: var(--text-dark);
+    border-radius: 0 8px 8px 8px;
+}
+
+.sent .message-bubble {
+    background: var(--green-message);
+    color: var(--text-dark);
+    border-radius: 8px 0 8px 8px;
+}
+
+.sent .message-bubble::after {
+    content: none; /* Extra right-side ticks removed */
+}
+
+.message-time {
+    font-size: 0.65rem;
+    color: #667781;
+    margin-top: 4px;
+    display: block;
+    text-align: right;
+    margin-right: 16px;
+}
+
+/* Mesaj Giriş Alanı - En alta yapışık (WhatsApp Style) */
+.message-input-area {
+    padding: 12px 20px;
+    background: var(--bg-white);
+    border-top: 1px solid var(--border-color);
+    width: 100%;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 50;
+    box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+}
+
+.input-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--bg-white);
+    border-radius: 30px;
+    padding: 6.4px 12px;
+    border: 1px solid var(--border-color);
+}
+
+.input-tool {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 1.3rem;
+    cursor: pointer;
+    padding: 3.2px;
+    transition: color 0.2s;
+}
+.input-tool:hover { color: var(--primary-color); }
+
+.message-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--text-dark);
+    padding: 6.4px;
+    font-size: 0.95rem;
+}
+
+.send-btn {
+    width: 32px;
+    height: 32px;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    flex-shrink: 0;
+}
+
+.send-btn:hover:not(:disabled) { 
+    background: var(--primary-dark); 
+    transform: scale(1.05); 
+}
+
+/* 🟢 YENİ: Disabled state (gönderiliyor) */
+.send-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.send-btn:disabled i {
+    animation: spin 1s linear infinite;
+}
+
+/* İşlem Onayı Toggle Butonu */
+.approval-toggle-btn {
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: rgba(148, 163, 184, 0.1);
+    color: var(--muted);
+    border-radius: 50%;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s, transform 0.2s;
+}
+.approval-toggle-btn:hover { background: rgba(148, 163, 184, 0.2); transform: scale(1.05); }
+
+/* İşlem Onayı Paneli görünürlük kontrolü */
+#transaction-container { display: none; }
+#transaction-container.open { 
+    display: block; 
+    margin-bottom: 90px; /* Input alanı üzerine binmesini engelle */
+}
+
+/* Responsive Düzenlemeler - WhatsApp Mantığı */
+@media (max-width: 768px) {
+    /* Sadece mesajlar sayfasında header'ı gizle */
+    .messages-page ~ #header-placeholder,
+    body:has(.messages-page) #header-placeholder {
+        display: none;
+    }
+    
+    /* Başlangıçta sadece konuşma listesi görünsün */
+    .conversations-list {
+        width: 100%;
+        border-right: none;
+    }
+    
+    .message-detail {
+        display: none; /* Chat alanı başlangıçta gizli */
+    }
+    
+    /* Konuşma seçildiğinde */
+    .messages-container.chat-active .conversations-list {
+        display: none; /* Listeyi gizle */
+    }
+    
+    .messages-container.chat-active .message-detail {
+        display: flex; /* Chat alanını göster */
+        width: 100%;
+    }
+    
+    /* Geri butonu için stil */
+    .back-to-list-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: transparent;
+        border: none;
+        color: var(--text-dark);
+        font-size: 1.2rem;
+        cursor: pointer;
+        padding: 8px;
+        margin-right: 10px;
+        transition: background 0.2s;
+        border-radius: 50%;
+    }
+    
+    .back-to-list-btn:hover {
+        background: rgba(0, 0, 0, 0.05);
+    }
+    
+    .back-to-list-btn:active {
+        background: rgba(0, 0, 0, 0.1);
+    }
+    
+    /* Desktop'ta geri butonu gizli olsun */
+    @media (min-width: 769px) {
+        .back-to-list-btn {
+            display: none !important;
+        }
+    }
+}
+
+/* --- YÜKLEME, HATA VE BOŞ DURUMLAR --- */
+.loading-state,
+.error-state,
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 2rem;
+    text-align: center;
+    color: var(--text-muted);
+    height: 100%;
+}
+
+.loading-state i {
+    font-size: 2.5rem;
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.error-state i {
+    font-size: 3rem;
+    color: #ef4444;
+    margin-bottom: 1rem;
+}
+
+.error-state .btn-primary {
+    margin-top: 1rem;
+    padding: 0.75rem 1.5rem;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.error-state .btn-primary:hover {
+    background: var(--primary-dark);
+}
+
+.empty-state p {
+    margin: 0;
+    font-size: 1rem;
+    color: var(--text-muted);
+}
+
+/* Okunmamış mesaj sayısı badge */
+.unread-badge {
+    position: absolute;
+    top: 0;
+    right: 0;
+    background: var(--primary-color);
+    color: white;
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 2px 6px;
+    border-radius: 10px;
+    min-width: 18px;
+    text-align: center;
+}
+
+/* 🟢 Yeni: Pulse animation for unread badges */
+.unread-badge.animated-pulse {
+    animation: messagePulse 2s ease-in-out infinite;
+}
+
+@keyframes messagePulse {
+    0% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+    100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 10px rgba(16, 185, 129, 0);
+    }
+}
+
+.conversation-avatar {
+    position: relative;
+}
+/* Okundu işareti (çift tik) */
+.read-receipt {
+    font-size: 0.7rem;
+    margin-left: 4px;
+    display: inline-flex;
+    gap: 1px;
+    align-items: center;
+}
+
+/* Çift tik için i elementlerinin stilini ayarla */
+.read-receipt i {
+    display: inline-block;
+    width: 1em;
+}
+
+/* Gönderildi: çift gri tik */
+.read-receipt.sent {
+    color: #9ca3af; /* gray-400 */
+}
+
+/* Okundu: çift mavi tik */
+.read-receipt.read {
+    color: #0088cc;
+}
+
+/* 🟢 Yeni: Smooth message entry animation */
+@keyframes messageSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.message {
+    animation: messageSlideIn 0.3s ease-out;
+}
+
+/* 🟢 Yeni: Real-time status indicators */
+.message-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-top: 4px;
+}
+
+.message-status.sending {
+    opacity: 0.6;
+}
+
+.message-status.sent::after {
+    content: "✓";
+}
+
+.message-status.read::after {
+    content: "✓"; /* single blue tick when read */
+    color: #0088cc;
+}
+
+/* 🟢 Yeni: Typing indicator */
+.typing-indicator {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 8px 12px;
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 12px;
+    width: fit-content;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+.typing-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--text-muted);
+    animation: typingAnimation 1.4s infinite;
+}
+
+.typing-dot:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.typing-dot:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+@keyframes typingAnimation {
+    0%, 60%, 100% {
+        transform: translateY(0);
+        opacity: 0.5;
+    }
+    30% {
+        transform: translateY(-10px);
+        opacity: 1;
+    }
+}
+
+/* ===== TOPLU SİLME ÖZELLİKLERİ ===== */
+
+/* Toplu silme butonları */
+.bulk-delete-controls {
+    margin-top: 8px;
+}
+
+.bulk-delete-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    background: #ef4444;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: all 0.2s;
+    width: 100%;
+    justify-content: center;
+}
+
+.bulk-delete-btn:hover {
+    background: #dc2626;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(239, 68, 68, 0.3);
+}
+
+.bulk-delete-btn:active {
+    transform: translateY(0);
+}
+
+.bulk-delete-actions {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+}
+
+/* Küçük butonlar */
+.btn-secondary-small,
+.btn-danger-small,
+.btn-cancel-small {
+    padding: 6px 10px;
+    border: none;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    white-space: nowrap;
+}
+
+.btn-secondary-small {
+    background: #f3f4f6;
+    color: #374151;
+}
+
+.btn-secondary-small:hover {
+    background: #e5e7eb;
+}
+
+.btn-danger-small {
+    background: #ef4444;
+    color: white;
+    font-weight: 500;
+}
+
+.btn-danger-small:hover:not(:disabled) {
+    background: #dc2626;
+}
+
+.btn-danger-small:disabled {
+    background: #d1d5db;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.btn-cancel-small {
+    background: #6b7280;
+    color: white;
+}
+
+.btn-cancel-small:hover {
+    background: #4b5563;
+}
+
+/* Konuşma item'ı checkbox ile */
+.conversation-item {
+    position: relative;
+}
+
+.conversation-checkbox {
+    display: flex;
+    align-items: center;
+    padding: 0 8px;
+}
+
+.conversation-checkbox input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    accent-color: var(--primary-color);
+}
+
+/* Seçili konuşma */
+.conversation-item.selected {
+    background: #f0fdf4;
+    border-left: 3px solid var(--primary-color);
+}
+
+/* Bulk delete modunda hover efekti */
+.conversation-item:hover {
+    background: #f9fafb;
+}
+
+.conversation-item.selected:hover {
+    background: #dcfce7;
+}
+
+/* Responsive tasarım */
+@media (max-width: 768px) {
+    .bulk-delete-actions {
+        flex-wrap: wrap;
+    }
+    
+    .btn-secondary-small,
+    .btn-danger-small,
+    .btn-cancel-small {
+        font-size: 0.75rem;
+        padding: 5px 8px;
+    }
+}
+
+/* Hide listing date inside listing cards (do not show date on card) */
+.listing-card .listing-date {
+    display: none !important;
+}
+
+/* Back button: mobile-only visibility
+   Hidden by default (desktop), visible on small screens */
+.back-to-list-btn {
+    display: none !important;
+}
+
+@media (max-width: 768px) {
+    .back-to-list-btn {
+        display: inline-flex !important;
+    }
+}
+
+/* Block and Report Actions Styling */
+.ad-action.block-action,
+.sheet-action.block-action,
+.ad-action.report-action,
+.sheet-action.report-action {
+    color: #ef4444; /* Red color to indicate caution */
+    font-weight: 500;
+}
+
+.ad-action.block-action:hover,
+.sheet-action.block-action:hover,
+.ad-action.report-action:hover,
+.sheet-action.report-action:hover {
+    background: #fef2f2; /* Light red background on hover */
+}
+
+/* --- MODAL STYLES (Report User) --- */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10001;
+    backdrop-filter: blur(4px);
+}
+
+.modal-dialog {
+    background: white;
+    width: 90%;
+    max-width: 500px;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    overflow: hidden;
+    animation: modalSlideIn 0.3s ease;
+}
+
+@keyframes modalSlideIn {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+.modal-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #f9fafb;
+}
+
+.modal-header h2 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-dark);
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 4px;
+}
+
+.modal-body {
+    padding: 20px;
+}
+
+.form-group {
+    margin-bottom: 16px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 500;
+    font-size: 0.9rem;
+    color: var(--text-dark);
+}
+
+.form-control {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 0.95rem;
+    transition: border-color 0.2s;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+}
+
+textarea.form-control {
+    resize: vertical;
+    min-height: 80px;
+}
+
+.modal-footer {
+    padding: 16px 20px;
+    background: #f9fafb;
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.btn {
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-weight: 500;
+    cursor: pointer;
+    border: none;
+    font-size: 0.9rem;
+    transition: background 0.2s;
+}
+
+.btn-secondary {
+    background: white;
+    border: 1px solid var(--border-color);
+    color: var(--text-dark);
+}
+
+.btn-secondary:hover {
+    background: var(--bg-light);
+}
+
+.btn-danger {
+    background: #ef4444;
+    color: white;
+}
+
+.btn-danger:hover {
+    background: #dc2626;
+}
+
+.required {
+    color: #ef4444;
+    margin-left: 3px;
+}

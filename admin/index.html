@@ -1,0 +1,1405 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Paneli - Sistem Yönetimi</title>
+
+    <!-- CSS Files -->
+    <link rel="stylesheet" href="css/admin-modern.css">
+    <link rel="stylesheet" href="css/admin-components.css">
+    <link rel="stylesheet" href="css/admin-tree-view.css">
+    <link rel="stylesheet" href="css/admin-miller-columns.css">
+    <link rel="stylesheet" href="../css/header.css">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+</head>
+
+<body class="admin-body">
+    <div class="admin-layout">
+        <!-- Sidebar -->
+        <aside class="admin-sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">
+                    <i class="fas fa-shield-halved"></i>
+                    <span>Admin</span>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <div class="nav-item active" data-section="dashboard">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Dashboard</span>
+                </div>
+                <div class="nav-item" data-section="users">
+                    <i class="fas fa-users"></i>
+                    <span>Kullanıcılar</span>
+                </div>
+                <div class="nav-item" data-section="listings">
+                    <i class="fas fa-bullhorn"></i>
+                    <span>İlanlar</span>
+                </div>
+                <div class="nav-item" data-section="messages">
+                    <i class="fas fa-envelope"></i>
+                    <span>Mesajlar</span>
+                </div>
+                <div class="nav-item" data-section="categories">
+                    <i class="fas fa-folder"></i>
+                    <span>Kategoriler</span>
+                </div>
+                <div class="nav-item" data-section="reports">
+                    <i class="fas fa-flag"></i>
+                    <span>Raporlar</span>
+                </div>
+                <div class="nav-item" data-section="user-stats">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>Kullanıcı İstatistikleri</span>
+                </div>
+                <div class="nav-item" data-section="analytics">
+                    <i class="fas fa-chart-pie"></i>
+                    <span>Analitikler</span>
+                </div>
+                <div class="nav-item" data-section="system-health">
+                    <i class="fas fa-heartbeat"></i>
+                    <span>Sistem Sağlığı</span>
+                </div>
+                <div class="nav-item" data-section="automation">
+                    <i class="fas fa-robot"></i>
+                    <span>Otomasyon & Görevler</span>
+                </div>
+                <div class="nav-item" data-section="banners">
+                    <i class="fas fa-ad"></i>
+                    <span>Reklam Yönetimi</span>
+                </div>
+                <div class="nav-item" data-section="reviews">
+                    <i class="fas fa-star"></i>
+                    <span>Yorum Yönetimi</span>
+                </div>
+                <div class="nav-item" data-section="settings">
+                    <i class="fas fa-cog"></i>
+                    <span>Ayarlar</span>
+                </div>
+                <div class="nav-item" data-section="activity">
+                    <i class="fas fa-history"></i>
+                    <span>İşlem Geçmişi</span>
+                </div>
+            </nav>
+
+            <div class="sidebar-footer">
+                <button id="logout-btn" class="btn btn-danger" style="width: 100%;">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Çıkış Yap</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <div class="admin-main">
+            <!-- Header -->
+            <header class="admin-header">
+                <div class="header-left">
+                    <div class="header-title">
+                        <i class="fas fa-shield-halved"></i>
+                        <span>Sistem Yönetimi</span>
+                    </div>
+                </div>
+
+                <div class="header-right">
+                    <a href="../index.html" class="header-btn" title="Ana Sayfa">
+                        <i class="fas fa-home"></i>
+                    </a>
+                    <button id="theme-toggle" class="header-btn" title="Tema Değiştir">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                    <div style="width: 1px; height: 30px; background: var(--border);"></div>
+                    <div id="admin-user-info" style="display: flex; align-items: center; gap: 10px; font-size: 14px;">
+                        <i class="fas fa-user-circle"></i>
+                        <span id="admin-username">Admin</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Content Area -->
+            <div class="admin-content">
+
+                <!-- DASHBOARD SECTION -->
+                <div id="dashboard-section" class="section-content active">
+                    <div class="section-header">
+                        <h2 class="section-title">
+                            <i class="fas fa-chart-line"></i>
+                            Dashboard
+                        </h2>
+                        <button class="btn btn-secondary" onclick="adminPanel.toggleDashboardCustomization()">
+                            <i class="fas fa-sliders-h"></i> Özelleştir
+                        </button>
+                    </div>
+
+                    <!-- Customization Panel (Hidden by default) -->
+                    <div id="dashboard-customization" class="customization-panel" style="display: none;">
+                        <h3><i class="fas fa-eye"></i> Widget Görünürlüğü</h3>
+                        <div class="widget-toggles">
+                            <label class="widget-toggle">
+                                <input type="checkbox" data-widget="users" checked
+                                    onchange="adminPanel.toggleWidget('users')">
+                                <span>Toplam Kullanıcı</span>
+                            </label>
+                            <label class="widget-toggle">
+                                <input type="checkbox" data-widget="listings" checked
+                                    onchange="adminPanel.toggleWidget('listings')">
+                                <span>Aktif İlanlar</span>
+                            </label>
+                            <label class="widget-toggle">
+                                <input type="checkbox" data-widget="messages" checked
+                                    onchange="adminPanel.toggleWidget('messages')">
+                                <span>Mesajlar</span>
+                            </label>
+                            <label class="widget-toggle">
+                                <input type="checkbox" data-widget="reports" checked
+                                    onchange="adminPanel.toggleWidget('reports')">
+                                <span>Raporlar</span>
+                            </label>
+                            <label class="widget-toggle">
+                                <input type="checkbox" data-widget="pending-listings" checked
+                                    onchange="adminPanel.toggleWidget('pending-listings')">
+                                <span>Bekleyen İlanlar</span>
+                            </label>
+                            <label class="widget-toggle">
+                                <input type="checkbox" data-widget="new-users" checked
+                                    onchange="adminPanel.toggleWidget('new-users')">
+                                <span>Bugün Yeni Üyeler</span>
+                            </label>
+                        </div>
+                        <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid var(--border);">
+                            <p style="font-size: 13px; color: var(--gray-dark); margin-bottom: 10px;">
+                                <i class="fas fa-info-circle"></i> Widget'ları sürükleyerek yerlerini
+                                değiştirebilirsiniz
+                            </p>
+                            <button class="btn btn-primary" onclick="adminPanel.saveDashboardLayout()">
+                                <i class="fas fa-save"></i> Kaydet
+                            </button>
+                            <button class="btn btn-secondary" onclick="adminPanel.resetDashboardLayout()">
+                                <i class="fas fa-undo"></i> Sıfırla
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Stats Grid -->
+                    <div class="dashboard-grid" id="dashboard-widgets">
+                        <div class="stat-card" data-widget="users" draggable="true">
+                            <div class="drag-handle"><i class="fas fa-grip-vertical"></i></div>
+                            <div class="stat-header">
+                                <div>
+                                    <div class="stat-title">Toplam Kullanıcı</div>
+                                    <div class="stat-value" id="stat-users">0</div>
+                                </div>
+                                <div class="stat-icon primary">
+                                    <i class="fas fa-users"></i>
+                                </div>
+                            </div>
+                            <div class="stat-change up">
+                                <i class="fas fa-arrow-up"></i>
+                                <span>Bu Ay</span>
+                            </div>
+                        </div>
+
+                        <div class="stat-card" data-widget="listings" draggable="true">
+                            <div class="drag-handle"><i class="fas fa-grip-vertical"></i></div>
+                            <div class="stat-header">
+                                <div>
+                                    <div class="stat-title">Aktif İlanlar</div>
+                                    <div class="stat-value" id="stat-listings">0</div>
+                                </div>
+                                <div class="stat-icon success">
+                                    <i class="fas fa-bullhorn"></i>
+                                </div>
+                            </div>
+                            <div class="stat-change up">
+                                <i class="fas fa-arrow-up"></i>
+                                <span>Bu Ay</span>
+                            </div>
+                        </div>
+
+                        <div class="stat-card" data-widget="messages" draggable="true">
+                            <div class="drag-handle"><i class="fas fa-grip-vertical"></i></div>
+                            <div class="stat-header">
+                                <div>
+                                    <div class="stat-title">Mesajlar</div>
+                                    <div class="stat-value" id="stat-messages">0</div>
+                                </div>
+                                <div class="stat-icon info">
+                                    <i class="fas fa-envelope"></i>
+                                </div>
+                            </div>
+                            <div class="stat-change up">
+                                <i class="fas fa-arrow-up"></i>
+                                <span>Beklemede</span>
+                            </div>
+                        </div>
+
+                        <div class="stat-card" data-widget="reports" draggable="true">
+                            <div class="drag-handle"><i class="fas fa-grip-vertical"></i></div>
+                            <div class="stat-header">
+                                <div>
+                                    <div class="stat-title">Raporlar</div>
+                                    <div class="stat-value" id="stat-reports">0</div>
+                                </div>
+                                <div class="stat-icon warning">
+                                    <i class="fas fa-flag"></i>
+                                </div>
+                            </div>
+                            <div class="stat-change down">
+                                <i class="fas fa-arrow-down"></i>
+                                <span>Çözülecek</span>
+                            </div>
+                        </div>
+
+                        <div class="stat-card" data-widget="pending-listings" draggable="true">
+                            <div class="drag-handle"><i class="fas fa-grip-vertical"></i></div>
+                            <div class="stat-header">
+                                <div>
+                                    <div class="stat-title">Bekleyen İlanlar</div>
+                                    <div class="stat-value" id="stat-pending-listings">0</div>
+                                </div>
+                                <div class="stat-icon pending">
+                                    <i class="fas fa-clock"></i>
+                                </div>
+                            </div>
+                            <div class="stat-change up">
+                                <i class="fas fa-arrow-up"></i>
+                                <span>Onay Bekliyor</span>
+                            </div>
+                        </div>
+
+                        <div class="stat-card" data-widget="new-users" draggable="true">
+                            <div class="drag-handle"><i class="fas fa-grip-vertical"></i></div>
+                            <div class="stat-header">
+                                <div>
+                                    <div class="stat-title">Bugün Yeni Üyeler</div>
+                                    <div class="stat-value" id="stat-new-users-today">0</div>
+                                </div>
+                                <div class="stat-icon success">
+                                    <i class="fas fa-user-plus"></i>
+                                </div>
+                            </div>
+                            <div class="stat-change up">
+                                <i class="fas fa-arrow-up"></i>
+                                <span>Son 24 Saat</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Charts -->
+                    <div
+                        style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 20px; margin-top: 30px;">
+                        <div class="section">
+                            <h3 style="margin-bottom: 20px;">Kullanıcı Büyümesi</h3>
+                            <canvas id="userGrowthChart"></canvas>
+                        </div>
+                        <div class="section">
+                            <h3 style="margin-bottom: 20px;">Kategori Dağılımı</h3>
+                            <canvas id="categoryChartDash"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- USERS SECTION -->
+                <div id="users-section" class="section-content">
+                    <!-- User Stats -->
+                    <div class="dashboard-grid" style="margin-bottom: 30px;">
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <div>
+                                    <div class="stat-title">Toplam Kullanıcı</div>
+                                    <div class="stat-value" id="total-users">0</div>
+                                </div>
+                                <div class="stat-icon primary">
+                                    <i class="fas fa-users"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <div>
+                                    <div class="stat-title">Aktif Kullanıcı</div>
+                                    <div class="stat-value" id="active-users">0</div>
+                                </div>
+                                <div class="stat-icon success">
+                                    <i class="fas fa-user-check"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <div>
+                                    <div class="stat-title">Bu Ay Katılanlar</div>
+                                    <div class="stat-value" id="new-users">0</div>
+                                </div>
+                                <div class="stat-icon info">
+                                    <i class="fas fa-user-plus"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <div>
+                                    <div class="stat-title">Engellenenler</div>
+                                    <div class="stat-value" id="blocked-users">0</div>
+                                </div>
+                                <div class="stat-icon danger">
+                                    <i class="fas fa-user-slash"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bulk Actions -->
+                    <div id="bulk-actions-bar" class="bulk-actions hidden">
+                        <span class="bulk-actions-info">
+                            <input type="checkbox" id="select-all-users" style="margin-right: 10px;">
+                            <span id="selected-count">0</span> kullanıcı seçildi
+                        </span>
+                        <div class="bulk-actions-buttons">
+                            <button class="btn btn-danger btn-small" onclick="adminPanel.bulkDeleteUsers()">
+                                <i class="fas fa-trash"></i> Sil
+                            </button>
+                            <button class="btn btn-warning btn-small" onclick="adminPanel.bulkBlockUsers()">
+                                <i class="fas fa-ban"></i> Engelle
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Users Table -->
+                    <div class="section">
+                        <div class="section-header">
+                            <h2 class="section-title">
+                                <i class="fas fa-list"></i>
+                                Kullanıcı Listesi
+                            </h2>
+                            <div class="section-controls">
+                                <select id="users-filter" class="search-input">
+                                    <option value="">Tümü</option>
+                                    <option value="active">Aktif</option>
+                                    <option value="inactive">Pasif</option>
+                                    <option value="blocked">Engellenen</option>
+                                </select>
+                                <input type="text" class="search-input" id="users-search"
+                                    placeholder="E-mail veya ad ara...">
+                            </div>
+                        </div>
+
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 30px;"><input type="checkbox" id="select-all-checkbox"
+                                            onclick="adminPanel.toggleSelectAll()"></th>
+                                    <th>E-Mail</th>
+                                    <th>İsim</th>
+                                    <th>Durum</th>
+                                    <th>Son Etkinlik</th>
+                                    <th>Kayıt Tarihi</th>
+                                    <th>İşlemler</th>
+                                </tr>
+                            </thead>
+                            <tbody id="users-table-body">
+                                <tr>
+                                    <td colspan="7" style="text-align: center; padding: 40px;">
+                                        <div class="spinner"></div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- LISTINGS SECTION -->
+                <div id="listings-section" class="section-content">
+                    <div class="section">
+                        <div class="section-header">
+                            <h2 class="section-title">
+                                <i class="fas fa-bullhorn"></i>
+                                İlan Yönetimi
+                            </h2>
+                            <div class="section-controls">
+                                <select id="listings-filter" class="search-input">
+                                    <option value="">Tüm İlanlar</option>
+                                    <option value="pending">Beklemede</option>
+                                    <option value="active">Aktif</option>
+                                    <option value="rejected">Reddedildi</option>
+                                </select>
+                                <input type="text" class="search-input" id="listings-search" placeholder="İlan ara...">
+                            </div>
+                        </div>
+
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 30px;"><input type="checkbox" id="select-all-listings"
+                                            onchange="document.querySelectorAll('.listing-checkbox').forEach(c => c.checked = event.target.checked); adminPanel.updateListingBulkActions();">
+                                    </th>
+                                    <th>Başlık</th>
+                                    <th>Kategori</th>
+                                    <th>Kullanıcı</th>
+                                    <th>Durum</th>
+                                    <th>İşlemler</th>
+                                </tr>
+                            </thead>
+                            <tbody id="listings-table-body">
+                                <tr>
+                                    <td colspan="6" style="text-align: center; padding: 40px;">
+                                        <div class="spinner"></div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- MESSAGES SECTION -->
+                <div id="messages-section" class="section-content">
+                    <div class="section">
+                        <div class="section-header">
+                            <h2 class="section-title">
+                                <i class="fas fa-envelope"></i>
+                                Mesaj Yönetimi
+                            </h2>
+                            <div class="section-controls">
+                                <input type="text" class="search-input" id="messages-search" placeholder="Mesaj ara...">
+                            </div>
+                        </div>
+
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>Gönderen</th>
+                                    <th>Alan</th>
+                                    <th>Başlık</th>
+                                    <th>Tarih</th>
+                                    <th>İşlemler</th>
+                                </tr>
+                            </thead>
+                            <tbody id="messages-table-body">
+                                <tr>
+                                    <td colspan="5" style="text-align: center; padding: 40px;">
+                                        <div class="spinner"></div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- CATEGORIES SECTION -->
+                <div id="categories-section" class="section-content">
+                    <div class="section">
+                        <div class="section-header">
+                            <h2 class="section-title">
+                                <i class="fas fa-folder"></i>
+                                Kategoriler
+                            </h2>
+                        </div>
+
+                        <div id="categories-grid"
+                            style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px;">
+                            <div class="spinner" style="grid-column: 1/-1; justify-self: center;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="reports-section" class="section-content">
+                    <div class="section">
+                        <div class="section-header">
+                            <h2 class="section-title">
+                                <i class="fas fa-flag"></i>
+                                Şikayet ve Raporlar
+                            </h2>
+                            <div class="section-controls">
+                                <select id="reports-filter" class="search-input" onchange="adminPanel.loadReports()">
+                                    <option value="">Tümü</option>
+                                    <option value="pending">Bekleyen</option>
+                                    <option value="resolved">Çözüldü</option>
+                                    <option value="dismissed">Reddedildi</option>
+                                </select>
+                                <button class="btn btn-secondary" onclick="adminPanel.loadReports()">
+                                    <i class="fas fa-sync-alt"></i> Yenile
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="alert alert-info" id="reports-source-warning" style="display:none; margin-bottom:15px; background: #e0f2fe; color: #0369a1; padding: 10px; border-radius: 6px; font-size:0.9rem;">
+                            <i class="fas fa-info-circle"></i> Veritabanı tablosu bulunamadığı için <strong>Demo Modu (LocalStorage)</strong> verileri gösteriliyor.
+                        </div>
+
+                        <div style="overflow-x: auto;">
+                            <table class="admin-table">
+                                <thead>
+                                    <tr>
+                                        <th>Tarih</th>
+                                        <th>Rapor Eden</th>
+                                        <th>Şikayet Edilen</th>
+                                        <th>Sebep</th>
+                                        <th>Durum</th>
+                                        <th>İşlemler</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="reports-table-body">
+                                    <tr>
+                                        <td colspan="6" style="text-align: center; padding: 40px;">
+                                            <div class="spinner"></div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ANALYTICS SECTION -->
+                <div id="analytics-section" class="section-content">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 20px;">
+                        <div class="section">
+                            <h3 style="margin-bottom: 20px;">Aylık Aktivite</h3>
+                            <canvas id="monthlyActivityChart"></canvas>
+                        </div>
+                        <div class="section">
+                            <h3 style="margin-bottom: 20px;">İlan Durumu</h3>
+                            <canvas id="listingsStatusChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- USER STATISTICS SECTION -->
+                <div id="user-stats-section" class="section-content">
+                    <div class="section">
+                        <div class="section-header">
+                            <h2 class="section-title">
+                                <i class="fas fa-chart-bar"></i>
+                                Kullanıcı İstatistikleri
+                            </h2>
+                        </div>
+
+                        <!-- User Activity Chart -->
+                        <div style="margin-bottom: 40px;">
+                            <h3 style="margin-bottom: 20px;">Kullanıcı Aktivite Trendleri</h3>
+                            <canvas id="userActivityChart" style="max-height: 300px;"></canvas>
+                        </div>
+
+                        <!-- Top Active Users Table -->
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                            <div class="section">
+                                <h3 style="margin-bottom: 15px;">
+                                    <i class="fas fa-fire"></i> En Aktif Kullanıcılar (İlan Sayısı)
+                                </h3>
+                                <table class="admin-table" style="font-size: 13px;">
+                                    <thead>
+                                        <tr>
+                                            <th>Kullanıcı</th>
+                                            <th>E-Mail</th>
+                                            <th>İlan Sayısı</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="top-users-table">
+                                        <tr>
+                                            <td colspan="3" style="text-align: center; padding: 20px;">
+                                                <div class="spinner"></div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div class="section">
+                                <h3 style="margin-bottom: 15px;">
+                                    <i class="fas fa-chart-pie"></i> Kullanıcı Başına Ort. İlan Sayısı
+                                </h3>
+                                <canvas id="userListingsChart"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- User Listings Breakdown Table -->
+                        <div class="section" style="margin-top: 30px;">
+                            <h3 style="margin-bottom: 15px;">
+                                <i class="fas fa-list"></i> Kullanıcı Başına İlanlar (Detaylı)
+                            </h3>
+                            <table class="admin-table" style="font-size: 13px;">
+                                <thead>
+                                    <tr>
+                                        <th>Kullanıcı</th>
+                                        <th>E-Mail</th>
+                                        <th>Toplam İlan</th>
+                                        <th>Aktif</th>
+                                        <th>Beklemede</th>
+                                        <th>Reddedildi</th>
+                                        <th>Kayıt Tarihi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="user-listings-detail-table">
+                                    <tr>
+                                        <td colspan="7" style="text-align: center; padding: 20px;">
+                                            <div class="spinner"></div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ANALYTICS SECTION -->
+                <div id="analytics-section" class="section-content">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 20px;">
+                        <div class="section">
+                            <h3 style="margin-bottom: 20px;">Aylık Aktivite</h3>
+                            <canvas id="monthlyActivityChart"></canvas>
+                        </div>
+                        <div class="section">
+                            <h3 style="margin-bottom: 20px;">İlan Durumu</h3>
+                            <canvas id="listingsStatusChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SYSTEM HEALTH SECTION -->
+                <div id="system-health-section" class="section-content">
+                    <div class="section">
+                        <div class="section-header">
+                            <h2 class="section-title">
+                                <i class="fas fa-heartbeat"></i>
+                                Sistem Sağlığı
+                            </h2>
+                            <button class="btn btn-secondary" onclick="adminPanel.loadSystemHealth()">
+                                <i class="fas fa-sync-alt"></i> Yenile
+                            </button>
+                        </div>
+
+                        <!-- Health Status Cards -->
+                        <div
+                            style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-bottom: 30px;">
+                            <div class="health-card">
+                                <div class="health-header">
+                                    <h3>Veritabanı Bağlantısı</h3>
+                                    <span id="db-status-badge" class="status-badge status-checking">
+                                        <i class="fas fa-circle"></i> Kontrol ediliyor...
+                                    </span>
+                                </div>
+                                <div id="db-status-content" style="padding: 15px;">
+                                    <div class="spinner" style="justify-self: center;"></div>
+                                </div>
+                            </div>
+
+                            <div class="health-card">
+                                <div class="health-header">
+                                    <h3>API Yanıt Süresi</h3>
+                                    <span id="api-status-badge" class="status-badge status-checking">
+                                        <i class="fas fa-circle"></i> Ölçülüyor...
+                                    </span>
+                                </div>
+                                <div id="api-status-content" style="padding: 15px;">
+                                    <div class="spinner" style="justify-self: center;"></div>
+                                </div>
+                            </div>
+
+                            <div class="health-card">
+                                <div class="health-header">
+                                    <h3>Verileri Kullanım</h3>
+                                    <span id="storage-status-badge" class="status-badge status-checking">
+                                        <i class="fas fa-circle"></i> Hesaplanıyor...
+                                    </span>
+                                </div>
+                                <div id="storage-status-content" style="padding: 15px;">
+                                    <div class="spinner" style="justify-self: center;"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Recent Errors -->
+                        <div class="section" style="margin-top: 30px;">
+                            <h3 style="margin-bottom: 20px; font-size: 1.1rem;">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                Son Hatalar
+                            </h3>
+                            <div id="error-logs-container" style="max-height: 400px; overflow-y: auto;">
+                                <div class="spinner" style="justify-self: center;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- AUTOMATION SECTION -->
+                <div id="automation-section" class="section-content">
+                    <div class="section">
+                        <div class="section-header">
+                            <h2 class="section-title">
+                                <i class="fas fa-robot"></i>
+                                Otomasyon & Görevler
+                            </h2>
+                            <button class="btn btn-secondary" onclick="adminPanel.loadAutomation()">
+                                <i class="fas fa-sync-alt"></i> Yenile
+                            </button>
+                        </div>
+
+                        <!-- Tabs -->
+                        <div
+                            style="display: flex; gap: 10px; margin-bottom: 30px; border-bottom: 2px solid var(--border); flex-wrap: wrap;">
+                            <button class="automation-tab active" data-tab="scheduled"
+                                onclick="adminPanel.switchAutomationTab('scheduled')">
+                                <i class="fas fa-clock"></i> Zamanlanmış Görevler
+                            </button>
+                            <button class="automation-tab" data-tab="backup"
+                                onclick="adminPanel.switchAutomationTab('backup')">
+                                <i class="fas fa-hdd"></i> Yedekleme
+                            </button>
+                            <button class="automation-tab" data-tab="email-campaign"
+                                onclick="adminPanel.switchAutomationTab('email-campaign')">
+                                <i class="fas fa-envelope-open-text"></i> Email Kampanyası
+                            </button>
+                        </div>
+
+                        <!-- SCHEDULED TASKS TAB -->
+                        <div id="scheduled-tab" class="automation-tab-content active">
+                            <div class="automation-tasks-grid">
+                                <!-- Eski İlanları Arşivle -->
+                                <div class="task-card">
+                                    <div class="task-header">
+                                        <h3><i class="fas fa-archive"></i> Eski İlanları Arşivle</h3>
+                                        <span class="task-status active">Aktif</span>
+                                    </div>
+                                    <div class="task-body">
+                                        <p style="color: var(--gray-dark); margin-bottom: 15px; font-size: 0.9rem;">
+                                            90 günden eski ilanları otomatik olarak arşivler
+                                        </p>
+                                        <div style="margin-bottom: 15px;">
+                                            <label style="font-size: 0.9rem; margin-bottom: 5px; display: block;">
+                                                <strong>Koşul:</strong> 90 gün inaktif
+                                            </label>
+                                            <label style="font-size: 0.9rem; margin-bottom: 5px; display: block;">
+                                                <strong>Son çalıştırma:</strong> <span id="task-archive-last">Hiç</span>
+                                            </label>
+                                        </div>
+                                        <div style="display: flex; gap: 10px;">
+                                            <button class="btn btn-primary btn-small"
+                                                onclick="adminPanel.runTask('archive_listings')">
+                                                <i class="fas fa-play"></i> Şimdi Çalıştır
+                                            </button>
+                                            <button class="btn btn-secondary btn-small"
+                                                onclick="adminPanel.toggleTask('archive_listings')">
+                                                <i class="fas fa-toggle-on"></i> Devre Dışı
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- İnaktif Hesapları Sil -->
+                                <div class="task-card">
+                                    <div class="task-header">
+                                        <h3><i class="fas fa-user-slash"></i> İnaktif Hesapları Sil</h3>
+                                        <span class="task-status inactive">İnaktif</span>
+                                    </div>
+                                    <div class="task-body">
+                                        <p style="color: var(--gray-dark); margin-bottom: 15px; font-size: 0.9rem;">
+                                            180 gün hiç giriş yapmayan hesapları siler
+                                        </p>
+                                        <div style="margin-bottom: 15px;">
+                                            <label style="font-size: 0.9rem; margin-bottom: 5px; display: block;">
+                                                <strong>Koşul:</strong> 180 gün giriş yok
+                                            </label>
+                                            <label style="font-size: 0.9rem; margin-bottom: 5px; display: block;">
+                                                <strong>Son çalıştırma:</strong> <span
+                                                    id="task-inactive-last">Hiç</span>
+                                            </label>
+                                        </div>
+                                        <div style="display: flex; gap: 10px;">
+                                            <button class="btn btn-primary btn-small"
+                                                onclick="adminPanel.runTask('delete_inactive_users')">
+                                                <i class="fas fa-play"></i> Şimdi Çalıştır
+                                            </button>
+                                            <button class="btn btn-secondary btn-small"
+                                                onclick="adminPanel.toggleTask('delete_inactive_users')">
+                                                <i class="fas fa-toggle-off"></i> Etkinleştir
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Spam İlanları Temizle -->
+                                <div class="task-card">
+                                    <div class="task-header">
+                                        <h3><i class="fas fa-shield-alt"></i> Spam İlanları Temizle</h3>
+                                        <span class="task-status active">Aktif</span>
+                                    </div>
+                                    <div class="task-body">
+                                        <p style="color: var(--gray-dark); margin-bottom: 15px; font-size: 0.9rem;">
+                                            5+ kez raporlanan ilanları otomatik siler
+                                        </p>
+                                        <div style="margin-bottom: 15px;">
+                                            <label style="font-size: 0.9rem; margin-bottom: 5px; display: block;">
+                                                <strong>Koşul:</strong> 5 rapor üzeri
+                                            </label>
+                                            <label style="font-size: 0.9rem; margin-bottom: 5px; display: block;">
+                                                <strong>Son çalıştırma:</strong> <span id="task-spam-last">Hiç</span>
+                                            </label>
+                                        </div>
+                                        <div style="display: flex; gap: 10px;">
+                                            <button class="btn btn-primary btn-small"
+                                                onclick="adminPanel.runTask('delete_spam_listings')">
+                                                <i class="fas fa-play"></i> Şimdi Çalıştır
+                                            </button>
+                                            <button class="btn btn-secondary btn-small"
+                                                onclick="adminPanel.toggleTask('delete_spam_listings')">
+                                                <i class="fas fa-toggle-on"></i> Devre Dışı
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- BACKUP TAB -->
+                        <div id="backup-tab" class="automation-tab-content" style="display: none;">
+                            <div class="backup-container">
+                                <div class="backup-status-card">
+                                    <div style="text-align: center; padding: 30px;">
+                                        <i class="fas fa-hdd"
+                                            style="font-size: 3rem; color: var(--primary); margin-bottom: 15px; display: block;"></i>
+                                        <h3>Otomatik Yedekleme Durumu</h3>
+                                        <div
+                                            style="margin-top: 20px; background: var(--gray-light); padding: 20px; border-radius: 8px;">
+                                            <div
+                                                style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px;">
+                                                <div>
+                                                    <div
+                                                        style="color: var(--gray-dark); font-size: 0.9rem; margin-bottom: 5px;">
+                                                        Son Yedekleme</div>
+                                                    <div style="font-size: 1.3rem; font-weight: 600;"
+                                                        id="last-backup-time">-</div>
+                                                </div>
+                                                <div>
+                                                    <div
+                                                        style="color: var(--gray-dark); font-size: 0.9rem; margin-bottom: 5px;">
+                                                        Yedekleme Sıklığı</div>
+                                                    <div style="font-size: 1.3rem; font-weight: 600;">Günlük</div>
+                                                </div>
+                                                <div>
+                                                    <div
+                                                        style="color: var(--gray-dark); font-size: 0.9rem; margin-bottom: 5px;">
+                                                        Yedekleme Durumu</div>
+                                                    <div
+                                                        style="font-size: 1.3rem; font-weight: 600; color: var(--success);">
+                                                        <i class="fas fa-check-circle"></i> Aktif
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div style="display: flex; gap: 10px;">
+                                                <button class="btn btn-primary" onclick="adminPanel.runBackup()">
+                                                    <i class="fas fa-save"></i> Şimdi Yedekle
+                                                </button>
+                                                <button class="btn btn-secondary" onclick="adminPanel.downloadBackup()">
+                                                    <i class="fas fa-download"></i> İndir
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- EMAIL CAMPAIGN TAB -->
+                        <div id="email-campaign-tab" class="automation-tab-content" style="display: none;">
+                            <div class="campaign-container">
+                                <div class="campaign-form">
+                                    <h3 style="margin-bottom: 20px;">
+                                        <i class="fas fa-envelope-open-text"></i>
+                                        Toplu Email Kampanyası
+                                    </h3>
+
+                                    <div style="display: grid; gap: 20px;">
+                                        <!-- Campaign Type -->
+                                        <div class="form-group">
+                                            <label><strong>Kampanya Türü</strong></label>
+                                            <select class="form-control" id="campaign-type"
+                                                onchange="adminPanel.updateCampaignPreview()">
+                                                <option value="">Seç...</option>
+                                                <option value="all_users">Tüm Kullanıcılara</option>
+                                                <option value="inactive_users">İnaktif Kullanıcılara</option>
+                                                <option value="premium_users">Premium Üyelere</option>
+                                                <option value="no_listings">İlanı Olmayanlara</option>
+                                            </select>
+                                        </div>
+
+                                        <!-- Subject -->
+                                        <div class="form-group">
+                                            <label><strong>Konu</strong></label>
+                                            <input type="text" class="form-control" id="campaign-subject"
+                                                placeholder="Email konusu yazınız"
+                                                onchange="adminPanel.updateCampaignPreview()">
+                                        </div>
+
+                                        <!-- Message -->
+                                        <div class="form-group">
+                                            <label><strong>Mesaj</strong></label>
+                                            <textarea class="form-control" id="campaign-message"
+                                                placeholder="Email içeriğini yazınız"
+                                                style="min-height: 200px; padding: 15px;"
+                                                onchange="adminPanel.updateCampaignPreview()"></textarea>
+                                        </div>
+
+                                        <!-- Preview & Send -->
+                                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                                            <div>
+                                                <label><strong>Önizleme</strong></label>
+                                                <div id="campaign-preview"
+                                                    style="background: var(--gray-light); padding: 20px; border-radius: 8px; min-height: 200px; font-size: 0.9rem;">
+                                                    <p style="color: var(--gray-dark); text-align: center;">Kampanya
+                                                        bilgilerini doldurunuz</p>
+                                                </div>
+                                            </div>
+                                            <div style="display: flex; flex-direction: column; gap: 10px;">
+                                                <div>
+                                                    <label><strong>Alıcı Sayısı</strong></label>
+                                                    <div
+                                                        style="background: var(--gray-light); padding: 20px; border-radius: 8px; text-align: center;">
+                                                        <div style="font-size: 1.5rem; font-weight: 600;"
+                                                            id="campaign-recipient-count">0</div>
+                                                        <small style="color: var(--gray-dark);">kişi</small>
+                                                    </div>
+                                                </div>
+                                                <button class="btn btn-primary" onclick="adminPanel.sendCampaign()"
+                                                    style="flex: 1; margin-top: auto;">
+                                                    <i class="fas fa-send"></i> Gönder
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SETTINGS SECTION -->
+                <div id="settings-section" class="section-content">
+                    <div class="section">
+                        <div class="section-header">
+                            <h2 class="section-title">
+                                <i class="fas fa-cog"></i>
+                                Sistem Ayarları
+                            </h2>
+                        </div>
+
+                        <!-- TAB NAVIGATION -->
+                        <div
+                            style="display: flex; gap: 10px; margin-bottom: 30px; border-bottom: 2px solid var(--border); flex-wrap: wrap;">
+                            <button class="settings-tab active" data-tab="general"
+                                onclick="adminPanel.switchSettingsTab('general')">
+                                <i class="fas fa-sliders-h"></i> Genel Ayarlar
+                            </button>
+                            <button class="settings-tab" data-tab="email"
+                                onclick="adminPanel.switchSettingsTab('email')">
+                                <i class="fas fa-envelope"></i> E-Mail Şablonları
+                            </button>
+                            <button class="settings-tab" data-tab="notifications"
+                                onclick="adminPanel.switchSettingsTab('notifications')">
+                                <i class="fas fa-bell"></i> Bildirim Ayarları
+                            </button>
+                            <button class="settings-tab" data-tab="button"
+                                onclick="adminPanel.switchSettingsTab('button')">
+                                <i class="fas fa-magic"></i> Buton Ayarları
+                            </button>
+                        </div>
+
+                        <!-- GENERAL SETTINGS TAB -->
+                        <div id="general-settings-tab" class="settings-tab-content active">
+                            <div style="display: grid; gap: 20px;">
+
+                                <!-- Logo Upload -->
+                                <div class="settings-group">
+                                    <h3><i class="fas fa-image"></i> Site Logosu</h3>
+                                    <div
+                                        style="display: grid; grid-template-columns: 150px 1fr; gap: 20px; align-items: start;">
+                                        <div style="background: var(--light-bg); border: 2px dashed var(--border); border-radius: 8px; padding: 20px; text-align: center; cursor: pointer;"
+                                            id="logo-preview-container"
+                                            onclick="document.getElementById('logo-upload').click();">
+                                            <img id="logo-preview" src=""
+                                                style="max-width: 100%; max-height: 120px; display: none;">
+                                            <div id="logo-placeholder" style="color: var(--gray); font-size: 12px;">
+                                                <i class="fas fa-cloud-upload-alt"
+                                                    style="font-size: 24px; margin-bottom: 10px; display: block;"></i>
+                                                Tıkla yükle
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <input type="file" id="logo-upload" style="display: none;" accept="image/*"
+                                                onchange="adminPanel.handleLogoUpload(event)">
+                                            <div style="color: var(--gray); font-size: 13px; margin-top: 10px;">
+                                                <p><strong>Dosya gereksinimleri:</strong></p>
+                                                <ul style="margin: 5px 0; padding-left: 20px;">
+                                                    <li>Format: PNG, JPG, SVG</li>
+                                                    <li>Max boyut: 2MB</li>
+                                                    <li>Önerilen: 200x100px</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Site Title -->
+                                <div class="settings-group">
+                                    <h3><i class="fas fa-heading"></i> Site Başlığı</h3>
+                                    <input type="text" id="site-title" class="form-control" value="Verde - İlan Sitesi"
+                                        placeholder="Site başlığını gir...">
+                                    <small style="color: var(--gray);">Bu başlık tarayıcı sekmesinde ve SEO'da
+                                        kullanılır</small>
+                                </div>
+
+                                <!-- Site Description -->
+                                <div class="settings-group">
+                                    <h3><i class="fas fa-align-left"></i> Site Açıklaması</h3>
+                                    <textarea id="site-description" class="form-control" style="min-height: 100px;"
+                                        placeholder="Site açıklamasını gir...">Modern İlan Sitesi</textarea>
+                                    <small style="color: var(--gray);">SEO ve meta açıklaması için kullanılır</small>
+                                </div>
+
+                                <!-- Save Button -->
+                                <button class="btn btn-primary" onclick="adminPanel.saveGeneralSettings()">
+                                    <i class="fas fa-save"></i> Genel Ayarları Kaydet
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- EMAIL TEMPLATES TAB -->
+                        <div id="email-settings-tab" class="settings-tab-content">
+                            <div style="display: grid; gap: 20px;">
+
+                                <!-- Email Template Selector -->
+                                <div class="settings-group">
+                                    <h3><i class="fas fa-envelope"></i> E-Mail Şablonları</h3>
+                                    <div
+                                        style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">
+                                        <div class="email-template-card"
+                                            onclick="adminPanel.selectEmailTemplate('welcome')">
+                                            <i class="fas fa-hand-holding-heart"></i>
+                                            <h4>Hoşgeldin</h4>
+                                            <p>Yeni üyelere gönderilen şablon</p>
+                                        </div>
+                                        <div class="email-template-card"
+                                            onclick="adminPanel.selectEmailTemplate('listing-approved')">
+                                            <i class="fas fa-check-circle"></i>
+                                            <h4>İlan Onaylandı</h4>
+                                            <p>İlan onaylandığında gönderilen şablon</p>
+                                        </div>
+                                        <div class="email-template-card"
+                                            onclick="adminPanel.selectEmailTemplate('listing-rejected')">
+                                            <i class="fas fa-times-circle"></i>
+                                            <h4>İlan Reddedildi</h4>
+                                            <p>İlan reddedildiğinde gönderilen şablon</p>
+                                        </div>
+                                        <div class="email-template-card"
+                                            onclick="adminPanel.selectEmailTemplate('password-reset')">
+                                            <i class="fas fa-key"></i>
+                                            <h4>Şifre Sıfırlama</h4>
+                                            <p>Şifre sıfırlama istekleri için</p>
+                                        </div>
+                                        <div class="email-template-card"
+                                            onclick="adminPanel.selectEmailTemplate('new-message')">
+                                            <i class="fas fa-comments"></i>
+                                            <h4>Yeni Mesaj</h4>
+                                            <p>Yeni mesaj bildirimi</p>
+                                        </div>
+                                        <div class="email-template-card"
+                                            onclick="adminPanel.selectEmailTemplate('listing-sold')">
+                                            <i class="fas fa-tag"></i>
+                                            <h4>İlan Satıldı</h4>
+                                            <p>İlan satış bildirimi</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Template Editor -->
+                                <div id="template-editor" style="display: none;" class="settings-group">
+                                    <h3 id="template-title">Şablon Adı</h3>
+
+                                    <div
+                                        style="background: var(--light-bg); padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                                        <p style="margin: 0; color: var(--gray); font-size: 13px;">
+                                            <strong>Kullanılabilir değişkenler:</strong> {user_name}, {site_name},
+                                            {listing_title}, {listing_link}, {admin_email}
+                                        </p>
+                                    </div>
+
+                                    <label style="display: block; margin-bottom: 10px; font-weight: 600;">Konu</label>
+                                    <input type="text" id="email-subject" class="form-control"
+                                        placeholder="E-mail konusunu gir...">
+
+                                    <label
+                                        style="display: block; margin-bottom: 10px; font-weight: 600; margin-top: 15px;">İçerik</label>
+                                    <textarea id="email-body" class="form-control"
+                                        style="min-height: 250px; font-family: monospace; font-size: 13px;"
+                                        placeholder="HTML içeriği gir..."></textarea>
+
+                                    <button class="btn btn-primary" onclick="adminPanel.saveEmailTemplate()"
+                                        style="margin-top: 15px;">
+                                        <i class="fas fa-save"></i> Şablonu Kaydet
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- NOTIFICATIONS SETTINGS TAB -->
+                        <div id="notifications-settings-tab" class="settings-tab-content">
+                            <div style="display: grid; gap: 20px;">
+                                <h3><i class="fas fa-bell"></i> Bildirim Tercihleri</h3>
+
+                                <div class="notification-setting">
+                                    <div style="display: flex; align-items: center; justify-content: space-between;">
+                                        <div>
+                                            <h4>Yeni İlan Bildirimi</h4>
+                                            <p style="color: var(--gray); margin: 5px 0;">Admin'e her yeni ilan için
+                                                email gönder</p>
+                                        </div>
+                                        <input type="checkbox" id="notify-new-listing" class="toggle-checkbox" checked>
+                                    </div>
+                                </div>
+
+                                <div class="notification-setting">
+                                    <div style="display: flex; align-items: center; justify-content: space-between;">
+                                        <div>
+                                            <h4>Yeni Kullanıcı Bildirimi</h4>
+                                            <p style="color: var(--gray); margin: 5px 0;">Admin'e her yeni üyelik için
+                                                email gönder</p>
+                                        </div>
+                                        <input type="checkbox" id="notify-new-user" class="toggle-checkbox" checked>
+                                    </div>
+                                </div>
+
+                                <div class="notification-setting">
+                                    <div style="display: flex; align-items: center; justify-content: space-between;">
+                                        <div>
+                                            <h4>Yeni Mesaj Bildirimi</h4>
+                                            <p style="color: var(--gray); margin: 5px 0;">Admin'e yeni mesajlar için
+                                                email gönder</p>
+                                        </div>
+                                        <input type="checkbox" id="notify-new-message" class="toggle-checkbox" checked>
+                                    </div>
+                                </div>
+
+                                <div class="notification-setting">
+                                    <div style="display: flex; align-items: center; justify-content: space-between;">
+                                        <div>
+                                            <h4>İlan Moderasyonu Bildirimi</h4>
+                                            <p style="color: var(--gray); margin: 5px 0;">Moderasyon bekleyen ilanlar
+                                                için günlük özet gönder</p>
+                                        </div>
+                                        <input type="checkbox" id="notify-pending-listings" class="toggle-checkbox"
+                                            checked>
+                                    </div>
+                                </div>
+
+                                <div class="notification-setting">
+                                    <div style="display: flex; align-items: center; justify-content: space-between;">
+                                        <div>
+                                            <h4>Sistem Uyarıları</h4>
+                                            <p style="color: var(--gray); margin: 5px 0;">Önemli sistem olayları ve
+                                                hatalar için bildir</p>
+                                        </div>
+                                        <input type="checkbox" id="notify-system-alerts" class="toggle-checkbox"
+                                            checked>
+                                    </div>
+                                </div>
+
+                                <div class="notification-setting">
+                                    <div>
+                                        <h4>Günlük Özet Saati</h4>
+                                        <p style="color: var(--gray); margin: 5px 0;">Günlük özet e-mailinin
+                                            gönderileceği saat</p>
+                                        <input type="time" id="daily-digest-time" class="form-control" value="09:00"
+                                            style="width: 150px; margin-top: 10px;">
+                                    </div>
+                                </div>
+
+                                <button class="btn btn-primary" onclick="adminPanel.saveNotificationSettings()">
+                                    <i class="fas fa-save"></i> Bildirim Ayarlarını Kaydet
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- BUTTON SETTINGS TAB -->
+                        <div id="button-settings-tab" class="settings-tab-content">
+                            <div class="settings-card">
+                                <div class="settings-card-header">
+                                    <div class="header-info">
+                                        <h3><i class="fas fa-magic"></i> Premium Buton Tasarımı</h3>
+                                        <p>"+ İlan Ver" butonuna özel bir atmosfer katın</p>
+                                    </div>
+                                    <div class="header-actions">
+                                        <div class="status-toggle-wrapper">
+                                            <span>Buton Tasarımı Aktif</span>
+                                            <input type="checkbox" id="post-ad-btn-active" class="toggle-checkbox"
+                                                checked onchange="adminPanel.updateButtonPreview()">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="settings-card-body">
+                                    <div class="settings-layout">
+                                        <!-- Controls Section -->
+                                        <div class="settings-controls">
+                                            <!-- Image Selection -->
+                                            <div class="control-group">
+                                                <label class="control-label">
+                                                    <i class="fas fa-image"></i> Arka Plan Görseli
+                                                </label>
+                                                <div class="image-upload-wrapper">
+                                                    <div id="btn-img-preview-container" class="preview-box drag-container">
+                                                        <img id="btn-img-preview" src="" style="display: none;">
+                                                        <i class="fas fa-camera" id="btn-img-placeholder"></i>
+                                                        <div id="drag-indicator" class="drag-indicator" style="display: none;">
+                                                            <div class="crosshair"></div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="upload-actions">
+                                                        <button class="btn btn-sm btn-outline"
+                                                            onclick="document.getElementById('post-ad-btn-upload').click()">
+                                                            <i class="fas fa-cloud-upload-alt"></i> Görsel Yükle
+                                                        </button>
+                                                        <p class="upload-tip">Önerilen: 200x50px, Max 2MB</p>
+                                                        <input type="file" id="post-ad-btn-upload"
+                                                            style="display: none;" accept="image/*"
+                                                            onchange="adminPanel.handlePostAdButtonImageUpload(event)">
+                                                        <input type="hidden" id="post-ad-btn-img-url">
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- Overlay Color -->
+                                            <div class="control-group">
+                                                <label class="control-label">
+                                                    <i class="fas fa-palette"></i> Katman Rengi & Şeffaflık
+                                                </label>
+                                                <div class="color-control">
+                                                    <input type="color" id="post-ad-btn-color" class="color-picker"
+                                                        oninput="adminPanel.updateButtonColorText()">
+                                                    <div class="color-inputs">
+                                                        <input type="text" id="post-ad-btn-color-text"
+                                                            class="form-control" placeholder="#000000"
+                                                            oninput="adminPanel.updateButtonPreview()">
+                                                        <div class="opacity-slider-wrapper">
+                                                            <input type="range" id="post-ad-btn-opacity" min="0" max="1"
+                                                                step="0.05" value="0.6"
+                                                                oninput="adminPanel.updateButtonPreview()">
+                                                            <span id="opacity-value">0.6</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- Alignment Selection -->
+                                            <div class="control-group">
+                                                <label class="control-label">
+                                                    <i class="fas fa-arrows-alt"></i> Görsel Konumu (Hizalama)
+                                                </label>
+                                                <div class="alignment-controls"
+                                                    style="background: var(--gray-light); padding: 15px; border-radius: 12px; display: grid; gap: 10px;">
+                                                    <div class="alignment-row"
+                                                        style="display: flex; align-items: center; gap: 10px;">
+                                                        <span style="font-size: 0.75rem; width: 60px;">Yatay:</span>
+                                                        <input type="range" id="post-ad-btn-posX" min="0" max="100"
+                                                            step="1" value="50" style="flex: 1;"
+                                                            oninput="adminPanel.updateButtonPreview()">
+                                                        <span id="posX-value"
+                                                            style="font-size: 0.75rem; width: 30px;">50%</span>
+                                                    </div>
+                                                    <div class="alignment-row"
+                                                        style="display: flex; align-items: center; gap: 10px;">
+                                                        <span style="font-size: 0.75rem; width: 60px;">Dikey:</span>
+                                                        <input type="range" id="post-ad-btn-posY" min="0" max="100"
+                                                            step="1" value="50" style="flex: 1;"
+                                                            oninput="adminPanel.updateButtonPreview()">
+                                                        <span id="posY-value"
+                                                            style="font-size: 0.75rem; width: 30px;">50%</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- Border Color -->
+                                            <div class="control-group">
+                                                <label class="control-label">
+                                                    <i class="fas fa-border-style"></i> Çerçeve Rengi (Mavi Çerçeve
+                                                    Önerilir)
+                                                </label>
+                                                <div class="color-control">
+                                                    <input type="color" id="post-ad-btn-border-color"
+                                                        class="color-picker" value="#3498db"
+                                                        oninput="adminPanel.updateButtonPreview()">
+                                                    <div class="color-inputs">
+                                                        <input type="text" id="post-ad-btn-border-text"
+                                                            class="form-control" placeholder="#3498DB"
+                                                            oninput="adminPanel.updateButtonPreview()">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Preview Section -->
+                                        <div class="settings-preview-pane">
+                                            <div class="preview-header">Canlı Önizleme</div>
+                                            <div id="btn-preview-container" class="preview-display dual-preview">
+                                                <div class="preview-item">
+                                                    <span class="preview-label">Masaüstü</span>
+                                                    <a href="#" class="btn-post-ad" id="btn-preview"
+                                                        onclick="event.preventDefault();">
+                                                        <i class="fas fa-plus"></i>
+                                                        <span>İlan Ver</span>
+                                                    </a>
+                                                </div>
+                                                <div class="preview-item">
+                                                    <span class="preview-label">Mobil</span>
+                                                    <div class="mobile-preview-wrapper">
+                                                        <a href="#" class="post-ad-nav" id="btn-preview-mobile"
+                                                            onclick="event.preventDefault();">
+                                                            <i class="fas fa-plus"></i>
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="preview-footer">
+                                                <i class="fas fa-info-circle"></i>
+                                                Değişiklikleri kaydedene kadar sitede görünmez.
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="settings-card-footer">
+                                    <button class="btn btn-primary btn-lg"
+                                        onclick="adminPanel.savePostAdButtonSettings()">
+                                        <i class="fas fa-save"></i> Ayarları Sisteme Kaydet
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container will be added by JS -->
+
+    <!-- Scripts -->
+    <script type="module">
+        import { supabase } from '../js/supabase.js';
+        window.supabase = supabase;
+    </script>
+    <script type="module" src="js/admin-panel.js"></script>
+</body>
+
+</html>

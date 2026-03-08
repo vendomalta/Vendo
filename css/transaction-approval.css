@@ -1,0 +1,360 @@
+/* 🎯 İşlem Onay Sistemi CSS - Minimal Tasarım */
+:root {
+    color-scheme: light;
+}
+
+.transaction-approval-section {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 0.75rem;
+    margin: 0.5rem 0;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.transaction-approval-section .approval-header {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 0.5rem;
+    cursor: pointer;
+    user-select: none;
+}
+
+.transaction-approval-section .approval-header:hover {
+    opacity: 0.8;
+}
+
+.collapse-btn {
+    background: none;
+    border: none;
+    color: #10b981;
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+    transition: transform 0.3s ease;
+}
+
+.collapse-btn i {
+    transition: transform 0.3s ease;
+}
+
+.collapse-btn i.rotated {
+    transform: rotate(-180deg);
+}
+
+.approval-content {
+    max-height: 1000px;
+    overflow: hidden;
+    transition: max-height 0.3s ease, opacity 0.3s ease;
+    opacity: 1;
+}
+
+.approval-content.collapsed {
+    max-height: 0;
+    opacity: 0;
+}
+
+.transaction-approval-section .approval-header i {
+    color: #10b981;
+    font-size: 1rem;
+}
+
+/* Onay Durumları */
+.approval-status {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.status-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.6rem;
+    background: #f8f9fa;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+}
+
+.status-item.buyer-status {
+    border-left: 3px solid #3b82f6;
+}
+
+.status-item.seller-status {
+    border-left: 3px solid #f59e0b;
+}
+
+.user-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+}
+
+.status-indicator {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-weight: 600;
+    font-size: 0.875rem;
+}
+
+.status-indicator.approved {
+    color: #10b981;
+}
+
+.status-indicator.approved i {
+    font-size: 1rem;
+}
+
+.status-indicator.pending {
+    color: #f59e0b;
+}
+
+.status-indicator.pending i {
+    font-size: 1rem;
+    animation: spin 2s infinite linear;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+@keyframes checkmark {
+    0% {
+        transform: scale(0);
+        opacity: 0;
+    }
+    50% {
+        transform: scale(1.2);
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Onay Butonları */
+.approval-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0.4rem;
+}
+
+.btn-approve {
+    flex: 1;
+    padding: 0.6rem 0.75rem;
+    background: #10b981;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    transition: background-color 0.2s ease;
+}
+
+.btn-approve:hover {
+    background: #059669;
+}
+
+.btn-approve:active {
+    background: #047857;
+}
+
+.btn-approve:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.btn-approve i {
+    font-size: 1rem;
+}
+
+/* İşlem Tamamlandı Mesajı */
+.transaction-complete-message {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem;
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    border-radius: 6px;
+    color: #15803d;
+    font-weight: 500;
+    font-size: 0.85rem;
+}
+
+.transaction-complete-message i {
+    font-size: 1rem;
+    color: #10b981;
+}
+
+/* Değerlendirme Bölümü */
+.rating-section {
+    margin-top: 0.75rem;
+    padding: 0.75rem;
+    background: #fafbfc;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+}
+
+.rating-header {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.rating-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.stars-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.stars {
+    display: flex;
+    gap: 0.25rem;
+}
+
+.star {
+    width: 1.6rem;
+    height: 1.6rem;
+    border: none;
+    background: transparent;
+    color: #d1d5db;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.star:hover,
+.star.hover {
+    color: #fbbf24;
+    transform: scale(1.1);
+}
+
+.star.active {
+    color: #fbbf24;
+}
+
+.rating-value {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #64748b;
+    min-width: 2rem;
+}
+
+.rating-comment {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-family: inherit;
+    resize: vertical;
+    color: #1e293b;
+    min-height: 60px;
+}
+
+.rating-comment::placeholder {
+    color: #94a3b8;
+}
+
+.btn-submit-rating {
+    padding: 0.6rem;
+    background: #10b981;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    transition: background-color 0.2s ease;
+}
+
+.btn-submit-rating:hover {
+    background: #059669;
+}
+
+.btn-submit-rating:active {
+    background: #047857;
+}
+
+.btn-submit-rating:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Mesaj Panelinde Transaction UI */
+.message-transaction-section {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 1rem;
+    margin: 1rem 0;
+    border-left: 4px solid #10b981;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .transaction-approval-section {
+        padding: 0.75rem;
+        margin: 0.25rem 0;
+    }
+
+    .approval-status {
+        grid-template-columns: 1fr;
+    }
+
+    .btn-approve {
+        width: 100%;
+    }
+
+    .approval-actions {
+        flex-direction: column;
+    }
+}

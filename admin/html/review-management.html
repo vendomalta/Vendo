@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yorum Yönetimi - VERDE Admin</title>
+    <link rel="stylesheet" href="../css/admin-modern.css">
+    <link rel="stylesheet" href="../css/admin-components.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .reviews-container {
+            padding: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .review-card {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            border-left: 4px solid #f59e0b;
+        }
+
+        .review-card.approved {
+            border-left-color: #10b981;
+        }
+
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .reviewer-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .reviewer-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: #e5e7eb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: #64748b;
+        }
+
+        .reviewer-details h4 {
+            margin: 0;
+            color: #1e293b;
+            font-size: 1rem;
+        }
+
+        .reviewer-details p {
+            margin: 0.25rem 0 0;
+            font-size: 0.85rem;
+            color: #64748b;
+        }
+
+        .review-rating {
+            display: flex;
+            gap: 0.25rem;
+            font-size: 1.2rem;
+            color: #fbbf24;
+        }
+
+        .review-body {
+            margin-bottom: 1rem;
+        }
+
+        .review-listing-info {
+            background: #f8fafc;
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+        }
+
+        .review-listing-info h5 {
+            margin: 0 0 0.5rem;
+            color: #1e293b;
+            font-size: 0.9rem;
+        }
+
+        .review-listing-info p {
+            margin: 0;
+            color: #64748b;
+            font-size: 0.85rem;
+        }
+
+        .review-comment {
+            color: #475569;
+            line-height: 1.6;
+            margin: 1rem 0;
+        }
+
+        .review-actions {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.85rem;
+        }
+
+        .btn-approve {
+            background: #10b981;
+            color: white;
+        }
+
+        .btn-approve:hover {
+            background: #059669;
+        }
+
+        .btn-reject {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-reject:hover {
+            background: #dc2626;
+        }
+
+        .btn-delete {
+            background: #94a3b8;
+            color: white;
+        }
+
+        .btn-delete:hover {
+            background: #64748b;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-badge.pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-badge.approved {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .filters-section {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .filter-group label {
+            font-size: 0.85rem;
+            color: #64748b;
+            font-weight: 600;
+        }
+
+        .filter-group select {
+            padding: 0.5rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            font-size: 0.9rem;
+        }
+
+        .stats-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-card h3 {
+            margin: 0 0 0.5rem;
+            color: #64748b;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .stat-card .value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            color: #64748b;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #64748b;
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+    </style>
+</head>
+<body>
+    <div class="reviews-container">
+        <h1>Yorum Yönetimi</h1>
+
+        <!-- İstatistikler -->
+        <div class="stats-section" id="stats-section">
+            <div class="stat-card">
+                <h3>Bekleyen Yorumlar</h3>
+                <div class="value" id="stat-pending">-</div>
+            </div>
+            <div class="stat-card">
+                <h3>Onaylanan Yorumlar</h3>
+                <div class="value" id="stat-approved">-</div>
+            </div>
+            <div class="stat-card">
+                <h3>Toplam Yorumlar</h3>
+                <div class="value" id="stat-total">-</div>
+            </div>
+            <div class="stat-card">
+                <h3>Ortalama Puan</h3>
+                <div class="value" id="stat-avg">-</div>
+            </div>
+        </div>
+
+        <!-- Filtreler -->
+        <div class="filters-section">
+            <div class="filter-group">
+                <label>Durum</label>
+                <select id="filter-status">
+                    <option value="all">Tümü</option>
+                    <option value="pending" selected>Bekleyenler</option>
+                    <option value="approved">Onaylananlar</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Puan</label>
+                <select id="filter-rating">
+                    <option value="all">Tümü</option>
+                    <option value="5">5 Yıldız</option>
+                    <option value="4">4 Yıldız</option>
+                    <option value="3">3 Yıldız</option>
+                    <option value="2">2 Yıldız</option>
+                    <option value="1">1 Yıldız</option>
+                </select>
+            </div>
+            <button onclick="loadReviews()" class="btn" style="align-self: flex-end; background: #10b981; color: white;">
+                <i class="fas fa-sync"></i> Yenile
+            </button>
+        </div>
+
+        <!-- Yorumlar Listesi -->
+        <div id="reviews-list">
+            <div class="loading">
+                <i class="fas fa-spinner fa-spin"></i>
+                <p>Yorumlar yükleniyor...</p>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { supabase } from '../js/supabase.js';
+
+        // Global erişim için
+        window.supabase = supabase;
+
+        // Sayfa yüklendiğinde
+        window.addEventListener('DOMContentLoaded', () => {
+            loadStats();
+            loadReviews();
+        });
+
+        // Filtreleri dinle
+        document.getElementById('filter-status').addEventListener('change', loadReviews);
+        document.getElementById('filter-rating').addEventListener('change', loadReviews);
+
+        // İstatistikleri yükle
+        async function loadStats() {
+            try {
+                const { data: reviews, error } = await supabase
+                    .from('seller_ratings')
+                    .select('rating, is_approved');
+
+                if (error) throw error;
+
+                const pending = reviews.filter(r => !r.is_approved).length;
+                const approved = reviews.filter(r => r.is_approved).length;
+                const total = reviews.length;
+                const avg = total > 0 ? (reviews.reduce((sum, r) => sum + r.rating, 0) / total).toFixed(1) : '0.0';
+
+                document.getElementById('stat-pending').textContent = pending;
+                document.getElementById('stat-approved').textContent = approved;
+                document.getElementById('stat-total').textContent = total;
+                document.getElementById('stat-avg').textContent = avg;
+            } catch (error) {
+                console.error('İstatistikler yüklenirken hata:', error);
+            }
+        }
+
+        // Yorumları yükle
+        window.loadReviews = async function() {
+            const statusFilter = document.getElementById('filter-status').value;
+            const ratingFilter = document.getElementById('filter-rating').value;
+            const reviewsList = document.getElementById('reviews-list');
+
+            reviewsList.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i><p>Yorumlar yükleniyor...</p></div>';
+
+            try {
+                let query = supabase
+                    .from('seller_ratings')
+                    .select(`
+                        *,
+                        buyer:profiles!seller_ratings_buyer_id_fkey(full_name, email),
+                        seller:profiles!seller_ratings_seller_id_fkey(full_name, email),
+                        listing:listings(title, price)
+                    `)
+                    .order('created_at', { ascending: false });
+
+                // Durum filtresi
+                if (statusFilter === 'pending') {
+                    query = query.eq('is_approved', false);
+                } else if (statusFilter === 'approved') {
+                    query = query.eq('is_approved', true);
+                }
+
+                // Puan filtresi
+                if (ratingFilter !== 'all') {
+                    query = query.eq('rating', parseInt(ratingFilter));
+                }
+
+                const { data: reviews, error } = await query;
+
+                if (error) throw error;
+
+                if (!reviews || reviews.length === 0) {
+                    reviewsList.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-comment-slash"></i>
+                            <p>Filtrelere uygun yorum bulunamadı</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                let html = '';
+                reviews.forEach(review => {
+                    const stars = '⭐'.repeat(review.rating);
+                    const statusClass = review.is_approved ? 'approved' : 'pending';
+                    const statusText = review.is_approved ? 'Onaylandı' : 'Bekliyor';
+
+                    html += `
+                        <div class="review-card ${statusClass}" data-review-id="${review.id}">
+                            <div class="review-header">
+                                <div class="reviewer-info">
+                                    <div class="reviewer-avatar">
+                                        <i class="fas fa-user"></i>
+                                    </div>
+                                    <div class="reviewer-details">
+                                        <h4>${review.buyer?.full_name || 'Anonim'}</h4>
+                                        <p>${review.buyer?.email || ''} • ${new Date(review.created_at).toLocaleDateString('tr-TR')}</p>
+                                    </div>
+                                </div>
+                                <div>
+                                    <span class="status-badge ${statusClass}">${statusText}</span>
+                                </div>
+                            </div>
+
+                            <div class="review-listing-info">
+                                <h5>İlan Bilgisi:</h5>
+                                <p><strong>${review.listing?.title || 'Bilinmiyor'}</strong> - ${review.listing?.price ? review.listing.price.toLocaleString('tr-TR') + ' ₺' : ''}</p>
+                                <p>Satıcı: ${review.seller?.full_name || 'Bilinmiyor'} (${review.seller?.email || ''})</p>
+                            </div>
+
+                            <div class="review-body">
+                                <div class="review-rating">${stars}</div>
+                                ${review.comment ? `<p class="review-comment">"${review.comment}"</p>` : '<p class="review-comment" style="color: #94a3b8; font-style: italic;">Yorum yazılmamış</p>'}
+                            </div>
+
+                            <div class="review-actions">
+                                ${!review.is_approved ? `
+                                    <button class="btn btn-approve" onclick="approveReview('${review.id}')">
+                                        <i class="fas fa-check"></i> Onayla
+                                    </button>
+                                    <button class="btn btn-reject" onclick="rejectReview('${review.id}')">
+                                        <i class="fas fa-times"></i> Reddet
+                                    </button>
+                                ` : ''}
+                                <button class="btn btn-delete" onclick="deleteReview('${review.id}')">
+                                    <i class="fas fa-trash"></i> Sil
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                reviewsList.innerHTML = html;
+            } catch (error) {
+                console.error('Yorumlar yüklenirken hata:', error);
+                reviewsList.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <p>Yorumlar yüklenirken bir hata oluştu</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Yorumu onayla
+        window.approveReview = async function(reviewId) {
+            let ok = false;
+            if (typeof showConfirmDialog === 'function') {
+                ok = await showConfirmDialog('Yorumu onayla', 'Bu yorumu onaylamak istediğinize emin misiniz?');
+            } else {
+                if (typeof showNotification === 'function') showNotification('Onay gerekiyor: yorum onaylama işlemini onaylayın', 'info');
+                return;
+            }
+            if (!ok) return;
+
+            try {
+                const { error } = await supabase
+                    .from('seller_ratings')
+                    .update({ is_approved: true })
+                    .eq('id', reviewId);
+
+                if (error) throw error;
+
+                if (typeof showNotification === 'function') {
+                    showNotification('Yorum onaylandı!', 'success');
+                }
+                loadStats();
+                loadReviews();
+            } catch (error) {
+                console.error('Yorum onaylama hatası:', error);
+                if (typeof showNotification === 'function') {
+                    showNotification('Yorum onaylanırken bir hata oluştu', 'error');
+                }
+            }
+        }
+
+        // Yorumu reddet (sil)
+        window.rejectReview = async function(reviewId) {
+            let ok = false;
+            if (typeof showConfirmDialog === 'function') {
+                ok = await showConfirmDialog('Yorumu reddet', 'Bu yorumu reddetmek (silmek) istediğinize emin misiniz?');
+            } else {
+                if (typeof showNotification === 'function') showNotification('Onay gerekiyor: yorum reddetme işlemini onaylayın', 'info');
+                return;
+            }
+            if (!ok) return;
+
+            try {
+                const { error } = await supabase
+                    .from('seller_ratings')
+                    .delete()
+                    .eq('id', reviewId);
+
+                if (error) throw error;
+
+                if (typeof showNotification === 'function') {
+                    showNotification('Yorum reddedildi ve silindi', 'success');
+                }
+                loadStats();
+                loadReviews();
+            } catch (error) {
+                console.error('Yorum reddetme hatası:', error);
+                if (typeof showNotification === 'function') {
+                    showNotification('Yorum reddedilirken bir hata oluştu', 'error');
+                }
+            }
+        }
+
+        // Yorumu sil
+        window.deleteReview = async function(reviewId) {
+            let ok = false;
+            if (typeof showConfirmDialog === 'function') {
+                ok = await showConfirmDialog('Yorumu sil', 'Bu yorumu kalıcı olarak silmek istediğinize emin misiniz?');
+            } else {
+                if (typeof showNotification === 'function') showNotification('Onay gerekiyor: yorum silme işlemini onaylayın', 'info');
+                return;
+            }
+            if (!ok) return;
+
+            try {
+                const { error } = await supabase
+                    .from('seller_ratings')
+                    .delete()
+                    .eq('id', reviewId);
+
+                if (error) throw error;
+
+                if (typeof showNotification === 'function') {
+                    showNotification('Yorum silindi', 'success');
+                }
+                loadStats();
+                loadReviews();
+            } catch (error) {
+                console.error('Yorum silme hatası:', error);
+                if (typeof showNotification === 'function') {
+                    showNotification('Yorum silinirken bir hata oluştu', 'error');
+                }
+            }
+        }
+    </script>
+</body>
+</html>

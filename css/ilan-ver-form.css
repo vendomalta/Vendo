@@ -1,0 +1,1521 @@
+/* ==========================================
+   İLAN VER FORMU - CSS STYLING
+   ========================================== */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background: #f8fafc;
+    color: #1e293b;
+}
+
+/* ==========================================
+   PHOTO UPLOAD NOTIFICATION
+   ========================================== */
+
+.photo-notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: white;
+    padding: 1rem 1.5rem;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 9999;
+    transform: translateX(400px);
+    transition: transform 0.3s ease;
+    min-width: 300px;
+    max-width: 400px;
+}
+
+.photo-notification.show {
+    transform: translateX(0);
+}
+
+.notification-content {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.95rem;
+    font-weight: 500;
+}
+
+.notification-content i {
+    font-size: 1.25rem;
+}
+
+.photo-notification-success {
+    border-left: 4px solid #10b981;
+}
+
+.photo-notification-success .notification-content i {
+    color: #10b981;
+}
+
+.photo-notification-error {
+    border-left: 4px solid #ef4444;
+}
+
+.photo-notification-error .notification-content i {
+    color: #ef4444;
+}
+
+.photo-notification-info {
+    border-left: 4px solid #3b82f6;
+}
+
+.photo-notification-info .notification-content i {
+    color: #3b82f6;
+}
+
+@media (max-width: 768px) {
+    .photo-notification {
+        top: 10px;
+        right: 10px;
+        left: 10px;
+        min-width: auto;
+        max-width: none;
+        transform: translateY(-200px);
+    }
+    
+    .photo-notification.show {
+        transform: translateY(0);
+    }
+}
+
+/* ==========================================
+   HEADER
+   ========================================== */
+
+.form-header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 2rem;
+    background: white;
+    border-bottom: 1px solid #e2e8f0;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.back-button {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.625rem 1.25rem;
+    background: transparent;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: #64748b;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.back-button:hover {
+    background: #f8fafc;
+    border-color: #cbd5e1;
+    color: #475569;
+}
+
+.header-logo {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.logo-icon {
+    width: 42px;
+    height: 42px;
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    font-weight: 900;
+    font-size: 1.5rem;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
+}
+
+.logo-text {
+    font-size: 1.5rem;
+    font-weight: 900;
+    color: #0f172a;
+    letter-spacing: -0.5px;
+}
+
+.header-spacer {
+    width: 120px;
+}
+
+/* ==========================================
+   MAIN CONTENT
+   ========================================== */
+
+.form-main {
+    max-width: 1800px;
+    margin: 0 0;
+    padding: 2rem;
+}
+
+/* Full-bleed layout: expand horizontally (near edge-to-edge) */
+.form-main.full-bleed {
+    max-width: none;
+    width: 100%;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+    padding-top: 1rem;
+}
+
+/* Make the inner container wider so content stretches toward left/right
+   This gives the effect of ~50% more horizontal room on each side compared
+   to the centered constrained layout. */
+.form-main.full-bleed .form-container {
+    width: calc(100% - 3rem);
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Progress Indicator */
+.progress-container {
+    margin-bottom: 0rem;
+    position: sticky;
+    top: 1rem;
+    z-index: 50;
+    background: white;
+    padding: 1rem 3.5rem;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 4px;
+    background: #e2e8f0;
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #10b981 0%, #059669 100%);
+    width: 0%;
+    transition: width 0.3s ease;
+}
+
+/* Wizard step handling */
+.form-step {
+    display: none;
+}
+
+.form-step.active {
+    display: block;
+}
+
+/* Step navigation (desktop fallback) */
+.step-nav {
+    /* Hidden by default to avoid duplicate controls; use sticky footer instead */
+    display: none;
+}
+
+/* If you want the top controls on wide screens, uncomment the rule below */
+@media (min-width: 1200px) {
+    .step-nav {
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.75rem;
+        padding: 1rem 0;
+    }
+}
+
+/* Sticky footer */
+.sticky-footer {
+    position: sticky;
+    bottom: 0;
+    z-index: 80;
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 1rem 1.5rem;
+    background: linear-gradient(180deg, rgba(255,255,255,0.6), rgba(255,255,255,0.95));
+    border-top: 1px solid #e6eef6;
+}
+
+@media (max-width: 768px) {
+    .step-nav { display: none; }
+    .sticky-footer { position: fixed; left: 0; right: 0; bottom: 0; padding: 0.75rem; }
+    .form-content { padding-bottom: 140px; }
+}
+
+@media (max-width: 768px) {
+    .progress-container {
+        padding: 0.75rem 1rem;
+        margin-bottom: 0;
+    }
+    
+    .form-main {
+        padding: 0 !important; /* Remove outer padding to use full width */
+    }
+
+    .form-container {
+        border-radius: 0; /* Remove border-radius on mobile to look native */
+        border-left: none;
+        border-right: none;
+        border-top: none;
+    }
+
+    .form-content {
+        padding: 1rem; /* Reduce inner padding heavily */
+    }
+
+    .category-banner {
+        padding: 1rem;
+        margin-bottom: 1rem;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
+
+    .banner-content i {
+        font-size: 1.5rem;
+        padding-top: 0.2rem;
+    }
+
+    .change-category-btn {
+        width: 100%;
+        justify-content: center;
+        background: white;
+    }
+
+    .two-column-wrapper .form-section {
+        padding: 1rem;
+        border-radius: 8px;
+    }
+}
+
+/* ==========================================
+   FORM CONTAINER
+   ========================================== */
+
+.form-container {
+    background: white;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    overflow: hidden;
+}
+
+.form-content {
+    padding: 2.5rem;
+}
+
+/* ==========================================
+   TWO-COLUMN LAYOUT
+   ========================================== */
+
+.two-column-wrapper {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    margin-bottom: 0;
+}
+
+.two-column-wrapper .form-section {
+    border-bottom: none;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    background: #fafafa;
+}
+
+.two-column-wrapper .left-column {
+    grid-column: 1;
+}
+
+.two-column-wrapper .right-column {
+    grid-column: 2;
+}
+
+/* Responsive: Alt alta geç */
+@media (max-width: 968px) {
+    .two-column-wrapper {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    
+    .two-column-wrapper .left-column,
+    .two-column-wrapper .right-column {
+        grid-column: 1;
+    }
+}
+
+/* Category Banner */
+.category-banner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.08) 0%, rgba(16, 185, 129, 0.04) 100%);
+    border: 1px solid #d1fae5;
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+/* Live Preview Card Styles */
+#livePreviewCard {
+    /* Existing styles are fine, just ensure overflow hidden */
+}
+
+.listing-image {
+    position: relative;
+    overflow: hidden;
+    /* listings.css usually sets height/ratio, ensure it here if needed */
+}
+
+/* Blur Background (Hidden by default) */
+.image-blur-bg {
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center;
+    filter: blur(10px);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 1;
+    transform: scale(1.1); /* Avoid blur edges */
+}
+
+#previewImage {
+    position: relative;
+    z-index: 2;
+    cursor: grab;
+    transition: object-position 0.1s, object-fit 0.3s, transform 0.3s;
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Default */
+}
+
+#previewImage:active {
+    cursor: grabbing;
+}
+
+/* Fit Mode Styles */
+.listing-image.fit-mode .image-blur-bg {
+    opacity: 1;
+}
+
+.listing-image.fit-mode #previewImage {
+    object-fit: contain !important;
+    background: rgba(0,0,0,0.1); /* Slight darken for contrast */
+}
+
+/* Fit Toggle Button */
+.fit-toggle-button {
+    position: absolute;
+    top: 10px;
+    right: 10px; /* Moved Favorite button to left? Or keep separate */
+    z-index: 10;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(0,0,0,0.1);
+    color: #475569;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    transition: all 0.2s;
+}
+
+.fit-toggle-button:hover {
+    background: white;
+    color: #10b981;
+    transform: scale(1.1);
+}
+
+.fit-toggle-button.active {
+    background: #10b981;
+    color: white;
+    border-color: #10b981;
+}
+
+/* Adjust Favorite Button Position if needed, or keep it */
+.listing-image .favorite-button {
+    top: 10px;
+    left: 10px;
+    right: auto; /* Move to left to avoid conflict */
+}
+
+.banner-content {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+}
+
+.banner-content i {
+    font-size: 2rem;
+    color: #10b981;
+}
+
+.banner-content h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.banner-content p {
+    margin: 0.25rem 0 0 0;
+    font-size: 0.85rem;
+    color: #64748b;
+}
+
+.change-category-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.625rem 1.25rem;
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #64748b;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.change-category-btn:hover {
+    background: #000000;
+    border-color: #cbd5e1;
+}
+
+/* ==========================================
+   FORM SECTIONS (Single Page Layout)
+   ========================================== */
+
+.form-section {
+    padding: 2rem;
+    border-bottom: 1px solid #e2e8f0;
+    margin-bottom: 0;
+}
+
+.form-section:last-of-type {
+    border-bottom: none;
+}
+
+.section-title {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #0f172a;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid #f1f5f9;
+}
+
+.section-title i {
+    color: #10b981;
+    font-size: 1.4rem;
+}
+
+/* Form Row (for side-by-side inputs) */
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+@media (max-width: 768px) {
+    .form-row {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .form-section {
+        padding: 1.5rem;
+    }
+
+    .section-title {
+        font-size: 1.1rem;
+        margin-bottom: 1.25rem;
+    }
+}
+
+/* Form Footer */
+.form-footer {
+    padding: 2rem;
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    border-top: 2px solid #e2e8f0;
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+}
+
+.form-footer .btn {
+    min-width: 200px;
+}
+
+@media (max-width: 768px) {
+    .form-footer {
+        padding: 1rem;
+        flex-direction: row; /* Yan yana olması için */
+        align-items: center;
+    }
+
+    .form-footer .btn {
+        min-width: auto;
+        width: auto;
+        flex: 1; /* Eşit genişlikte yayılmaları için */
+    }
+}
+
+/* ==========================================
+   FORM GROUPS & INPUTS
+   ========================================== */
+
+.form-group {
+    margin-bottom: 1.75rem;
+}
+
+.form-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: #0f172a;
+}
+
+.required {
+    color: #ef4444;
+    font-weight: 700;
+}
+
+.form-input,
+.form-textarea,
+.form-select {
+    width: 100%;
+    padding: 0.875rem 1rem;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-family: inherit;
+    color: #1e293b;
+    background: white;
+    transition: all 0.2s ease;
+}
+
+.form-input:hover,
+.form-textarea:hover,
+.form-select:hover {
+    border-color: #cbd5e1;
+    background: #f8fafc;
+}
+
+.form-input:focus,
+.form-textarea:focus,
+.form-select:focus {
+    outline: none;
+    border-color: #10b981;
+    background: white;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+}
+
+.form-textarea {
+    resize: vertical;
+    min-height: 120px;
+}
+
+.input-help {
+    display: block;
+    margin-top: 0.5rem;
+    font-size: 0.8rem;
+    color: #64748b;
+    font-weight: 400;
+}
+
+    /* Error State */
+    .form-input.error,
+    .form-textarea.error,
+    .form-select.error {
+        border-color: #ef4444;
+        background: #fef2f2;
+        box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+    }
+
+    .form-input.error:focus,
+    .form-textarea.error:focus,
+    .form-select.error:focus {
+        border-color: #ef4444;
+        box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+    }
+
+    .form-group.has-error .error-message {
+        display: block;
+        margin-top: 0.5rem;
+        font-size: 0.85rem;
+        color: #ef4444;
+        font-weight: 500;
+    }
+
+    .error-message {
+        display: none;
+    }
+
+    /* Shake animation for invalid fields */
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+        20%, 40%, 60%, 80% { transform: translateX(5px); }
+    }
+
+    .form-input.shake,
+    .form-textarea.shake,
+    .form-select.shake {
+        animation: shake 0.4s ease-in-out;
+    }
+
+
+/* Contact section */
+.contact-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+}
+
+.radio-option {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.65rem 0.9rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    background: #fff;
+    cursor: pointer;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.radio-option input {
+    accent-color: #10b981;
+}
+
+.radio-option:hover {
+    border-color: #10b981;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.08);
+}
+
+.contact-hint {
+    font-size: 0.9rem;
+    color: #475569;
+    margin: 0.25rem 0 0;
+}
+
+.contact-card {
+    margin-top: 1rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 1.25rem;
+    background: #fff;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.contact-card.message-only {
+    border-color: #f59e0b;
+    box-shadow: 0 4px 10px rgba(245, 158, 11, 0.08);
+}
+
+.contact-row {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    margin-bottom: 1rem;
+}
+
+.contact-row:last-child {
+    margin-bottom: 0;
+}
+
+.contact-label {
+    font-weight: 600;
+    color: #0f172a;
+    font-size: 0.95rem;
+}
+
+/* Price Input */
+.price-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.price-currency {
+    position: absolute;
+    right: 1rem;
+    font-size: 1.1rem;
+    color: #64748b;
+    font-weight: 600;
+    pointer-events: none;
+}
+
+.form-input[type="number"] {
+    padding-right: 2.5rem;
+}
+
+/* ==========================================
+   PHOTO UPLOAD
+   ========================================== */
+
+/* Photo Upload Area */
+.photo-upload-area {
+    border: 2px dashed #cbd5e1;
+    border-radius: 10px;
+    padding: 2.5rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: white;
+    position: relative;
+    overflow: hidden;
+    min-height: 300px; /* Minimum yükseklik */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.photo-upload-area:hover {
+    border-color: #10b981;
+    background: rgba(16, 185, 129, 0.04);
+}
+
+.photo-upload-area.dragging {
+    border-color: #10b981;
+    background: rgba(16, 185, 129, 0.08);
+}
+
+.photo-input {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+    z-index: 5; /* Input'u altta tutmayalım ama preview varsa farklı davransın */
+}
+
+/* If preview is visible, input should not block clicks on the card */
+.photo-upload-area.has-preview .photo-input {
+    height: 0; /* Fallback to make it practically invisible to clicks in the center */
+    /* Or better: display none, and trigger click programmatically via a button if needed. 
+       But we want drag/drop file to work? 
+       Instead, we'll rely on z-index.
+    */
+    display: none; 
+}
+
+/* Re-enable input area on hover or via specific button if needed.
+   Actually, standard approach: make the card clickable only for drag?
+   Let's use a "click here to upload more" button or area if preview exists.
+   
+   Better approach:
+   The photo-input covers everything. 
+   BUT we have the card inside which needs Drag events.
+   We already gave z-index: 10 to preview-container.
+   So preview-container sits ON TOP of photo-input (if input is z-index 5).
+   So clicks on card go to card. Clicks outside card go to input.
+*/
+
+.upload-placeholder-content {
+    pointer-events: none;
+    transition: opacity 0.2s;
+}
+
+.photo-upload-area.has-preview .upload-placeholder-content {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.upload-icon {
+    font-size: 3rem;
+    color: #10b981;
+    margin-bottom: 1rem;
+}
+
+.upload-text {
+    pointer-events: none;
+}
+
+.upload-title {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #0f172a;
+}
+
+.upload-hint {
+    margin: 0.5rem 0 0 0;
+    font-size: 0.85rem;
+    color: #64748b;
+}
+
+/* Photo Preview Grid */
+.photo-preview-grid {
+    margin-top: 1.5rem;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 0.75rem;
+}
+
+.preview-box {
+    aspect-ratio: 1;
+    border-radius: 8px;
+    overflow: hidden;
+    position: relative;
+    background: white;
+    border: 2px solid #e2e8f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.preview-box:hover {
+    border-color: #10b981;
+    transform: scale(1.02);
+}
+
+/* Drag & Drop Styles */
+.preview-box[draggable="true"] {
+    cursor: grab;
+}
+
+.preview-box[draggable="true"]:active {
+    cursor: grabbing;
+}
+
+.preview-box.dragging {
+    opacity: 0.4;
+    border: 2px dashed #10b981;
+}
+
+.preview-box.drag-over {
+    border: 2px solid #10b981;
+    background-color: rgba(16, 185, 129, 0.1);
+    transform: scale(1.05);
+}
+
+.preview-box.empty {
+    background: #f8fafc;
+    border-style: dashed;
+}
+
+.preview-box.empty:hover {
+    background: rgba(16, 185, 129, 0.05);
+    transform: none;
+}
+
+.preview-box.empty i {
+    font-size: 1.5rem;
+    color: #94a3b8; /* + ikonu için biraz daha belirgin */
+    transition: color 0.2s ease;
+}
+
+.preview-box.empty:hover i {
+    color: #10b981;
+}
+
+.preview-box img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.preview-box .remove-photo {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 24px;
+    height: 24px;
+    background: rgba(239, 68, 68, 0.85);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    opacity: 0.7;
+    transition: opacity 0.2s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.preview-box:hover .remove-photo {
+    opacity: 1;
+    transform: scale(1.1);
+}
+
+.preview-box .remove-photo:hover {
+    background: rgba(239, 68, 68, 1);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+}
+
+@media (max-width: 768px) {
+    .photo-preview-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.5rem;
+    }
+}
+
+/* Photo Preview */
+.photo-preview {
+    margin-top: 1.5rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 1rem;
+}
+
+.preview-item {
+    position: relative;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #f1f5f9;
+    aspect-ratio: 1;
+}
+
+.preview-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.preview-remove {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    width: 28px;
+    height: 28px;
+    background: rgba(0, 0, 0, 0.6);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.preview-remove:hover {
+    background: rgba(0, 0, 0, 0.8);
+}
+
+/* ==========================================
+   CHECKBOXES
+   ========================================== */
+
+.checkbox-group {
+    margin-bottom: 1.25rem;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    cursor: pointer;
+    font-size: 0.9rem;
+    color: #64748b;
+    line-height: 1.5;
+}
+
+.form-checkbox {
+    width: 20px;
+    height: 20px;
+    margin-top: 2px;
+    cursor: pointer;
+    accent-color: #10b981;
+    flex-shrink: 0;
+}
+
+.checkbox-label:hover {
+    color: #1e293b;
+}
+
+.btn-success {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+    width: 100%;
+    max-width: 300px;
+}
+
+.btn-success:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
+}
+
+.btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* All Buttons Generic */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.875rem 1.75rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
+}
+
+/* ==========================================
+   MODALS
+   ========================================== */
+
+.loading-modal,
+.success-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    animation: fadeIn 0.2s ease;
+}
+
+.loading-content,
+.success-content {
+    background: white;
+    border-radius: 12px;
+    padding: 2.5rem;
+    text-align: center;
+    max-width: 400px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+}
+
+.loading-content i {
+    font-size: 3rem;
+    color: #10b981;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.loading-content p {
+    margin-top: 1rem;
+    font-size: 1rem;
+    color: #1e293b;
+    font-weight: 500;
+}
+
+.success-icon {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, #10b981, #059669);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem;
+    animation: successPop 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+@keyframes successPop {
+    from {
+        transform: scale(0);
+    }
+    to {
+        transform: scale(1);
+    }
+}
+
+.success-icon i {
+    font-size: 2rem;
+    color: white;
+}
+
+.success-content h3 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.35rem;
+    color: #0f172a;
+}
+
+.success-content p {
+    margin: 0 0 1.75rem 0;
+    font-size: 0.95rem;
+    color: #64748b;
+}
+
+/* ==========================================
+   RESPONSIVE
+   ========================================== */
+
+@media (max-width: 768px) {
+    .form-header {
+        padding: 0.75rem 1rem;
+    }
+
+    .form-main {
+        padding: 0 !important;
+        max-width: 100%;
+        overflow-x: hidden;
+    }
+
+    .form-container {
+        border-radius: 0;
+        border: none;
+        box-shadow: none;
+        background: transparent;
+    }
+
+    .form-content {
+        padding: 1rem !important;
+        padding-bottom: 90px !important; /* Space for the sticky footer */
+    }
+
+    .form-section {
+        padding: 1.25rem 1rem !important; 
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05); /* Make each section look like a card */
+        margin-bottom: 1rem !important;
+        border: 1px solid #e2e8f0;
+    }
+
+    .two-column-wrapper {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .form-footer.sticky-footer {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: white;
+        padding: 1rem;
+        box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.08); /* Shadow pointing up */
+        z-index: 100;
+        display: flex;
+        gap: 0.75rem;
+        border-top: 1px solid #e2e8f0;
+        justify-content: stretch;
+    }
+
+    .form-footer.sticky-footer .btn {
+        flex: 1; /* Stretch buttons equally */
+        margin: 0;
+    }
+
+    .category-banner {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .photo-preview-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.5rem;
+    }
+
+    .form-input,
+    .form-textarea,
+    .form-select {
+        font-size: 16px !important; /* Prevents zoom on iOS */
+        padding: 0.8rem 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .photo-preview-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .form-content {
+        padding: 1rem;
+    }
+
+    .form-section {
+        padding: 1rem;
+    }
+
+    .category-banner {
+        padding: 1rem;
+    }
+
+    .banner-content i {
+        font-size: 1.5rem;
+    }
+
+    .banner-content h3 {
+        font-size: 1rem;
+    }
+
+    .step-title {
+        font-size: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .step-number {
+        width: 30px;
+        height: 30px;
+        font-size: 0.9rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.25rem;
+    }
+}
+
+/* ==========================================
+   OTOMOBIL KATEGORI - FORM GRID LAYOUT
+   ========================================== */
+#categorySpecificFields {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.875rem;
+    row-gap: 0.75rem;
+}
+
+/* İlk alanın (Kimden) eskiden full width olması isteniyordu, artık 2'li sütun düzeni korunuyor */
+#categorySpecificFields .form-group:nth-child(1) {
+    grid-column: span 1;
+}
+
+#categorySpecificFields .form-group {
+    margin-bottom: 0;
+}
+
+/* Mobile responsive */
+
+/* Field Section Divider - Separates required from optional fields */
+.field-section-divider {
+    grid-column: 1 / -1;
+    height: 1px;
+    background: linear-gradient(to right, #e5e7eb 0%, #d1d5db 50%, #e5e7eb 100%);
+    margin: 0.5rem 0 0.75rem 0;
+    opacity: 0.6;
+}
+
+/* Optional Fields Section Label */
+.field-section-label {
+    grid-column: 1 / -1;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.5rem;
+    padding-top: 0.25rem;
+}
+
+/* Mobilde scroll garantisi */
+@media (max-width: 768px) {
+    html, body {
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior-y: contain;
+    }
+}
+
+/* ==========================================
+   TEKNİK DETAYLAR (STEP 3) STİLLERİ
+   ========================================== */
+.section-subtitle {
+    color: #64748b;
+    font-size: 0.95rem;
+    margin-bottom: 1.5rem;
+}
+
+.tech-details-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.tech-group {
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #fff;
+    margin-bottom: 0.5rem;
+}
+
+.tech-group-header {
+    padding: 1rem;
+    background: #f8fafc;
+    border-bottom: 1px solid #e2e8f0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    font-weight: 600;
+    color: #1e293b;
+    transition: background 0.2s;
+}
+
+.tech-group-header:hover {
+    background: #f1f5f9;
+}
+
+.tech-group-header i {
+    color: #94a3b8;
+    transition: transform 0.3s ease;
+}
+
+.tech-group.active .tech-group-header i {
+    transform: rotate(180deg);
+}
+
+.tech-group-content {
+    display: none;
+    padding: 0;
+}
+
+.tech-group.active .tech-group-content {
+    display: block;
+}
+
+/* Checkbox Style similar to reference */
+.tech-checkbox-label {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 0.875rem 1rem;
+    border-bottom: 1px solid #f1f5f9;
+    cursor: pointer;
+    font-size: 0.95rem;
+    color: #334155;
+    background: white;
+    justify-content: space-between; /* Metin solda, kutu sağda */
+}
+
+.tech-checkbox-label:last-child {
+    border-bottom: none;
+}
+
+.tech-checkbox-label:hover {
+    background-color: #f8fafc;
+}
+
+/* Hide default checkbox */
+.tech-checkbox-input {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 22px;
+    height: 22px;
+    border: 1px solid #cbd5e1;
+    border-radius: 50%; /* Daire */
+    outline: none;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.2s;
+    flex-shrink: 0;
+}
+
+.tech-checkbox-input:checked {
+    border-color: #10b981;
+    background-color: #10b981;
+}
+
+.tech-checkbox-input:checked::after {
+    content: '\f00c'; /* FontAwesome check icon */
+    font-family: 'Font Awesome 5 Free';
+    font-weight: 900;
+    color: white;
+    font-size: 11px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+/* Rich Text Toolbar Styles (Copied from Edit Listing) */
+.rich-text-toolbar {
+    display: flex;
+    gap: 0.25rem;
+    background: var(--gray-50);
+    padding: 0.5rem;
+    border: 1px solid var(--gray-200);
+    border-bottom: none;
+    border-radius: 10px 10px 0 0;
+}
+
+.rich-text-toolbar button {
+    width: 34px;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: white;
+    border: 1px solid var(--gray-200);
+    border-radius: 6px;
+    color: var(--secondary-text);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.rich-text-toolbar button:hover {
+    background: var(--primary-light);
+    color: var(--primary);
+    border-color: var(--primary);
+}
+
+.rich-text-editor {
+    border-top-left-radius: 0 !important;
+    border-top-right-radius: 0 !important;
+    min-height: 150px;
+    overflow-y: auto;
+    background: white;
+}

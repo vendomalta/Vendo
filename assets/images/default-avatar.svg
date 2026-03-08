@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <!-- Arka plan -->
+  <rect width="200" height="200" fill="#10b981"/>
+  
+  <!-- Kafa (daire) -->
+  <circle cx="100" cy="70" r="35" fill="#ffffff"/>
+  
+  <!-- Gövde (daire) -->
+  <circle cx="100" cy="140" r="45" fill="#ffffff"/>
+  
+  <!-- İçerik: Kullanıcı simgesi -->
+  <g transform="translate(100, 100)">
+    <circle cx="0" cy="-30" r="25" fill="#10b981"/>
+    <ellipse cx="0" cy="20" rx="35" ry="40" fill="#10b981"/>
+  </g>
+</svg>

@@ -1,0 +1,1356 @@
+.profile-page {
+    padding: 2rem 0;
+    min-height: calc(100vh - 80px);
+    background: var(--background);
+    zoom: 0.8; /* Scales everything including rem units */
+    -moz-transform: scale(0.8); /* Firefox fallback */
+    -moz-transform-origin: top center;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+.profile-header {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    background: var(--surface);
+    padding: 2rem;
+    border-radius: 16px;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+}
+
+.profile-avatar {
+    position: relative;
+    width: 150px;
+    height: 150px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.profile-avatar img {
+    width: 150px !important;
+    height: 150px !important;
+    max-width: 150px !important;
+    border-radius: 50%;
+    border: 4px solid var(--primary);
+    object-fit: cover;
+    object-position: center;
+    aspect-ratio: 1/1;
+    display: block;
+    vertical-align: middle;
+}
+
+.change-avatar-btn {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.change-avatar-btn:hover {
+    background: var(--primary-dark);
+    transform: scale(1.1);
+}
+
+.profile-info h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 0.5rem;
+}
+
+.profile-title {
+    color: var(--primary);
+    font-weight: 600;
+    font-size: 1.1rem;
+    margin-bottom: 1.5rem;
+}
+
+.profile-stats {
+    display: flex;
+    gap: 2rem;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.stat-item {
+    text-align: center;
+    min-width: 80px;
+}
+
+.stat-number {
+    display: block;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--text);
+}
+
+.stat-label {
+    font-size: 0.8rem;
+    color: var(--muted);
+}
+
+/* Smaller stat fonts on narrow screens */
+@media (max-width: 400px) {
+    .stat-number { font-size: 1.05rem; }
+    .stat-label  { font-size: 0.75rem; }
+}
+
+@media (max-width: 360px) {
+    .stat-number { font-size: 0.95rem; }
+    .stat-label  { font-size: 0.7rem; }
+    .stat-item   { min-width: 64px; }
+}
+
+.profile-content {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: 2rem;
+}
+
+.profile-sidebar {
+    background: var(--surface);
+    padding: 1.5rem;
+    border-radius: 16px;
+    height: fit-content;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+}
+
+.profile-nav {
+    background: var(--surface);
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.nav-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    color: var(--muted);
+    text-decoration: none;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+.nav-item:hover,
+.nav-item.active {
+    background: linear-gradient(135deg, 
+        rgba(16, 185, 129, 0.1), 
+        rgba(52, 211, 153, 0.05));
+    color: var(--primary);
+    border-left: 3px solid var(--primary);
+    padding-left: calc(1rem - 3px);
+}
+
+.nav-item i {
+    width: 20px;
+    font-size: 16px;
+}
+
+.profile-main {
+    background: var(--surface);
+    padding: 2rem;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+}
+
+/* Tab Content */
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+    animation: fadeIn 0.4s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Section Header */
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid var(--gray-200);
+}
+
+/* Collapsible section support */
+.tab-content.collapsed {
+    /* hide all children except the header */
+}
+
+.tab-content.collapsed > :not(.section-header) {
+    display: none !important;
+}
+
+.toggle-chevron {
+    margin-left: 0.75rem;
+    display: inline-flex;
+    align-items: center;
+    color: var(--muted);
+}
+
+.section-header .edit-btn {
+    margin-left: auto;
+}
+
+.section-header h2 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--text);
+    margin: 0;
+}
+
+/* Make view-controls sit inline with the featured header and take less space */
+.featured-listings .section-header {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.featured-listings .section-header .view-controls {
+    margin-left: auto;
+    display: inline-flex;
+    gap: 0.25rem;
+    padding: 0.25rem;
+    border-radius: 9999px;
+    background: var(--muted-surface);
+    border: 1px solid var(--gray-200);
+    box-shadow: var(--shadow-sm);
+    align-items: center;
+}
+
+.view-controls .view-button {
+    padding: 0.25rem 0.5rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.view-controls .view-button .view-label {
+    display: inline-block;
+    margin-left: 0.3rem;
+}
+
+@media (max-width: 520px) {
+    /* hide labels on very small screens to save space */
+    .view-controls .view-button .view-label { display: none; }
+    .featured-listings .section-header { gap: 0.4rem; }
+}
+
+/* Edit Button */
+.edit-btn,
+.add-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.edit-btn:hover,
+.add-btn:hover {
+    background: var(--primary-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(16, 185, 129, 0.3);
+}
+
+.edit-btn:active,
+.add-btn:active {
+    transform: translateY(0);
+}
+
+.cancel-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    background: transparent;
+    color: var(--muted);
+    border: 2px solid var(--gray-200);
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.cancel-btn:hover {
+    background: var(--muted-surface);
+    color: var(--danger);
+    border-color: var(--danger);
+    transform: translateY(-2px);
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--gray-200);
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+@media (max-width: 768px) {
+    .info-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.info-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.info-group label {
+    font-weight: 600;
+    color: var(--text);
+    font-size: 0.9rem;
+}
+
+.info-group input,
+.info-group select,
+.bio-section textarea {
+    padding: 1rem;
+    border: 2px solid var(--gray-200);
+    border-radius: 12px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background: var(--surface);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+}
+
+.info-group input:focus,
+.info-group select:focus,
+.bio-section textarea:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+}
+
+.info-group input.editing,
+.info-group select.editing:not(:disabled),
+.bio-section textarea.editing {
+    background: var(--surface);
+    border-color: var(--primary);
+    cursor: text;
+}
+
+.info-group input:read-only,
+.info-group select:disabled,
+.bio-section textarea:read-only {
+    background: var(--muted-surface);
+    cursor: not-allowed;
+}
+
+/* Bio Section */
+.bio-section {
+    margin-bottom: 2rem;
+}
+
+.bio-section label {
+    display: block;
+    font-weight: 600;
+    color: var(--text);
+    font-size: 0.9rem;
+    margin-bottom: 0.75rem;
+}
+
+.bio-section textarea {
+    width: 100%;
+    min-height: 120px;
+    resize: vertical;
+}
+
+/* Verification Section */
+.verification-section {
+    background: linear-gradient(135deg, 
+        rgba(16, 185, 129, 0.03), 
+        rgba(52, 211, 153, 0.02));
+
+/* Position edit button under bio */
+.bio-edit-wrap {
+     margin-top: 0.75rem;
+}
+.bio-edit-wrap .edit-btn {
+     width: 100%;
+}
+    padding: 1.5rem;
+    border-radius: 12px;
+    border: 1px solid rgba(16, 185, 129, 0.1);
+}
+
+.verification-section h3 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 1rem;
+}
+
+.verification-items {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.verification-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: var(--surface);
+    border-radius: 10px;
+    border: 2px solid transparent;
+    transition: all 0.3s ease;
+    justify-content: space-between;
+}
+
+.verification-item .item-content {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.verification-item.verified {
+    border-color: var(--success);
+}
+
+.verification-item.pending {
+    border-color: var(--warning);
+}
+
+.verification-item i {
+    font-size: 1.5rem;
+}
+
+.verification-item.verified i {
+    color: var(--success);
+}
+
+.verification-item.pending i {
+    color: var(--warning);
+}
+
+.verification-item span {
+    font-weight: 600;
+    color: var(--text);
+}
+
+.verify-now-btn {
+    padding: 0.5rem 1rem;
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+.verify-now-btn:hover {
+    background: var(--primary-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+}
+
+.user-menu:hover .user-dropdown,
+.user-dropdown:hover,
+.user-dropdown.active {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    padding: 16px;
+    background: var(--gray-50);
+    gap: 12px;
+}
+
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 2px solid var(--primary);
+}
+
+.user-details {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.user-name {
+    font-weight: 600;
+    color: var(--text);
+    font-size: 14px;
+}
+
+.user-email {
+    font-size: 12px;
+    color: var(--muted);
+}
+.auth-buttons {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.login-btn, .signup-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem 1.25rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+}
+
+.login-btn {
+    background: rgba(16, 185, 129, 0.1);
+    color: var(--primary);
+    border: 2px solid rgba(16, 185, 129, 0.2);
+}
+
+.login-btn:hover {
+    background: rgba(16, 185, 129, 0.15);
+    border-color: rgba(16, 185, 129, 0.3);
+    transform: translateY(-1px);
+}
+
+.signup-btn {
+    background: var(--primary);
+    color: white;
+    border: 2px solid var(--primary);
+}
+
+.signup-btn:hover {
+    background: var(--primary-dark);
+    border-color: var(--primary-dark);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+/* Responsive auth buttons */
+@media (max-width: 768px) {
+    .auth-buttons {
+        gap: 0.5rem;
+    }
+    
+    .login-btn, .signup-btn {
+        padding: 0.5rem 1rem;
+        font-size: 0.85rem;
+    }
+    
+    .login-btn span, .signup-btn span {
+        display: none;
+    }
+}
+
+.user-button {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.5rem 1rem;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: all 0.2s;
+}
+
+/* Ads Filter */
+.ads-filter {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    padding: 1rem;
+    background: var(--muted-surface);
+    border-radius: 12px;
+    flex-wrap: wrap;
+}
+
+.filter-btn {
+    padding: 0.75rem 1.5rem;
+    background: transparent;
+    border: 2px solid transparent;
+    border-radius: 10px;
+    font-weight: 600;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.filter-btn:hover {
+    background: var(--surface);
+    color: var(--text);
+}
+
+.filter-btn.active {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+/* Ads List */
+.ads-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.ad-item {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 1.5rem;
+    background: var(--surface);
+    border: 2px solid var(--gray-200);
+    border-radius: 12px;
+    transition: all 0.3s ease;
+}
+
+.ad-item:hover {
+    border-color: var(--primary);
+    box-shadow: 0 4px 16px rgba(16, 185, 129, 0.15);
+    transform: translateY(-2px);
+}
+
+.ad-item img {
+    width: 100px;
+    height: 100px;
+    border-radius: 10px;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+.ad-details {
+    flex: 1;
+}
+
+.ad-details h4 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 0.5rem;
+}
+
+.ad-price {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--primary);
+    margin-bottom: 0.25rem;
+}
+
+.ad-location {
+    font-size: 0.9rem;
+    color: var(--muted);
+    margin-bottom: 0.75rem;
+}
+
+.ad-status {
+    display: inline-block;
+    padding: 0.375rem 1rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.ad-status.active {
+    background: rgba(16, 185, 129, 0.1);
+    color: var(--success);
+    border: 1px solid var(--success);
+}
+
+.ad-status.passive {
+    background: rgba(156, 163, 175, 0.1);
+    color: var(--gray-500);
+    border: 1px solid var(--gray-400);
+}
+
+.ad-status.expired {
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--danger);
+    border: 1px solid var(--danger);
+}
+
+/* Ad Actions */
+.ad-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-shrink: 0;
+}
+
+.action-btn {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid var(--gray-200);
+    background: var(--surface);
+    border-radius: 10px;
+    cursor: pointer;
+    color: var(--muted);
+    transition: all 0.3s ease;
+}
+
+.action-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.action-btn.edit:hover {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: white;
+}
+
+.action-btn.delete:hover {
+    background: var(--danger);
+    border-color: var(--danger);
+    color: white;
+}
+
+.action-btn.stats:hover {
+    background: var(--warning);
+    border-color: var(--warning);
+    color: white;
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+    .profile-content {
+        grid-template-columns: 1fr;
+    }
+    
+    /* Place sidebar above main content on narrow screens */
+    .profile-sidebar {
+        order: 1;
+    }
+    
+    .profile-main {
+        order: 2;
+    }
+}
+
+@media (max-width: 768px) {
+    .profile-header {
+        flex-direction: column;
+        text-align: center;
+        margin-top: 4rem;
+    }
+    
+    .profile-stats {
+        justify-content: center;
+        width: 100%;
+    }
+    
+    .info-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .ad-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .ad-item img {
+        width: 100%;
+        height: 200px;
+    }
+    
+    .ad-actions {
+        width: 100%;
+        justify-content: flex-end;
+    }
+
+    /* Make each listing card a fixed 177px width and layout as grid */
+    .ads-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, 177px);
+        gap: 0.75rem;
+        justify-content: center;
+    }
+
+    .ads-list .ad-item {
+        width: 177px !important;
+        max-width: 177px !important;
+        min-width: 177px !important;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 0 !important;
+        overflow: hidden !important;
+    }
+
+    .ads-list .ad-item img {
+        width: 100%;
+        height: 100px;
+        object-fit: cover;
+        border-radius: 8px;
+    }
+
+    /* Also apply same layout for the actual "İlanlarım" markup (.ads-container .ad-card) */
+    .ads-container {
+        display: grid !important;
+        grid-template-columns: repeat(auto-fit, 177px) !important;
+        gap: 0.75rem !important;
+        justify-content: center !important;
+        align-items: start !important;
+    }
+
+    .ads-container .ad-card {
+        width: 177px !important;
+        max-width: 177px !important;
+        min-width: 177px !important;
+        box-sizing: border-box !important;
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 0.5rem !important;
+        padding: 0 !important; /* remove internal padding so image can be full-bleed */
+        background: var(--surface) !important;
+        border-radius: 10px !important;
+        border: 1px solid var(--gray-200) !important;
+        overflow: hidden !important; /* clip image to rounded corners */
+    }
+
+    /* Make ad image occupy top of card fully and be clearly visible */
+    .ads-container .ad-image {
+        width: 100% !important;
+        height: 120px !important; /* reduced by 25% from 160px */
+        overflow: hidden !important;
+        position: relative !important;
+        display: block !important;
+        flex-shrink: 0 !important;
+    }
+
+    .ads-container .ad-image img {
+        width: 100% !important;
+        height: 100% !important;
+        object-fit: cover !important;
+        object-position: top center !important; /* crop from bottom */
+        display: block !important;
+    }
+
+    .ads-container .ad-content .ad-title { font-size: 0.95rem !important; }
+    .ads-container .ad-content .ad-price { font-size: 0.95rem !important; }
+
+    /* Move inner padding from card to content so image sits edge-to-edge */
+    .ads-container .ad-content,
+    .ads-list .ad-item .ad-details {
+        padding: 0.6rem !important;
+    }
+
+    /* Set card height to 220px and adjust content to fit */
+    .ads-container .ad-card,
+    .ads-list .ad-item {
+        height: 220px !important;
+        max-height: 220px !important;
+        overflow: hidden !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: flex-start !important;
+    }
+
+    .ads-container .ad-image img,
+    .ads-list .ad-item img {
+        height: 120px !important; /* leave ~100px for text/actions */
+        height: 120px !important; /* leave ~100px for text/actions */
+        object-fit: cover !important;
+    }
+
+    /* Ensure action buttons are visible at the bottom of the card */
+    .ads-container .ad-actions,
+    .ads-list .ad-item .ad-actions,
+    .ads-container .ad-card .ad-actions {
+        display: flex !important;
+        gap: 0.4rem !important;
+        padding: 0.4rem 0.6rem !important;
+        justify-content: flex-end !important;
+        align-items: center !important;
+        margin-top: auto !important; /* push actions to bottom */
+        background: transparent !important;
+    }
+
+    .ads-container .ad-card .ad-actions .action-btn,
+    .ads-list .ad-item .ad-actions .action-btn {
+        width: 34px !important;
+        height: 34px !important;
+        min-width: 34px !important;
+    }
+}
+
+/* Tighter spacing and ensure action buttons are visible on İlanlarım cards (mobile) */
+@media (max-width: 768px) {
+    .ads-container .ad-content,
+    .ads-list .ad-item .ad-details {
+        padding: 0.45rem !important;
+        gap: 0.25rem !important;
+        row-gap: 0.25rem !important;
+        column-gap: 0.25rem !important;
+    }
+
+    .ads-container .ad-content h4,
+    .ads-list .ad-item .ad-details h4,
+    .ads-container .ad-content .ad-title {
+        margin: 0 !important;
+        font-size: 0.95rem !important;
+        line-height: 1.1 !important;
+        font-weight: 700 !important;
+    }
+
+    .ads-container .ad-content .ad-price,
+    .ads-list .ad-item .ad-price {
+        margin: 0 !important;
+        font-size: 0.92rem !important;
+        line-height: 1.05 !important;
+        font-weight: 700 !important;
+    }
+
+    .ads-container .ad-content .ad-status,
+    .ads-list .ad-item .ad-status {
+        margin: 0 !important;
+        font-size: 0.78rem !important;
+        padding: 0.15rem 0.6rem !important;
+    }
+
+    /* Make actions sit within the visible area and allow them to wrap */
+    .ads-container .ad-actions,
+    .ads-list .ad-item .ad-actions,
+    .ads-container .ad-card .ad-actions {
+        margin-top: 0.25rem !important;
+        gap: 0.35rem !important;
+        flex-wrap: wrap !important;
+        justify-content: flex-end !important;
+        align-items: center !important;
+        z-index: 2 !important;
+    }
+
+    .ads-container .ad-card .ad-actions .action-btn,
+    .ads-list .ad-item .ad-actions .action-btn {
+        width: 30px !important;
+        height: 30px !important;
+        min-width: 30px !important;
+    }
+
+    /* If any spacing still pushes actions out, reduce card inner gap slightly */
+    .ads-container .ad-card,
+    .ads-list .ad-item {
+        gap: 0.35rem !important;
+    }
+}
+
+/* Hide ad meta (date / expires) on İlanlarım cards for mobile views */
+@media (max-width: 768px) {
+    .my-ads-page .ads-container .ad-card .ad-meta,
+    .my-ads-page .ads-container .ad-card .ad-date,
+    .my-ads-page .ads-container .ad-card .ad-expires,
+    .my-ads-page .ads-list .ad-item .ad-meta,
+    .my-ads-page .ads-list .ad-item .ad-date,
+    .my-ads-page .ads-list .ad-item .ad-expires,
+    /* also target common nested locations */
+    .my-ads-page .ad-meta,
+    .my-ads-page .ad-date,
+    .my-ads-page .ad-expires {
+        display: none !important;
+        visibility: hidden !important;
+        height: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        line-height: 0 !important;
+        font-size: 0 !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .profile-page {
+        padding: 1rem 0;
+    }
+    
+    .profile-header {
+        padding: 1.5rem;
+    }
+    
+    .profile-avatar {
+        width: 100px;
+        height: 100px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .profile-avatar img {
+        width: 100px !important;
+        height: 100px !important;
+        max-width: 100px !important;
+        aspect-ratio: 1/1;
+        object-fit: cover;
+        object-position: center;
+        display: block;
+    }
+    
+    .change-avatar-btn {
+        width: 35px;
+        height: 35px;
+        bottom: 5px;
+        right: 5px;
+    }
+    
+    .profile-info h1 {
+        font-size: 1.5rem;
+    }
+    
+    .profile-stats {
+        /* Keep stats inline on narrow screens to save vertical space */
+        flex-direction: row;
+        gap: 0.6rem;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .profile-stats .stat-item {
+        min-width: 56px;
+        margin: 0 6px;
+    }
+    
+    .profile-main,
+    .profile-sidebar {
+        padding: 1.5rem;
+    }
+    
+    .section-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    
+    .edit-btn,
+    .add-btn {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .ads-filter {
+        flex-direction: column;
+    }
+    
+    .filter-btn {
+        width: 100%;
+        text-align: center;
+    }
+}
+
+/* Mobile: compact stats and show side-by-side */
+@media (max-width: 480px) {
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .stat-card {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.75rem 0.9rem;
+        border-radius: 10px;
+        background: var(--surface);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+
+    .stat-icon {
+        min-width: 40px;
+        min-height: 40px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        background: rgba(0,0,0,0.03);
+    }
+
+    .stat-icon i { font-size: 1rem; }
+
+    .stat-content h3 { font-size: 1rem; margin: 0; }
+    .stat-content p  { font-size: 0.75rem; margin: 0; color: var(--muted); }
+
+    /* If viewport is very small, fall back to single column */
+    @media (max-width: 340px) {
+        .stats-grid { grid-template-columns: 1fr; }
+    }
+}
+
+/* Hide location text on İlanlarım (my-ads) cards for mobile views */
+@media (max-width: 768px) {
+    /* Target both listing markup variants used in the repo */
+    .my-ads-page .ads-container .ad-card .ad-location,
+    .my-ads-page .ads-list .ad-item .ad-location {
+        display: none !important;
+        visibility: hidden !important;
+        height: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+}
+
+
+
+/* Remove category tabs on Favorilerim page */
+.my-ads-page .filter-tabs {
+    display: none !important;
+}
+
+/* Make favorites cards match main listing card dimensions and styles */
+.favorites-grid {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fill, minmax(224px, 1fr)) !important;
+    gap: 1.2rem !important;
+    margin: 0 !important;
+}
+
+.favorite-card {
+    background: var(--surface) !important;
+    border-radius: 18px !important;
+    overflow: hidden !important;
+    box-shadow: var(--shadow-sm) !important;
+    transition: box-shadow 0.3s ease, border-color 0.3s ease !important;
+    cursor: pointer !important;
+    display: flex !important;
+    flex-direction: column !important;
+    height: 100% !important;
+    position: relative !important;
+    border: 1px solid var(--gray-200) !important;
+}
+
+.favorite-image {
+    position: relative !important;
+    height: 160px !important;
+    background: linear-gradient(135deg, var(--gray-100) 0%, var(--gray-150) 100%) !important;
+    overflow: hidden !important;
+    flex-shrink: 0 !important;
+    border-top-left-radius: 18px !important;
+    border-top-right-radius: 18px !important;
+}
+
+.favorite-image img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    display: block !important;
+}
+
+.favorite-content {
+    padding: 16px 17.6px 17.6px 17.6px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 9.6px !important;
+    flex: 1 1 auto !important;
+}
+
+.favorite-title {
+    color: var(--text) !important;
+    font-weight: 700 !important;
+    font-size: 1.1rem !important;
+    line-height: 1.35 !important;
+    margin: 0 !important;
+    display: -webkit-box !important;
+    -webkit-line-clamp: 2 !important;
+    -webkit-box-orient: vertical !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+}
+
+.favorite-price { 
+    color: var(--primary) !important;
+    font-weight: 700 !important;
+    font-size: 1.25rem !important;
+    margin: 0 !important;
+}
+
+.favorite-location {
+    color: var(--muted) !important;
+    font-size: 0.9rem !important;
+    margin: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.4rem !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+}
+
+.favorite-meta { 
+    display: flex !important;
+    gap: 0.6rem !important;
+    align-items: center !important;
+    margin-top: auto !important;
+}
+
+.favorite-actions {
+    display: flex !important;
+    gap: 0.5rem !important;
+    padding: 0.6rem 0.8rem !important;
+    justify-content: flex-end !important;
+    align-items: center !important;
+}
+
+/* Hover effect to match listing-card on desktop */
+@media (hover: hover) and (pointer: fine) {
+    .favorite-card:hover {
+        transform: translateY(-8px) !important;
+        box-shadow: 0 24px 48px -12px rgba(16, 185, 129, 0.12), 0 8px 24px -4px rgba(0,0,0,0.08) !important;
+        border-color: var(--primary-light) !important;
+    }
+}
+
+/* Desktop: force fixed column width so two cards appear per row on typical viewports */
+@media (min-width: 720px) {
+    .favorites-grid {
+        grid-template-columns: repeat(auto-fit, 224px) !important;
+        justify-content: center !important;
+        gap: 1.2rem !important;
+    }
+
+    .favorite-card {
+        width: 224px !important;
+        max-width: 224px !important;
+        box-sizing: border-box !important;
+    }
+}
+
+/* Mirror İlanlarım mobile sizing/layout for favorites */
+@media (max-width: 768px) {
+    .favorites-grid {
+        display: grid !important;
+        grid-template-columns: repeat(auto-fit, 177px) !important;
+        gap: 0.75rem !important;
+        justify-content: center !important;
+        align-items: start !important;
+    }
+
+    .favorite-card {
+        width: 177px !important;
+        max-width: 177px !important;
+        min-width: 177px !important;
+        box-sizing: border-box !important;
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 0.5rem !important;
+        padding: 0 !important; /* remove internal padding so image can be full-bleed */
+        background: var(--surface) !important;
+        border-radius: 10px !important;
+        border: 1px solid var(--gray-200) !important;
+        overflow: hidden !important; /* clip image to rounded corners */
+    }
+
+    .favorite-image {
+        width: 100% !important;
+        height: 120px !important; /* match ilanlarim reduced image height */
+        overflow: hidden !important;
+        position: relative !important;
+        display: block !important;
+        flex-shrink: 0 !important;
+    }
+
+    .favorite-image img {
+        width: 100% !important;
+        height: 100% !important;
+        object-fit: cover !important;
+        object-position: top center !important; /* crop from bottom */
+        display: block !important;
+    }
+
+    .favorite-content {
+        padding: 0.6rem !important; /* move padding into content so image is edge-to-edge */
+    }
+
+    .favorite-card,
+    .favorites-grid .favorite-card {
+        height: 220px !important;
+        max-height: 220px !important;
+        overflow: hidden !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: flex-start !important;
+    }
+
+    .favorite-image img {
+        height: 120px !important; /* leave ~100px for text/actions */
+        object-fit: cover !important;
+    }
+
+    .favorite-actions {
+        display: flex !important;
+        gap: 0.4rem !important;
+        padding: 0.4rem 0.6rem !important;
+        justify-content: flex-end !important;
+        align-items: center !important;
+        margin-top: auto !important; /* push actions to bottom */
+        background: transparent !important;
+    }
+
+    .favorite-actions .action-btn {
+        width: 34px !important;
+        height: 34px !important;
+        min-width: 34px !important;
+    }
+}
