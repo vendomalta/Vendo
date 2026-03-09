@@ -103,7 +103,7 @@ const logger = {
         } else if (error?.message?.includes('UNIQUE')) {
             userMessage = 'Bu kayıt zaten var';
         } else if (error?.message?.includes('JWT')) {
-            userMessage = 'Oturum süresi doldu. Lütfen giriş yapınız';
+            userMessage = 'Session expired. Please sign in';
         } else if (error?.message?.includes('Network')) {
             userMessage = 'İnternet bağlantısı kontrol edin';
         }

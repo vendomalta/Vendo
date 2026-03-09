@@ -240,7 +240,7 @@ async function loadListings(isFirstLoad = false, options = {}) {
             listingsGrid.innerHTML = ''; 
             // Skeleton render biraz aşağıda yapılacak ama önce boşaltalım ki kullanıcı değişimi hissetsin
         }
-        try { showLoading('İlanlar yükleniyor...'); } catch (_) {}
+        try { showLoading('Loading listings...'); } catch (_) {}
     }
     // Eski istekleri iptal et (filtre/sayfa değişimi)
     cancelRequest('listings-main');
@@ -346,7 +346,7 @@ async function loadListings(isFirstLoad = false, options = {}) {
             listingsGrid.innerHTML = `
                 <div style="grid-column: 1/-1; text-align: center; padding: 3rem;">
                     <i class="fas fa-inbox" style="font-size: 3rem; color: var(--text-muted);"></i>
-                    <p style="margin-top: 1rem; color: var(--text-muted);">Filtreye uygun ilan bulunmuyor</p>
+                    <p style="margin-top: 1rem; color: var(--text-muted);">No listings found matching the filter</p>
                 </div>
             `;
             hasMore = false;
@@ -357,7 +357,7 @@ async function loadListings(isFirstLoad = false, options = {}) {
         const validListings = filteredData.filter(item => !!normalizeId(item?.id));
         const invalidListings = filteredData.filter(item => !normalizeId(item?.id));
         if (invalidListings.length > 0) {
-            console.warn('Geçersiz ID nedeniyle atlanan ilanlar:', invalidListings.map(l => l && l.id));
+            console.warn('Listings skipped due to invalid ID:', invalidListings.map(l => l && l.id));
         }
 
         // İlanları render et
@@ -401,21 +401,21 @@ async function loadListings(isFirstLoad = false, options = {}) {
         return result;
 
     } catch (error) {
-        console.error('İlanlar yüklenirken hata:', error);
-        const msg = (error && (error.message || error.error_description || error.code)) || 'Bilinmeyen hata';
+        console.error('Error loading listings:', error);
+        const msg = (error && (error.message || error.error_description || error.code)) || 'Unknown error';
         let hint = '';
         if (/401|permission|rls|policy/i.test(String(msg))) {
-            hint = 'Supabase RLS politikaları "listings" tablosu için SELECT iznini engelliyor. Supabase SQL Editor\'da RLS-FIX.sql dosyasını çalıştırın.';
+            hint = 'Supabase RLS policies are blocking SELECT permission for the "listings" table. Run the RLS-FIX.sql file in the Supabase SQL Editor.';
         } else if (/403|forbidden|not allowed/i.test(String(msg))) {
-            hint = 'Auth/Key yetkisi reddedildi. js/supabase.js içindeki anon public key\'i ve CORS/URL ayarlarını kontrol edin.';
+            hint = 'Auth/Key permission denied. Check the anon public key in js/supabase.js and CORS/URL settings.';
         }
         if (isFirstLoad) {
             listingsGrid.innerHTML = `
                 <div style="grid-column: 1/-1; text-align: center; padding: 3rem;">
                     <i class="fas fa-exclamation-triangle" style="font-size: 3rem; color: var(--danger);"></i>
-                    <p style="margin-top: .75rem; color: var(--text); font-weight:600">İlanlar yüklenirken bir hata oluştu</p>
-                    <p style="margin-top: .25rem; color: var(--muted); font-size:.9rem">Detay: ${escapeHtml(String(msg))}</p>
-                    ${hint ? `<p style="margin-top:.25rem; color: var(--gray-500); font-size:.85rem">İpucu: ${escapeHtml(hint)}</p>` : ''}
+                    <p style="margin-top: .75rem; color: var(--text); font-weight:600">An error occurred while loading the listings</p>
+                    <p style="margin-top: .25rem; color: var(--muted); font-size:.9rem">Detail: ${escapeHtml(String(msg))}</p>
+                    ${hint ? `<p style="margin-top:.25rem; color: var(--gray-500); font-size:.85rem">Tip: ${escapeHtml(hint)}</p>` : ''}
                 </div>
             `;
         }
@@ -440,12 +440,12 @@ function normalizeId(id) {
 function createListingCard(listing) {
     const normalizedId = normalizeId(listing?.id);
     if (!listing || !normalizedId) {
-        console.warn('Listing kartı atlandı: ID bulunamadı veya geçersiz', listing);
+        console.warn('Listing card skipped: ID not found or invalid', listing);
         return '';
     }
     const photos = Array.isArray(listing.photos) ? listing.photos : [];
     // Lazy loading için placeholder kullan, gerçek görsel yüklemesini lazy load yapsın
-    const imageUrl = photos.length > 0 ? photos[0] : 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300"%3E%3Crect fill="%2310b981" width="400" height="300"/%3E%3Ctext x="50%25" y="50%25" fill="white" text-anchor="middle"%3EFoto%C4%9Fraf Yok%3C/text%3E%3C/svg%3E';
+    const imageUrl = photos.length > 0 ? photos[0] : 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300"%3E%3Crect fill="%2310b981" width="400" height="300"/%3E%3Ctext x="50%25" y="50%25" fill="white" text-anchor="middle"%3ENo%20Photo%3C/text%3E%3C/svg%3E';
     const imageCount = photos.length || 1;
 
     const formattedPrice = new Intl.NumberFormat('tr-TR', { style: 'decimal', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(listing.price);
@@ -453,11 +453,11 @@ function createListingCard(listing) {
     const currency = '€';
 
     const priceText = `${currency}${formattedPrice}`;
-    const titleText = escapeHtml(listing.title || 'İlan');
+    const titleText = escapeHtml(listing.title || 'Listing');
     // Clean location: remove null/undefined values
     const rawLocation = listing.location_city || '';
     const locationParts = rawLocation.split(',').map(p => p.trim()).filter(p => p && p !== 'null' && p !== 'undefined');
-    const locationText = locationParts.length > 0 ? escapeHtml(locationParts.join(', ')) : 'Belirtilmemiş';
+    const locationText = locationParts.length > 0 ? escapeHtml(locationParts.join(', ')) : 'Not specified';
     const postedTime = formatDate(listing.created_at);
 
     const km = listing.extra_fields?.km || '';
@@ -516,7 +516,7 @@ function createListingCard(listing) {
                     <button class="favorite-button" data-listing-id="${listing.id}">
                         <i class="far fa-heart"></i>
                     </button>
-                    ${listing.status === 'active' ? '<span class="listing-badge active">Aktif</span>' : ''}
+                    ${listing.status === 'active' ? '<span class="listing-badge active">Active</span>' : ''}
                     <div class="gallery-count"><i class="fas fa-camera"></i><span>${imageCount}</span></div>
                 </div>
                 <div class="table-model">${escapeHtml(categoryText || '—')}</div>
@@ -570,25 +570,25 @@ function attachFavoriteListeners() {
                     icon.classList.remove('fas');
                     icon.classList.add('far');
                     if (typeof showNotification === 'function') {
-                        showNotification('Favorilerden çıkarıldı', 'info');
+                        showNotification('Removed from favorites', 'info');
                     }
                 } else {
                     await addToFavorites(listingId);
                     icon.classList.remove('far');
                     icon.classList.add('fas');
                     if (typeof showNotification === 'function') {
-                        showNotification('Favorilere eklendi', 'success');
+                        showNotification('Added to favorites', 'success');
                     }
                 }
             } catch (error) {
-                console.error('Favori işlemi hatası:', error);
-                if (error.message.includes('girişi gerekli')) {
+                console.error('Favorite operation error:', error);
+                if (error.message.toLowerCase().includes('sign in required')) {
                     if (typeof showNotification === 'function') {
-                        showNotification('Favori eklemek için giriş yapın', 'warning');
+                        showNotification('Please log in to add to favorites', 'warning');
                     } else if (typeof showInlineToast === 'function') {
-                        showInlineToast('Favori eklemek için giriş yapın', 'warning');
+                        showInlineToast('Please log in to add to favorites', 'warning');
                     } else {
-                        console.warn('Favori eklemek için giriş yapın');
+                        console.warn('Please log in to add to favorites');
                     }
                     window.location.href = 'login.html';
                 }
@@ -620,13 +620,13 @@ function attachCardClickListeners() {
             const listingId = normalizeId(this.dataset.listingId);
             const href = this.dataset.href || (listingId ? `ilan-detay.html?id=${listingId}` : '');
             if (!listingId || !href) {
-                console.warn('Kart tıklaması engellendi: geçersiz ID', this.dataset);
+                console.warn('Card click blocked: invalid ID', this.dataset);
                 if (typeof showNotification === 'function') {
-                    showNotification('İlan bağlantısı eksik. Lütfen sayfayı yenileyin.', 'warning');
+                    showNotification('Listing link is missing. Please refresh the page.', 'warning');
                 } else if (typeof showInlineToast === 'function') {
-                    showInlineToast('İlan bağlantısı eksik. Lütfen sayfayı yenileyin.', 'warning');
+                    showInlineToast('Listing link is missing. Please refresh the page.', 'warning');
                 } else {
-                    console.warn('İlan bağlantısı eksik. Lütfen sayfayı yenileyin.');
+                    console.warn('Listing link is missing. Please refresh the page.');
                 }
                 return;
             }
@@ -658,11 +658,11 @@ function attachMessageButtonListeners() {
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) {
                 if (typeof showNotification === 'function') {
-                    showNotification('Mesaj göndermek için giriş yapmalısınız', 'warning');
+                    showNotification('You must log in to send a message', 'warning');
                 } else if (typeof showInlineToast === 'function') {
-                    showInlineToast('Mesaj göndermek için giriş yapmalısınız', 'warning');
+                    showInlineToast('You must log in to send a message', 'warning');
                 } else {
-                    console.warn('Mesaj göndermek için giriş yapmalısınız');
+                    console.warn('You must log in to send a message');
                 }
                 window.location.href = 'login.html';
                 return;
@@ -673,11 +673,11 @@ function attachMessageButtonListeners() {
             
             if (!listingId) {
                 if (typeof showNotification === 'function') {
-                    showNotification('İlan bilgisi eksik', 'error');
+                    showNotification('Listing information is missing', 'error');
                 } else if (typeof showInlineToast === 'function') {
-                    showInlineToast('İlan bilgisi eksik', 'error');
+                    showInlineToast('Listing information is missing', 'error');
                 } else {
-                    console.error('İlan bilgisi eksik');
+                    console.error('Listing information is missing');
                 }
                 return;
             }
@@ -685,11 +685,11 @@ function attachMessageButtonListeners() {
             // Kendi ilanına mesaj yazmaya çalışıyor mu?
             if (user.id === sellerId) {
                 if (typeof showNotification === 'function') {
-                    showNotification('Kendi ilanınıza mesaj gönderemezsiniz', 'warning');
+                    showNotification('You cannot send a message to your own listing', 'warning');
                 } else if (typeof showInlineToast === 'function') {
-                    showInlineToast('Kendi ilanınıza mesaj gönderemezsiniz', 'warning');
+                    showInlineToast('You cannot send a message to your own listing', 'warning');
                 } else {
-                    console.warn('Kendi ilanınıza mesaj gönderemezsiniz');
+                    console.warn('You cannot send a message to your own listing');
                 }
                 return;
             }
@@ -854,7 +854,7 @@ function updateSectionTitle(categoryInput) {
     if (!sectionTitle) return;
 
     if (!categoryInput) {
-        sectionTitle.textContent = 'Vitrin İlanları';
+        sectionTitle.textContent = 'Featured Listings';
         return;
     }
 
@@ -877,7 +877,7 @@ function updateSectionTitle(categoryInput) {
 window.resetSectionTitle = function() {
     const sectionTitle = document.querySelector('.featured-listings h2');
     if (sectionTitle) {
-        sectionTitle.textContent = 'Vitrin İlanları';
+        sectionTitle.textContent = 'Featured Listings';
     }
 };
 

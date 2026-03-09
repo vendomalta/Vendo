@@ -1,5 +1,6 @@
 // Soru-Cevap Sistemi - İlan Detay Sayfası
 import { supabase } from './supabase.js';
+import { listingLimiter } from './rate-limiter.js';
 
 let currentListingId = null;
 let currentListingOwnerId = null;
@@ -41,11 +42,11 @@ function setupEventListeners() {
         askBtn.addEventListener('click', () => {
             if (!currentUser) {
                 if (typeof showNotification === 'function') {
-                    showNotification('Soru sormak için giriş yapmalısınız', 'warning');
+                    showNotification('You must sign in to ask a question', 'warning');
                 } else if (typeof showInlineToast === 'function') {
-                    showInlineToast('Soru sormak için giriş yapmalısınız', 'warning');
+                    showInlineToast('You must sign in to ask a question', 'warning');
                 } else {
-                    console.warn('Soru sormak için giriş yapmalısınız');
+                    console.warn('You must sign in to ask a question');
                 }
                 window.location.href = 'login.html';
                 return;
@@ -105,8 +106,8 @@ async function loadQuestions() {
             container.innerHTML = `
                 <div class="qa-empty-state">
                     <i class="fas fa-comments"></i>
-                    <h3>Henüz soru sorulmamış</h3>
-                    <p>Bu ilan hakkında ilk soruyu siz sorun!</p>
+                    <h3>No questions yet</h3>
+                    <p>Be the first to ask a question about this listing!</p>
                 </div>
             `;
             return;
@@ -129,7 +130,7 @@ async function loadQuestions() {
 
             return {
                 ...q,
-                full_name: profile?.full_name || 'Kullanıcı',
+                full_name: profile?.full_name || 'User',
                 avatar_url: profile?.avatar_url,
                 answer_count: count || 0
             };
@@ -147,7 +148,7 @@ async function loadQuestions() {
         container.innerHTML = `
             <div class="qa-empty-state">
                 <i class="fas fa-exclamation-triangle"></i>
-                <h3>Sorular yüklenemedi</h3>
+                <h3>Could not load questions</h3>
                 <p>${error.message}</p>
             </div>
         `;
@@ -159,7 +160,7 @@ async function loadQuestions() {
  */
 function renderQuestion(question) {
     const isOwner = currentUser && currentUser.id === question.user_id;
-    const userName = question.full_name || 'Kullanıcı';
+    const userName = question.full_name || 'User';
     const userInitial = userName.charAt(0).toUpperCase();
     const timeAgo = formatTimeAgo(question.created_at);
 
@@ -177,7 +178,7 @@ function renderQuestion(question) {
                     <div class="qa-question-time">
                         <i class="far fa-clock"></i>
                         ${timeAgo}
-                        ${question.is_edited ? '<span class="qa-edited-badge">(düzenlendi)</span>' : ''}
+                        ${question.is_edited ? '<span class="qa-edited-badge">(edited)</span>' : ''}
                     </div>
                 </div>
             </div>
@@ -185,33 +186,33 @@ function renderQuestion(question) {
             <div class="qa-question-actions">
                 <button class="qa-action-btn answer" onclick="window.qaShowAnswerForm('${question.id}')">
                     <i class="fas fa-reply"></i>
-                    Cevapla
+                    Reply
                 </button>
                 ${isOwner ? `
                     <button class="qa-action-btn edit" onclick="window.qaEditQuestion('${question.id}')">
                         <i class="fas fa-edit"></i>
-                        Düzenle
+                        Edit
                     </button>
                     <button class="qa-action-btn delete" onclick="window.qaDeleteQuestion('${question.id}')">
                         <i class="fas fa-trash"></i>
-                        Sil
+                        Delete
                     </button>
                 ` : ''}
                 <span class="qa-answer-count">
                     <i class="fas fa-comment"></i>
-                    <span id="answer-count-${question.id}">${question.answer_count || 0}</span> cevap
+                    <span id="answer-count-${question.id}">${question.answer_count || 0}</span> answers
                 </span>
             </div>
             <div class="qa-answers-section" id="answers-section-${question.id}" style="display: none;">
                 <div class="qa-answers-list" id="answers-list-${question.id}"></div>
                 <div class="qa-answer-form" id="answer-form-${question.id}" style="display: none;">
-                    <textarea placeholder="Cevabınızı yazın..." maxlength="1000" id="answer-input-${question.id}"></textarea>
+                    <textarea placeholder="Write your answer..." maxlength="1000" id="answer-input-${question.id}"></textarea>
                     <div class="form-actions">
                         <button class="btn-submit" onclick="window.qaSubmitAnswer('${question.id}')">
                             <i class="fas fa-paper-plane"></i>
-                            Cevapla
+                            Reply
                         </button>
-                        <button class="btn-cancel" onclick="window.qaHideAnswerForm('${question.id}')">İptal</button>
+                        <button class="btn-cancel" onclick="window.qaHideAnswerForm('${question.id}')">Cancel</button>
                         <span class="char-count" id="answer-char-${question.id}">0/1000</span>
                     </div>
                 </div>
@@ -245,7 +246,7 @@ async function loadAnswers(questionId) {
 
                 return {
                     ...a,
-                    full_name: profile?.full_name || 'Kullanıcı',
+                    full_name: profile?.full_name || 'User',
                     avatar_url: profile?.avatar_url
                 };
             }));
@@ -270,7 +271,7 @@ async function loadAnswers(questionId) {
 function renderAnswer(answer, questionId) {
     const isOwner = currentUser && currentUser.id === answer.user_id;
     const isListingOwner = answer.user_id === currentListingOwnerId;
-    const userName = answer.full_name || 'Kullanıcı';
+    const userName = answer.full_name || 'User';
     const userInitial = userName.charAt(0).toUpperCase();
     const timeAgo = formatTimeAgo(answer.created_at);
 
@@ -286,11 +287,11 @@ function renderAnswer(answer, questionId) {
                 <div class="qa-answer-meta">
                     <div class="qa-answer-user-name">
                         ${escapeHtml(userName)}
-                        ${isListingOwner ? '<span class="qa-owner-badge">İlan Sahibi</span>' : ''}
+                        ${isListingOwner ? '<span class="qa-owner-badge">Listing Owner</span>' : ''}
                     </div>
                     <div class="qa-answer-time">
                         ${timeAgo}
-                        ${answer.is_edited ? '<span class="qa-edited-badge">(düzenlendi)</span>' : ''}
+                        ${answer.is_edited ? '<span class="qa-edited-badge">(edited)</span>' : ''}
                     </div>
                 </div>
             </div>
@@ -299,11 +300,11 @@ function renderAnswer(answer, questionId) {
                 <div class="qa-answer-actions">
                     <button class="qa-action-btn edit" onclick="window.qaEditAnswer('${answer.id}', '${questionId}')">
                         <i class="fas fa-edit"></i>
-                        Düzenle
+                        Edit
                     </button>
                     <button class="qa-action-btn delete" onclick="window.qaDeleteAnswer('${answer.id}', '${questionId}')">
                         <i class="fas fa-trash"></i>
-                        Sil
+                        Delete
                     </button>
                 </div>
             ` : ''}
@@ -317,9 +318,9 @@ function renderAnswer(answer, questionId) {
 async function handleSubmitQuestion() {
     if (!currentUser) {
         if (typeof showNotification === 'function') {
-            showNotification('Giriş yapmalısınız', 'warning');
+            showNotification('You must sign in', 'warning');
         } else {
-            alert('Giriş yapmalısınız');
+            alert('You must sign in');
         }
         return;
     }
@@ -327,20 +328,29 @@ async function handleSubmitQuestion() {
     const input = document.getElementById('qa-question-input');
     const questionText = input.value.trim();
 
+    // 🟢 YENİ: Rate Limit Kontrolü
+    if (listingLimiter.isLimited('user_' + currentUser.id)) {
+        const minutes = listingLimiter.getLockTimeRemaining('user_' + currentUser.id);
+        if (typeof showNotification === 'function') {
+            showNotification(`Please wait ${minutes} minutes before asking again.`, 'warning');
+        }
+        return;
+    }
+
     if (questionText.length < 5) {
         if (typeof showNotification === 'function') {
-            showNotification('Soru en az 5 karakter olmalıdır', 'warning');
+            showNotification('Question must be at least 5 characters', 'warning');
         } else {
-            alert('Soru en az 5 karakter olmalıdır');
+            alert('Question must be at least 5 characters');
         }
         return;
     }
 
     if (questionText.length > 1000) {
         if (typeof showNotification === 'function') {
-            showNotification('Soru en fazla 1000 karakter olabilir', 'warning');
+            showNotification('Question must be at most 1000 characters', 'warning');
         } else {
-            alert('Soru en fazla 1000 karakter olabilir');
+            alert('Question must be at most 1000 characters');
         }
         return;
     }
@@ -348,7 +358,10 @@ async function handleSubmitQuestion() {
     try {
         const submitBtn = document.getElementById('qa-submit-question');
         submitBtn.disabled = true;
-        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Gönderiliyor...';
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+
+        // 🟢 YENİ: Rate Limit Kaydet
+        listingLimiter.recordAttempt('user_' + currentUser.id);
 
         const { data, error } = await supabase
             .from('listing_questions')
@@ -372,20 +385,20 @@ async function handleSubmitQuestion() {
         await loadQuestions();
 
         if (typeof showNotification === 'function') {
-            showNotification('Sorunuz gönderildi', 'success');
+            showNotification('Your question has been sent', 'success');
         }
 
     } catch (error) {
         console.error('Soru gönderilirken hata:', error);
         if (typeof showNotification === 'function') {
-            showNotification('Soru gönderilemedi: ' + error.message, 'error');
+            showNotification('Could not send question: ' + error.message, 'error');
         } else {
-            alert('Soru gönderilemedi: ' + error.message);
+            alert('Could not send question: ' + error.message);
         }
     } finally {
         const submitBtn = document.getElementById('qa-submit-question');
         submitBtn.disabled = false;
-        submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Gönder';
+        submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Send';
     }
 }
 
@@ -395,9 +408,9 @@ async function handleSubmitQuestion() {
 window.qaShowAnswerForm = (questionId) => {
     if (!currentUser) {
         if (typeof showNotification === 'function') {
-            showNotification('Cevap yazmak için giriş yapmalısınız', 'warning');
+            showNotification('You must sign in to write an answer', 'warning');
         } else {
-            alert('Cevap yazmak için giriş yapmalısınız');
+            alert('You must sign in to write an answer');
         }
         window.location.href = 'login.html';
         return;
@@ -430,9 +443,9 @@ window.qaHideAnswerForm = (questionId) => {
 window.qaSubmitAnswer = async (questionId) => {
     if (!currentUser) {
         if (typeof showNotification === 'function') {
-            showNotification('Giriş yapmalısınız', 'warning');
+            showNotification('You must sign in', 'warning');
         } else {
-            alert('Giriş yapmalısınız');
+            alert('You must sign in');
         }
         return;
     }
@@ -442,18 +455,27 @@ window.qaSubmitAnswer = async (questionId) => {
 
     if (answerText.length < 1) {
         if (typeof showNotification === 'function') {
-            showNotification('Cevap boş olamaz', 'warning');
+            showNotification('Answer cannot be empty', 'warning');
         } else {
-            alert('Cevap boş olamaz');
+            alert('Answer cannot be empty');
+        }
+        return;
+    }
+
+    // 🟢 YENİ: Rate Limit Kontrolü
+    if (listingLimiter.isLimited('user_' + currentUser.id)) {
+        const minutes = listingLimiter.getLockTimeRemaining('user_' + currentUser.id);
+        if (typeof showNotification === 'function') {
+            showNotification(`Please wait ${minutes} minutes.`, 'warning');
         }
         return;
     }
 
     if (answerText.length > 1000) {
         if (typeof showNotification === 'function') {
-            showNotification('Cevap en fazla 1000 karakter olabilir', 'warning');
+            showNotification('Answer must be at most 1000 characters', 'warning');
         } else {
-            alert('Cevap en fazla 1000 karakter olabilir');
+            alert('Answer must be at most 1000 characters');
         }
         return;
     }
@@ -485,15 +507,15 @@ window.qaSubmitAnswer = async (questionId) => {
         }
 
         if (typeof showNotification === 'function') {
-            showNotification('Cevabınız gönderildi', 'success');
+            showNotification('Your answer has been sent', 'success');
         }
 
     } catch (error) {
         console.error('Cevap gönderilirken hata:', error);
         if (typeof showNotification === 'function') {
-            showNotification('Cevap gönderilemedi: ' + error.message, 'error');
+            showNotification('Could not send answer: ' + error.message, 'error');
         } else {
-            alert('Cevap gönderilemedi: ' + error.message);
+            alert('Could not send answer: ' + error.message);
         }
     }
 };
@@ -507,18 +529,18 @@ window.qaEditQuestion = async (questionId) => {
 
     let newText;
     if (typeof showPromptDialog === 'function') {
-        newText = await showPromptDialog('Sorunuzu düzenleyin:', currentText);
+        newText = await showPromptDialog('Edit your question:', currentText);
     } else {
-        newText = prompt('Sorunuzu düzenleyin:', currentText);
+        newText = prompt('Edit your question:', currentText);
     }
 
     if (newText === null || newText.trim() === currentText) return;
 
     if (newText.trim().length < 5 || newText.trim().length > 1000) {
         if (typeof showNotification === 'function') {
-            showNotification('Soru 5-1000 karakter arasında olmalıdır', 'warning');
+            showNotification('Question must be between 5-1000 characters', 'warning');
         } else {
-            alert('Soru 5-1000 karakter arasında olmalıdır');
+            alert('Question must be between 5-1000 characters');
         }
         return;
     }
@@ -537,15 +559,15 @@ window.qaEditQuestion = async (questionId) => {
         await loadQuestions();
 
         if (typeof showNotification === 'function') {
-            showNotification('Soru güncellendi', 'success');
+            showNotification('Question updated', 'success');
         }
 
     } catch (error) {
         console.error('Soru güncellenirken hata:', error);
         if (typeof showNotification === 'function') {
-            showNotification('Soru güncellenemedi: ' + error.message, 'error');
+            showNotification('Could not update question: ' + error.message, 'error');
         } else {
-            alert('Soru güncellenemedi: ' + error.message);
+            alert('Could not update question: ' + error.message);
         }
     }
 };
@@ -556,9 +578,9 @@ window.qaEditQuestion = async (questionId) => {
 window.qaDeleteQuestion = async (questionId) => {
     let confirmed = false;
     if (typeof showConfirmDialog === 'function') {
-        confirmed = await showConfirmDialog('Bu soruyu ve tüm cevaplarını silmek istediğinize emin misiniz?', 'Sil', 'İptal');
+        confirmed = await showConfirmDialog('Are you sure you want to delete this question and all its answers?', 'Delete', 'Cancel');
     } else {
-        confirmed = confirm('Bu soruyu ve tüm cevaplarını silmek istediğinize emin misiniz?');
+        confirmed = confirm('Are you sure you want to delete this question and all its answers?');
     }
 
     if (!confirmed) return;
@@ -574,15 +596,15 @@ window.qaDeleteQuestion = async (questionId) => {
         await loadQuestions();
 
         if (typeof showNotification === 'function') {
-            showNotification('Soru silindi', 'success');
+            showNotification('Question deleted', 'success');
         }
 
     } catch (error) {
         console.error('Soru silinirken hata:', error);
         if (typeof showNotification === 'function') {
-            showNotification('Soru silinemedi: ' + error.message, 'error');
+            showNotification('Could not delete question: ' + error.message, 'error');
         } else {
-            alert('Soru silinemedi: ' + error.message);
+            alert('Could not delete question: ' + error.message);
         }
     }
 };
@@ -596,18 +618,18 @@ window.qaEditAnswer = async (answerId, questionId) => {
 
     let newText;
     if (typeof showPromptDialog === 'function') {
-        newText = await showPromptDialog('Cevabınızı düzenleyin:', currentText);
+        newText = await showPromptDialog('Edit your answer:', currentText);
     } else {
-        newText = prompt('Cevabınızı düzenleyin:', currentText);
+        newText = prompt('Edit your answer:', currentText);
     }
 
     if (newText === null || newText.trim() === currentText) return;
 
     if (newText.trim().length < 1 || newText.trim().length > 1000) {
         if (typeof showNotification === 'function') {
-            showNotification('Cevap 1-1000 karakter arasında olmalıdır', 'warning');
+            showNotification('Answer must be between 1-1000 characters', 'warning');
         } else {
-            alert('Cevap 1-1000 karakter arasında olmalıdır');
+            alert('Answer must be between 1-1000 characters');
         }
         return;
     }
@@ -626,15 +648,15 @@ window.qaEditAnswer = async (answerId, questionId) => {
         await loadAnswers(questionId);
 
         if (typeof showNotification === 'function') {
-            showNotification('Cevap güncellendi', 'success');
+            showNotification('Answer updated', 'success');
         }
 
     } catch (error) {
         console.error('Cevap güncellenirken hata:', error);
         if (typeof showNotification === 'function') {
-            showNotification('Cevap güncellenemedi: ' + error.message, 'error');
+            showNotification('Could not update answer: ' + error.message, 'error');
         } else {
-            alert('Cevap güncellenemedi: ' + error.message);
+            alert('Could not update answer: ' + error.message);
         }
     }
 };
@@ -645,9 +667,9 @@ window.qaEditAnswer = async (answerId, questionId) => {
 window.qaDeleteAnswer = async (answerId, questionId) => {
     let confirmed = false;
     if (typeof showConfirmDialog === 'function') {
-        confirmed = await showConfirmDialog('Bu cevabı silmek istediğinize emin misiniz?', 'Sil', 'İptal');
+        confirmed = await showConfirmDialog('Are you sure you want to delete this answer?', 'Delete', 'Cancel');
     } else {
-        confirmed = confirm('Bu cevabı silmek istediğinize emin misiniz?');
+        confirmed = confirm('Are you sure you want to delete this answer?');
     }
 
     if (!confirmed) return;
@@ -669,15 +691,15 @@ window.qaDeleteAnswer = async (answerId, questionId) => {
         }
 
         if (typeof showNotification === 'function') {
-            showNotification('Cevap silindi', 'success');
+            showNotification('Answer deleted', 'success');
         }
 
     } catch (error) {
         console.error('Cevap silinirken hata:', error);
         if (typeof showNotification === 'function') {
-            showNotification('Cevap silinemedi: ' + error.message, 'error');
+            showNotification('Could not delete answer: ' + error.message, 'error');
         } else {
-            alert('Cevap silinemedi: ' + error.message);
+            alert('Could not delete answer: ' + error.message);
         }
     }
 };
@@ -723,12 +745,12 @@ function formatTimeAgo(dateString) {
     const diffHours = Math.floor(diffMs / 3600000);
     const diffDays = Math.floor(diffMs / 86400000);
 
-    if (diffMins < 1) return 'Az önce';
-    if (diffMins < 60) return `${diffMins} dakika önce`;
-    if (diffHours < 24) return `${diffHours} saat önce`;
-    if (diffDays < 7) return `${diffDays} gün önce`;
+    if (diffMins < 1) return 'Just now';
+    if (diffMins < 60) return `${diffMins} minutes ago`;
+    if (diffHours < 24) return `${diffHours} hours ago`;
+    if (diffDays < 7) return `${diffDays} days ago`;
 
-    return date.toLocaleDateString('tr-TR');
+    return date.toLocaleDateString('en-GB');
 }
 
 function escapeHtml(text) {

@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Satıcı Profili - VERDE</title>
-    <meta name="description" content="Satıcı profili, ilanları ve yorumları görmek için.">
+    <title>Seller Profile - VERDE</title>
+    <meta name="description" content="View seller profile, listings and reviews.">
     <link rel="icon" type="image/svg+xml" href="assets/images/verde-logo.svg">
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/seller-profile.css">
@@ -29,14 +29,14 @@
             <div class="seller-header-wrapper">
                 <!-- Satıcı Profil Kartı -->
                 <div class="seller-profile-card">
-                    <img id="seller-avatar-large" src="https://via.placeholder.com/120x120" alt="Satıcı" class="seller-avatar-large">
+                    <img id="seller-avatar-large" src="https://via.placeholder.com/120x120" alt="Seller" class="seller-avatar-large">
                     
                     <div class="seller-header-content">
-                        <h1 id="seller-display-name" class="seller-name">Yükleniyor...</h1>
+                        <h1 id="seller-display-name" class="seller-name">Loading...</h1>
                         <p id="seller-member-since" class="seller-member-info"></p>
                         <div class="seller-badges">
                             <span id="seller-verified-check" class="badge verified-badge" style="display:none;">
-                                <i class="fas fa-check-circle"></i> Doğrulanmış
+                                <i class="fas fa-check-circle"></i> Verified
                             </span>
                             <span class="badge status-badge"></span>
                         </div>
@@ -45,10 +45,10 @@
                     <!-- Action Buttons -->
                     <div class="seller-action-buttons">
                         <button class="btn-contact">
-                            <i class="fas fa-phone"></i> Telefonu Goster
+                            <i class="fas fa-phone"></i> Show Phone
                         </button>
                         <button class="btn-contact secondary">
-                            <i class="fas fa-comment"></i> Mesaj Gönder
+                            <i class="fas fa-comment"></i> Send Message
                         </button>
                     </div>
                 </div>
@@ -58,16 +58,16 @@
                     <div class="seller-stats-panel">
                         <div class="stat-box">
                             <div class="stat-number" id="stat-active-ads">0</div>
-                            <div class="stat-label">Aktif İlan</div>
+                            <div class="stat-label">Active Listings</div>
                         </div>
                         <div class="stat-box">
                             <div class="stat-number" id="stat-sold-ads">0</div>
-                            <div class="stat-label">Satılmış</div>
+                            <div class="stat-label">Sold</div>
                         </div>
                     </div>
                     <div class="about-section-header">
-                        <h2 class="section-title-small">Satıcı Hakkında</h2>
-                        <p id="seller-about-text" class="about-text-small">Bu satıcı hakkında daha fazla bilgi yakında eklenecektir.</p>
+                        <h2 class="section-title-small">About Seller</h2>
+                        <p id="seller-about-text" class="about-text-small">More information about this seller will be added soon.</p>
                     </div>
                 </div>
             </div>
@@ -77,10 +77,10 @@
         <section class="seller-tabs-section">
             <div class="tabs-container">
                 <button class="tab-button active" data-tab="listings">
-                    <i class="fas fa-list"></i> İlanlar
+                    <i class="fas fa-list"></i> Listings
                 </button>
                 <button class="tab-button" data-tab="reviews">
-                    <i class="fas fa-star"></i> Değerlendirmeler (<span id="review-count">0</span>)
+                    <i class="fas fa-star"></i> Reviews (<span id="review-count">0</span>)
                 </button>
             </div>
         </section>
@@ -94,13 +94,13 @@
                     <!-- Filtreleme Başlıkları -->
                     <div class="listings-header">
                         <div class="listings-title">
-                            <span id="total-listings-text">0</span> ilan
+                            <span id="total-listings-text">0</span> listings
                         </div>
                         <div class="listings-controls">
-                            <button class="view-btn active" data-view="grid" title="Izgara görünüm">
+                            <button class="view-btn active" data-view="grid" title="Grid view">
                                 <i class="fas fa-th-large"></i>
                             </button>
-                            <button class="view-btn" data-view="list" title="Liste görünüm">
+                            <button class="view-btn" data-view="list" title="List view">
                                 <i class="fas fa-list"></i>
                             </button>
                         </div>
@@ -109,10 +109,10 @@
                     <!-- Alt Sekme: Aktif/Satılmış -->
                     <div class="sub-tabs">
                         <button class="sub-tab-btn active" data-sub-tab="active">
-                            <i class="fas fa-check-circle"></i> Aktif İlanlar
+                            <i class="fas fa-check-circle"></i> Active Listings
                         </button>
                         <button class="sub-tab-btn" data-sub-tab="sold">
-                            <i class="fas fa-check"></i> Satılmış İlanlar
+                            <i class="fas fa-check"></i> Sold Listings
                         </button>
                     </div>
 
@@ -124,21 +124,21 @@
                     <!-- Aktif İlanlar Görünümü (Grid) -->
                     <div class="listings-container grid" id="active-listings">
                         <div class="loading-placeholder">
-                            <i class="fas fa-spinner fa-spin"></i> İlanlar yükleniyor...
+                            <i class="fas fa-spinner fa-spin"></i> Loading listings...
                         </div>
                     </div>
 
                     <!-- Aktif İlanlar Görünümü (List) -->
                     <div class="listings-table" id="active-listings-table" style="display: none;">
                         <div class="table-header">
-                            <div class="col-image">Görsel</div>
-                            <div class="col-title">İlan Başlığı</div>
-                            <div class="col-price">Fiyat</div>
-                            <div class="col-date">İlan Tarihi</div>
+                            <div class="col-image">Image</div>
+                            <div class="col-title">Ad Title</div>
+                            <div class="col-price">Price</div>
+                            <div class="col-date">Date</div>
                         </div>
                         <div class="table-body" id="active-listings-list">
                             <div class="loading-placeholder">
-                                <i class="fas fa-spinner fa-spin"></i> İlanlar yükleniyor...
+                                <i class="fas fa-spinner fa-spin"></i> Loading listings...
                             </div>
                         </div>
                     </div>
@@ -146,21 +146,21 @@
                     <!-- Satılmış İlanlar Görünümü (Grid) -->
                     <div class="listings-container grid" id="sold-listings" style="display: none;">
                         <div class="loading-placeholder">
-                            <i class="fas fa-spinner fa-spin"></i> İlanlar yükleniyor...
+                            <i class="fas fa-spinner fa-spin"></i> Loading listings...
                         </div>
                     </div>
 
                     <!-- Satılmış İlanlar Görünümü (List) -->
                     <div class="listings-table" id="sold-listings-table" style="display: none;">
                         <div class="table-header">
-                            <div class="col-image">Görsel</div>
-                            <div class="col-title">İlan Başlığı</div>
-                            <div class="col-price">Fiyat</div>
-                            <div class="col-date">İlan Tarihi</div>
+                            <div class="col-image">Image</div>
+                            <div class="col-title">Ad Title</div>
+                            <div class="col-price">Price</div>
+                            <div class="col-date">Date</div>
                         </div>
                         <div class="table-body" id="sold-listings-list">
                             <div class="loading-placeholder">
-                                <i class="fas fa-spinner fa-spin"></i> İlanlar yükleniyor...
+                                <i class="fas fa-spinner fa-spin"></i> Loading listings...
                             </div>
                         </div>
                     </div>
@@ -171,12 +171,12 @@
             <section class="tab-content" id="tab-reviews">
                 <div class="reviews-section">
                     <h2 class="section-title">
-                        <i class="fas fa-star"></i> Müşteri Değerlendirmeleri
+                        <i class="fas fa-star"></i> Customer Reviews
                     </h2>
                     
                     <div class="reviews-container" id="reviews-list">
                         <div class="loading-placeholder">
-                            <i class="fas fa-spinner fa-spin"></i> Değerlendirmeler yükleniyor...
+                            <i class="fas fa-spinner fa-spin"></i> Loading reviews...
                         </div>
                     </div>
                 </div>
@@ -204,7 +204,7 @@
             const sellerId = params.get('id');
             
             if (!sellerId) {
-                document.body.innerHTML = '<div style="padding: 2rem; text-align: center;"><h2>Satıcı bulunamadı</h2><p><a href="/">Anasayfaya dön</a></p></div>';
+                document.body.innerHTML = '<div style="padding: 2rem; text-align: center;"><h2>Seller not found</h2><p><a href="/">Back to home</a></p></div>';
                 return;
             }
             

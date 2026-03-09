@@ -16,14 +16,14 @@ export async function enrollTOTP() {
 
     if (error) throw error;
 
-    console.log('✅ TOTP enrollment başarılı');
+    console.log('✅ TOTP enrollment successful');
     return {
       qrCode: data?.totp?.qr_code,
       secret: data?.totp?.secret,
       factorId: data?.id,
     };
   } catch (error) {
-    console.error('❌ TOTP enrollment hatası:', error);
+    console.error('❌ TOTP enrollment error:', error);
     throw error;
   }
 }
@@ -40,11 +40,11 @@ export async function verifyTOTP(factorId, code) {
 
     if (error) throw error;
 
-    console.log('✅ TOTP doğrulandı, 2FA etkinleştirildi');
+    console.log('✅ TOTP verified, 2FA enabled');
     logSecurityEvent('2fa_enabled', { method: 'totp' });
     return data;
   } catch (error) {
-    console.error('❌ TOTP doğrulama hatası:', error);
+    console.error('❌ TOTP verification error:', error);
     throw error;
   }
 }
@@ -61,13 +61,13 @@ export async function enrollSMS(phoneNumber) {
 
     if (error) throw error;
 
-    console.log('✅ SMS enrollment başarılı');
+    console.log('✅ SMS enrollment successful');
     return {
       factorId: data?.id,
-      message: 'SMS kodu gönderildi',
+      message: 'SMS code sent',
     };
   } catch (error) {
-    console.error('❌ SMS enrollment hatası:', error);
+    console.error('❌ SMS enrollment error:', error);
     throw error;
   }
 }
@@ -84,11 +84,11 @@ export async function verifySMS(factorId, code) {
 
     if (error) throw error;
 
-    console.log('✅ SMS doğrulandı, 2FA etkinleştirildi');
+    console.log('✅ SMS verified, 2FA enabled');
     logSecurityEvent('2fa_enabled', { method: 'sms' });
     return data;
   } catch (error) {
-    console.error('❌ SMS doğrulama hatası:', error);
+    console.error('❌ SMS verification error:', error);
     throw error;
   }
 }
@@ -104,7 +104,7 @@ export async function list2FAFactors() {
 
     return data?.factors || [];
   } catch (error) {
-    console.error('❌ 2FA faktörleri getirme hatası:', error);
+    console.error('❌ Error fetching 2FA factors:', error);
     return [];
   }
 }
@@ -120,11 +120,11 @@ export async function unenrollMFAFactor(factorId) {
 
     if (error) throw error;
 
-    console.log('✅ 2FA faktörü silindi');
+    console.log('✅ 2FA factor deleted');
     logSecurityEvent('2fa_disabled', { factorId });
     return true;
   } catch (error) {
-    console.error('❌ 2FA faktörü silme hatası:', error);
+    console.error('❌ Error deleting 2FA factor:', error);
     throw error;
   }
 }
@@ -141,10 +141,10 @@ export async function createMFAChallenge(factorId) {
 
     if (error) throw error;
 
-    console.log('✅ MFA challenge oluşturuldu');
+    console.log('✅ MFA challenge created');
     return data?.id; // Challenge ID
   } catch (error) {
-    console.error('❌ MFA challenge oluşturma hatası:', error);
+    console.error('❌ Error creating MFA challenge:', error);
     throw error;
   }
 }
@@ -162,11 +162,11 @@ export async function verifyMFAChallenge(factorId, challengeId, code) {
 
     if (error) throw error;
 
-    console.log('✅ MFA challenge doğrulandı, oturum açıldı');
+    console.log('✅ MFA challenge verified, logged in');
     logSecurityEvent('login_2fa_verified', { factorId });
     return data;
   } catch (error) {
-    console.error('❌ MFA challenge doğrulama hatası:', error);
+    console.error('❌ Error verifying MFA challenge:', error);
     throw error;
   }
 }
@@ -180,7 +180,7 @@ window.setupTwoFactor = async function () {
   const selectedMethod = document.querySelector('input[name="twoFactorMethod"]:checked');
   
   if (!selectedMethod) {
-    showNotification('Lütfen bir doğrulama yöntemi seçin.', 'warning');
+    showNotification('Please select a verification method.', 'warning');
     return;
   }
 
@@ -192,10 +192,10 @@ window.setupTwoFactor = async function () {
     } else if (method === 'sms') {
       await setupSMSUI();
     } else if (method === 'email') {
-      showNotification('Email 2FA kısa süre içinde eklenecek', 'info');
+      showNotification('Email 2FA will be added soon', 'info');
     }
   } catch (error) {
-    showNotification('2FA kurulumu başarısız: ' + error.message, 'error');
+    showNotification('2FA setup failed: ' + error.message, 'error');
   }
 };
 
@@ -234,7 +234,7 @@ async function setupTOTPUI() {
     `;
     
     document.body.appendChild(modal);
-    showNotification('2FA kurulumu için uygulama tarayıcısını açın', 'info');
+    showNotification('Open the authenticator app for 2FA setup', 'info');
   } catch (error) {
     throw error;
   }
@@ -253,11 +253,11 @@ window.confirmTOTPSetup = async function (factorId) {
   
   try {
     await verifyTOTP(factorId, code);
-    showNotification('✅ İki faktörlü doğrulama etkinleştirildi!', 'success');
+    showNotification('✅ Two-factor authentication enabled!', 'success');
     closeTOFAModal();
     updateTwoFactorUI();
   } catch (error) {
-    showNotification('Kod hatalı: ' + error.message, 'error');
+    showNotification('Incorrect code: ' + error.message, 'error');
   }
 };
 
@@ -265,7 +265,7 @@ window.confirmTOTPSetup = async function (factorId) {
  * SMS UI kurulumu
  */
 async function setupSMSUI() {
-  const phoneNumber = prompt('Lütfen telefon numaranızı girin (örn: +905551234567):');
+  const phoneNumber = prompt('Please enter your phone number (e.g., +905551234567):');
   
   if (!phoneNumber) return;
   
@@ -276,10 +276,10 @@ async function setupSMSUI() {
     if (!code) return;
     
     await verifySMS(result.factorId, code);
-    showNotification('✅ SMS ile 2FA etkinleştirildi!', 'success');
+    showNotification('✅ 2FA via SMS enabled!', 'success');
     updateTwoFactorUI();
   } catch (error) {
-    showNotification('SMS kurulumu başarısız: ' + error.message, 'error');
+    showNotification('SMS setup failed: ' + error.message, 'error');
   }
 }
 
@@ -294,14 +294,14 @@ async function updateTwoFactorUI() {
     if (!container) return;
     
     if (factors.length === 0) {
-      container.innerHTML = '<p>Henüz 2FA etkinleştirilmemiş</p>';
+      container.innerHTML = '<p>2FA not enabled yet</p>';
       return;
     }
     
     container.innerHTML = factors.map(factor => `
       <div class="factor-item">
         <div class="factor-info">
-          <h4>${factor.factor_type === 'totp' ? '📱 Kimlik Doğrulayıcı' : '📞 SMS'}</h4>
+          <h4>${factor.factor_type === 'totp' ? '📱 Authenticator' : '📞 SMS'}</h4>
           <p>Etkinleştirildi: ${new Date(factor.created_at).toLocaleDateString('tr-TR')}</p>
         </div>
         <button onclick="removeTwoFactor('${factor.id}')" class="btn-danger-sm">
@@ -310,7 +310,7 @@ async function updateTwoFactorUI() {
       </div>
     `).join('');
   } catch (error) {
-    console.error('UI güncelleme hatası:', error);
+    console.error('UI update error:', error);
   }
 }
 
@@ -318,14 +318,14 @@ async function updateTwoFactorUI() {
  * 2FA faktörünü kaldır
  */
 window.removeTwoFactor = async function (factorId) {
-  if (!confirm('2FA faktörünü kaldırmak istediğinizden emin misiniz?')) return;
+  if (!confirm('Are you sure you want to remove this 2FA factor?')) return;
   
   try {
     await unenrollMFAFactor(factorId);
-    showNotification('✅ 2FA faktörü kaldırıldı', 'success');
+    showNotification('✅ 2FA factor removed', 'success');
     updateTwoFactorUI();
   } catch (error) {
-    showNotification('Kaldırma işlemi başarısız: ' + error.message, 'error');
+    showNotification('Removal failed: ' + error.message, 'error');
   }
 };
 

@@ -15,12 +15,12 @@ export async function initializeCategories() {
                 parentId: cat.parent_id !== undefined ? cat.parent_id : cat.parentId,
                 iconColor: cat.icon_color || cat.iconColor
             }));
-            console.log(`Kategoriler yüklendi: ${categories.length} adet`);
+            console.log(`Categories loaded: ${categories.length}`);
         } else {
-            console.warn('Kategori verisi boş geldi!');
+            console.warn('Category data empty!');
         }
     } catch (error) {
-        console.error('Kategori başlatma hatası:', error);
+        console.error('Category init error:', error);
     }
     return categories;
 }

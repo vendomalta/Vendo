@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mesajlarım - VERDE</title>
+    <title>My Messages - VERDE</title>
     <link rel="icon" type="image/svg+xml" href="assets/images/verde-logo.svg" sizes="any">
     <link rel="shortcut icon" href="assets/images/verde-logo.svg">
     <link rel="apple-touch-icon" href="assets/images/verde-logo.svg">
@@ -31,27 +31,27 @@
             <div class="conversations-list">
                 <div class="conversations-header">
                     <div style="display: flex; gap: 6px; margin-bottom: 8px;">
-                        <input type="text" id="conversationSearch" placeholder="Ara..."
+                        <input type="text" id="conversationSearch" placeholder="Search..."
                             style="flex: 1; padding: 10px 12px; border: 1px solid var(--gray-300); border-radius: 8px; font-size: 0.9rem;">
-                        <!-- Toplu Sil Butonu (Search bar yanına taşındı) -->
-                         <button id="bulkDeleteToggleBtn" class="bulk-delete-btn" title="Toplu Sil">
+                        <!-- Bulk Delete Button (Moved next to Search bar) -->
+                         <button id="bulkDeleteToggleBtn" class="bulk-delete-btn" title="Bulk Delete">
                             <i class="fas fa-trash"></i>
                         </button>
                     </div>
 
-                    <!-- Arama Filtreleri -->
+                    <!-- Search Filters -->
                     <div class="search-filters" id="searchFilters">
                         <button class="filter-chip active" data-filter="all">
-                            Tümü
+                            All
                         </button>
                         <button class="filter-chip" data-filter="buying">
-                            Alış
+                            Buying
                         </button>
                         <button class="filter-chip" data-filter="selling">
-                            Satış
+                            Selling
                         </button>
                         <button class="filter-chip" data-filter="archived">
-                            Arşiv
+                            Archive
                         </button>
                     </div>
 
@@ -61,48 +61,48 @@
                         <div id="bulkDeleteActions" class="bulk-delete-actions"
                             style="display: none; flex: 1; gap: 6px;">
                             <button id="selectAllBtn" class="btn-secondary-small">
-                                <i class="fas fa-check-square"></i> Tümünü Seç
+                                <i class="fas fa-check-square"></i> Select All
                             </button>
                             <button id="deleteSelectedBtn" class="btn-danger-small" disabled>
-                                <i class="fas fa-trash"></i> Sil (<span id="selectedCount">0</span>)
+                                <i class="fas fa-trash"></i> Delete (<span id="selectedCount">0</span>)
                             </button>
                             <button id="cancelBulkDeleteBtn" class="btn-cancel-small">
-                                İptal
+                                Cancel
                             </button>
                         </div>
                     </div>
                 </div>
 
                 <div class="conversations" id="conversationsList">
-                    <!-- Konuşmalar buraya dinamik olarak yüklenecek -->
+                    <!-- Conversations will be loaded dynamically here -->
                     <div class="loading-state">
                         <i class="fas fa-spinner fa-spin"></i>
-                        <p>Konuşmalar yükleniyor...</p>
+                        <p>Loading conversations...</p>
                     </div>
                 </div>
             </div>
 
             <div class="message-detail" id="messageDetail">
                 <div class="ad-reference" id="adReference" style="display: none;">
-                    <!-- İlan bilgisi buraya dinamik olarak yüklenecek -->
+                    <!-- Ad details will be dynamically loaded here -->
                 </div>
 
                 <div class="messages-content" id="messagesContent">
-                    <!-- Mesajlar buraya dinamik olarak yüklenecek -->
+                    <!-- Messages will be horizontally loaded here -->
                     <div class="empty-state">
                         <i class="fas fa-comments" style="font-size: 4rem; color: #d1d5db; margin-bottom: 1rem;"></i>
-                        <p>Bir konuşma seçin</p>
+                        <p>Select a conversation</p>
                     </div>
                 </div>
 
-                <!-- İşlem Onay Bölümü -->
+                <!-- Transaction Approval Section -->
                 <div id="transaction-container"></div>
 
                 <div class="message-input-area">
                     <div class="input-container">
-                        <button class="approval-toggle-btn" title="İşlem Onayı"><i
+                        <button class="approval-toggle-btn" title="Transaction Approval"><i
                                 class="fas fa-handshake"></i></button>
-                        <input type="text" placeholder="Bir mesaj yazın..." class="message-input">
+                        <input type="text" placeholder="Write a message..." class="message-input">
                         <button class="send-btn"><i class="fas fa-paper-plane"></i></button>
                     </div>
                 </div>
@@ -114,34 +114,34 @@
     <div id="report-modal" class="modal-overlay" style="display: none;">
         <div class="modal-dialog">
             <div class="modal-header">
-                <h2>Kullanıcıyı Raporla</h2>
+                <h2>Report User</h2>
                 <button class="modal-close" id="closeReportModalBtn"><i class="fas fa-times"></i></button>
             </div>
             <div class="modal-body">
                 <form id="report-form">
                     <div class="form-group">
-                        <label>Şikayet Nedeni <span class="required">*</span></label>
+                        <label>Reason for Report <span class="required">*</span></label>
                         <select id="report-reason" required class="form-control">
-                            <option value="">Seçiniz...</option>
-                            <option value="spam">Spam / Rahatsız Edici</option>
-                            <option value="inappropriate">Uygunsuz İçerik</option>
-                            <option value="fraud">Dolandırıcılık Şüphesi</option>
-                            <option value="safety">Güvenlik Tehdidi</option>
-                            <option value="rules">Kurallara Aykırı İlan</option>
-                            <option value="other">Diğer</option>
+                            <option value="">Select...</option>
+                            <option value="spam">Spam / Harassment</option>
+                            <option value="inappropriate">Inappropriate Content</option>
+                            <option value="fraud">Suspected Fraud</option>
+                            <option value="safety">Security Threat</option>
+                            <option value="rules">Listing Violates Rules</option>
+                            <option value="other">Other</option>
                         </select>
                     </div>
                     <div class="form-group">
-                        <label>E-posta Adresiniz <span class="required">*</span></label>
-                        <input type="email" id="report-email" required class="form-control" placeholder="Size ulaşabileceğimiz e-posta">
+                        <label>Your Email Address <span class="required">*</span></label>
+                        <input type="email" id="report-email" required class="form-control" placeholder="An email we can reach you at">
                     </div>
                     <div class="form-group">
-                        <label>Açıklama <span class="required">*</span></label>
-                        <textarea id="report-description" required class="form-control" rows="4" placeholder="Lütfen şikayetinizi detaylandırın..."></textarea>
+                        <label>Description <span class="required">*</span></label>
+                        <textarea id="report-description" required class="form-control" rows="4" placeholder="Please provide details about your report..."></textarea>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" id="cancelReportBtn">İptal</button>
-                        <button type="submit" class="btn btn-danger">Raporla</button>
+                        <button type="button" class="btn btn-secondary" id="cancelReportBtn">Cancel</button>
+                        <button type="submit" class="btn btn-danger">Report</button>
                     </div>
                 </form>
             </div>
@@ -159,19 +159,18 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // Eğer messages.js yüklenemediyse send-btn tıklanınca hiçbir şey olmaz.
-            // Bu yüzden JS'in yüklendiğini kontrol edelim.
+            // Check if messages.js is loaded
             const scriptCheck = document.querySelector('script[src="js/messages.js"]');
             if (scriptCheck) {
-                console.log("Messages.js yolu doğru görünüyor.");
+                console.log("Messages.js path looks correct.");
             } else {
-                console.error("HATA: messages.js dosyası HTML'e bağlanamamış!");
+                console.error("ERROR: messages.js file could not be linked to HTML!");
                 if (typeof showNotification === 'function') {
-                    showNotification('Uyarı: JS dosyası bulunamadı. Butonlar çalışmayabilir.', 'error');
+                    showNotification('Warning: JS file not found. Buttons may not work.', 'error');
                 } else if (typeof showInlineToast === 'function') {
-                    showInlineToast('Uyarı: JS dosyası bulunamadı. Butonlar çalışmayabilir.', 'error');
+                    showInlineToast('Warning: JS file not found. Buttons may not work.', 'error');
                 } else {
-                    console.warn('Uyarı: JS dosyası bulunamadı. Butonlar çalışmayabilir.');
+                    console.warn('Warning: JS file not found. Buttons may not work.');
                 }
             }
         });

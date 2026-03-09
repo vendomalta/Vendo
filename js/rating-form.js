@@ -14,7 +14,7 @@ async function showRatingForm(listingId, sellerId) {
         // Kullanıcı kontrol et
         const user = await getCurrentUser();
         if (!user) {
-            logger.toast('Yorum yapmak için lütfen giriş yapınız', 'warning');
+            logger.toast('Please sign in to leave a review', 'warning');
             window.location.href = '/login.html';
             return;
         }
@@ -198,13 +198,13 @@ async function showRatingForm(listingId, sellerId) {
                 location.reload();
             } catch (error) {
                 // ✅ Logger ile hata işleme
-                logger.error('Yorum gönderme hatası', error);
+                logger.error('Review submission error', error);
             }
         });
 
     } catch (error) {
         // ✅ Logger ile hata işleme
-        logger.error('Rating formu açılırken hata', error);
+        logger.error('Error opening rating form', error);
     }
 }
 

@@ -93,14 +93,14 @@ async function loadProfile() {
 
         if (currentPath === 'complete-profile.html') {
             if (!isProfileIncomplete) {
-                console.log('Profil tam görünüyor, ana sayfaya yönlendiriliyor...');
+                console.log('Profile looks complete, redirecting to homepage...');
                 window.location.href = 'index.html';
                 return;
             }
         } else if (!publicPages.includes(currentPath)) {
             if (isProfileIncomplete) {
                 const isSocialLogin = currentSession.user.app_metadata?.provider !== 'email';
-                console.warn(`${isSocialLogin ? 'Social' : 'Email'} login: Eksik profil bilgileri tespit edildi.`);
+                console.warn(`${isSocialLogin ? 'Social' : 'Email'} login: Missing profile information detected.`);
                 window.location.href = 'complete-profile.html';
                 return;
             }
@@ -171,7 +171,7 @@ document.addEventListener('headerLoaded', () => {
 
 // Yeni kullanıcı kayıt et
 window.register = async () => {
-    console.log('🔵 Register fonksiyonu çağrıldı');
+    console.log('🔵 Register function called');
     
     const firstName = document.getElementById('signupFirstName')?.value?.trim() || '';
     const lastName = document.getElementById('signupLastName')?.value?.trim() || '';
@@ -184,7 +184,7 @@ window.register = async () => {
 
     const fullPhone = countryCode ? `+${countryCode} ${phone}` : phone;
 
-    console.log('📝 Form değerleri:', { username, email, password: password ? '***' : 'BOŞ', phone: fullPhone });
+    console.log('📝 Form values:', { username, email, password: password ? '***' : 'EMPTY', phone: fullPhone });
 
     // Validation
     if (!username || !email || !password) {
@@ -205,7 +205,7 @@ window.register = async () => {
         return;
     }
 
-    console.log('✅ Validasyon başarılı, Supabase\'e istek gönderiliyor...');
+    console.log('✅ Validation successful, sending request to Supabase...');
 
     try {
         const { data, error } = await supabase.auth.signUp({
@@ -221,11 +221,11 @@ window.register = async () => {
         });
 
         if (error) {
-            console.error('❌ Supabase hatası:', error);
+            console.error('❌ Supabase error:', error);
             throw error;
         }
 
-        console.log('✅ Kayıt başarılı:', data);
+        console.log('✅ Registration successful:', data);
         
         if (data.user && data.user.identities && data.user.identities.length === 0) {
             // Email verification required
@@ -245,13 +245,13 @@ window.register = async () => {
 
 // Kullanıcı giriş yap
 window.login = async () => {
-    console.log('🔵 Login fonksiyonu çağrıldı');
+    console.log('🔵 Login function called');
     
     // Login formundaki ID'ler loginEmail, loginPassword veya email, password
     const email = document.getElementById('loginEmail')?.value || document.getElementById('email')?.value || '';
     const password = document.getElementById('loginPassword')?.value || document.getElementById('password')?.value || '';
 
-    console.log('📝 Form değerleri:', { email, password: password ? '***' : 'BOŞ' });
+    console.log('📝 Form values:', { email, password: password ? '***' : 'EMPTY' });
 
     if (!email || !password) {
         console.error('❌ Email or password empty');
@@ -273,7 +273,7 @@ window.login = async () => {
         return;
     }
 
-    console.log('✅ Validasyon başarılı, Supabase\'e giriş isteği gönderiliyor...');
+    console.log('✅ Validation successful, sending login request to Supabase...');
 
     try {
         const { data, error } = await supabase.auth.signInWithPassword({
@@ -296,7 +296,7 @@ window.login = async () => {
             throw error;
         }
 
-        console.log('✅ Giriş başarılı!', data);
+        console.log('✅ Login successful!', data);
         
         if (data.user && !data.user.email_confirmed_at) {
             showNotification('⚠️ Email address not verified!\n\n📧 Please click the verification link sent to your email.\n\nCheck your spam folder if you didn\'t receive it.', 'warning');
@@ -319,7 +319,7 @@ window.login = async () => {
             window.location.href = 'index.html';
         }
     } catch (error) {
-        console.error('❌ Giriş hatası:', error);
+        console.error('❌ Login error:', error);
     }
 };
 
@@ -331,7 +331,7 @@ window.handleLogout = async () => {
         await supabase.auth.signOut();
         window.location.href = 'login.html';
     } catch (error) {
-        console.error('Çıkış hatası:', error);
+        console.error('Logout error:', error);
         // Even if logging fails, still logout
         await supabase.auth.signOut();
         window.location.href = 'login.html';
@@ -342,12 +342,12 @@ window.handleLogout = async () => {
 window.socialLogin = async (provider) => {
     try {
         if (provider === 'facebook') {
-            console.log('🔵 Facebook girişi geçici olarak devre dışı.');
-            showNotification('Facebook ile giriş seçeneği yakında aktif olacaktır. Lütfen Google veya e-posta ile devam edin.', 'info');
+            console.log('🔵 Facebook login is temporarily disabled.');
+            showNotification('Facebook login will be active soon. Please continue with Google or email.', 'info');
             return; // Çıkış yap ve devam etme
         }
 
-        console.log(`🔵 ${provider} ile giriş başlatılıyor...`);
+        console.log(`🔵 Starting login with ${provider}...`);
         // Check for redirect URL in current page params
         const params = new URLSearchParams(window.location.search);
         const redirectParam = params.get('redirect');
@@ -367,13 +367,13 @@ window.socialLogin = async (provider) => {
         });
 
         if (error) {
-            console.error('❌ Social login başlatma hatası:', error);
-            showNotification(`${provider} ile giriş başlatılamadı: ${error.message}`, 'error');
+            console.error('❌ Social login start error:', error);
+            showNotification(`Could not start login with ${provider}: ${error.message}`, 'error');
             throw error;
         }
 
         // Redirects are handled automatically by Supabase OAuth on success.
     } catch (error) {
-        console.error('❌ Social login sistem hatası:', error);
+        console.error('❌ Social login system error:', error);
     }
 };

@@ -57,7 +57,7 @@ export class TransactionApprovalManager {
 
             return newApproval && newApproval.length > 0 ? newApproval[0] : null;
         } catch (error) {
-            logger.error('İşlem onayı oluşturma hatası', error);
+            logger.error('Transaction approval creation error', error);
             throw error;
         }
     }
@@ -68,7 +68,7 @@ export class TransactionApprovalManager {
     async updateApproval(approvalId, isApprovedByBuyer = null, isApprovedBySeller = null) {
         try {
             const { data: { user } } = await this.supabase.auth.getUser();
-            if (!user) throw new Error('Kullanıcı bulunamadı');
+            if (!user) throw new Error('User not found');
 
             // Mevcut onayı getir
             const { data: approval, error: fetchError } = await this.supabase
@@ -76,7 +76,7 @@ export class TransactionApprovalManager {
                 .select('*')
                 .eq('id', approvalId);
 
-            if (fetchError || !approval || approval.length === 0) throw fetchError || new Error('Onay bulunamadı');
+            if (fetchError || !approval || approval.length === 0) throw fetchError || new Error('Approval not found');
 
             const currentApproval = approval[0];
             const updateData = {
@@ -104,7 +104,7 @@ export class TransactionApprovalManager {
             if (updateError) throw updateError;
             return updated && updated.length > 0 ? updated[0] : null;
         } catch (error) {
-            logger.error('Onay güncelleme hatası', error);
+            logger.error('Approval update error', error);
             throw error;
         }
     }
@@ -124,7 +124,7 @@ export class TransactionApprovalManager {
             const app = approval[0];
             return app.transaction_completed && app.buyer_approved && app.seller_approved;
         } catch (error) {
-            logger.error('İşlem durumu kontrol hatası', error);
+            logger.error('Transaction status check error', error);
             return false;
         }
     }
@@ -146,7 +146,7 @@ export class TransactionApprovalManager {
             if (error || !approval || approval.length === 0) {
                 return {
                     canRate: false,
-                    reason: 'İşlem henüz tamamlanmamış veya onaylanmamış'
+                    reason: 'Transaction not yet completed or approved'
                 };
             }
 
@@ -158,7 +158,7 @@ export class TransactionApprovalManager {
             logger.error('Değerlendirme kontrol hatası', error);
             return {
                 canRate: false,
-                reason: 'Bir hata oluştu'
+                reason: 'An error occurred'
             };
         }
     }
@@ -182,7 +182,7 @@ export class TransactionApprovalManager {
             if (error) throw error;
             return approvals || [];
         } catch (error) {
-            logger.error('Kullanıcı onayları getirme hatası', error);
+            logger.error('User approvals fetch error', error);
             return [];
         }
     }
@@ -197,7 +197,7 @@ export class TransactionApprovalManager {
                 .select('*')
                 .eq('id', approvalId);
 
-            if (fetchError || !approval || approval.length === 0) throw fetchError || new Error('Onay bulunamadı');
+            if (fetchError || !approval || approval.length === 0) throw fetchError || new Error('Approval not found');
 
             const app = approval[0];
             if (app.buyer_approved && app.seller_approved) {
@@ -216,7 +216,7 @@ export class TransactionApprovalManager {
 
             return app;
         } catch (error) {
-            logger.error('İşlem tamamlama hatası', error);
+            logger.error('Transaction completion error', error);
             throw error;
         }
     }
@@ -241,7 +241,7 @@ export class TransactionApprovalManager {
             if (error) throw error;
             return approvals || [];
         } catch (error) {
-            logger.error('Bekleyen onayları getirme hatası', error);
+            logger.error('Pending approvals fetch error', error);
             return [];
         }
     }

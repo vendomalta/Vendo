@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ayarlar - VENDO</title>
+    <title>Settings - VENDO</title>
     <link rel="icon" type="image/svg+xml" href="assets/images/verde-logo.svg" sizes="any">
     <link rel="shortcut icon" href="assets/images/verde-logo.svg">
     <link rel="apple-touch-icon" href="assets/images/verde-logo.svg">
@@ -243,7 +243,7 @@
             <!-- Sayfa Başlığı -->
             <div class="page-header">
                 <div class="header-content">
-                    <h1><i class="fas fa-cog"></i> Hesap Ayarları</h1>
+                    <h1><i class="fas fa-cog"></i> Account Settings</h1>
                 </div>
             </div>
 
@@ -253,19 +253,19 @@
                     <nav class="settings-nav">
                         <a href="#security" class="nav-item active">
                             <i class="fas fa-shield-alt"></i>
-                            <span>Güvenlik</span>
+                            <span>Security</span>
                         </a>
                         <a href="#notifications" class="nav-item">
                             <i class="fas fa-bell"></i>
-                            <span>Bildirimler</span>
+                            <span>Notifications</span>
                         </a>
                         <a href="#appearance" class="nav-item">
                             <i class="fas fa-palette"></i>
-                            <span>Görünüm</span>
+                            <span>Appearance</span>
                         </a>
                         <a href="#data" class="nav-item">
                             <i class="fas fa-download"></i>
-                            <span>Veri Yönetimi</span>
+                            <span>Data Management</span>
                         </a>
                     </nav>
                 </div>
@@ -275,16 +275,16 @@
                     <!-- Güvenlik -->
                     <div id="security" class="settings-section active">
                         <div class="section-header">
-                            <h2>Güvenlik Ayarları</h2>
+                            <h2>Security Settings</h2>
                         </div>
 
                         <div class="settings-card">
-                            <h3>Şifre Değiştir</h3>
+                            <h3>Change Password</h3>
                             <form id="passwordChangeForm" class="password-form">
                                 <div class="form-group">
-                                    <label>Mevcut Şifre</label>
+                                    <label>Current Password</label>
                                     <div class="password-input">
-                                        <input type="password" id="currentPassword" placeholder="Mevcut şifrenizi girin"
+                                        <input type="password" id="currentPassword" placeholder="Enter your current password"
                                             required>
                                         <button type="button" class="toggle-password"
                                             onclick="togglePasswordVisibility(this)">
@@ -293,9 +293,9 @@
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label>Yeni Şifre</label>
+                                    <label>New Password</label>
                                     <div class="password-input">
-                                        <input type="password" id="newPassword" placeholder="Yeni şifrenizi girin"
+                                        <input type="password" id="newPassword" placeholder="Enter your new password"
                                             required>
                                         <button type="button" class="toggle-password"
                                             onclick="togglePasswordVisibility(this)">
@@ -306,30 +306,30 @@
                                         <div class="strength-bar">
                                             <div id="newPasswordStrengthFill" class="strength-fill weak"></div>
                                         </div>
-                                        <span id="newPasswordStrengthText" class="strength-text">Zayıf</span>
+                                        <span id="newPasswordStrengthText" class="strength-text">Weak</span>
                                     </div>
                                     <!-- Password Requirements -->
                                     <div class="password-requirements" id="passwordRequirements"
                                         style="margin-top: 1rem; font-size: 0.85rem;">
-                                        <p style="margin: 0 0 0.5rem 0; font-weight: 500;">Gereksinimler:</p>
+                                        <p style="margin: 0 0 0.5rem 0; font-weight: 500;">Requirements:</p>
                                         <ul style="list-style: none; padding: 0; margin: 0;">
                                             <li id="req-length" style="color: #ef4444; margin-bottom: 0.25rem;">
-                                                <i class="fas fa-times"></i> En az 8 karakter
+                                                <i class="fas fa-times"></i> At least 8 characters
                                             </li>
                                             <li id="req-uppercase" style="color: #ef4444; margin-bottom: 0.25rem;">
-                                                <i class="fas fa-times"></i> En az 1 büyük harf
+                                                <i class="fas fa-times"></i> At least 1 uppercase letter
                                             </li>
                                             <li id="req-lowercase" style="color: #ef4444;">
-                                                <i class="fas fa-times"></i> En az 1 küçük harf
+                                                <i class="fas fa-times"></i> At least 1 lowercase letter
                                             </li>
                                         </ul>
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label>Yeni Şifre (Tekrar)</label>
+                                    <label>New Password (Confirm)</label>
                                     <div class="password-input">
                                         <input type="password" id="confirmPassword"
-                                            placeholder="Yeni şifrenizi tekrar girin" required>
+                                            placeholder="Enter your new password again" required>
                                         <button type="button" class="toggle-password"
                                             onclick="togglePasswordVisibility(this)">
                                             <i class="fas fa-eye"></i>
@@ -337,16 +337,16 @@
                                     </div>
                                     <small id="passwordMatchError"
                                         style="color: #ef4444; display: none; margin-top: 0.5rem;">
-                                        <i class="fas fa-exclamation-circle"></i> Şifreler eşleşmiyor
+                                        <i class="fas fa-exclamation-circle"></i> Passwords do not match
                                     </small>
                                     <small id="passwordMatchSuccess"
                                         style="color: #10b981; display: none; margin-top: 0.5rem;">
-                                        <i class="fas fa-check-circle"></i> Şifreler eşleşiyor
+                                        <i class="fas fa-check-circle"></i> Passwords match
                                     </small>
                                 </div>
                                 <button type="submit" class="btn-primary" id="passwordChangeBtn">
                                     <i class="fas fa-key"></i>
-                                    Şifreyi Güncelle
+                                    Update Password
                                 </button>
                             </form>
                         </div>
@@ -360,15 +360,15 @@
                     <!-- Bildirimler -->
                     <div id="notifications" class="settings-section">
                         <div class="section-header">
-                            <h2>Bildirim Ayarları</h2>
+                            <h2>Notification Settings</h2>
                         </div>
 
                         <div class="settings-card">
-                            <h3>E-posta Bildirimleri</h3>
+                            <h3>Email Notifications</h3>
                             <div class="toggle-setting">
                                 <div class="setting-info">
-                                    <h4>Yeni Mesajlar</h4>
-                                    <p>Yeni mesaj aldığınızda e-posta gönderilir</p>
+                                    <h4>New Messages</h4>
+                                    <p>Emails will be sent when you receive new messages</p>
                                 </div>
                                 <label class="toggle-switch">
                                     <input type="checkbox" id="notifyMessages" checked>
@@ -377,8 +377,8 @@
                             </div>
                             <div class="toggle-setting">
                                 <div class="setting-info">
-                                    <h4>Fiyat Değişiklikleri</h4>
-                                    <p>Favori ilanlarınızın fiyatı değiştiğinde bildirim alın</p>
+                                    <h4>Price Changes</h4>
+                                    <p>Get notified when the price of your favorite listings change</p>
                                 </div>
                                 <label class="toggle-switch">
                                     <input type="checkbox" id="notifyPriceChanges" checked>
@@ -387,8 +387,8 @@
                             </div>
                             <div class="toggle-setting">
                                 <div class="setting-info">
-                                    <h4>İlan Güncellemeleri</h4>
-                                    <p>İlanlarınızla ilgili önemli güncellemeler</p>
+                                    <h4>Listing Updates</h4>
+                                    <p>Important updates about your listings</p>
                                 </div>
                                 <label class="toggle-switch">
                                     <input type="checkbox" id="notifyListingsUpdates" checked>
@@ -398,11 +398,11 @@
                         </div>
 
                         <div class="settings-card">
-                            <h3>Pazarlama Bildirimleri</h3>
+                            <h3>Marketing Notifications</h3>
                             <div class="toggle-setting">
                                 <div class="setting-info">
-                                    <h4>Kampanyalar ve İndirimler</h4>
-                                    <p>Özel teklifler ve kampanyalardan haberdar olun</p>
+                                    <h4>Campaigns and Discounts</h4>
+                                    <p>Be informed about special offers and campaigns</p>
                                 </div>
                                 <label class="toggle-switch">
                                     <input type="checkbox" id="notifyMarketing" checked>
@@ -415,20 +415,20 @@
                     <!-- Görünüm -->
                     <div id="appearance" class="settings-section">
                         <div class="section-header">
-                            <h2>Görünüm Ayarları</h2>
+                            <h2>Appearance Settings</h2>
                         </div>
 
 
                         <div class="settings-card">
-                            <h3>Dil ve Bölge</h3>
+                            <h3>Language and Region</h3>
                             <div class="form-group">
-                                <label>Dil</label>
+                                <label>Language</label>
                                 <select disabled style="background-color: #f0f0f0; cursor: not-allowed;">
                                     <option selected>English</option>
                                 </select>
                             </div>
                             <div class="form-group">
-                                <label>Para Birimi</label>
+                                <label>Currency</label>
                                 <select disabled style="background-color: #f0f0f0; cursor: not-allowed;">
                                     <option selected>EUR (Euro)</option>
                                 </select>
@@ -439,21 +439,21 @@
                     <!-- Veri Yönetimi -->
                     <div id="data" class="settings-section">
                         <div class="section-header">
-                            <h2>Veri Yönetimi</h2>
-                            <p>Verilerinizi yönetin ve hesabınızı kontrol edin</p>
+                            <h2>Data Management</h2>
+                            <p>Manage your data and control your account</p>
                         </div>
 
                         <div class="settings-card">
-                            <h3>Admin Paneli</h3>
-                            <p>Platform yönetimi için admin paneline erişin</p>
+                            <h3>Admin Panel</h3>
+                            <p>Access the admin panel for platform management</p>
                             <button class="btn-secondary" onclick="window.location.href='admin/login.html'">
                                 <i class="fas fa-shield-alt"></i>
-                                Admin Paneline Git
+                                Go to Admin Panel
                             </button>
                         </div>
 
                         <div class="settings-card danger-zone">
-                            <h3>Hesap İşlemleri</h3>
+                            <h3>Account Actions</h3>
                             <div class="danger-actions">
 
                                 <!-- Mobile Logout Button -->
@@ -475,23 +475,23 @@
                                 </style>
                                 <div class="danger-action mobile-logout-action" style="margin-bottom: 1.5rem; padding-bottom: 1.5rem; border-bottom: 1px solid #e5e7eb;">
                                     <div class="action-info">
-                                        <h4>Hesaptan Çıkış Yap</h4>
-                                        <p>Mevcut oturumunuzu güvenle sonlandırır</p>
+                                        <h4>Log out of account</h4>
+                                        <p>Securely ends your current session</p>
                                     </div>
                                     <button class="btn-secondary" onclick="if(window.handleLogout) window.handleLogout(); else { localStorage.clear(); sessionStorage.clear(); window.location.href='login.html'; }">
                                         <i class="fas fa-sign-out-alt"></i>
-                                        Çıkış Yap
+                                        Log Out
                                     </button>
                                 </div>
 
                                 <div class="danger-action">
                                     <div class="action-info">
-                                        <h4 style="color: #ef4444;">Hesabı Kalıcı Sil</h4>
-                                        <p>Tüm verileriniz kalıcı olarak silinir</p>
+                                        <h4 style="color: #ef4444;">Permanently Delete Account</h4>
+                                        <p>All your data will be permanently deleted</p>
                                     </div>
                                     <button class="btn-danger" id="deleteAccountBtn">
                                         <i class="fas fa-trash"></i>
-                                        Hesabı Sil
+                                        Delete Account
                                     </button>
                                 </div>
                             </div>
@@ -512,7 +512,7 @@
             if (file) {
                 // Loading state
                 button.classList.add('loading');
-                button.innerHTML = '<i class="fas fa-spinner"></i><span>Yükleniyor...</span>';
+                button.innerHTML = '<i class="fas fa-spinner"></i><span>Uploading...</span>';
 
                 // Simulate upload process
                 setTimeout(() => {
@@ -523,12 +523,12 @@
                         // Success state
                         button.classList.remove('loading');
                         button.classList.add('success');
-                        button.innerHTML = '<i class="fas fa-check"></i><span>Başarılı!</span>';
+                        button.innerHTML = '<i class="fas fa-check"></i><span>Success!</span>';
 
                         // Reset button after 2 seconds
                         setTimeout(() => {
                             button.classList.remove('success');
-                            button.innerHTML = '<i class="fas fa-camera"></i><span>Fotoğraf Değiştir</span>';
+                            button.innerHTML = '<i class="fas fa-camera"></i><span>Change Photo</span>';
                         }, 2000);
                     };
                     reader.readAsDataURL(file);
@@ -543,7 +543,7 @@
 
             // Loading state
             button.classList.add('loading');
-            button.innerHTML = '<i class="fas fa-spinner"></i><span>Kaldırılıyor...</span>';
+            button.innerHTML = '<i class="fas fa-spinner"></i><span>Removing...</span>';
 
             // Simulate removal process
             setTimeout(() => {
@@ -553,15 +553,15 @@
                 // Success state
                 button.classList.remove('loading');
                 button.classList.add('success');
-                button.innerHTML = '<i class="fas fa-check"></i><span>Kaldırıldı!</span>';
+                button.innerHTML = '<i class="fas fa-check"></i><span>Removed!</span>';
 
                 // Show success notification
-                showSaveNotification('Profil fotoğrafı başarıyla kaldırıldı!', 'success');
+                showSaveNotification('Profile photo removed successfully!', 'success');
 
                 // Reset button after 2 seconds
                 setTimeout(() => {
                     button.classList.remove('success');
-                    button.innerHTML = '<i class="fas fa-trash"></i><span>Fotoğrafı Kaldır</span>';
+                    button.innerHTML = '<i class="fas fa-trash"></i><span>Remove Photo</span>';
                 }, 2000);
             }, 1000);
         }
@@ -654,7 +654,7 @@
 
         // Example save function
         function saveAccountSettings() {
-            showSaveNotification('Hesap bilgileri başarıyla güncellendi!', 'success');
+            showSaveNotification('Account settings updated successfully!', 'success');
         }
 
         // Phone number formatting
@@ -1199,7 +1199,7 @@
                     });
 
                     if (signInError) {
-                        throw new Error('Mevcut şifre yanlış');
+                        throw new Error('Current password is incorrect');
                     }
 
                     // Second: Update password
@@ -1212,13 +1212,13 @@
                     }
 
                     // Success
-                    showNotification('Şifreniz başarıyla güncellendi!', 'success');
+                    showNotification('Your password has been updated successfully!', 'success');
                     passwordChangeForm.reset();
                     updatePasswordStrength('');
                     checkPasswordMatch();
 
                 } catch (error) {
-                    console.error('Şifre değiştirme hatası:', error);
+                    console.error('Password change error:', error);
                     showNotification(error.message, 'error');
                 } finally {
                     btn.innerHTML = originalText;
@@ -1244,7 +1244,7 @@
                 const { data: { user }, error } = await supabase.auth.getUser();
 
                 if (error || !user) {
-                    console.log('Kullanıcı girişi gerekli');
+                    console.log('User sign in required');
                     window.location.href = 'login.html';
                     return;
                 }

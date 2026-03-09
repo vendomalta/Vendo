@@ -7,6 +7,7 @@ import { supabase } from './supabase.js';
 import { sanitizeHTML, sanitizeText } from './xss-protection.js';
 import MessageTransactionUI from './message-transaction-ui.js';
 import TransactionApprovalManager from './transaction-approval.js';
+import { messageLimiter } from './rate-limiter.js';
 
 (function() {
     'use strict';
@@ -84,7 +85,7 @@ import TransactionApprovalManager from './transaction-approval.js';
   
     function formatTime(timestamp) {
         const date = new Date(timestamp);
-        return date.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
+        return date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
     }
 
     function formatDate(timestamp) {
@@ -94,11 +95,11 @@ import TransactionApprovalManager from './transaction-approval.js';
         yesterday.setDate(yesterday.getDate() - 1);
 
         if (date.toDateString() === today.toDateString()) {
-            return 'Bugün';
+            return 'Today';
         } else if (date.toDateString() === yesterday.toDateString()) {
-            return 'Dün';
+            return 'Yesterday';
         } else {
-            return date.toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' });
+            return date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
         }
     }
   
@@ -111,7 +112,7 @@ import TransactionApprovalManager from './transaction-approval.js';
     /**
      * Özel onay dialogu göster (tarayıcı confirm yerine)
      */
-    function showConfirmDialog(message, title = 'Onay') {
+    function showConfirmDialog(message, title = 'Confirm') {
         return new Promise((resolve) => {
             const modal = document.createElement('div');
             modal.className = 'confirm-modal';
@@ -125,8 +126,8 @@ import TransactionApprovalManager from './transaction-approval.js';
                         <p>${sanitizeText(message)}</p>
                     </div>
                     <div class="confirm-modal-footer">
-                        <button class="btn-cancel">İptal</button>
-                        <button class="btn-confirm">Sil</button>
+                        <button class="btn-cancel">Cancel</button>
+                        <button class="btn-confirm">Delete</button>
                     </div>
                 </div>
             `;
@@ -207,7 +208,7 @@ import TransactionApprovalManager from './transaction-approval.js';
         });
     }
 
-    function showLoading(element, message = 'Yükleniyor...') {
+    function showLoading(element, message = 'Loading...') {
         element.innerHTML = `
             <div class="loading-state">
                 <i class="fas fa-spinner fa-spin"></i>
@@ -221,7 +222,7 @@ import TransactionApprovalManager from './transaction-approval.js';
             <div class="error-state">
                 <i class="fas fa-exclamation-circle"></i>
                 <p>${sanitizeText(message)}</p>
-                <button onclick="location.reload()" class="btn-primary">Yeniden Dene</button>
+                <button onclick="location.reload()" class="btn-primary">Retry</button>
             </div>
         `;
     }
@@ -242,7 +243,7 @@ import TransactionApprovalManager from './transaction-approval.js';
      */
     async function loadConversations() {
         try {
-            showLoading(conversationsList, 'Konuşmalar yükleniyor...');
+            showLoading(conversationsList, 'Loading conversations...');
 
             // Kullanıcının mesajlarını getir (hem gönderen hem alıcı olarak)
             const { data: userMessages, error } = await supabase
@@ -259,7 +260,7 @@ import TransactionApprovalManager from './transaction-approval.js';
             console.log('📬 Toplam indirilen mesaj sayısı (ham):', userMessages?.length || 0);
 
             if (!userMessages || userMessages.length === 0) {
-                showEmpty(conversationsList, 'Henüz mesajınız yok', 'fa-inbox');
+                showEmpty(conversationsList, "You don't have any messages yet", 'fa-inbox');
                 return;
             }
 
@@ -284,7 +285,7 @@ import TransactionApprovalManager from './transaction-approval.js';
             console.log('📬 Görüntülenebilir mesaj sayısı:', visibleMessages.length);
 
             if (visibleMessages.length === 0) {
-                showEmpty(conversationsList, 'Henüz mesajınız yok', 'fa-inbox');
+                showEmpty(conversationsList, "You don't have any messages yet", 'fa-inbox');
                 return;
             }
 
@@ -336,7 +337,7 @@ import TransactionApprovalManager from './transaction-approval.js';
             // Konuşmaları oluştur
             conversations = Array.from(conversationMap.values()).map(conv => ({
                 ...conv,
-                other_user: profileMap.get(conv.other_user_id) || { id: conv.other_user_id, full_name: 'Kullanıcı', avatar_url: null },
+                other_user: profileMap.get(conv.other_user_id) || { id: conv.other_user_id, full_name: 'User', avatar_url: null },
                 listing: listingMap.get(conv.listing_id) || null
             }));
 
@@ -362,7 +363,7 @@ import TransactionApprovalManager from './transaction-approval.js';
 
         } catch (error) {
             console.error('Konuşmalar yüklenirken hata:', error);
-            showError(conversationsList, 'Konuşmalar yüklenemedi');
+            showError(conversationsList, 'Could not load conversations');
         }
     }
 
@@ -387,7 +388,7 @@ import TransactionApprovalManager from './transaction-approval.js';
             conversationsList.innerHTML = `
                 <div class="empty-state" style="padding: 20px; text-align: center; color: #6b7280;">
                     <i class="fas fa-search" style="font-size: 2rem; margin-bottom: 10px; opacity: 0.5;"></i>
-                    <p>Sonuç bulunamadı.</p>
+                    <p>No results found.</p>
                 </div>
             `;
             return;
@@ -423,17 +424,17 @@ import TransactionApprovalManager from './transaction-approval.js';
                     </div>
                     <div class="conversation-content">
                         <div class="conversation-header">
-                            <h4>${sanitizeText(conv.listing ? conv.listing.title : 'İlan')}</h4>
+                            <h4>${sanitizeText(conv.listing ? conv.listing.title : 'Listing')}</h4>
                             <span class="conversation-time">${formatDate(conv.last_message_time)}</span>
                         </div>
-                        <p class="conversation-listing-title">${sanitizeText(conv.other_user.full_name || 'Kullanıcı')}</p>
+                        <p class="conversation-listing-title">${sanitizeText(conv.other_user.full_name || 'User')}</p>
                         <p class="last-message ${conv.unread_count > 0 ? 'unread-text' : ''}">${sanitizeText(conv.last_message.substring(0, 50) + (conv.last_message.length > 50 ? '...' : ''))}</p>
                     </div>
                     ${conv.unread_count > 0 ? `<span class="unread-badge">${conv.unread_count > 99 ? '99+' : conv.unread_count}</span>` : ''}
                     
                     <!-- Swipe Actions -->
                     <div class="conversation-swipe-actions">
-                        <button class="swipe-action-btn" onclick="window.MessagesApp?.deleteConversation('${conv.listing_id}', '${conv.other_user.id}')" title="Sil">
+                        <button class="swipe-action-btn" onclick="window.MessagesApp?.deleteConversation('${conv.listing_id}', '${conv.other_user.id}')" title="Delete">
                             <i class="fas fa-trash"></i>
                         </button>
                     </div>
@@ -497,7 +498,7 @@ import TransactionApprovalManager from './transaction-approval.js';
                 
                 adReference.style.display = 'flex';
                 adReference.innerHTML = `
-                    <button class="back-to-list-btn" onclick="window.MessagesApp?.backToList()" title="Geri">
+                    <button class="back-to-list-btn" onclick="window.MessagesApp?.backToList()" title="Back">
                         <i class="fas fa-arrow-left"></i>
                     </button>
                     <img src="${mainImage}" alt="${listing.title}">
@@ -506,16 +507,16 @@ import TransactionApprovalManager from './transaction-approval.js';
                         <p class="ad-price">${listing.currency || '€'}${listing.price.toLocaleString()}</p>
                     </div>
                     <div class="ad-actions">
-                        <button class="view-ad-btn" onclick="window.location.href='ilan-detay.html?id=${listing.id}'">İlanı Gör</button>
+                        <button class="view-ad-btn" onclick="window.location.href='ilan-detay.html?id=${listing.id}'">View Listing</button>
                         <div class="action-menu-wrapper">
-                            <button class="three-dots-btn" title="Diğer işlemler"> 
+                            <button class="three-dots-btn" title="Other actions"> 
                                 <i class="fas fa-ellipsis-v"></i>
                             </button>
                             <div class="ad-action-menu" style="display:none;">
-                                <button class="ad-action archive-action">Sohbeti Arşivle</button>
-                                <button class="ad-action delete-action">Sohbeti Sil</button>
-                                <button class="ad-action report-action">Şikayet Et</button>
-                                <button class="ad-action block-action">Engelle</button>
+                                <button class="ad-action archive-action">Archive Chat</button>
+                                <button class="ad-action delete-action">Delete Chat</button>
+                                <button class="ad-action report-action">Report</button>
+                                <button class="ad-action block-action">Block</button>
                                 
                             </div>
                         </div>
@@ -626,7 +627,7 @@ import TransactionApprovalManager from './transaction-approval.js';
 
     async function loadMessages(listingId, otherUserId) {
         try {
-            showLoading(messagesContent, 'Mesajlar yükleniyor...');
+            showLoading(messagesContent, 'Loading messages...');
 
             // 1) Toplam mesaj sayısını al
             const countResp = await supabase
@@ -639,7 +640,7 @@ import TransactionApprovalManager from './transaction-approval.js';
 
             if (!messagesTotalCount) {
                 messages = [];
-                showEmpty(messagesContent, 'Henüz mesaj yok. İlk mesajı siz gönderin!', 'fa-comment-dots');
+                showEmpty(messagesContent, 'No messages yet. Send the first message!', 'fa-comment-dots');
                 return;
             }
 
@@ -698,7 +699,7 @@ import TransactionApprovalManager from './transaction-approval.js';
                         warningDiv.innerHTML = `
                             <div>
                                 <i class="fas fa-ban"></i> 
-                                <strong>Bu kullanıcıyı engellediniz.</strong>
+                                <strong>You blocked this user.</strong>
                             </div>
                             <button id="unblockUserBtn" style="
                                 background: white; 
@@ -709,13 +710,13 @@ import TransactionApprovalManager from './transaction-approval.js';
                                 cursor: pointer; 
                                 font-weight: 500;
                                 transition: all 0.2s;
-                            ">Engeli Kaldır</button>
+                            ">Unblock</button>
                         `;
                     } else {
                         warningDiv.innerHTML = `
                             <div>
                                 <i class="fas fa-ban"></i> 
-                                <strong>Bu kullanıcı tarafından engellendiniz. Mesaj gönderemezsiniz.</strong>
+                                <strong>You have been blocked by this user. You cannot send messages.</strong>
                             </div>
                         `;
                     }
@@ -738,17 +739,17 @@ import TransactionApprovalManager from './transaction-approval.js';
                                         display: flex; align-items: center; justify-content: center;
                                     `;
                                     overlay.innerHTML = `
-                                        <div style="background: white; padding: 25px; border-radius: 12px; max-width: 400px; width: 90%; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.2);">
+                                    <div style="background: white; padding: 25px; border-radius: 12px; max-width: 400px; width: 90%; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.2);">
                                             <div style="margin-bottom: 15px;">
                                                 <i class="fas fa-unlock" style="font-size: 3rem; color: #10b981;"></i>
                                             </div>
-                                            <h3 style="margin: 0 0 10px 0; color: #1f2937; font-size: 1.25rem; font-weight: 600;">Engeli Kaldır</h3>
+                                            <h3 style="margin: 0 0 10px 0; color: #1f2937; font-size: 1.25rem; font-weight: 600;">Unblock</h3>
                                             <p style="color: #4b5563; margin-bottom: 20px; line-height: 1.5;">
-                                                Kullanıcının engelini kaldırmak istiyor musunuz? Kullanıcı size tekrar mesaj gönderebilecek.
+                                                Do you want to unblock the user? The user will be able to message you again.
                                             </p>
                                             <div style="display: flex; gap: 10px; justify-content: center;">
-                                                <button id="cancelUnblockBtn" style="padding: 10px 20px; border: 1px solid #d1d5db; background: white; border-radius: 8px; cursor: pointer; font-weight: 500; font-size: 0.95rem; color: #374151;">İptal</button>
-                                                <button id="confirmUnblockBtn" style="padding: 10px 20px; border: none; background: #10b981; color: white; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.95rem;">Engeli Kaldır</button>
+                                                <button id="cancelUnblockBtn" style="padding: 10px 20px; border: 1px solid #d1d5db; background: white; border-radius: 8px; cursor: pointer; font-weight: 500; font-size: 0.95rem; color: #374151;">Cancel</button>
+                                                <button id="confirmUnblockBtn" style="padding: 10px 20px; border: none; background: #10b981; color: white; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.95rem;">Unblock</button>
                                             </div>
                                         </div>
                                     `;
@@ -776,7 +777,7 @@ import TransactionApprovalManager from './transaction-approval.js';
                                     // Remove from LocalStorage
                                     localStorage.removeItem(`blocked_${currentUser.id}_${otherUserId}`);
                                     
-                                    showNotification('Engel kaldırıldı.', 'success');
+                                    showNotification('Unblocked.', 'success');
                                     // Refresh UI
                                     setTimeout(() => location.reload(), 1000);
                                 }
@@ -805,7 +806,7 @@ import TransactionApprovalManager from './transaction-approval.js';
 
         } catch (error) {
             console.error('Mesajlar yüklenirken hata:', error);
-            showError(messagesContent, 'Mesajlar yüklenemedi');
+            showError(messagesContent, 'Could not load messages');
         }
     }
 
@@ -867,16 +868,16 @@ import TransactionApprovalManager from './transaction-approval.js';
             if (isSent) {
                 // Özel durum: Bloklu mesaj (Sadece tek tık)
                 if (msg.is_blocked_delivery) {
-                     tickMarkup = '<span class="read-receipt sent" title="İletildi"><i class="fas fa-check"></i></span>';
+                     tickMarkup = '<span class="read-receipt sent" title="Delivered"><i class="fas fa-check"></i></span>';
                 } 
                 else if (msg.is_read) {
-                    tickMarkup = '<span class="read-receipt read" title="Okundu"><i class="fas fa-check"></i><i class="fas fa-check"></i></span>';
+                    tickMarkup = '<span class="read-receipt read" title="Read"><i class="fas fa-check"></i><i class="fas fa-check"></i></span>';
                 } else {
                     // Normal gönderildi (tek tık veya çift tık server durumuna göre değişebilir ama şimdilik tek tık mantığı)
                     // İstenen: "mesaj tek tık olarak kalsın iletilmesin" -> Bloklu ise tek tık.
                     // Normalde okundu değilse gri çift tık veya tek tık olabilir.
                     // Biz burada standart "iletildi" (gri çift tık) kullanıyorduk, onu koruyalım.
-                    tickMarkup = '<span class="read-receipt sent" title="Gönderildi"><i class="fas fa-check"></i><i class="fas fa-check"></i></span>';
+                    tickMarkup = '<span class="read-receipt sent" title="Sent"><i class="fas fa-check"></i><i class="fas fa-check"></i></span>';
                 }
             }
             
@@ -897,7 +898,7 @@ import TransactionApprovalManager from './transaction-approval.js';
                         <div class="typing-dot"></div>
                         <div class="typing-dot"></div>
                         <div class="typing-dot"></div>
-                        <span style="margin-left: 8px;">yazıyor...</span>
+                        <span style="margin-left: 8px;">typing...</span>
                     </div>
                  </div>`;
 
@@ -910,13 +911,22 @@ import TransactionApprovalManager from './transaction-approval.js';
      * Gönderilen mesaj otomatik chatte görünsün
      */
     async function sendMessage() {
+        // 🟢 YENİ: Rate Limit Kontrolü
+        if (messageLimiter.isLimited('user_' + currentUser?.id)) {
+            const minutesRemaining = messageLimiter.getLockTimeRemaining('user_' + currentUser?.id);
+             if (typeof showNotification === 'function') {
+                showNotification(`Too many messages. Please wait ${minutesRemaining} minutes.`, 'warning');
+            }
+            return;
+        }
+
         const content = messageInput.value.trim();
 
         // Kontrol: Mesaj, konuşma ve kullanıcı bilgisi var mı?
         if (!content || !currentConversation || !currentUser) {
             console.error('Mesaj gönderilemedi: Kullanıcı/Konuşma bilgisi eksik.');
             if (typeof showNotification === 'function') {
-                 showNotification('Mesaj göndermek için giriş yapın veya geçerli bir konuşma seçin.', 'warning');
+                 showNotification('Log in or select a valid conversation to send a message.', 'warning');
             }
             return; 
         }
@@ -930,7 +940,7 @@ import TransactionApprovalManager from './transaction-approval.js';
             const blockStatus = await checkBlockedStatus(currentConversation.otherUserId);
             if (blockStatus.isBlocked) {
                 if (blockStatus.type === 'me') {
-                    showNotification('Bu kullanıcıyı engellediniz. Mesaj gönderemezsiniz.', 'error');
+                    showNotification('You blocked this user. You cannot send messages.', 'error');
                 } else {
                     // "Tek tık" simülasyonu: Mesajı sadece yerel olarak ekle ama sunucuya gönderme
                     // Kullanıcı engellendiğini anlamasın diye "gönderildi" gibi davranabiliriz 
@@ -983,6 +993,9 @@ import TransactionApprovalManager from './transaction-approval.js';
 
             if (error) throw error;
 
+            // 🟢 YENİ: Rate Limit Kaydet
+            messageLimiter.recordAttempt('user_' + currentUser.id);
+
             // 🟢 YENİ: Mesajı otomatik olarak chate ekle (subscription beklemeden!)
             messages.push(data);
             renderMessages();
@@ -1001,7 +1014,7 @@ import TransactionApprovalManager from './transaction-approval.js';
 
             // 🟢 YENİ: Başarı bildirimini göster
             if (typeof showNotification === 'function') {
-                showNotification('✅ Mesaj gönderildi!', 'success');
+                showNotification('✅ Message sent!', 'success');
             }
 
             console.log('✅ Mesaj gönderildi ve otomatik gösterildi:', data);
@@ -1009,11 +1022,11 @@ import TransactionApprovalManager from './transaction-approval.js';
         } catch (error) {
             console.error('❌ Mesaj gönderilirken hata:', error);
             if (typeof showNotification === 'function') {
-                showNotification('❌ Mesaj gönderilemedi. Lütfen tekrar deneyin.', 'error');
+                showNotification('❌ Message could not be sent. Please try again.', 'error');
             } else if (typeof showInlineToast === 'function') {
-                showInlineToast('❌ Mesaj gönderilemedi. Lütfen tekrar deneyin.', 'error');
+                showInlineToast('❌ Message could not be sent. Please try again.', 'error');
             } else {
-                console.warn('Mesaj gönderilemedi. Lütfen tekrar deneyin.');
+                console.warn('Message could not be sent. Please try again.');
             }
         } finally {
             // 🟢 YENİ: Send butonunu tekrar enable et
@@ -1316,11 +1329,11 @@ import TransactionApprovalManager from './transaction-approval.js';
                 // TODO: Dosya yükleme implementasyonu
                 console.log('Dosya seçildi:', e.target.files);
                 if (typeof showNotification === 'function') {
-                    showNotification('Dosya yükleme özelliği yakında eklenecek!', 'info');
+                    showNotification('File upload feature will be added soon!', 'info');
                 } else if (typeof showInlineToast === 'function') {
-                    showInlineToast('Dosya yükleme özelliği yakında eklenecek!', 'info');
+                    showInlineToast('File upload feature will be added soon!', 'info');
                 } else {
-                    console.info('Dosya yükleme özelliği yakında eklenecek!');
+                    console.info('File upload feature will be added soon!');
                 }
             }
         });
@@ -1472,10 +1485,10 @@ import TransactionApprovalManager from './transaction-approval.js';
     async function deleteSelectedConversations() {
         if (selectedConversations.size === 0) return;
         
-        const confirmMessage = `${selectedConversations.size} konuşmayı ve içindeki tüm mesajları silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.`;
+        const confirmMessage = `Are you sure you want to delete ${selectedConversations.size} conversations and all messages inside them? This action cannot be undone.`;
         
         // Uygulama içi onay bildirimi
-        const confirmed = await showConfirmDialog(confirmMessage, 'Konuşmaları Sil');
+        const confirmed = await showConfirmDialog(confirmMessage, 'Delete Conversations');
         if (!confirmed) return;
         
         try {
@@ -1497,12 +1510,12 @@ import TransactionApprovalManager from './transaction-approval.js';
             if (hasErrors) {
                 console.warn('⚠️ Bazı mesajlar silinemedi');
                 if (typeof showNotification === 'function') {
-                    showNotification(`⚠️ ${totalDeleted} mesaj silindi, bazı hatalar oluştu`, 'warning');
+                    showNotification(`⚠️ ${totalDeleted} messages deleted, some errors occurred`, 'warning');
                 }
             } else {
                 console.log(`✅ Toplam ${totalDeleted} mesaj başarıyla silindi`);
                 if (typeof showNotification === 'function') {
-                    showNotification(`✅ ${selectedConversations.size} konuşma silindi (${totalDeleted} mesaj)`, 'success');
+                    showNotification(`✅ ${selectedConversations.size} conversations deleted (${totalDeleted} messages)`, 'success');
                 }
             }
             
@@ -1516,11 +1529,11 @@ import TransactionApprovalManager from './transaction-approval.js';
         } catch (error) {
             console.error('❌ Mesajlar silinirken hata:', error);
             if (typeof showNotification === 'function') {
-                showNotification('❌ Mesajlar silinemedi', 'error');
+                showNotification('❌ Messages could not be deleted', 'error');
             } else if (typeof showInlineToast === 'function') {
-                showInlineToast('❌ Mesajlar silinemedi', 'error');
+                showInlineToast('❌ Messages could not be deleted', 'error');
             } else {
-                console.warn('Mesajlar silinemedi. Lütfen tekrar deneyin.');
+                console.warn('Messages could not be deleted. Please try again.');
             }
         }
     }
@@ -1585,7 +1598,7 @@ import TransactionApprovalManager from './transaction-approval.js';
                 // 🟢 Kritik Kontrol: Kendi kendine mesajlaşmayı engelle.
                 if (currentUser.id === sellerId) {
                      if (typeof showNotification === 'function') {
-                        showNotification('Kendi ilanınıza mesaj gönderemezsiniz.', 'warning');
+                        showNotification('You cannot send a message to your own listing.', 'warning');
                     }
                     // URL'yi temizle ve normal konuşmaları yükle
                     window.history.replaceState({}, document.title, 'mesajlar.html');
@@ -1615,7 +1628,7 @@ import TransactionApprovalManager from './transaction-approval.js';
 
         } catch (error) {
             console.error('❌ Başlatma hatası:', error);
-            showError(conversationsList, 'Bir hata oluştu. Lütfen sayfayı yenileyin.');
+            showError(conversationsList, 'An error occurred. Please refresh the page.');
         }
     }
 
@@ -1639,7 +1652,7 @@ import TransactionApprovalManager from './transaction-approval.js';
             }
 
             // 2. Listede yoksa, detayları çek ve ekle
-            showLoading(conversationsList, 'Konuşma hazırlanıyor...');
+            showLoading(conversationsList, 'Preparing conversation...');
 
             // İlan bilgilerini getir
             // Note: The original code matches this structure. I'm replacing the top of the function.
@@ -1680,7 +1693,7 @@ import TransactionApprovalManager from './transaction-approval.js';
                 listing_id: listingId,
                 other_user: seller,
                 listing: listing,
-                last_message: existingMessages && existingMessages.length > 0 ? existingMessages[0].content : 'Konuşmayı başlatmak için bir mesaj yazın',
+                last_message: existingMessages && existingMessages.length > 0 ? existingMessages[0].content : 'Write a message to start a conversation',
                 last_message_time: existingMessages && existingMessages.length > 0 ? existingMessages[0].created_at : new Date().toISOString(),
                 unread_count: 0,
                 type: listing.user_id === currentUser.id ? 'selling' : 'buying'
@@ -1699,7 +1712,7 @@ import TransactionApprovalManager from './transaction-approval.js';
 
         } catch (error) {
             console.error('❌ Yeni konuşma başlatılırken hata:', error);
-            showError(conversationsList, 'Konuşma başlatılamadı');
+            showError(conversationsList, 'Could not start conversation');
             // Hata olsa bile mevcut listeyi göster
             renderConversations();
         }
@@ -1921,7 +1934,7 @@ import TransactionApprovalManager from './transaction-approval.js';
             applyFilter(activeFilter);
 
             if (typeof showNotification === 'function') {
-                const action = archivedState ? 'Sohbet arşivlendi' : 'Sohbet arşivden çıkarıldı';
+                const action = archivedState ? 'Chat archived' : 'Chat unarchived';
                 showNotification(action, 'success');
                 // Kullanıcı isteği: Sayfa yenilensin
                 setTimeout(() => {
@@ -1952,10 +1965,10 @@ import TransactionApprovalManager from './transaction-approval.js';
             <div class="sheet-backdrop"></div>
             <div class="sheet-panel">
                 <div class="sheet-handle"></div>
-                <button class="sheet-action block-action">Bu kullanıcıyı engelle</button>
-                <button class="sheet-action report-action">Bu kullanıcıyı şikayet et</button>
-                <button class="sheet-action archive-action">Sohbeti Arşivle</button>
-                <button class="sheet-action delete-action">Sohbeti Sil</button>
+                <button class="sheet-action block-action">Block this user</button>
+                <button class="sheet-action report-action">Report this user</button>
+                <button class="sheet-action archive-action">Archive Chat</button>
+                <button class="sheet-action delete-action">Delete Chat</button>
             </div>
         `;
 
@@ -2011,7 +2024,7 @@ import TransactionApprovalManager from './transaction-approval.js';
             applyFilter(activeFilter);
 
             if (typeof showNotification === 'function') {
-                const action = archivedState ? 'Sohbet arşivlendi' : 'Sohbet arşivden çıkarıldı';
+                const action = archivedState ? 'Chat archived' : 'Chat unarchived';
                 showNotification(action, 'success');
                 // Kullanıcı isteği: Sayfa yenilensin
                 setTimeout(() => {
@@ -2044,7 +2057,7 @@ import TransactionApprovalManager from './transaction-approval.js';
                     <span class="dot"></span>
                     <span class="dot"></span>
                     <span class="dot"></span>
-                    yazıyor...
+                    typing...
                 </span>
             `;
         } else {
@@ -2087,7 +2100,7 @@ import TransactionApprovalManager from './transaction-approval.js';
             
             try {
                 const originalText = submitBtn.textContent;
-                submitBtn.textContent = 'Gönderiliyor...';
+                submitBtn.textContent = 'Sending...';
                 submitBtn.disabled = true;
 
                 // 1. Try Supabase Insert
@@ -2106,7 +2119,7 @@ import TransactionApprovalManager from './transaction-approval.js';
                     throw error; // Trigger catch for fallback
                 }
 
-                showNotification('Şikayetiniz başarıyla iletildi. Teşekkürler.', 'success');
+                showNotification('Your report has been submitted successfully. Thank you.', 'success');
 
             } catch (err) {
                 // 2. Fallback to LocalStorage
@@ -2127,9 +2140,9 @@ import TransactionApprovalManager from './transaction-approval.js';
                 reports.push(report);
                 localStorage.setItem('reports_backup', JSON.stringify(reports));
 
-                showNotification('Şikayetiniz alındı (Demo Modu).', 'success');
+                showNotification('Your report has been received (Demo Mode).', 'success');
             } finally {
-                submitBtn.textContent = 'Raporla';
+                submitBtn.textContent = 'Report';
                 submitBtn.disabled = false;
                 window.closeReportModal();
             }
@@ -2173,13 +2186,13 @@ import TransactionApprovalManager from './transaction-approval.js';
                         <div style="margin-bottom: 15px;">
                             <i class="fas fa-ban" style="font-size: 3rem; color: #ef4444;"></i>
                         </div>
-                        <h3 style="margin: 0 0 10px 0; color: #1f2937; font-size: 1.25rem; font-weight: 600;">Kullanıcıyı Engelle</h3>
+                        <h3 style="margin: 0 0 10px 0; color: #1f2937; font-size: 1.25rem; font-weight: 600;">Block User</h3>
                         <p style="color: #4b5563; margin-bottom: 20px; line-height: 1.5;">
-                            Bu kullanıcıyı engellemek istediğinize emin misiniz? Engellenen kullanıcılar size mesaj gönderemez.
+                            Are you sure you want to block this user? Blocked users cannot send you messages.
                         </p>
                         <div style="display: flex; gap: 10px; justify-content: center;">
-                            <button id="cancelBlockBtn" style="padding: 10px 20px; border: 1px solid #d1d5db; background: white; border-radius: 8px; cursor: pointer; font-weight: 500; font-size: 0.95rem; color: #374151;">İptal</button>
-                            <button id="confirmBlockBtn" style="padding: 10px 20px; border: none; background: #ef4444; color: white; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.95rem;">Engelle</button>
+                            <button id="cancelBlockBtn" style="padding: 10px 20px; border: 1px solid #d1d5db; background: white; border-radius: 8px; cursor: pointer; font-weight: 500; font-size: 0.95rem; color: #374151;">Cancel</button>
+                            <button id="confirmBlockBtn" style="padding: 10px 20px; border: none; background: #ef4444; color: white; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.95rem;">Block</button>
                         </div>
                     </div>
                 `;
@@ -2208,14 +2221,14 @@ import TransactionApprovalManager from './transaction-approval.js';
                     });
 
                     if (error) throw error;
-                    showNotification('Kullanıcı başarıyla engellendi.', 'success');
+                    showNotification('User successfully blocked.', 'success');
 
                 } catch (err) {
                     // 2. Fallback LocalStorage
                     console.warn('Block DB insert failed, using LocalStorage', err);
                     const key = `blocked_${currentUser.id}_${userId}`;
                     localStorage.setItem(key, 'true');
-                    showNotification('Kullanıcı engellendi.', 'success');
+                    showNotification('User blocked.', 'success');
                 }
                 
                 // Refresh to potentially hide chat or update UI
@@ -2226,7 +2239,7 @@ import TransactionApprovalManager from './transaction-approval.js';
         // 🟢 Soft Delete Implementation (LocalStorage Only to avoid DB errors)
         deleteConversation: async function(listingId, userId) {
             // Swipe delete işlemi veya Dropdown delete
-            const confirmed = await showConfirmDialog('Bu sohbeti silmek istediğinize emin misiniz? (Sadece sizin ekranınızdan silinir)', 'Sohbeti Sil');
+            const confirmed = await showConfirmDialog('Are you sure you want to delete this chat? (It will only be deleted from your screen)', 'Delete Chat');
             if (confirmed) {
                 try {
                     // LocalStorage'a kaydet
@@ -2235,7 +2248,7 @@ import TransactionApprovalManager from './transaction-approval.js';
 
                     // Başarılı
                     if (typeof showNotification === 'function') {
-                        showNotification('Sohbet silindi.', 'success');
+                        showNotification('Chat deleted.', 'success');
                         // Kullanıcı isteği: Sayfa yenilensin
                         setTimeout(() => {
                             location.reload();
@@ -2253,7 +2266,7 @@ import TransactionApprovalManager from './transaction-approval.js';
                 } catch (error) {
                     console.error('Konuşma silinirken hata:', error);
                     if (typeof showNotification === 'function') {
-                        showNotification('Silme işlemi başarısız oldu.', 'error');
+                        showNotification('Deletion failed.', 'error');
                     }
                 }
             }

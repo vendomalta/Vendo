@@ -31,7 +31,7 @@ function updateSeoMeta(listing) {
   const title = listing.title || "İlan";
   const location = listing.location_city ? ` • ${listing.location_city}` : "";
   const descRaw =
-    listing.description || `${title}${location} — Fiyat: ${priceText}`;
+    listing.description || `${title}${location} — Price: ${priceText}`;
   const description = String(descRaw).slice(0, 160);
 
   // Title
@@ -115,19 +115,19 @@ async function loadListingDetail() {
   const mode = urlParams.get("mode");
 
   if (!listingId) {
-    console.error("Geçersiz veya eksik ilan ID değeri:", {
+    console.error("Invalid or missing listing ID value:", {
       rawId: urlParams.get("id"),
       listingIdParam: urlParams.get("listing_id") || urlParams.get("listingId"),
     });
     showError(
-      "Geçersiz ilan bağlantısı. Lütfen geçerli bir ilan kartından tekrar deneyin.",
+      "Invalid listing link. Please try again from a valid listing card.",
     );
     return;
   }
 
   try {
     const listing = await getListing(listingId);
-    console.log("✅ İlan yüklendi:", listing);
+    console.log("✅ Listing loaded:", listing);
 
     // Edit modunu kontrol et
     if (mode === "edit") {
@@ -136,7 +136,7 @@ async function loadListingDetail() {
         data: { user },
       } = await supabase.auth.getUser();
       if (!user || user.id !== listing.user_id) {
-        showError("Bu ilanı düzenleme yetkiniz yok");
+        showError("You do not have permission to edit this listing");
         return;
       }
       renderEditForm(listing);
@@ -153,8 +153,8 @@ async function loadListingDetail() {
       await initQASection(listing.id, listing.user_id);
     }
   } catch (error) {
-    console.error("İlan yüklenirken hata:", error);
-    showError("İlan yüklenirken bir hata oluştu");
+    console.error("Error loading listing:", error);
+    showError("An error occurred while loading the listing");
   }
 }
 
@@ -211,7 +211,7 @@ async function renderListing(listing) {
 
     const locationSpan = mobileLocationEl.querySelector("span");
     if (locationSpan) {
-      locationSpan.textContent = listing.location_city || "Belirtilmemiş";
+      locationSpan.textContent = listing.location_city || "Not specified";
     }
 
     // İlan tarihi
@@ -222,40 +222,40 @@ async function renderListing(listing) {
       let timeText = "";
 
       if (diffMinutes < 60) {
-        timeText = `${diffMinutes} dakika önce`;
+        timeText = `${diffMinutes} minutes ago`;
       } else if (diffMinutes < 1440) {
         const hours = Math.floor(diffMinutes / 60);
-        timeText = `${hours} saat önce`;
+        timeText = `${hours} hours ago`;
       } else if (diffMinutes < 10080) {
         const days = Math.floor(diffMinutes / 1440);
-        timeText = `${days} gün önce`;
+        timeText = `${days} days ago`;
       } else {
-        timeText = postedDate.toLocaleDateString("tr-TR");
+        timeText = postedDate.toLocaleDateString("en-GB");
       }
-      mobilePostedEl.textContent = `İlan ${timeText}`;
+      mobilePostedEl.textContent = `Posted ${timeText}`;
     }
   }
 
   // Meta Bilgileri - Daha detaylı gösterim (elemanlar opsiyonel olabilir)
   const locationEl = document.getElementById("detail-location");
   if (locationEl) {
-    locationEl.textContent = listing.location_city || "Belirtilmemiş";
+    locationEl.textContent = listing.location_city || "Not specified";
   } else {
-    console.warn("detail-location öğesi bulunamadı, atlandı.");
+    console.warn("detail-location element not found, skipped.");
   }
 
   const viewsEl = document.getElementById("detail-views");
   if (viewsEl) {
     const viewsCount = listing.views_count || 0;
-    viewsEl.textContent = `${viewsCount} ${viewsCount === 1 ? "görüntülenme" : "görüntülenme"}`;
+    viewsEl.textContent = `${viewsCount} ${viewsCount === 1 ? "view" : "views"}`;
   } else {
-    console.warn("detail-views öğesi bulunamadı, atlandı.");
+    console.warn("detail-views element not found, skipped.");
   }
 
   // Açıklama - render edilmiş HTML göster (sanitize ile)
   const descriptionElement = document.getElementById("detail-description");
   const safeHtml =
-    sanitizeHtml(listing.description) || "<p>Açıklama eklenmemiş</p>";
+    sanitizeHtml(listing.description) || "<p>No description added</p>";
   if (descriptionElement) descriptionElement.innerHTML = safeHtml;
 
   // Galeri resimleri
@@ -278,7 +278,7 @@ async function renderListing(listing) {
       .join("");
   } else {
     mainImage.src =
-      "https://via.placeholder.com/800x600/10b981/ffffff?text=Fotoğraf+Yok";
+      "https://via.placeholder.com/800x600/10b981/ffffff?text=No+Photo";
     document.getElementById("current-image").textContent = "0";
     document.getElementById("total-images").textContent = "0";
   }
@@ -302,7 +302,7 @@ async function renderListing(listing) {
 
   if (isUnauthenticated && sellerCard) {
     console.log(
-      "👤 Giriş yapmayan kullanıcı - Satıcı bilgileri blur yapılacak",
+      "👤 Unauthenticated user - Seller info will be blurred",
     );
     sellerCard.classList.add("blurred");
 
@@ -311,9 +311,9 @@ async function renderListing(listing) {
     overlay.className = "seller-card-login-overlay";
     overlay.innerHTML = `
             <i class="fas fa-lock"></i>
-            <p>Satıcı bilgilerini görmek için giriş yapmalısınız</p>
+            <p>You must log in to view seller information</p>
             <a href="login.html?redirect=${encodeURIComponent(window.location.href)}" class="btn-login">
-                Giriş Yap
+                Log In
             </a>
         `;
     sellerCard.appendChild(overlay);
@@ -322,7 +322,7 @@ async function renderListing(listing) {
   // Satıcı Bilgilerini Profil Tablosundan Çek
   try {
     const sellerProfile = await getProfile(listing.user_id);
-    console.log("✅ Satıcı profili yüklendi:", sellerProfile);
+    console.log("✅ Seller profile loaded:", sellerProfile);
 
     // Satıcı adı
     const sellerName = document.getElementById("seller-name");
@@ -330,7 +330,7 @@ async function renderListing(listing) {
       sellerProfile.full_name ||
       sellerProfile.username ||
       listing.user_email?.split("@")[0] ||
-      "Satıcı";
+      "Seller";
     sellerName.textContent = fullSellerName;
     sellerName.dataset.sellerId = listing.user_id;
 
@@ -360,7 +360,7 @@ async function renderListing(listing) {
       .eq("status", "active");
 
     // Üyelik tarihini formatla (örneğin "12 June 2026")
-    let memberSince = "Tarih bilinmiyor";
+    let memberSince = "Date unknown";
     if (sellerProfile.created_at) {
       const createdDate = new Date(sellerProfile.created_at);
       memberSince = createdDate.toLocaleDateString('en-GB', {
@@ -372,7 +372,7 @@ async function renderListing(listing) {
 
     if (sellerStats) {
       const responseRate = "95%"; // Bu değer gerçek mesajlaşma verilerinden hesaplanabilir
-      sellerStats.textContent = `${activeAdsCount || 0} aktif ilan • ${memberSince} • ${responseRate} yanıt oranı`;
+      sellerStats.textContent = `${activeAdsCount || 0} active listings • ${memberSince} • ${responseRate} response rate`;
     }
     if (activeCountEl) activeCountEl.textContent = activeAdsCount || 0;
     if (memberSinceEl) memberSinceEl.textContent = memberSince;
@@ -391,24 +391,24 @@ async function renderListing(listing) {
       document.getElementById("seller-verified-badge").style.display = "flex";
     }
   } catch (error) {
-    console.error("❌ Satıcı profili yüklenirken hata:", error);
+    console.error("❌ Error loading seller profile:", error);
     // Hata durumunda temel bilgileri göster
     const sellerName = document.getElementById("seller-name");
-    sellerName.textContent = listing.user_email?.split("@")[0] || "Satıcı";
+    sellerName.textContent = listing.user_email?.split("@")[0] || "Seller";
     const sellerStats = document.getElementById("seller-stats");
     const activeCountEl = document.getElementById("seller-active-count");
     const memberSinceEl = document.getElementById("seller-member-since");
 
     if (sellerStats)
-      sellerStats.textContent = "0 aktif ilan • Yeni üye • 95% yanıt oranı";
+      sellerStats.textContent = "0 active listings • New member • 95% response rate";
     if (activeCountEl) activeCountEl.textContent = "0";
-    if (memberSinceEl) memberSinceEl.textContent = "Yeni üye";
+    if (memberSinceEl) memberSinceEl.textContent = "New member";
 
     // Mobil minimal seller özetini fallback için de güncelle
     const mobileSellerNameEl = document.getElementById("mobile-seller-name-preview");
     const mobileSellerDateEl = document.getElementById("mobile-seller-date-preview");
     if (mobileSellerNameEl) mobileSellerNameEl.textContent = sellerName.textContent;
-    if (mobileSellerDateEl) mobileSellerDateEl.textContent = "Yeni üye";
+    if (mobileSellerDateEl) mobileSellerDateEl.textContent = "New member";
   }
 
   // Satıcı Değerlendirmesini Yükle
@@ -506,7 +506,7 @@ function showError(message) {
                 <i class="fas fa-exclamation-triangle" style="font-size: 3rem; color: var(--danger);"></i>
                 <h2 style="margin-top: 1rem;">${message}</h2>
                 <a href="index.html" class="btn-primary" style="margin-top: 1.5rem; display: inline-block; padding: 0.75rem 2rem; text-decoration: none;">
-                    <i class="fas fa-home"></i> Ana Sayfaya Dön
+                    <i class="fas fa-home"></i> Return to Homepage
                 </a>
             </div>
         `;
@@ -584,13 +584,13 @@ function initializeActions(listing) {
           // Fallback: Copy to clipboard
           await navigator.clipboard.writeText(window.location.href);
           if (typeof showNotification === "function") {
-            showNotification("Bağlantı kopyalandı", "success");
+            showNotification("Link copied", "success");
           } else {
-            alert("Bağlantı kopyalandı");
+            alert("Link copied");
           }
         }
       } catch (err) {
-        console.error("Paylaşım hatası:", err);
+        console.error("Share error:", err);
       }
     });
   }
@@ -602,9 +602,9 @@ function initializeActions(listing) {
     } = await supabase.auth.getUser();
     if (!user) {
       if (typeof showNotification === "function") {
-        showNotification("Favorilere eklemek için giriş yapın", "warning");
+        showNotification("Log in to add to favorites", "warning");
       } else {
-        alert("Favorilere eklemek için giriş yapın");
+        alert("Log in to add to favorites");
       }
       window.location.href = `login.html?redirect=${encodeURIComponent(window.location.href)}`;
       return;
@@ -630,7 +630,7 @@ function initializeActions(listing) {
         });
 
         if (typeof showNotification === "function") {
-          showNotification("Favorilerden çıkarıldı", "info");
+          showNotification("Removed from favorites", "info");
         }
       } else {
         await addToFavorites(listing.id);
@@ -645,13 +645,13 @@ function initializeActions(listing) {
         });
 
         if (typeof showNotification === "function") {
-          showNotification("Favorilere eklendi", "success");
+          showNotification("Added to favorites", "success");
         }
       }
     } catch (error) {
-      console.error("Favori işlemi hatası:", error);
+      console.error("Favorite action error:", error);
       if (typeof showNotification === "function") {
-        showNotification("Favori işlemi başarısız oldu", "error");
+        showNotification("Favorite action failed", "error");
       }
     }
   };
@@ -667,9 +667,9 @@ function initializeActions(listing) {
       } = await supabase.auth.getUser();
       if (!user) {
         if (typeof showNotification === "function") {
-          showNotification("Mesaj göndermek için giriş yapın", "warning");
+          showNotification("Log in to send a message", "warning");
         } else {
-          alert("Mesaj göndermek için giriş yapın");
+          alert("Log in to send a message");
         }
         window.location.href = "login.html";
         return;
@@ -677,9 +677,9 @@ function initializeActions(listing) {
 
       if (user.id === listing.user_id) {
         if (typeof showNotification === "function") {
-          showNotification("Kendi ilanınıza mesaj gönderemezsiniz", "warning");
+          showNotification("You cannot send a message to your own listing", "warning");
         } else {
-          alert("Kendi ilanınıza mesaj gönderemezsiniz");
+          alert("You cannot send a message to your own listing");
         }
         return;
       }
@@ -697,11 +697,11 @@ function initializeActions(listing) {
       if (!user) {
         if (typeof showNotification === "function") {
           showNotification(
-            "Telefon numarasını görmek için giriş yapın",
+            "Log in to view phone number",
             "warning",
           );
         } else {
-          alert("Telefon numarasını görmek için giriş yapın");
+          alert("Log in to view phone number");
         }
         window.location.href = "login.html";
         return;
@@ -714,16 +714,16 @@ function initializeActions(listing) {
           .eq("id", listing.user_id)
           .single();
 
-        const phone = profile?.phone || "Telefon numarası eklenmemiş";
+        const phone = profile?.phone || "Phone number not added";
         phoneBtn.innerHTML = `<i class="fas fa-phone"></i><span>${phone}</span>`;
         phoneBtn.style.pointerEvents = "none";
         phoneBtn.style.opacity = "0.7";
       } catch (error) {
-        console.error("Telefon alınamadı:", error);
+        console.error("Phone fetch failed:", error);
         if (typeof showNotification === "function") {
-          showNotification("Telefon numarası alınamadı", "error");
+          showNotification("Could not fetch phone number", "error");
         } else {
-          alert("Telefon numarası alınamadı");
+          alert("Could not fetch phone number");
         }
       }
     });
@@ -746,7 +746,7 @@ function formatDate(dateString) {
   if (!dateString) return "—";
   const date = new Date(dateString);
   if (Number.isNaN(date.getTime())) return "—";
-  return date.toLocaleDateString("tr-TR", {
+  return date.toLocaleDateString("en-GB", {
     day: "2-digit",
     month: "2-digit",
     year: "numeric",
@@ -806,215 +806,222 @@ function buildSpecsTable(listing) {
     category.includes("maserati")
   ) {
     // İlan Bilgileri - Otomobil kategorisine özel alanlar
-    specs.push(["Kimden", extra.kimden || "-"]);
+    specs.push(["From", extra.kimden || "-"]);
     specs.push(["Model", extra.model || "-"]);
-    specs.push(["Yıl", extra.yil || "-"]);
+    specs.push(["Year", extra.yil || "-"]);
     specs.push([
       "KM",
       extra.kilometre
-        ? (parseInt(extra.kilometre) || 0).toLocaleString("tr-TR")
+        ? (parseInt(extra.kilometre) || 0).toLocaleString("en-US")
         : "-",
     ]);
-    specs.push(["Motor (cc)", extra.motor_hacmi || "-"]);
-    specs.push(["Yakıt Tipi", extra.yakit || "-"]);
-    specs.push(["Vites", extra.vites || "-"]);
-    specs.push(["Çekiş", extra.cekis || "-"]);
-    specs.push(["Kapı", extra.kapi || "-"]);
-    specs.push(["Renk", extra.renk || "-"]);
-    specs.push(["Klima", extra.klima || "-"]);
-    specs.push(["Araç Durumu", extra.durum || "-"]);
-    specs.push(["Garanti", extra.garanti || "-"]);
+    specs.push(["Engine (cc)", extra.motor_hacmi || "-"]);
+    specs.push(["Fuel Type", extra.yakit || "-"]);
+    specs.push(["Transmission", extra.vites || "-"]);
+    specs.push(["Drivetrain", extra.cekis || "-"]);
+    specs.push(["Doors", extra.kapi || "-"]);
+    specs.push(["Color", extra.renk || "-"]);
+    specs.push(["AC", extra.klima || "-"]);
+    specs.push(["Condition", extra.durum || "-"]);
+    specs.push(["Warranty", extra.garanti || "-"]);
     specs.push(["Import", extra.import || "-"]);
-    specs.push(["Takas", extra.takas || "-"]);
+    specs.push(["Exchange", extra.takas || "-"]);
   } else if (
-    category.includes("emlak") ||
-    category.includes("konut") ||
-    category.includes("ev") ||
-    category.includes("daire") ||
+    category.includes("real estate") ||
+    category.includes("residential") ||
+    category.includes("home") ||
+    category.includes("property") ||
     category.includes("villa")
   ) {
-    // Temel Bilgiler
-    specs.push(["Emlak Tipi", extra.property_type || extra.emlak_tipi || "-"]);
+    // Basic Info
+    specs.push(["Property Type", extra.property_type || extra.emlak_tipi || "-"]);
     specs.push([
-      "İlan Tipi",
-      extra.listing_type || extra.ilan_tipi || "Satılık",
+      "Listing Type",
+      extra.listing_type || extra.ilan_tipi || "For Sale",
     ]);
     specs.push([
-      "Metrekare (Brüt)",
+      "Area (Gross)",
       extra.area || extra.metrekare
         ? `${extra.area || extra.metrekare} m²`
         : "-",
     ]);
     specs.push([
-      "Metrekare (Net)",
+      "Area (Net)",
       extra.net_area || extra.net_metrekare
         ? `${extra.net_area || extra.net_metrekare} m²`
         : "-",
     ]);
 
-    // Oda ve Alan Detayları
-    specs.push(["Oda Sayısı", extra.rooms || extra.oda_sayisi || "-"]);
+    // Room and Space Details
+    specs.push(["Rooms", extra.rooms || extra.oda_sayisi || "-"]);
     specs.push([
-      "Salon Sayısı",
+      "Living Rooms",
       extra.living_rooms || extra.salon_sayisi || "-",
     ]);
-    specs.push(["Banyo Sayısı", extra.baths || extra.banyo_sayisi || "-"]);
-    specs.push(["WC Sayısı", extra.wc_count || extra.wc_sayisi || "-"]);
-    specs.push(["Balkon", extra.balcony || extra.balkon || "-"]);
+    specs.push(["Bathrooms", extra.baths || extra.banyo_sayisi || "-"]);
+    specs.push(["WC Count", extra.wc_count || extra.wc_sayisi || "-"]);
+    specs.push(["Balcony", extra.balcony || extra.balkon || "-"]);
 
-    // Bina Bilgileri
-    specs.push(["Kat", extra.floor || extra.kat || "-"]);
-    specs.push(["Toplam Kat", extra.total_floors || extra.toplam_kat || "-"]);
+    // Building Info
+    specs.push(["Floor", extra.floor || extra.kat || "-"]);
+    specs.push(["Total Floors", extra.total_floors || extra.toplam_kat || "-"]);
     specs.push([
-      "Bina Yaşı",
+      "Building Age",
       extra.age || extra.yasi || extra.building_age
-        ? `${extra.age || extra.yasi || extra.building_age} yıl`
+        ? `${extra.age || extra.yasi || extra.building_age} years`
         : "-",
     ]);
     specs.push([
-      "Yapı Tipi",
+      "Construction Type",
       extra.construction_type || extra.yapi_tipi || "-",
     ]);
     specs.push([
-      "Yapı Durumu",
+      "Building Status",
       extra.building_status || extra.yapi_durumu || "-",
     ]);
 
-    // Konfor ve Donanım
-    specs.push(["Isıtma", extra.heating || extra.isitma || "-"]);
-    specs.push(["Yakıt Tipi", extra.fuel_type || extra.yakit_tipi || "-"]);
+    // Comfort and Equipment
+    specs.push(["Heating", extra.heating || extra.isitma || "-"]);
+    specs.push(["Fuel Type", extra.fuel_type || extra.yakit_tipi || "-"]);
     specs.push([
-      "Kullanım Durumu",
+      "Usage Status",
       extra.usage_status || extra.kullanim_durumu || "-",
     ]);
     specs.push([
-      "Mobilya",
+      "Furniture",
       extra.furnished === true
-        ? "Mobilyalı"
+        ? "Furnished"
         : extra.furnished === false
-          ? "Boş"
+          ? "Unfurnished"
           : extra.mobilya || "-",
     ]);
-    specs.push(["Eşya", extra.appliances || extra.esya || "-"]);
+    specs.push(["Appliances", extra.appliances || extra.esya || "-"]);
 
-    // Cephe ve Manzara
-    specs.push(["Cephe", extra.facade || extra.cephe || "-"]);
-    specs.push(["Manzara", extra.view || extra.manzara || "-"]);
+    // Facade and View
+    specs.push(["Facade", extra.facade || extra.cephe || "-"]);
+    specs.push(["View", extra.view || extra.manzara || "-"]);
 
-    // Özellikler
+    // Features
     if (extra.elevator)
-      specs.push(["Asansör", extra.elevator === true ? "Var" : "Yok"]);
+      specs.push(["Elevator", extra.elevator === true ? "Yes" : "No"]);
     if (extra.parking)
-      specs.push(["Otopark", extra.parking === true ? "Var" : extra.parking]);
+      specs.push(["Parking", extra.parking === true ? "Yes" : extra.parking]);
     if (extra.security)
-      specs.push(["Güvenlik", extra.security === true ? "Var" : "Yok"]);
+      specs.push(["Security", extra.security === true ? "Yes" : "No"]);
     if (extra.generator)
-      specs.push(["Jeneratör", extra.generator === true ? "Var" : "Yok"]);
-    if (extra.pool) specs.push(["Havuz", extra.pool === true ? "Var" : "Yok"]);
+      specs.push(["Generator", extra.generator === true ? "Yes" : "No"]);
+    if (extra.pool) specs.push(["Pool", extra.pool === true ? "Yes" : "No"]);
     if (extra.garden)
-      specs.push(["Bahçe", extra.garden === true ? "Var" : "Yok"]);
+      specs.push(["Garden", extra.garden === true ? "Yes" : "No"]);
     if (extra.terrace)
-      specs.push(["Teras", extra.terrace === true ? "Var" : "Yok"]);
+      specs.push(["Terrace", extra.terrace === true ? "Yes" : "No"]);
     if (extra.basement)
-      specs.push(["Bodrum", extra.basement === true ? "Var" : "Yok"]);
+      specs.push(["Basement", extra.basement === true ? "Yes" : "No"]);
 
-    // Aidat ve Masraflar
-    if (extra.dues) specs.push(["Aidat", `€${extra.dues}`]);
-    if (extra.deed_status) specs.push(["Tapu Durumu", extra.deed_status]);
+    // Dues and Costs
+    if (extra.dues) specs.push(["Dues", `€${extra.dues}`]);
+    if (extra.deed_status) specs.push(["Deed Status", extra.deed_status]);
   } else if (
     category.includes("elektronik") ||
-    category.includes("telefon") ||
-    category.includes("bilgisayar") ||
+    category.includes("technology") ||
+    category.includes("phone") ||
+    category.includes("computer") ||
     category.includes("tablet")
   ) {
-    // Elektronik Ürünler
-    specs.push(["Marka", extra.brand || extra.marka || "-"]);
+    // Electronics
+    specs.push(["Brand", extra.brand || extra.marka || "-"]);
     specs.push(["Model", extra.model || "-"]);
-    specs.push(["Renk", extra.color || extra.renk || "-"]);
-    specs.push(["Durumu", extra.condition || extra.durum || "İkinci El"]);
+    specs.push(["Color", extra.color || extra.renk || "-"]);
+    specs.push(["Condition", extra.condition || extra.durum || "Second Hand"]);
     specs.push([
-      "Garanti",
+      "Warranty",
       extra.warranty === true
-        ? "Var"
+        ? "Yes"
         : extra.warranty === false
-          ? "Yok"
+          ? "No"
           : extra.warranty || "-",
     ]);
 
     if (extra.memory || extra.hafiza)
-      specs.push(["Hafıza", extra.memory || extra.hafiza]);
+      specs.push(["Memory", extra.memory || extra.hafiza]);
     if (extra.storage || extra.depolama)
-      specs.push(["Depolama", extra.storage || extra.depolama]);
+      specs.push(["Storage", extra.storage || extra.depolama]);
     if (extra.screen_size || extra.ekran_boyutu)
-      specs.push(["Ekran Boyutu", extra.screen_size || extra.ekran_boyutu]);
+      specs.push(["Screen Size", extra.screen_size || extra.ekran_boyutu]);
     if (extra.ram) specs.push(["RAM", extra.ram]);
     if (extra.processor || extra.islemci)
-      specs.push(["İşlemci", extra.processor || extra.islemci]);
+      specs.push(["Processor", extra.processor || extra.islemci]);
     if (extra.graphics_card || extra.ekran_karti)
-      specs.push(["Ekran Kartı", extra.graphics_card || extra.ekran_karti]);
+      specs.push(["Graphics Card", extra.graphics_card || extra.ekran_karti]);
   } else if (
     category.includes("mobilya") ||
-    category.includes("ev eşyası") ||
-    category.includes("beyaz eşya")
+    category.includes("furniture") ||
+    category.includes("home item") ||
+    category.includes("appliances") ||
+    category.includes("home & decor")
   ) {
-    // Mobilya ve Ev Eşyası
-    specs.push(["Ürün Tipi", extra.product_type || extra.urun_tipi || "-"]);
-    specs.push(["Marka", extra.brand || extra.marka || "-"]);
-    specs.push(["Durumu", extra.condition || extra.durum || "İkinci El"]);
-    specs.push(["Renk", extra.color || extra.renk || "-"]);
+    // Furniture and Appliances
+    specs.push(["Product Type", extra.product_type || extra.urun_tipi || "-"]);
+    specs.push(["Brand", extra.brand || extra.marka || "-"]);
+    specs.push(["Condition", extra.condition || extra.durum || "Second Hand"]);
+    specs.push(["Color", extra.color || extra.renk || "-"]);
 
     if (extra.material || extra.malzeme)
-      specs.push(["Malzeme", extra.material || extra.malzeme]);
+      specs.push(["Material", extra.material || extra.malzeme]);
     if (extra.dimensions || extra.olculer)
-      specs.push(["Ölçüler", extra.dimensions || extra.olculer]);
+      specs.push(["Dimensions", extra.dimensions || extra.olculer]);
     if (extra.age || extra.yasi)
-      specs.push(["Yaş", `${extra.age || extra.yasi} yıl`]);
+      specs.push(["Age", `${extra.age || extra.yasi} years`]);
     if (extra.energy_class || extra.enerji_sinifi)
-      specs.push(["Enerji Sınıfı", extra.energy_class || extra.enerji_sinifi]);
+      specs.push(["Energy Class", extra.energy_class || extra.enerji_sinifi]);
   } else if (
     category.includes("giyim") ||
+    category.includes("clothing") ||
+    category.includes("fashion") ||
     category.includes("aksesuar") ||
-    category.includes("ayakkabı")
+    category.includes("accessory") ||
+    category.includes("ayakkabı") ||
+    category.includes("shoes")
   ) {
-    // Giyim ve Aksesuar
-    specs.push(["Ürün Tipi", extra.product_type || extra.urun_tipi || "-"]);
-    specs.push(["Marka", extra.brand || extra.marka || "-"]);
-    specs.push(["Beden", extra.size || extra.beden || "-"]);
-    specs.push(["Renk", extra.color || extra.renk || "-"]);
-    specs.push(["Durumu", extra.condition || extra.durum || "İkinci El"]);
+    // Clothing and Accessory
+    specs.push(["Product Type", extra.product_type || extra.urun_tipi || "-"]);
+    specs.push(["Brand", extra.brand || extra.marka || "-"]);
+    specs.push(["Size", extra.size || extra.beden || "-"]);
+    specs.push(["Color", extra.color || extra.renk || "-"]);
+    specs.push(["Condition", extra.condition || extra.durum || "Second Hand"]);
 
     if (extra.material || extra.malzeme)
-      specs.push(["Malzeme", extra.material || extra.malzeme]);
+      specs.push(["Material", extra.material || extra.malzeme]);
     if (extra.gender || extra.cinsiyet)
-      specs.push(["Cinsiyet", extra.gender || extra.cinsiyet]);
+      specs.push(["Gender", extra.gender || extra.cinsiyet]);
     if (extra.season || extra.sezon)
-      specs.push(["Sezon", extra.season || extra.sezon]);
+      specs.push(["Season", extra.season || extra.sezon]);
   } else {
     // Diğer kategoriler için genel alanlar
     if (extra.brand || extra.marka)
-      specs.push(["Marka", extra.brand || extra.marka]);
+      specs.push(["Brand", extra.brand || extra.marka]);
     if (extra.model) specs.push(["Model", extra.model]);
     if (extra.condition || extra.durum)
-      specs.push(["Durumu", extra.condition || extra.durum]);
+      specs.push(["Condition", extra.condition || extra.durum]);
     if (extra.color || extra.renk)
-      specs.push(["Renk", extra.color || extra.renk]);
+      specs.push(["Color", extra.color || extra.renk]);
     if (extra.size || extra.beden)
-      specs.push(["Boyut/Beden", extra.size || extra.beden]);
+      specs.push(["Size", extra.size || extra.beden]);
     if (extra.material || extra.malzeme)
-      specs.push(["Malzeme", extra.material || extra.malzeme]);
-    if (extra.year || extra.yıl) specs.push(["Yıl", extra.year || extra.yıl]);
+      specs.push(["Material", extra.material || extra.malzeme]);
+    if (extra.year || extra.yıl) specs.push(["Year", extra.year || extra.yıl]);
   }
 
   // Her zaman gösterilecekler - Sadece bir kez
-  specs.unshift(["Kategori", listing.category_id || "-"]);
-  specs.unshift(["İlan Tarihi", formatDate(listing.created_at)]);
+  specs.unshift(["Category", listing.category_id || "-"]);
+  specs.unshift(["Date Posted", formatDate(listing.created_at)]);
   // Eğer DB'de atomik `listing_number` varsa onu göster, yoksa mevcut UUID özetini göster
   const publicListingNo =
     listing && (listing.listing_number || listing.listing_number === 0)
       ? String(listing.listing_number)
       : listing.id?.substring(0, 8)?.toUpperCase() || "-";
-  specs.unshift(["İlan No", publicListingNo]);
-  specs.push(["Konum", listing.location_city || "-"]);
+  specs.unshift(["Ad Ref", publicListingNo]);
+  specs.push(["Location", listing.location_city || "-"]);
 
   // Ekstra alanların tamamını göster: daha önce özel olarak eklenmemiş anahtarları ekle
   const handledKeys = new Set([
@@ -1052,22 +1059,22 @@ function buildSpecsTable(listing) {
   ]);
 
   const labelMap = {
-    konum: "Konum",
-    kimden: "Kimden",
+    konum: "Location",
+    kimden: "From",
     model: "Model",
-    yil: "Yıl",
+    yil: "Year",
     kilometre: "KM",
-    motor_hacmi: "Motor (cc)",
-    yakit: "Yakıt Tipi",
-    vites: "Vites",
-    cekis: "Çekiş",
-    kapi: "Kapı",
-    renk: "Renk",
-    klima: "Klima",
-    durum: "Araç Durumu",
-    garanti: "Garanti",
+    motor_hacmi: "Engine (cc)",
+    yakit: "Fuel Type",
+    vites: "Transmission",
+    cekis: "Drivetrain",
+    kapi: "Doors",
+    renk: "Color",
+    klima: "AC",
+    durum: "Condition",
+    garanti: "Warranty",
     import: "Import",
-    takas: "Takas",
+    takas: "Exchange",
   };
 
   Object.entries(extra).forEach(([key, val]) => {
@@ -1085,16 +1092,16 @@ function buildSpecsTable(listing) {
     .map(([label, value], idx) => {
       // Mobil için ikonlar
       let icon = "";
-      if (label === "Yıl") icon = '<i class="fas fa-calendar"></i>';
+      if (label === "Year") icon = '<i class="fas fa-calendar"></i>';
       else if (label === "KM" || label === "kilometre")
         icon = '<i class="fas fa-road"></i>';
-      else if (label === "Yakıt Tipi" || label === "Yakıt")
+      else if (label === "Fuel Type" || label === "fuel")
         icon = '<i class="fas fa-gas-pump"></i>';
-      else if (label === "Vites") icon = '<i class="fas fa-cog"></i>';
+      else if (label === "Transmission") icon = '<i class="fas fa-cog"></i>';
       else if (label === "Model") icon = '<i class="fas fa-car"></i>';
-      else if (label === "Motor (cc)") icon = '<i class="fas fa-engine"></i>';
-      else if (label === "Kapı") icon = '<i class="fas fa-door-open"></i>';
-      else if (label === "Çekiş") icon = '<i class="fas fa-grip"></i>';
+      else if (label === "Engine (cc)") icon = '<i class="fas fa-engine"></i>';
+      else if (label === "Doors") icon = '<i class="fas fa-door-open"></i>';
+      else if (label === "Drivetrain") icon = '<i class="fas fa-grip"></i>';
 
       return `
             <div class="spec-row">
@@ -1117,7 +1124,7 @@ function initializeGallery(listing) {
   if (!listing.photos || listing.photos.length <= 1) {
     if (mainImage && listing.photos && listing.photos.length > 0) {
       mainImage.style.cursor = "pointer";
-      mainImage.title = "Fotoğrafı büyütmek için tıklayın";
+      mainImage.title = "Click to enlarge";
       mainImage.addEventListener("click", () => {
         openLightbox(listing.photos, 0);
       });
@@ -1194,7 +1201,7 @@ function initializeGallery(listing) {
   // Ana fotoğrafa tıklayınca lightbox aç
   if (mainImage) {
     mainImage.style.cursor = "pointer";
-    mainImage.title = "Fotoğrafı büyütmek için tıklayın";
+    mainImage.title = "Click to enlarge";
     mainImage.addEventListener("click", () => {
       openLightbox(listing.photos, currentIndex);
     });
@@ -1231,7 +1238,7 @@ function initializeGallery(listing) {
   // Thumbnail'lere de lightbox ekle
   document.querySelectorAll(".gallery-thumbnail").forEach((thumb, idx) => {
     thumb.style.cursor = "pointer";
-    thumb.title = "Fotoğrafı büyütmek için tıklayın";
+    thumb.title = "Click to enlarge";
     // Tek tıklama ile hem güncelle hem lightbox aç
     thumb.addEventListener("click", () => {
       updateImage(idx);
@@ -1260,12 +1267,12 @@ function openLightbox(photos, startIndex = 0) {
   const closeBtn = document.getElementById("lightbox-close");
 
   if (!lightbox || !lightboxImg) {
-    console.error("Lightbox elementi bulunamadı");
+    console.error("Lightbox element not found");
     return;
   }
 
   if (!photos || photos.length === 0) {
-    console.error("Fotoğraf bulunamadı");
+    console.error("No photo found");
     return;
   }
 
@@ -1474,11 +1481,11 @@ function renderEditForm(listing) {
             <div class="edit-header">
                 <h1>
                     <i class="fas fa-edit"></i>
-                    <span>İlanı Düzenle</span>
+                    <span>Edit Listing</span>
                 </h1>
                 <button class="btn-back" onclick="window.history.back()">
                     <i class="fas fa-arrow-left"></i>
-                    <span>Geri</span>
+                    <span>Back</span>
                 </button>
             </div>
             
@@ -1489,8 +1496,8 @@ function renderEditForm(listing) {
                     <div class="info-banner">
                         <i class="fas fa-lightbulb"></i>
                         <div class="info-content">
-                            <strong>İpucu:</strong>
-                            <span>İlanınızı güncellerken açıklayıcı başlık ve detaylı açıklama kullanın. İlk fotoğraf ana görsel olarak kullanılacaktır.</span>
+                            <strong>Tip:</strong>
+                            <span>Use a descriptive title and detailed description when updating your listing. The first photo will be used as the main image.</span>
                         </div>
                     </div>
                     
@@ -1499,22 +1506,22 @@ function renderEditForm(listing) {
                         <h2>
                             <span class="section-number">1</span>
                             <i class="fas fa-info-circle"></i>
-                            <span>Temel Bilgiler</span>
+                            <span>Basic Information</span>
                         </h2>
                         <div class="form-grid">
                             <div class="form-group full-width">
                                 <label for="edit-title">
-                                    İlan Başlığı <span class="required">*</span>
+                                    Listing Title <span class="required">*</span>
                                 </label>
                                 <input type="text" id="edit-title" name="title" 
                                     value="${escapeHtml(listing.title)}" 
                                     required maxlength="100" 
-                                    placeholder="Örn: Satılık 3+1 Daire">
+                                    placeholder="Ex: 3+1 Apartment for Sale">
                             </div>
                             
                             <div class="form-group">
                                 <label for="edit-category">
-                                    Kategori <span class="required">*</span>
+                                    Category <span class="required">*</span>
                                 </label>
                                 <div class="category-visual">
                                     ${(listing.category_id || "")
@@ -1533,27 +1540,27 @@ function renderEditForm(listing) {
                             <div class="form-group">
                                 <label for="edit-location">
                                     <i class="fas fa-map-marker-alt"></i>
-                                    Konum <span class="required">*</span>
+                                    Location <span class="required">*</span>
                                 </label>
                                 <input type="text" id="edit-location" name="location" 
                                     value="${escapeHtml(listing.location_city || "")}" 
-                                    required placeholder="Örn: Valletta, Malta">
+                                    required placeholder="Ex: Valletta, Malta">
                             </div>
                             
                             <div class="form-group">
                                 <label for="edit-status">
                                     <i class="fas fa-toggle-on"></i>
-                                    Durum
+                                    Status
                                 </label>
                                 <select id="edit-status" name="status">
                                     <option value="active" ${listing.status === "active" ? "selected" : ""}>
-                                        ✅ Aktif
+                                        ✅ Active
                                     </option>
                                     <option value="inactive" ${listing.status === "inactive" ? "selected" : ""}>
-                                        ⏸️ Pasif
+                                        ⏸️ Inactive
                                     </option>
                                     <option value="sold" ${listing.status === "sold" ? "selected" : ""}>
-                                        ✔️ Satıldı
+                                        ✔️ Sold
                                     </option>
                                 </select>
                             </div>
@@ -1561,7 +1568,7 @@ function renderEditForm(listing) {
                             <div class="form-group">
                                 <label for="edit-price">
                                     <i class="fas fa-tag"></i>
-                                    Fiyat (€) <span class="required">*</span>
+                                    Price (€) <span class="required">*</span>
                                 </label>
                                 <input type="number" id="edit-price" name="price" 
                                     value="${listing.price}" 
@@ -1575,31 +1582,31 @@ function renderEditForm(listing) {
                             <div class="form-group full-width">
                                 <label for="edit-description">
                                     <i class="fas fa-align-left"></i>
-                                    Açıklama <span class="required">*</span>
+                                    Description <span class="required">*</span>
                                 </label>
                                 <div class="rich-text-toolbar" id="rteToolbar">
-                                    <button type="button" data-cmd="bold" title="Kalın (Ctrl+B)"><i class="fas fa-bold"></i></button>
-                                    <button type="button" data-cmd="italic" title="İtalik (Ctrl+I)"><i class="fas fa-italic"></i></button>
-                                    <button type="button" data-cmd="underline" title="Altı çizili"><i class="fas fa-underline"></i></button>
-                                    <button type="button" data-cmd="insertUnorderedList" title="Madde İşareti"><i class="fas fa-list-ul"></i></button>
-                                    <button type="button" data-cmd="insertOrderedList" title="Numaralandırma"><i class="fas fa-list-ol"></i></button>
-                                    <button type="button" data-cmd="justifyLeft" title="Sola Hizala"><i class="fas fa-align-left"></i></button>
-                                    <button type="button" data-cmd="justifyCenter" title="Ortala"><i class="fas fa-align-center"></i></button>
-                                    <button type="button" data-cmd="justifyRight" title="Sağa Hizala"><i class="fas fa-align-right"></i></button>
-                                    <button type="button" data-cmd="createLink" title="Link ekle"><i class="fas fa-link"></i></button>
-                                    <button type="button" data-cmd="removeFormat" title="Biçimi temizle"><i class="fas fa-eraser"></i></button>
+                                    <button type="button" data-cmd="bold" title="Bold (Ctrl+B)"><i class="fas fa-bold"></i></button>
+                                    <button type="button" data-cmd="italic" title="Italic (Ctrl+I)"><i class="fas fa-italic"></i></button>
+                                    <button type="button" data-cmd="underline" title="Underline"><i class="fas fa-underline"></i></button>
+                                    <button type="button" data-cmd="insertUnorderedList" title="Bullet List"><i class="fas fa-list-ul"></i></button>
+                                    <button type="button" data-cmd="insertOrderedList" title="Numbered List"><i class="fas fa-list-ol"></i></button>
+                                    <button type="button" data-cmd="justifyLeft" title="Align Left"><i class="fas fa-align-left"></i></button>
+                                    <button type="button" data-cmd="justifyCenter" title="Align Center"><i class="fas fa-align-center"></i></button>
+                                    <button type="button" data-cmd="justifyRight" title="Align Right"><i class="fas fa-align-right"></i></button>
+                                    <button type="button" data-cmd="createLink" title="Add Link"><i class="fas fa-link"></i></button>
+                                    <button type="button" data-cmd="removeFormat" title="Clear Formatting"><i class="fas fa-eraser"></i></button>
                                 </div>
                                 
                                 <div id="edit-description-editor" class="form-textarea rich-text-editor" contenteditable="true" 
                                     style="border-top-left-radius: 0; border-top-right-radius: 0; min-height: 200px; overflow-y: auto;"
-                                    placeholder="İlanınız hakkında detaylı bilgi verin...">${listing.description || ""}</div>
+                                    placeholder="Provide detailed information about your listing...">${listing.description || ""}</div>
                                 
                                 <input type="hidden" id="edit-description" name="description" value="${escapeHtml(listing.description || "")}">
 
                                 <div class="desc-footer">
                                     <span class="validation-msg"></span>
                                     <span class="char-counter">
-                                        <span id="desc-count">0</span> / 2000 karakter
+                                        <span id="desc-count">0</span> / 2000 characters
                                     </span>
                                 </div>
                             </div>
@@ -1612,15 +1619,15 @@ function renderEditForm(listing) {
                     <div class="actions-container">
                         <div class="status-indicator">
                             <i class="fas fa-circle-notch fa-spin"></i>
-                            <span>Değişiklikler Kaydedilmedi</span>
+                            <span>Unsaved Changes</span>
                         </div>
                         <div class="buttons">
                             <button type="button" class="btn-cancel" onclick="window.history.back()">
-                                <span>İptal</span>
+                                <span>Cancel</span>
                             </button>
                             <button type="submit" form="edit-listing-form" class="btn-save">
                                 <i class="fas fa-check"></i>
-                                <span>Kaydet</span>
+                                <span>Save</span>
                             </button>
                         </div>
                     </div>
@@ -1632,7 +1639,7 @@ function renderEditForm(listing) {
                         <h2>
                             <span class="section-number">2</span>
                             <i class="fas fa-images"></i>
-                            <span>Fotoğraflar</span>
+                            <span>Photos</span>
                         </h2>
                         <div class="photos-manager" id="photos-manager">
                             <div class="photos-grid" id="photos-grid">
@@ -1640,11 +1647,11 @@ function renderEditForm(listing) {
                                   .map(
                                     (photo, idx) => `
                                     <div class="photo-item" data-index="${idx}">
-                                        <img src="${photo}" alt="Foto ${idx + 1}">
+                                        <img src="${photo}" alt="Photo ${idx + 1}">
                                         <button type="button" class="remove-photo" data-index="${idx}">
                                             <i class="fas fa-times"></i>
                                         </button>
-                                        ${idx === 0 ? '<span class="photo-badge">Ana Fotoğraf</span>' : ""}
+                                        ${idx === 0 ? '<span class="photo-badge">Main Photo</span>' : ""}
                                     </div>
                                 `,
                                   )
@@ -1654,11 +1661,11 @@ function renderEditForm(listing) {
                                 <input type="file" id="new-photos" accept="image/*" multiple style="display: none;">
                                 <button type="button" class="btn-add-photo">
                                     <i class="fas fa-plus-circle"></i>
-                                    <span>Fotoğraf Ekle</span>
+                                    <span>Add Photo</span>
                                 </button>
                                 <p class="help-text">
-                                    En fazla <strong>10 fotoğraf</strong> ekleyebilirsiniz.<br>
-                                    İlk fotoğraf ana fotoğraf olacaktır.
+                                    You can add up to <strong>10 photos</strong>.<br>
+                                    The first photo will be the main photo.
                                 </p>
                             </div>
                         </div>
@@ -1722,7 +1729,7 @@ function initializeEditForm(listing) {
       const indicator = document.querySelector(".status-indicator");
       if (indicator) {
         indicator.querySelector("span").textContent =
-          "Değişiklikler Kaydedilmedi";
+          "Unsaved Changes";
         indicator.classList.add("has-changes");
       }
     };
@@ -1736,7 +1743,7 @@ function initializeEditForm(listing) {
 
       const cmd = btn.dataset.cmd;
       if (cmd === "createLink") {
-        const url = prompt("URL bağlantısını girin:", "https://");
+        const url = prompt("Enter URL:", "https://");
         if (url) document.execCommand("createLink", false, url);
       } else if (cmd === "removeFormat") {
         document.execCommand("removeFormat", false, null);
@@ -1763,7 +1770,7 @@ function initializeEditForm(listing) {
         const indicator = document.querySelector(".status-indicator");
         if (indicator) {
           indicator.querySelector("span").textContent =
-            "Değişiklikler Kaydedilmedi";
+            "Unsaved Changes";
           indicator.classList.add("has-changes");
         }
       });
@@ -1790,7 +1797,7 @@ function initializeEditForm(listing) {
     const totalPhotos = currentPhotos.length + newPhotos.length + files.length;
 
     if (totalPhotos > 10) {
-      alert("En fazla 10 fotoğraf ekleyebilirsiniz");
+      alert("You can add up to 10 photos");
       return;
     }
 
@@ -1816,28 +1823,28 @@ function initializeEditForm(listing) {
       ...currentPhotos.map(
         (photo, idx) => `
                 <div class="photo-item" draggable="true" data-index="${idx}" data-type="current">
-                    <img src="${photo}" alt="Foto ${idx + 1}">
+                    <img src="${photo}" alt="Photo ${idx + 1}">
                     <div class="photo-overlay">
                         <i class="fas fa-arrows-alt"></i>
                     </div>
                     <button type="button" class="remove-photo" data-index="${idx}">
                         <i class="fas fa-times"></i>
                     </button>
-                    ${idx === 0 ? '<span class="photo-badge">Ana Fotoğraf</span>' : ""}
+                    ${idx === 0 ? '<span class="photo-badge">Main Photo</span>' : ""}
                 </div>
             `,
       ),
       ...newPhotos.map(
         (photo, idx) => `
                 <div class="photo-item new-photo" draggable="true" data-new-index="${idx}" data-type="new">
-                    <img src="${photo.preview}" alt="Yeni Foto ${idx + 1}">
+                    <img src="${photo.preview}" alt="New Photo ${idx + 1}">
                     <div class="photo-overlay">
                         <i class="fas fa-arrows-alt"></i>
                     </div>
                     <button type="button" class="remove-new-photo" data-new-index="${idx}">
                         <i class="fas fa-times"></i>
                     </button>
-                    <span class="photo-badge new">Yeni</span>
+                    <span class="photo-badge new">New</span>
                 </div>
             `,
       ),
@@ -1928,7 +1935,7 @@ function initializeEditForm(listing) {
     submitBtn.classList.add("loading");
     submitBtn.innerHTML = `
             <i class="fas fa-spinner fa-spin"></i>
-            <span>Kaydediliyor...</span>
+            <span>Saving...</span>
         `;
 
     try {
@@ -1937,7 +1944,7 @@ function initializeEditForm(listing) {
       if (newPhotos.length > 0) {
         submitBtn.innerHTML = `
                     <i class="fas fa-cloud-upload-alt"></i>
-                    <span>Fotoğraflar yükleniyor... (${uploadedPhotos.length}/${newPhotos.length})</span>
+                    <span>Uploading photos... (${uploadedPhotos.length}/${newPhotos.length})</span>
                 `;
 
         for (const photo of newPhotos) {
@@ -1958,10 +1965,10 @@ function initializeEditForm(listing) {
             // Progress update
             submitBtn.innerHTML = `
                             <i class="fas fa-cloud-upload-alt"></i>
-                            <span>Fotoğraflar yükleniyor... (${uploadedPhotos.length}/${newPhotos.length})</span>
+                            <span>Uploading photos... (${uploadedPhotos.length}/${newPhotos.length})</span>
                         `;
           } catch (uploadError) {
-            console.error("Fotoğraf yükleme hatası:", uploadError);
+            console.error("Photo upload error:", uploadError);
           }
         }
       }
@@ -1986,7 +1993,7 @@ function initializeEditForm(listing) {
       // Veritabanını güncelle
       submitBtn.innerHTML = `
                 <i class="fas fa-database"></i>
-                <span>Kaydediliyor...</span>
+                <span>Saving...</span>
             `;
 
       // API'den import et
@@ -2001,14 +2008,14 @@ function initializeEditForm(listing) {
         window.location.href = `ilan-detay.html?id=${listing.id}`;
       }, 2000);
     } catch (error) {
-      console.error("Güncelleme hatası:", error);
+      console.error("Update error:", error);
       submitBtn.classList.remove("loading");
 
       // Error notification
       if (typeof showNotification === "function") {
-        showNotification("İlan güncellenirken bir hata oluştu", "error");
+        showNotification("An error occurred while updating the listing", "error");
       } else {
-        alert("İlan güncellenirken bir hata oluştu: " + error.message);
+        alert("An error occurred while updating the listing: " + error.message);
       }
 
       submitBtn.disabled = false;
@@ -2026,8 +2033,8 @@ function showSuccessMessage() {
   overlay.innerHTML = `
         <div class="success-message">
             <i class="fas fa-check-circle"></i>
-            <h3>Başarılı!</h3>
-            <p>İlanınız başarıyla güncellendi</p>
+            <h3>Success!</h3>
+            <p>Your listing has been updated successfully</p>
         </div>
     `;
   document.body.appendChild(overlay);
@@ -2044,14 +2051,14 @@ function renderBreadcrumb(listing) {
   if (!breadcrumb) return;
 
   const extra = listing.extra_fields || {};
-  const category = listing.category_text || String(listing.category_id || '') || "Diğer";
+  const category = listing.category_text || String(listing.category_id || '') || "Other";
   const breadcrumbItems = [];
 
   // Ana Sayfa zaten HTML'de var
   breadcrumbItems.push(`
         <a href="index.html" class="breadcrumb-item">
             <i class="fas fa-home"></i>
-            Ana Sayfa
+            Home
         </a>
     `);
 
@@ -2158,7 +2165,7 @@ async function loadAdBanner() {
       // Banner aktif mi kontrol et
       if (data.is_active && bannerData.image_url) {
         bannerImage.src = bannerData.image_url;
-        bannerImage.alt = bannerData.alt_text || "Reklam";
+        bannerImage.alt = bannerData.alt_text || "Advertisement";
 
         if (bannerData.link_url) {
           bannerLink.href = bannerData.link_url;
@@ -2218,7 +2225,7 @@ async function loadSellerRating(sellerId) {
       .single();
 
     if (error || !stats) {
-      console.log("Satıcı istatistikleri bulunamadı");
+      console.log("Seller stats not found");
       return;
     }
 
@@ -2249,7 +2256,7 @@ async function loadSellerRating(sellerId) {
       showSellerReviews(sellerId);
     });
   } catch (error) {
-    console.error("Satıcı değerlendirmesi yüklenirken hata:", error);
+    console.error("Error loading seller rating:", error);
   }
 }
 
@@ -2267,10 +2274,10 @@ async function showSellerReviews(sellerId) {
 
     // Modal aç
     let reviewsHtml = '<div class="reviews-modal">';
-    reviewsHtml += '<h3 style="margin-bottom: 1rem;">Satıcı Yorumları</h3>';
+    reviewsHtml += '<h3 style="margin-bottom: 1rem;">Seller Reviews</h3>';
 
     if (!reviews || reviews.length === 0) {
-      reviewsHtml += '<p style="color: #64748b;">Henüz yorum yapılmamış</p>';
+      reviewsHtml += '<p style="color: #64748b;">No reviews yet</p>';
     } else {
       reviewsHtml += '<div style="max-height: 400px; overflow-y: auto;">';
       reviews.forEach((review) => {
@@ -2278,11 +2285,11 @@ async function showSellerReviews(sellerId) {
         reviewsHtml += `
                     <div style="padding: 1rem; border-bottom: 1px solid #e5e7eb;">
                         <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
-                            <strong>${review.profiles?.full_name || "Anonim"}</strong>
+                            <strong>${review.profiles?.full_name || "Anonymous"}</strong>
                             <span>${stars}</span>
                         </div>
-                        <p style="color: #64748b; font-size: 0.9rem;">${review.comment || "(Yorum yazılmamış)"}</p>
-                        <small style="color: #94a3b8;">${new Date(review.created_at).toLocaleDateString("tr-TR")}</small>
+                        <p style="color: #64748b; font-size: 0.9rem;">${review.comment || "(No text provided)"}</p>
+                        <small style="color: #94a3b8;">${new Date(review.created_at).toLocaleDateString("en-GB")}</small>
                     </div>
                 `;
       });
@@ -2293,15 +2300,15 @@ async function showSellerReviews(sellerId) {
 
     // Simple alert yerine modal göster
     if (typeof Modal !== "undefined" && Modal.open) {
-      Modal.open("Satıcı Yorumları", reviewsHtml, [
-        { label: "Kapat", action: "Modal.close()", class: "btn-secondary" },
+      Modal.open("Seller Reviews", reviewsHtml, [
+        { label: "Close", action: "Modal.close()", class: "btn-secondary" },
       ]);
     } else {
-      alert("Toplam " + (reviews?.length || 0) + " yorum bulundu");
+      alert("Found " + (reviews?.length || 0) + " reviews");
     }
   } catch (error) {
-    console.error("Yorumlar yüklenirken hata:", error);
-    alert("Yorumlar yüklenirken bir hata oluştu");
+    console.error("Error loading reviews:", error);
+    alert("An error occurred while loading reviews");
   }
 }
 
@@ -2330,7 +2337,7 @@ function subscribeListingRealtime(listingId) {
     )
     .subscribe((status) => {
       if (status === "SUBSCRIBED") {
-        console.log(`▶️ Realtime dinleniyor: listing ${listingId}`);
+        console.log(`▶️ Realtime listening: listing ${listingId}`);
       }
     });
 

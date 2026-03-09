@@ -17,14 +17,18 @@ function readSupabaseConfig() {
     const winCfg = (w.__SUPABASE && typeof w.__SUPABASE === 'object') ? w.__SUPABASE : {};
     const metaUrl = getMeta('supabase-url');
     const metaKey = getMeta('supabase-key');
-    const FALLBACK_URL = 'https://aiqweggiolawgphxupat.supabase.co';
-    const FALLBACK_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFpcXdlZ2dpb2xhd2dwaHh1cGF0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMwNDQwNjksImV4cCI6MjA4ODYyMDA2OX0.x2QOi8OuQRRR0iM_NqSIVw8igSXcb9bQ5s3VVAsc-3Y';
+    const FALLBACK_URL = ''; // Required: Set via meta tag or window.__SUPABASE
+    const FALLBACK_KEY = ''; // Required: Set via meta tag or window.__SUPABASE
 
     const url = winCfg.url || metaUrl || FALLBACK_URL;
     const key = winCfg.key || metaKey || FALLBACK_KEY;
 
+    if (!url || !key) {
+        console.error('[supabase] CRITICAL: Supabase URL or Key is missing. Check Meta tags.');
+    }
+    
     if (isDevHost() && (!winCfg.url && !metaUrl)) {
-        console.warn('[supabase] Meta veya window.__SUPABASE bulunamadı, fallback config kullanılıyor.');
+        console.warn('[supabase] Meta or window.__SUPABASE not found, using fallback config.');
     }
     return { url, key };
 }
@@ -76,7 +80,7 @@ try {
 
 // ✅ Development-only log
 if (isDevHost()) {
-    console.log('✅ Supabase hazır');
+    console.log('✅ Supabase ready');
 }
 
 // Convenience helpers
@@ -101,7 +105,7 @@ export async function signOutAndClean() {
 export async function requestPhoneOtp(phone, options = {}) {
     // Beklenen format: +90XXXXXXXXXX
     if (!phone || !/^\+\d{10,15}$/.test(phone)) {
-        return { error: { message: 'Geçerli telefon numarası girin (örn: +905XXXXXXXXX)' } };
+        return { error: { message: 'Enter a valid phone number (e.g., +905XXXXXXXXX)' } };
     }
     try {
         const { data, error } = await supabase.auth.signInWithOtp({
@@ -114,14 +118,14 @@ export async function requestPhoneOtp(phone, options = {}) {
         });
         return { data, error };
     } catch (err) {
-        return { error: { message: err.message || 'OTP gönderilemedi' } };
+        return { error: { message: err.message || 'OTP could not be sent' } };
     }
 }
 
 // Kullanıcı SMS ile gelen kodu doğrular.
 export async function verifyPhoneOtp(phone, token) {
     if (!phone || !token) {
-        return { error: { message: 'Telefon ve doğrulama kodu gerekli' } };
+        return { error: { message: 'Phone and verification code are required' } };
     }
     try {
         const { data, error } = await supabase.auth.verifyOtp({
@@ -131,6 +135,6 @@ export async function verifyPhoneOtp(phone, token) {
         });
         return { data, error };
     } catch (err) {
-        return { error: { message: err.message || 'OTP doğrulanamadı' } };
+        return { error: { message: err.message || 'OTP could not be verified' } };
     }
 }

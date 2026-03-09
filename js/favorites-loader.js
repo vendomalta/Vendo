@@ -15,15 +15,15 @@ document.addEventListener('DOMContentLoaded', async () => {
         const { data: { user } } = await supabase.auth.getUser();
         
         if (!user) {
-            console.warn('⚠️ Giriş yapmayan kullanıcı favoriler sayfasına erişmeye çalıştı');
+            console.warn('⚠️ Unauthenticated user tried to access favorites page');
             window.location.href = `login.html?redirect=${encodeURIComponent(window.location.href)}`;
             return;
         }
         
         await loadFavorites();
     } catch (error) {
-        console.error('Favoriler yüklenirken hata:', error);
-        if (error.message.includes('Kullanıcı')) {
+        console.error('Error loading favorites:', error);
+        if (error.message.includes('User')) {
             window.location.href = 'login.html';
         }
     }
@@ -37,16 +37,16 @@ async function loadFavorites() {
     const container = document.querySelector('.favorites-grid');
     
     if (!container) {
-        console.warn('Favori container bulunamadı');
+        console.warn('Favorites container not found');
         return;
     }
 
     try {
-        // Loading göster
+        // Show loading
         container.innerHTML = `
             <div style="grid-column: 1/-1; text-align: center; padding: 3rem;">
                 <i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: var(--primary);"></i>
-                <p style="margin-top: 1rem; color: var(--text-muted);">Favoriler yükleniyor...</p>
+                <p style="margin-top: 1rem; color: var(--text-muted);">Loading favorites...</p>
             </div>
         `;
 
@@ -59,12 +59,12 @@ async function loadFavorites() {
             container.innerHTML = `
                 <div style="grid-column: 1/-1; text-align: center; padding: 3rem;">
                     <i class="fas fa-heart-broken" style="font-size: 3rem; color: var(--text-muted);"></i>
-                    <h3 style="margin-top: 1rem;">Henüz favori ilanınız yok</h3>
+                    <h3 style="margin-top: 1rem;">You don't have any favorite listings yet</h3>
                     <p style="color: var(--text-muted); margin-top: 0.5rem;">
-                        Beğendiğiniz ilanları kalp ikonuna tıklayarak favorilere ekleyebilirsiniz
+                        You can add your favorite listings by clicking the heart icon
                     </p>
                     <a href="index.html" class="btn-primary" style="margin-top: 1.5rem; display: inline-block; padding: 0.75rem 2rem; text-decoration: none;">
-                        <i class="fas fa-home"></i> Ana Sayfaya Dön
+                        <i class="fas fa-home"></i> Return to Home
                     </a>
                 </div>
             `;
@@ -82,11 +82,11 @@ async function loadFavorites() {
         attachFilterListeners(allFavorites);
 
     } catch (error) {
-        console.error('Favoriler yüklenirken hata:', error);
+        console.error('Error loading favorites:', error);
         container.innerHTML = `
             <div style="grid-column: 1/-1; text-align: center; padding: 3rem;">
                 <i class="fas fa-exclamation-triangle" style="font-size: 3rem; color: var(--danger);"></i>
-                <p style="margin-top: 1rem; color: var(--text-muted);">Favoriler yüklenirken bir hata oluştu</p>
+                <p style="margin-top: 1rem; color: var(--text-muted);">An error occurred while loading favorites</p>
             </div>
         `;
     }
@@ -98,7 +98,7 @@ function renderFavorites(favorites) {
         container.innerHTML = `
             <div style="grid-column: 1/-1; text-align: center; padding: 3rem;">
                 <i class="fas fa-heart-broken" style="font-size: 3rem; color: var(--text-muted);"></i>
-                <h3 style="margin-top: 1rem;">Bu kategoride favori ilanınız yok</h3>
+                <h3 style="margin-top: 1rem;">You don't have any favorite listings in this category</h3>
             </div>
         `;
     } else {
@@ -123,13 +123,13 @@ function attachActionListeners() {
             const listingId = this.dataset.listingId;
             const sellerId = this.dataset.sellerId;
 
-            // Kendi ilanına mesaj atamasın
+            // Prevent sending message to own listing
             const { data: { user } } = await supabase.auth.getUser();
             if (user && user.id === sellerId) {
                 if (typeof showNotification === 'function') {
-                    showNotification('Kendi ilanınıza mesaj gönderemezsiniz', 'warning');
+                    showNotification('You cannot send a message to your own listing', 'warning');
                 } else {
-                    alert('Kendi ilanınıza mesaj gönderemezsiniz');
+                    alert('You cannot send a message to your own listing');
                 }
                 return;
             }
@@ -137,9 +137,9 @@ function attachActionListeners() {
             if (listingId && sellerId) {
                 window.location.href = `mesajlar.html?listing_id=${listingId}&seller_id=${sellerId}`;
             } else {
-                console.error('Eksik bilgi:', { listingId, sellerId });
+                console.error('Missing info:', { listingId, sellerId });
                 if (typeof showNotification === 'function') {
-                    showNotification('Mesaj gönderilemiyor: ilan bilgileri eksik', 'error');
+                    showNotification('Cannot send message: missing listing information', 'error');
                 }
             }
         });
@@ -155,15 +155,15 @@ function attachActionListeners() {
             
             if (navigator.share) {
                 navigator.share({
-                    title: 'VENDO İlanı',
+                    title: 'VENDO Listing',
                     url: url
                 }).catch(console.error);
             } else {
                 navigator.clipboard.writeText(url).then(() => {
                     if (typeof showNotification === 'function') {
-                        showNotification('Bağlantı kopyalandı', 'success');
+                        showNotification('Link copied', 'success');
                     } else {
-                        alert('Bağlantı kopyalandı');
+                        alert('Link copied');
                     }
                 });
             }
@@ -174,12 +174,12 @@ function attachActionListeners() {
 function createFavoriteCard(listing) {
     const normalizedId = normalizeId(listing?.id);
     if (!listing || !normalizedId) {
-        console.warn('Favori kart atlandı: ID yok veya geçersiz', listing);
+        console.warn('Favorite card skipped: no ID or invalid', listing);
         return '';
     }
     const imageUrl = listing.photos && listing.photos.length > 0 
         ? listing.photos[0] 
-        : 'https://via.placeholder.com/400x300/10b981/ffffff?text=Fotoğraf+Yok';
+        : 'https://via.placeholder.com/400x300/10b981/ffffff?text=No+Photo';
 
     const formattedPrice = new Intl.NumberFormat('tr-TR', { style: 'decimal', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(listing.price);
     const currency = '€';
@@ -188,7 +188,7 @@ function createFavoriteCard(listing) {
         <div class="favorite-card" data-listing-id="${normalizedId}" data-href="ilan-detay.html?id=${normalizedId}">
             <div class="favorite-image">
                 <img src="${imageUrl}" alt="${escapeHtml(listing.title)}">
-            <button class="favorite-remove" data-listing-id="${normalizedId}" title="Favorilerden Çıkar">
+            <button class="favorite-remove" data-listing-id="${normalizedId}" title="Remove from Favorites">
                     <i class="fas fa-heart"></i>
                 </button>
             </div>
@@ -199,21 +199,21 @@ function createFavoriteCard(listing) {
                 </p>
                 <p class="favorite-location">
                     <i class="fas fa-map-marker-alt"></i>
-                    ${escapeHtml(listing.location_city || 'Belirtilmemiş')}
+                    ${escapeHtml(listing.location_city || 'Not specified')}
                 </p>
                 <div class="favorite-meta">
                     <span class="added-date">
                         <i class="fas fa-clock"></i>
                         ${formatDate(listing.created_at)}
                     </span>
-                    ${listing.status === 'active' ? '<span class="urgency-badge"><i class="fas fa-check-circle"></i> Aktif</span>' : ''}
+                    ${listing.status === 'active' ? '<span class="urgency-badge"><i class="fas fa-check-circle"></i> Active</span>' : ''}
                 </div>
             </div>
             <div class="favorite-actions">
-                <button class="action-btn success send-message-btn" title="Mesaj Gönder" data-listing-id="${normalizedId}" data-seller-id="${listing.user_id}">
+                <button class="action-btn success send-message-btn" title="Send Message" data-listing-id="${normalizedId}" data-seller-id="${listing.user_id}">
                     <i class="fas fa-envelope"></i>
                 </button>
-                <button class="action-btn info share-btn" title="Paylaş" data-listing-id="${normalizedId}">
+                <button class="action-btn info share-btn" title="Share" data-listing-id="${normalizedId}">
                     <i class="fas fa-share"></i>
                 </button>
             </div>
@@ -231,14 +231,14 @@ function attachRemoveListeners() {
             
             let _ok = false;
             if (typeof showConfirmDialog === 'function') {
-                _ok = await showConfirmDialog('Bu ilanı favorilerden çıkarmak istediğinize emin misiniz?');
+                _ok = await showConfirmDialog('Are you sure you want to remove this listing from your favorites?');
             } else {
                 if (typeof showNotification === 'function') {
-                    showNotification('Onay gerekiyor: favorilerden çıkarma işlemini onaylayın', 'info');
+                    showNotification('Approval required: confirm removal from favorites', 'info');
                 } else if (typeof showInlineToast === 'function') {
-                    showInlineToast('Onay gerekiyor: favorilerden çıkarma işlemini onaylayın', 'info');
+                    showInlineToast('Approval required: confirm removal from favorites', 'info');
                 } else {
-                    console.warn('Onay gerekiyor: favorilerden çıkarma işlemini onaylayın');
+                    console.warn('Approval required: confirm removal from favorites');
                 }
                 return;
             }
@@ -262,16 +262,16 @@ function attachRemoveListeners() {
                 }, 300);
                 
                 if (typeof showNotification === 'function') {
-                    showNotification('Favorilerden çıkarıldı', 'success');
+                    showNotification('Removed from favorites', 'success');
                 }
             } catch (error) {
-                console.error('Favori çıkarma hatası:', error);
+                console.error('Error removing from favorites:', error);
                 if (typeof showNotification === 'function') {
-                    showNotification('Hata: ' + error.message, 'error');
+                    showNotification('Error: ' + error.message, 'error');
                 } else if (typeof showInlineToast === 'function') {
-                    showInlineToast('Hata: ' + error.message, 'error');
+                    showInlineToast('Error: ' + error.message, 'error');
                 } else {
-                    console.error('Hata: ' + error.message);
+                    console.error('Error: ' + error.message);
                 }
             }
         });
@@ -286,13 +286,13 @@ function attachCardClickListeners() {
             const listingId = normalizeId(this.dataset.listingId);
             const href = this.dataset.href || (listingId ? `ilan-detay.html?id=${listingId}` : '');
             if (!listingId || !href) {
-                console.warn('Favori kart tıklaması engellendi: geçersiz ID', this.dataset);
+                console.warn('Favorite card click prevented: invalid ID', this.dataset);
                 if (typeof showNotification === 'function') {
-                    showNotification('İlan bağlantısı eksik. Lütfen sayfayı yenileyin.', 'warning');
+                    showNotification('Listing link missing. Please refresh the page.', 'warning');
                 } else if (typeof showInlineToast === 'function') {
-                    showInlineToast('İlan bağlantısı eksik. Lütfen sayfayı yenileyin.', 'warning');
+                    showInlineToast('Listing link missing. Please refresh the page.', 'warning');
                 } else {
-                    console.warn('İlan bağlantısı eksik. Lütfen sayfayı yenileyin.');
+                    console.warn('Listing link missing. Please refresh the page.');
                 }
                 return;
             }
@@ -319,7 +319,7 @@ function updateStats(favorites) {
     document.querySelectorAll('.tab-btn').forEach(tab => {
         const filter = tab.dataset.filter;
         if (filter === 'all') {
-            tab.textContent = `Tümü (${totalCount})`;
+            tab.textContent = `All (${totalCount})`;
         } else {
             const count = favorites.filter(f => f.category === filter).length;
             const label = getFilterLabel(filter);
@@ -330,10 +330,10 @@ function updateStats(favorites) {
 
 function getFilterLabel(filter) {
     const labels = {
-        'emlak': 'Emlak',
-        'vasita': 'Vasıta',
-        'elektronik': 'Elektronik',
-        'ev_esyasi': 'Ev Eşyası'
+        'emlak': 'Real Estate',
+        'vasita': 'Vehicles',
+        'elektronik': 'Electronics',
+        'ev_esyasi': 'Home Goods'
     };
     return labels[filter] || filter;
 }

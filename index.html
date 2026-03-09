@@ -4,10 +4,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, maximum-scale=5.0">
-    <title>VENDO - Emlak, Vasıta, Elektronik İlanları | Türkiye'nin İlan Platformu</title>
+    <title>VENDO - Real Estate, Vehicles, Electronics | Malta's Classifieds Platform</title>
     <meta name="description"
-        content="VENDO ile emlak, vasıta, elektronik ve daha fazlasında ilan verin, arayın ve bulun. Güvenli, hızlı ve modern ilan deneyimi.">
-    <meta name="keywords" content="ilan, emlak, vasıta, otomobil, elektronik, kiralık, satılık, ikinci el">
+        content="Post, search, and find real estate, vehicles, electronics and more on VENDO. Secure, fast, and modern classifieds experience.">
+    <meta name="keywords" content="classifieds, real estate, vehicles, cars, electronics, for rent, for sale, second hand">
     <meta name="robots" content="index,follow">
     <meta name="theme-color" content="#10b981">
     
@@ -18,15 +18,15 @@
 
     <!-- Open Graph -->
     <meta property="og:type" content="website">
-    <meta property="og:title" content="VENDO - Emlak, Vasıta, Elektronik İlanları">
+    <meta property="og:title" content="VENDO - Real Estate, Vehicles, Electronics">
     <meta property="og:description"
-        content="Emlak, vasıta ve elektronik ilanlarını keşfedin. Kolay filtreleme, favoriler, mesajlaşma ve daha fazlası.">
+        content="Discover real estate, vehicles, and electronics listings. Easy filtering, favorites, messaging, and more.">
     <meta property="og:image" content="/assets/images/vendo-logo-og.png">
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="VENDO - İlan Platformu">
-    <meta name="twitter:description" content="Emlak, vasıta ve elektronik ilanları tek yerde.">
+    <meta name="twitter:title" content="VENDO - Classifieds Platform">
+    <meta name="twitter:description" content="Real estate, vehicles, and electronics in one place.">
     <meta name="twitter:image" content="/assets/images/verde-logo-og.png">
     <link rel="icon" type="image/svg+xml" href="/assets/images/verde-logo.svg" sizes="any">
     <link rel="shortcut icon" href="/assets/images/verde-logo.svg">
@@ -60,26 +60,26 @@
         <!-- Sol Sidebar - Kategoriler -->
         <aside class="sidebar-categories">
             <div class="sidebar-header">
-                <button class="sidebar-toggle-btn" aria-label="Kategorileri aç/kapat" title="Kategorileri aç/kapat">
+                <button class="sidebar-toggle-btn" aria-label="Toggle categories" title="Toggle categories">
                     <i class="fas fa-chevron-down expand-icon"></i>
-                    <span>Kategoriler</span>
+                    <span>Categories</span>
                 </button>
-                <button class="sidebar-close-btn" aria-label="Sidebar kapat">
+                <button class="sidebar-close-btn" aria-label="Close sidebar">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
             <nav class="sidebar-nav sidebar-categories-content">
                 <div class="categories-loading">
-                    <i class="fas fa-spinner fa-spin"></i> Kategoriler yükleniyor...
+                    <i class="fas fa-spinner fa-spin"></i> Loading categories...
                 </div>
                 <!-- Kategoriler dinamik olarak JS tarafından yüklenecek -->
             </nav>
             
             <!-- Sol Sidebar - Filtreler -->
             <div class="sidebar-header filters-header">
-                <button class="sidebar-toggle-btn" id="toggleFiltersBtn" aria-label="Filtreleri aç/kapat" title="Filtreleri aç/kapat">
+                <button class="sidebar-toggle-btn" id="toggleFiltersBtn" aria-label="Toggle filters" title="Toggle filters">
                     <i class="fas fa-chevron-down expand-icon"></i>
-                    <span>Filtreler</span>
+                    <span>Filters</span>
                 </button>
             </div>
             <div id="sidebarFilters" class="sidebar-filters sidebar-filters-content">
@@ -93,9 +93,9 @@
             <div class="homepage-banner-container" id="homepage-banner-section" style="display: none;">
                 <div class="homepage-banner-wrapper">
                     <a href="#" id="homepage-banner-link" target="_blank" rel="noopener noreferrer">
-                        <img id="homepage-banner-image" src="" alt="Reklam">
+                        <img id="homepage-banner-image" src="" alt="Advertisement">
                     </a>
-                    <button class="homepage-banner-close" id="homepage-banner-close" title="Kapat">
+                    <button class="homepage-banner-close" id="homepage-banner-close" title="Close">
                         <i class="fas fa-times"></i>
                     </button>
                 </div>
@@ -104,20 +104,20 @@
             <!-- Breadcrumb Navigation (moved below banner) -->
             <nav class="breadcrumb-nav" aria-label="Breadcrumb"></nav>
 
-            <!-- Vitrin İlanları -->
+            <!-- Featured Listings -->
             <section class="featured-listings">
                 <div class="section-header">
-                    <h2>Vitrin İlanları</h2>
+                    <h2>Featured Listings</h2>
                     <div class="header-actions">
                         <div class="view-controls">
-                            <button class="view-button active" data-view="grid" aria-label="Izgara görünüm"
-                                title="Izgara görünüm">
+                            <button class="view-button active" data-view="grid" aria-label="Grid view"
+                                title="Grid view">
                                 <i class="fas fa-th-large" aria-hidden="true"></i>
-                                <span class="view-label">Izgara</span>
+                                <span class="view-label">Grid</span>
                             </button>
-                            <button class="view-button" data-view="table" aria-label="Tablo görünüm" title="Tablo görünüm">
+                            <button class="view-button" data-view="table" aria-label="Table view" title="Table view">
                                 <i class="fas fa-table" aria-hidden="true"></i>
-                                <span class="view-label">Tablo</span>
+                                <span class="view-label">Table</span>
                             </button>
                         </div>
                     </div>
@@ -126,32 +126,32 @@
                     <div>Model</div>
                     <div>Listing Title</div>
                     <div class="table-km">KM</div>
-                    <div class="table-color">Renk</div>
-                    <div class="table-year">Yıl</div>
+                    <div class="table-color">Color</div>
+                    <div class="table-year">Year</div>
                     <div>Date/City</div>
                     <div>Price</div>
                 </div>
-                <!-- Dinamik ilan kartları buraya yüklenecek -->
+                <!-- Dynamic listings go here -->
                 <div class="listings-grid"></div>
 
-                <!-- Sayfalama (butonlar burada render edilecek) -->
-                <nav class="pagination" aria-label="Sayfalama"></nav>
+                <!-- Pagination -->
+                <nav class="pagination" aria-label="Pagination"></nav>
 
-                <!-- Devamını Göster Butonu -->
+                <!-- Load More Button -->
                 <div class="load-more-container" style="display: none;">
                     <button class="load-more-btn">
-                        <span class="load-more-text">Devamını Göster</span>
-                        <span class="loading-text" style="display: none;">Yükleniyor...</span>
+                        <span class="load-more-text">Load More</span>
+                        <span class="loading-text" style="display: none;">Loading...</span>
                     </button>
                 </div>
             </section>
         </main>
     </div>
 
-    <!-- Hızlı İlan Verme Butonu -->
-    <button class="post-ad-fab" aria-label="İlan Ver">
+    <!-- Quick Post Fab Button -->
+    <button class="post-ad-fab" aria-label="Post Ad">
         <i class="fas fa-plus"></i>
-        <span>İlan Ver</span>
+        <span>Post Ad</span>
     </button>
 
 

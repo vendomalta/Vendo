@@ -17,7 +17,7 @@ async function loadMyListings() {
     const container = document.querySelector('.ads-container');
     
     if (!container) {
-        console.warn('İlanlar container bulunamadı');
+        console.warn('Listings container not found');
         return;
     }
 
@@ -25,7 +25,7 @@ async function loadMyListings() {
         container.innerHTML = `
             <div style="grid-column: 1/-1; text-align: center; padding: 3rem;">
                 <i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: var(--primary);"></i>
-                <p style="margin-top: 1rem; color: var(--text-muted);">İlanlarınız yükleniyor...</p>
+                <p style="margin-top: 1rem; color: var(--text-muted);">Loading your listings...</p>
             </div>
         `;
 
@@ -38,9 +38,9 @@ async function loadMyListings() {
             container.innerHTML = `
                 <div style="grid-column: 1/-1; text-align: center; padding: 3rem;">
                     <i class="fas fa-inbox" style="font-size: 3rem; color: var(--text-muted);"></i>
-                    <h3 style="margin-top: 1rem;">Henüz ilanınız yok</h3>
+                    <h3 style="margin-top: 1rem;">You don't have any listings yet</h3>
                     <p style="color: var(--text-muted); margin-top: 0.5rem;">
-                        İlk ilanınızı verin ve satışa başlayın!
+                        Post your first listing and start selling!
                     </p>
                 </div>
             `;
@@ -52,11 +52,11 @@ async function loadMyListings() {
         updateLoadMoreButton();
 
     } catch (error) {
-        console.error('İlanlar yüklenirken hata:', error);
+        console.error('Error loading listings:', error);
         container.innerHTML = `
             <div style="grid-column: 1/-1; text-align: center; padding: 3rem;">
                 <i class="fas fa-exclamation-triangle" style="font-size: 3rem; color: var(--danger);"></i>
-                <p style="margin-top: 1rem; color: var(--text-muted);">İlanlar yüklenirken bir hata oluştu</p>
+                <p style="margin-top: 1rem; color: var(--text-muted);">An error occurred while loading listings</p>
             </div>
         `;
     }
@@ -69,9 +69,9 @@ function renderListings(listings) {
         container.innerHTML = `
             <div style="grid-column: 1/-1; text-align: center; padding: 3rem;">
                 <i class="fas fa-inbox" style="font-size: 3rem; color: var(--text-muted);"></i>
-                <h3 style="margin-top: 1rem;">Henüz ilanınız yok</h3>
+                <h3 style="margin-top: 1rem;">You don't have any listings yet</h3>
                 <p style="color: var(--text-muted); margin-top: 0.5rem;">
-                    İlk ilanınızı verin ve satışa başlayın!
+                    Post your first listing and start selling!
                 </p>
             </div>
         `;
@@ -92,13 +92,13 @@ function normalizeId(id) {
 function createAdCard(listing) {
     const normalizedId = normalizeId(listing?.id);
     if (!listing || !normalizedId) {
-        console.warn('İlan kartı atlandı: geçersiz ID', listing);
+        console.warn('Listing card skipped: invalid ID', listing);
         return '';
     }
     const normalizedStatus = normalizeStatus(listing.status);
     const imageUrl = listing.photos && listing.photos.length > 0 
         ? listing.photos[0] 
-        : 'https://via.placeholder.com/400x300/10b981/ffffff?text=Fotoğraf+Yok';
+        : 'https://via.placeholder.com/400x300/10b981/ffffff?text=No+Photo';
 
     const formattedPrice = new Intl.NumberFormat('tr-TR', { style: 'decimal', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(listing.price);
     const currency = '€';
@@ -119,7 +119,7 @@ function createAdCard(listing) {
                 <h3 class="ad-title">${escapeHtml(listing.title)}</h3>
                 <p class="ad-location">
                     <i class="fas fa-map-marker-alt"></i>
-                    ${escapeHtml(listing.location_city || 'Belirtilmemiş')}
+                    ${escapeHtml(listing.location_city || 'Not specified')}
                 </p>
                 <p class="ad-price">${currency}${formattedPrice}</p>
                 <div class="ad-meta">
@@ -134,14 +134,14 @@ function createAdCard(listing) {
                 </div>
             </div>
             <div class="ad-actions">
-                    <button class="action-btn primary edit-btn" data-id="${normalizedId}" title="Düzenle">
+                    <button class="action-btn primary edit-btn" data-id="${normalizedId}" title="Edit">
                     <i class="fas fa-edit"></i>
                 </button>
                 ${normalizedStatus === 'active' 
-                    ? `<button class="action-btn warning pause-btn" data-id="${normalizedId}" title="Duraklat"><i class="fas fa-pause"></i></button>`
-                    : `<button class="action-btn success activate-btn" data-id="${normalizedId}" title="Aktifleştir"><i class="fas fa-play"></i></button>`
+                    ? `<button class="action-btn warning pause-btn" data-id="${normalizedId}" title="Pause"><i class="fas fa-pause"></i></button>`
+                    : `<button class="action-btn success activate-btn" data-id="${normalizedId}" title="Activate"><i class="fas fa-play"></i></button>`
                 }
-                <button class="action-btn danger delete-btn" data-id="${normalizedId}" title="Sil">
+                <button class="action-btn danger delete-btn" data-id="${normalizedId}" title="Delete">
                     <i class="fas fa-trash"></i>
                 </button>
             </div>
@@ -151,30 +151,30 @@ function createAdCard(listing) {
 
 function getStatusBadge(status) {
     const badges = {
-        'active': '<div class="ad-badge active">Aktif</div>',
-        'inactive': '<div class="ad-badge inactive">Pasif</div>',
-        'deactivated': '<div class="ad-badge inactive">Pasif</div>',
-        'draft': '<div class="ad-badge inactive">Taslak</div>',
-        'closed': '<div class="ad-badge inactive">Pasif</div>',
-        'sold': '<div class="ad-badge inactive">Satıldı</div>',
-        'expired': '<div class="ad-badge expired">Süresi Dolmuş</div>',
-        'pending': '<div class="ad-badge pending">Onay Bekliyor</div>'
+        'active': '<div class="ad-badge active">Active</div>',
+        'inactive': '<div class="ad-badge inactive">Inactive</div>',
+        'deactivated': '<div class="ad-badge inactive">Inactive</div>',
+        'draft': '<div class="ad-badge inactive">Draft</div>',
+        'closed': '<div class="ad-badge inactive">Inactive</div>',
+        'sold': '<div class="ad-badge inactive">Sold</div>',
+        'expired': '<div class="ad-badge expired">Expired</div>',
+        'pending': '<div class="ad-badge pending">Pending Approval</div>'
     };
     return badges[status] || '';
 }
 
 function getDaysLeft(expiresAt) {
-    if (!expiresAt) return 'Süresiz';
+    if (!expiresAt) return 'No expiration';
     
     const now = new Date();
     const expires = new Date(expiresAt);
     const diffTime = expires - now;
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     
-    if (diffDays < 0) return 'Süresi doldu';
-    if (diffDays === 0) return 'Bugün sona eriyor';
-    if (diffDays === 1) return '1 gün kaldı';
-    return `${diffDays} gün kaldı`;
+    if (diffDays < 0) return 'Expired';
+    if (diffDays === 0) return 'Expires today';
+    if (diffDays === 1) return '1 day left';
+    return `${diffDays} days left`;
 }
 
 function attachActionListeners() {
@@ -185,7 +185,7 @@ function attachActionListeners() {
     if (container.dataset.actionsBound) return;
     container.dataset.actionsBound = 'true';
 
-    // Kart tıklayınca detay sayfasına git (aksiyon butonuna tıklanmadıysa)
+    // Click on card goes to details page (if not clicking action button)
     container.addEventListener('click', function(e) {
         const card = e.target.closest('.ad-card');
         if (!card) return;
@@ -197,8 +197,8 @@ function attachActionListeners() {
         const listingId = normalizeId(card.dataset.listingId);
         const href = card.dataset.href || (listingId ? `ilan-detay.html?id=${listingId}` : '');
         if (!listingId || !href) {
-            console.warn('Kart tıklaması engellendi: geçersiz ID', card.dataset);
-            alert('İlan bağlantısı eksik. Lütfen sayfayı yenileyin.');
+            console.warn('Card click prevented: invalid ID', card.dataset);
+            alert('Listing link missing. Please refresh the page.');
             return;
         }
         window.location.href = href;
@@ -224,14 +224,14 @@ function attachActionListeners() {
             const listingId = deleteBtn.dataset.id;
             if (!listingId) return;
 
-            const confirmed = await showConfirmDialog('Bu ilanı silmek istediğinize emin misiniz? Bu işlem geri alınamaz.', 'Sil', 'İptal');
+            const confirmed = await showConfirmDialog('Are you sure you want to delete this listing? This action cannot be undone.', 'Delete', 'Cancel');
             if (!confirmed) return;
 
             if (listingId.startsWith('demo-')) {
                 const card = deleteBtn.closest('.ad-card');
                 if (card) card.remove();
                 if (typeof showNotification === 'function') {
-                    showNotification('Demo kart silindi', 'success');
+                    showNotification('Demo card deleted', 'success');
                 }
                 return;
             }
@@ -249,12 +249,12 @@ function attachActionListeners() {
                     }, 300);
                 }
                 if (typeof showNotification === 'function') {
-                    showNotification('İlan başarıyla silindi', 'success');
+                    showNotification('Listing successfully deleted', 'success');
                 }
             } catch (error) {
-                console.error('Silme hatası:', error);
+                console.error('Delete error:', error);
                 if (typeof showNotification === 'function') {
-                    showNotification('Hata: ' + error.message, 'error');
+                    showNotification('Error: ' + error.message, 'error');
                 }
             }
             return;
@@ -285,10 +285,10 @@ function setCardStatus(card, newStatus, listingId) {
         badge.classList.remove('active', 'inactive', 'expired', 'pending');
         const badgeClass = normalized === 'active' ? 'active' : 'inactive';
         badge.classList.add(badgeClass);
-        // Show appropriate Turkish text based on normalized status
-        let badgeText = 'Pasif';
-        if (normalized === 'active') badgeText = 'Aktif';
-        else if (normalized === 'sold') badgeText = 'Satıldı';
+        // Show appropriate English text based on normalized status
+        let badgeText = 'Inactive';
+        if (normalized === 'active') badgeText = 'Active';
+        else if (normalized === 'sold') badgeText = 'Sold';
         badge.textContent = badgeText;
     }
 
@@ -300,11 +300,11 @@ function setCardStatus(card, newStatus, listingId) {
         const newBtn = document.createElement('button');
         if (normalized === 'active') {
             newBtn.className = 'action-btn warning pause-btn';
-            newBtn.title = 'Duraklat';
+            newBtn.title = 'Pause';
             newBtn.innerHTML = '<i class="fas fa-pause"></i>';
         } else {
             newBtn.className = 'action-btn success activate-btn';
-            newBtn.title = 'Aktifleştir';
+            newBtn.title = 'Activate';
             newBtn.innerHTML = '<i class="fas fa-play"></i>';
         }
         newBtn.dataset.id = listingId || existingToggle.dataset.id;
@@ -340,12 +340,12 @@ async function changeListingStatus(listingId, targetStatus) {
             lastError = error;
             const msg = String(error?.message || '').toLowerCase();
             if (/status/i.test(msg) || /constraint/i.test(msg) || /check/i.test(msg)) {
-                continue; // dene ve diğer statü ile tekrar
+                continue; // try next status
             }
             throw error;
         }
     }
-    throw lastError || new Error('Duraklatma/aktifleştirme başarısız');
+    throw lastError || new Error('Pause/activate failed');
 }
 
 // Durum menüsü: edit sayfasındaki seçeneklerle aynı (Aktif, Pasif, Satıldı)
@@ -411,9 +411,9 @@ function openStatusMenu(triggerBtn, listingId, currentStatus, card) {
     const menu = document.createElement('div');
     menu.className = 'status-quick-menu';
     menu.innerHTML = `
-        <button type="button" data-status-option="active" class="status-active">✅ Aktif</button>
-        <button type="button" data-status-option="closed" class="status-inactive">⏸️ Pasif</button>
-        <button type="button" data-status-option="sold" class="status-sold">✔️ Satıldı</button>
+        <button type="button" data-status-option="active" class="status-active">✅ Active</button>
+        <button type="button" data-status-option="closed" class="status-inactive">⏸️ Inactive</button>
+        <button type="button" data-status-option="sold" class="status-sold">✔️ Sold</button>
     `;
 
     const rect = triggerBtn.getBoundingClientRect();
@@ -445,7 +445,7 @@ async function applyStatusChange(listingId, targetStatus, card) {
     if (listingId.startsWith('demo-')) {
         setCardStatus(card, normalizedTarget, listingId);
         if (typeof showNotification === 'function') {
-            showNotification(`Demo ilan durumu ${statusLabel(normalizedTarget)} olarak güncellendi`, 'success');
+            showNotification(`Demo listing status updated to ${statusLabel(normalizedTarget)}`, 'success');
         }
         return;
     }
@@ -456,21 +456,21 @@ async function applyStatusChange(listingId, targetStatus, card) {
         await changeListingStatus(listingId, normalizedTarget);
         await loadMyListings();
         if (typeof showNotification === 'function') {
-            showNotification(`İlan ${statusLabel(normalizedTarget)} olarak güncellendi`, 'success');
+            showNotification(`Listing updated to ${statusLabel(normalizedTarget)}`, 'success');
         }
     } catch (error) {
-        console.error('Durum güncelleme hatası:', error);
+        console.error('Status update error:', error);
         setCardStatus(card, previousStatus, listingId);
         if (typeof showNotification === 'function') {
-            showNotification('Durum güncellenemedi: ' + (error?.message || 'Bilinmeyen hata'), 'error');
+            showNotification('Status could not be updated: ' + (error?.message || 'Unknown error'), 'error');
         }
     }
 }
 
 function statusLabel(status) {
-    if (status === 'active') return 'aktif';
-    if (status === 'sold') return 'satıldı';
-    return 'pasif';
+    if (status === 'active') return 'active';
+    if (status === 'sold') return 'sold';
+    return 'inactive';
 }
 
 function updateStats(listings) {
@@ -485,7 +485,7 @@ function updateStats(listings) {
     if (stats[2]) stats[2].textContent = inactiveCount;
     if (stats[3]) stats[3].textContent = soldCount;
 
-    // Tab sayılarını güncelle
+    // Update tab numbers
     document.querySelectorAll('.tab-btn').forEach(tab => {
         const filter = tab.dataset.filter;
         let count = listings.length;
@@ -524,7 +524,7 @@ function formatDate(dateString) {
     if (!dateString) return '—';
     const date = new Date(dateString);
     if (Number.isNaN(date.getTime())) return '—';
-    return date.toLocaleDateString('tr-TR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    return date.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' });
 }
 
 function escapeHtml(text) {
@@ -552,7 +552,7 @@ function setupLoadMoreButton() {
         loadMoreBtn.style.opacity = '0.5';
         if (loadingText) loadingText.style.display = 'block';
         
-        // Sonraki sayfa yükle
+        // Load next page
         await loadMyListingsMore(currentPage + 1);
         
         isLoading = false;
@@ -560,7 +560,7 @@ function setupLoadMoreButton() {
         loadMoreBtn.style.opacity = '1';
         if (loadingText) loadingText.style.display = 'none';
         
-        // Tüm sayfalar yüklendiyse butonu gizle
+        // Hide button if all pages loaded
         if (currentPage >= totalPages) {
             loadMoreContainer.style.display = 'none';
         }
@@ -568,7 +568,7 @@ function setupLoadMoreButton() {
 }
 
 /**
- * Daha fazla ilanları yükle (append mode)
+ * Load more listings (append mode)
  */
 async function loadMyListingsMore(pageNum) {
     try {
@@ -587,7 +587,7 @@ async function loadMyListingsMore(pageNum) {
             updateLoadMoreButton();
         }
     } catch (error) {
-        console.error('Daha fazla ilan yüklenirken hata:', error);
+        console.error('Error loading more listings:', error);
     }
 }
 

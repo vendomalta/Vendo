@@ -73,7 +73,7 @@ class SidebarManager {
 
         const roots = getRootCategories();
         if (!roots || roots.length === 0) {
-            this.container.innerHTML = '<div class="categories-empty"><i class="fas fa-exclamation-circle"></i><p>Kategori bulunamadı.</p></div>';
+            this.container.innerHTML = '<div class="categories-empty"><i class="fas fa-exclamation-circle"></i><p>No categories found.</p></div>';
             return;
         }
 
@@ -203,7 +203,7 @@ class SidebarManager {
     }
 
     renderDrillDown(category) {
-        // Header'ı güncelle (Örn: "Otomobil")
+        // Update header (e.g., "Cars")
         if (this.headerTitle) this.headerTitle.textContent = category.name;
 
         const children = getChildCategories(category.id);
@@ -291,9 +291,9 @@ export async function initSidebar() {
         manager.init();
         window.sidebarManager = manager;
     } catch (error) {
-        console.error('Sidebar başlatma hatası:', error);
+        console.error('Sidebar initialization error:', error);
         if (loadingEl) {
-            loadingEl.innerHTML = '<div class="error-msg" style="color:red; padding:10px;">Kategoriler yüklenemedi.</div>';
+            loadingEl.innerHTML = '<div class="error-msg" style="color:red; padding:10px;">Failed to load categories.</div>';
         }
     }
 }

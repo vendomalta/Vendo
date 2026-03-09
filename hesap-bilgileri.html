@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hesap Bilgileri - VENDO</title>
+    <title>Account Information - VENDO</title>
     <link rel="icon" type="image/svg+xml" href="assets/images/verde-logo.svg" sizes="any">
     <link rel="shortcut icon" href="assets/images/verde-logo.svg">
     <link rel="apple-touch-icon" href="assets/images/verde-logo.svg">
@@ -18,12 +18,12 @@
         <div class="container">
             <div class="page-header">
                 <div class="breadcrumb">
-                    <a href="ayarlar.html"><i class="fas fa-cog"></i> Ayarlar</a>
+                    <a href="ayarlar.html"><i class="fas fa-cog"></i> Settings</a>
                     <i class="fas fa-chevron-right"></i>
-                    <span>Hesap Bilgileri</span>
+                    <span>Account Information</span>
                 </div>
-                <h1><i class="fas fa-user"></i> Hesap Bilgileri</h1>
-                <p class="header-subtitle">Kişisel bilgilerinizi güncelleyin</p>
+                <h1><i class="fas fa-user"></i> Account Information</h1>
+                <p class="header-subtitle">Update your personal information</p>
             </div>
 
             <div class="settings-container">
@@ -92,55 +92,55 @@
                         </div>
 
                         <!-- Kişisel Bilgiler -->
-                        <div class="settings-card">
-                            <h3>Kişisel Bilgiler</h3>
+                         <div class="settings-card">
+                            <h3>Personal Information</h3>
                             <form class="settings-form" id="personalInfoForm">
                                 <div class="form-row">
                                     <div class="form-group">
-                                        <label for="firstName">Ad</label>
-                                        <input type="text" id="firstName" name="firstName" placeholder="Adınız">
+                                        <label for="firstName">First Name</label>
+                                        <input type="text" id="firstName" name="firstName" placeholder="Your first name">
                                     </div>
                                     <div class="form-group">
-                                        <label for="lastName">Soyad</label>
-                                        <input type="text" id="lastName" name="lastName" placeholder="Soyadınız">
+                                        <label for="lastName">Last Name</label>
+                                        <input type="text" id="lastName" name="lastName" placeholder="Your last name">
                                     </div>
                                 </div>
 
                                 <div class="form-group">
-                                    <label for="email">E-posta Adresi</label>
-                                    <input type="email" id="email" name="email" placeholder="ornek@email.com">
-                                    <small>E-posta değiştirme işlemi için doğrulama gerekir</small>
+                                    <label for="email">Email Address</label>
+                                    <input type="email" id="email" name="email" placeholder="example@email.com">
+                                    <small>Email change requires verification</small>
                                 </div>
 
                                 <div class="form-group">
-                                    <label for="phone">Telefon Numarası</label>
+                                    <label for="phone">Phone Number</label>
                                     <input type="tel" id="phone" name="phone" placeholder="+90 555 123 45 67">
                                 </div>
 
                                 <div class="form-group">
-                                    <label for="birthDate">Doğum Tarihi</label>
+                                    <label for="birthDate">Date of Birth</label>
                                     <input type="date" id="birthDate" name="birthDate">
                                 </div>
 
                                 <div class="form-group">
-                                    <label for="gender">Cinsiyet</label>
+                                    <label for="gender">Gender</label>
                                     <select id="gender" name="gender">
-                                        <option value="">Seçiniz</option>
-                                        <option value="male">Erkek</option>
-                                        <option value="female">Kadın</option>
-                                        <option value="other">Diğer</option>
-                                        <option value="prefer-not-to-say">Belirtmek İstemiyorum</option>
+                                        <option value="">Select</option>
+                                        <option value="male">Male</option>
+                                        <option value="female">Female</option>
+                                        <option value="other">Other</option>
+                                        <option value="prefer-not-to-say">Prefer not to say</option>
                                     </select>
                                 </div>
 
                                 <div class="form-actions">
                                     <button type="submit" class="btn-primary">
                                         <i class="fas fa-save"></i>
-                                        Değişiklikleri Kaydet
+                                        Save Changes
                                     </button>
                                     <button type="button" class="btn-secondary" onclick="resetForm()">
                                         <i class="fas fa-undo"></i>
-                                        Sıfırla
+                                        Reset
                                     </button>
                                 </div>
                             </form>
@@ -148,15 +148,15 @@
 
                         <!-- Adres Bilgileri -->
                         <div class="settings-card">
-                            <h3>Adres Bilgileri</h3>
+                            <h3>Address Information</h3>
                             <form class="settings-form" id="addressForm">
                                 <div class="form-group">
-                                    <label for="city">Şehir</label>
+                                    <label for="city">City</label>
                                     <select id="city" name="city">
-                                        <option value="">Şehir seçiniz</option>
-                                        <option value="istanbul">İstanbul</option>
+                                        <option value="">Select city</option>
+                                        <option value="istanbul">Istanbul</option>
                                         <option value="ankara">Ankara</option>
-                                        <option value="izmir">İzmir</option>
+                                        <option value="izmir">Izmir</option>
                                         <option value="antalya">Antalya</option>
                                         <option value="bursa">Bursa</option>
                                         <option value="adana">Adana</option>
@@ -164,22 +164,22 @@
                                 </div>
 
                                 <div class="form-group">
-                                    <label for="district">İlçe</label>
+                                    <label for="district">District</label>
                                     <select id="district" name="district">
-                                        <option value="">Önce şehir seçiniz</option>
+                                        <option value="">Select city first</option>
                                     </select>
                                 </div>
 
                                 <div class="form-group">
-                                    <label for="address">Adres</label>
-                                    <textarea id="address" name="address" placeholder="Tam adresinizi yazınız"
+                                    <label for="address">Address</label>
+                                    <textarea id="address" name="address" placeholder="Write your full address"
                                         rows="3"></textarea>
                                 </div>
 
                                 <div class="form-actions">
                                     <button type="submit" class="btn-primary">
                                         <i class="fas fa-save"></i>
-                                        Adresi Kaydet
+                                        Save Address
                                     </button>
                                 </div>
                             </form>
@@ -212,11 +212,11 @@
             if (file) {
                 if (file.size > 5 * 1024 * 1024) {
                     if (typeof showNotification === 'function') {
-                        showNotification('Dosya boyutu 5MB\'dan büyük olamaz.', 'error');
+                        showNotification('File size cannot exceed 5MB.', 'error');
                     } else if (typeof showInlineToast === 'function') {
-                        showInlineToast('Dosya boyutu 5MB\'dan büyük olamaz.', 'error');
+                        showInlineToast('File size cannot exceed 5MB.', 'error');
                     } else {
-                        console.warn('Dosya boyutu 5MB\'dan büyük olamaz.');
+                        console.warn('File size cannot exceed 5MB.');
                     }
                     return;
                 }
@@ -224,7 +224,7 @@
                 const reader = new FileReader();
                 reader.onload = function (e) {
                     document.getElementById('profileImage').src = e.target.result;
-                    showNotification('Profil fotoğrafı başarıyla güncellendi!', 'success');
+                    showNotification('Profile photo updated successfully!', 'success');
                 };
                 reader.readAsDataURL(file);
             }
@@ -232,12 +232,12 @@
 
         function removeProfilePhoto() {
             document.getElementById('profileImage').src = 'https://via.placeholder.com/120x120/cccccc/666666?text=?';
-            showNotification('Profil fotoğrafı kaldırıldı.', 'success');
+            showNotification('Profile photo removed.', 'success');
         }
 
         function resetForm() {
             document.getElementById('personalInfoForm').reset();
-            showNotification('Form sıfırlandı.', 'info');
+            showNotification('Form reset.', 'info');
         }
 
         // Form submissions are now handled by account-settings.js module
@@ -254,7 +254,7 @@
                 'adana': ['Seyhan', 'Yüreğir', 'Çukurova', 'Sarıçam', 'Karaisalı']
             };
 
-            district.innerHTML = '<option value="">İlçe seçiniz</option>';
+            district.innerHTML = '<option value="">Select district</option>';
 
             if (this.value && cityDistricts[this.value]) {
                 cityDistricts[this.value].forEach(dist => {

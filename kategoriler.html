@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
-    <title>Kategoriler - VENDO</title>
+    <title>Categories - VENDO</title>
     <meta name="theme-color" content="#10b981">
     
     <!-- Supabase Configuration -->
@@ -211,14 +211,14 @@
             <div class="logo-icon" style="width: 2.25rem; height: 2.25rem; background: #10b981; color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.25rem; border-radius: 8px;">V</div>
             <h1 class="logo-text" style="font-size: 1.4rem; color: #0f172a; font-weight: 700; letter-spacing: -0.5px; margin: 0;">VENDO</h1>
         </a>
-        <button class="search-btn" aria-label="Arama yap">
+        <button class="search-btn" aria-label="Search">
             <i class="fas fa-search"></i>
         </button>
         
         <div class="category-search-bar">
             <div class="search-input-wrapper">
                 <i class="fas fa-search" style="color: #94a3b8;"></i>
-                <input type="text" class="search-input" placeholder="Kategori veya ürün ara...">
+                <input type="text" class="search-input" placeholder="Search categories or products...">
             </div>
         </div>
     </header>
@@ -226,7 +226,7 @@
     <main id="categories-container" class="categories-list">
         <div class="loading-state">
             <i class="fas fa-spinner fa-spin fa-2x"></i>
-            <p style="margin-top: 1rem;">Kategoriler yükleniyor...</p>
+            <p style="margin-top: 1rem;">Loading categories...</p>
         </div>
     </main>
 
@@ -244,8 +244,8 @@
                 await initializeCategories();
                 renderCategories(null);
             } catch (error) {
-                console.error('Kategori yükleme hatası:', error);
-                container.innerHTML = '<div class="loading-state">Kategoriler yüklenirken hata oluştu.</div>';
+                console.error('Error loading categories:', error);
+                container.innerHTML = '<div class="loading-state">Error loading categories.</div>';
             }
         });
 
@@ -265,8 +265,8 @@
                             <i class="fas fa-arrow-left"></i>
                         </div>
                         <div class="cat-info">
-                            <span class="cat-name" style="color: #64748b;">${parentCat ? parentCat.name : 'Geri'}</span>
-                            <span class="cat-count">Üst Menüye Dön</span>
+                            <span class="cat-name" style="color: #64748b;">${parentCat ? parentCat.name : 'Back'}</span>
+                            <span class="cat-count">Return to Main Menu</span>
                         </div>
                     </div>
                 `;
@@ -279,8 +279,8 @@
                         <i class="fas fa-th-large"></i>
                     </div>
                     <div class="cat-info">
-                        <span class="cat-name">Tüm ${parentCat.name} İlanları</span>
-                        <span class="cat-count">Hepsini Gör</span>
+                        <span class="cat-name">All ${parentCat.name} Listings</span>
+                        <span class="cat-count">See All</span>
                     </div>
                     <i class="fas fa-chevron-right cat-arrow"></i>
                 </a>
@@ -289,14 +289,14 @@
             }
 
             if (items.length === 0) {
-                html += '<div class="loading-state">Alt kategori bulunamadı.</div>';
+                html += '<div class="loading-state">No subcategories found.</div>';
             } else {
                 html += items.map(cat => {
                     const subCats = getChildCategories(cat.id);
                     const hasChildren = subCats.length > 0;
                     const subCatText = hasChildren 
                         ? subCats.map(sc => sc.name).slice(0, 5).join(', ') + (subCats.length > 5 ? '...' : '')
-                        : 'İlanları Gör';
+                        : 'View Listings';
 
                     return `
                     <div class="category-item" onclick="handleCategoryClick('${cat.slug || cat.id}', ${cat.id}, ${hasChildren})">
@@ -381,7 +381,7 @@
                 if (!noResults) {
                     noResults = document.createElement('div');
                     noResults.className = 'no-results loading-state';
-                    noResults.textContent = 'Sonuç bulunamadı.';
+                    noResults.textContent = 'No results found.';
                     container.appendChild(noResults);
                 } else {
                     noResults.style.display = 'block';

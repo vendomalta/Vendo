@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Favorilerim - VERDE</title>
+    <title>My Favorites - VERDE</title>
     <link rel="icon" type="image/svg+xml" href="assets/images/verde-logo.svg" sizes="any">
     <link rel="shortcut icon" href="assets/images/verde-logo.svg">
     <link rel="apple-touch-icon" href="assets/images/verde-logo.svg">
@@ -14,18 +14,18 @@
 <body>
     <div id="header-placeholder"></div>
 
-    <!-- Favorilerim Sayfası İçeriği -->
+    <!-- My Favorites Page Content -->
     <main class="my-ads-page">
         <div class="container">
-            <!-- Sayfa Başlığı -->
+            <!-- Page Header -->
             <div class="page-header">
                 <div class="header-content">
-                    <h1>Favorilerim</h1>
-                    <p class="header-subtitle">Beğendiğiniz ilanları takip edin ve kaçırmayın</p>
+                    <h1>My Favorites</h1>
+                    <p class="header-subtitle">Track your favorite listings and don't miss out</p>
                 </div>
             </div>
 
-            <!-- İstatistik Kartları -->
+            <!-- Stats Cards -->
             <div class="stats-grid">
                 <div class="stat-card">
                     <div class="stat-icon">
@@ -33,7 +33,7 @@
                     </div>
                     <div class="stat-content">
                         <h3>0</h3>
-                        <p>Toplam Favori</p>
+                        <p>Total Favorites</p>
                     </div>
                 </div>
                 <div class="stat-card">
@@ -42,7 +42,7 @@
                     </div>
                     <div class="stat-content">
                         <h3>0</h3>
-                        <p>Bu Hafta Eklenen</p>
+                        <p>Added This Week</p>
                     </div>
                 </div>
                 <div class="stat-card">
@@ -51,7 +51,7 @@
                     </div>
                     <div class="stat-content">
                         <h3>0</h3>
-                        <p>Fiyatı Düşen</p>
+                        <p>Price Dropped</p>
                     </div>
                 </div>
                 <div class="stat-card">
@@ -60,50 +60,50 @@
                     </div>
                     <div class="stat-content">
                         <h3>0</h3>
-                        <p>Öne Çıkan</p>
+                        <p>Featured</p>
                     </div>
                 </div>
             </div>
 
-            <!-- Filtre ve Sıralama -->
+            <!-- Filter and Sort -->
             <div class="ads-controls">
                 <div class="filter-tabs">
                     <button class="tab-btn active" data-filter="all">
-                        Tümü (0)
+                        All (0)
                     </button>
                     <button class="tab-btn" data-filter="emlak">
-                        Emlak (0)
+                        Real Estate (0)
                     </button>
                     <button class="tab-btn" data-filter="vasita">
-                        Vasıta (0)
+                        Vehicles (0)
                     </button>
                     <button class="tab-btn" data-filter="elektronik">
-                        Elektronik (0)
+                        Electronics (0)
                     </button>
                     <button class="tab-btn" data-filter="ev_esyasi">
-                        Ev Eşyası (0)
+                        Home Goods (0)
                     </button>
                 </div>
                 
                 <div class="search-sort">
                     <div class="search-input-wrapper">
                         <i class="fas fa-search"></i>
-                        <input type="text" placeholder="Favorilerinde ara..." class="ads-search">
+                        <input type="text" placeholder="Search your favorites..." class="ads-search">
                     </div>
                     <select class="sort-select">
-                        <option value="date-desc">Son Eklenenler</option>
-                        <option value="date-asc">İlk Eklenenler</option>
-                        <option value="price-asc">Fiyat (Artan)</option>
-                        <option value="price-desc">Fiyat (Azalan)</option>
-                        <option value="title-asc">A-Z Sırala</option>
+                        <option value="date-desc">Newly Added</option>
+                        <option value="date-asc">Oldest Added</option>
+                        <option value="price-asc">Price (Low to High)</option>
+                        <option value="price-desc">Price (High to Low)</option>
+                        <option value="title-asc">Sort A-Z</option>
                     </select>
 
                 </div>
             </div>
 
-            <!-- Favori İlanlar Listesi -->
+            <!-- Favorite Listings Grid -->
             <div class="favorites-grid">
-                <!-- Kartlar JavaScript tarafından yüklenecek -->
+                <!-- Cards will be loaded by JavaScript -->
             </div>
            
     </main>

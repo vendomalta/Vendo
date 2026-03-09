@@ -173,7 +173,7 @@ export class MessageTransactionUI {
                 try {
                     const { data: { user } } = await this.supabase.auth.getUser();
                     if (!user) {
-                        logger.toast('Lütfen giriş yapınız', 'warning');
+                        logger.toast('Please sign in', 'warning');
                         return;
                     }
 
@@ -277,7 +277,7 @@ export class MessageTransactionUI {
                 try {
                     const { data: { user } } = await this.supabase.auth.getUser();
                     if (!user) {
-                        logger.toast('Lütfen giriş yapınız', 'warning');
+                        logger.toast('Please sign in', 'warning');
                         return;
                     }
 

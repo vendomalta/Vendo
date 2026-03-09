@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>İlan Oluştur | VERDE</title>
+    <title>Create Listing | VERDE</title>
     <link rel="stylesheet" href="css/variables.css" />
     <link rel="stylesheet" href="css/reset.css" />
     <link rel="stylesheet" href="css/style.css" />
@@ -26,7 +26,7 @@
           <div
             class="progress-bar"
             role="progressbar"
-            aria-label="Form ilerleme durumu"
+            aria-label="Form progress"
           >
             <div id="progressFill" class="progress-fill"></div>
           </div>
@@ -37,13 +37,13 @@
             <div class="banner-content">
               <i class="fas fa-tag" id="categoryIcon"></i>
               <div>
-                <h3 id="categoryTitle">Kategori Seçin</h3>
-                <p id="categorySubtitle">kategori > alt kategori > detay</p>
+                <h3 id="categoryTitle">Select Category</h3>
+                <p id="categorySubtitle">category > subcategory > detail</p>
               </div>
             </div>
             <button class="change-category-btn" onclick="changeCategory()">
               <i class="fas fa-edit"></i>
-              Değiştir
+              Change
             </button>
           </div>
 
@@ -56,13 +56,13 @@
                 <div class="form-section left-column">
                   <h2 class="section-title">
                     <i class="fas fa-info-circle"></i>
-                    Temel Bilgiler
+                    Basic Information
                   </h2>
 
                   <!-- Title -->
                   <div class="form-group">
                     <label for="title" class="form-label">
-                      <span>İlan Başlığı</span>
+                      <span>Listing Title</span>
                       <span class="required">*</span>
                     </label>
                     <input
@@ -70,19 +70,19 @@
                       id="title"
                       name="title"
                       class="form-input"
-                      placeholder="privert badroom"
+                      placeholder="e.g. private bedroom"
                       maxlength="100"
                       required
                     />
                     <span class="input-help"
-                      >100 karaktere kadar yazabilirsiniz</span
+                      >You can write up to 100 characters</span
                     >
                   </div>
 
                   <!-- Description (Rich Text Editor) -->
                   <div class="form-group">
                     <label for="descriptionEditor" class="form-label">
-                      <span>Açıklama</span>
+                      <span>Description</span>
                       <span class="required">*</span>
                     </label>
 
@@ -95,70 +95,70 @@
                       <button
                         type="button"
                         data-cmd="bold"
-                        title="Kalın (Ctrl+B)"
+                        title="Bold (Ctrl+B)"
                       >
                         <i class="fas fa-bold"></i>
                       </button>
                       <button
                         type="button"
                         data-cmd="italic"
-                        title="İtalik (Ctrl+I)"
+                        title="Italic (Ctrl+I)"
                       >
                         <i class="fas fa-italic"></i>
                       </button>
                       <button
                         type="button"
                         data-cmd="underline"
-                        title="Altı çizili"
+                        title="Underline"
                       >
                         <i class="fas fa-underline"></i>
                       </button>
                       <button
                         type="button"
                         data-cmd="insertUnorderedList"
-                        title="Madde İşareti"
+                        title="Bullet List"
                       >
                         <i class="fas fa-list-ul"></i>
                       </button>
                       <button
                         type="button"
                         data-cmd="insertOrderedList"
-                        title="Numaralandırma"
+                        title="Numbered List"
                       >
                         <i class="fas fa-list-ol"></i>
                       </button>
                       <button
                         type="button"
                         data-cmd="justifyLeft"
-                        title="Sola Hizala"
+                        title="Align Left"
                       >
                         <i class="fas fa-align-left"></i>
                       </button>
                       <button
                         type="button"
                         data-cmd="justifyCenter"
-                        title="Ortala"
+                        title="Align Center"
                       >
                         <i class="fas fa-align-center"></i>
                       </button>
                       <button
                         type="button"
                         data-cmd="justifyRight"
-                        title="Sağa Hizala"
+                        title="Align Right"
                       >
                         <i class="fas fa-align-right"></i>
                       </button>
                       <button
                         type="button"
                         data-cmd="createLink"
-                        title="Link ekle"
+                        title="Add Link"
                       >
                         <i class="fas fa-link"></i>
                       </button>
                       <button
                         type="button"
                         data-cmd="removeFormat"
-                        title="Biçimi temizle"
+                        title="Clear Formatting"
                       >
                         <i class="fas fa-eraser"></i>
                       </button>
@@ -170,7 +170,7 @@
                       contenteditable="true"
                       aria-multiline="true"
                       role="textbox"
-                      placeholder="İlanınızın detaylarını yazın..."
+                      placeholder="Write the details of your listing..."
                     ></div>
 
                     <!-- Hidden field that will be submitted containing HTML content -->
@@ -191,7 +191,7 @@
                     <!-- Price -->
                     <div class="form-group">
                       <label for="price" class="form-label">
-                        <span>Fiyat</span>
+                        <span>Price</span>
                         <span class="required">*</span>
                       </label>
                       <div class="price-input-wrapper">
@@ -212,11 +212,11 @@
                     <!-- City -->
                     <div class="form-group">
                       <label for="city" class="form-label">
-                        <span>Şehir</span>
+                        <span>City</span>
                         <span class="required">*</span>
                       </label>
                       <select id="city" name="city" class="form-input" required>
-                        <option value="">Şehir seçin...</option>
+                        <option value="">Select city...</option>
                         <option value="valletta">Valletta</option>
                         <option value="birkirkara">Birkirkara</option>
                         <option value="mosta">Mosta</option>
@@ -231,7 +231,7 @@
                         <option value="birzebbuga">Birżebbuġa</option>
                         <option value="attard">Attard</option>
                         <option value="siggiewi">Siġġiewi</option>
-                        <option value="other">Diğer</option>
+                        <option value="other">Other</option>
                       </select>
                     </div>
                   </div>
@@ -241,7 +241,7 @@
                 <div class="form-section right-column">
                   <h2 class="section-title">
                     <i class="fas fa-images"></i>
-                    Fotoğraf Yükle
+                    Upload Photo
                   </h2>
 
                   <div class="photo-upload-area" id="photoUploadArea">
@@ -251,10 +251,10 @@
                       </div>
                       <div class="upload-text">
                         <p class="upload-title">
-                          Fotoğraf seçin veya sürükleyin
+                          Choose or drag photos
                         </p>
                         <p class="upload-hint">
-                          JPG, PNG (En fazla 5MB, En fazla 5 fotoğraf)
+                          JPG, PNG (Max 5MB, Max 5 photos)
                         </p>
                       </div>
                     </div>
@@ -277,8 +277,8 @@
                             <div class="image-blur-bg" id="previewBlurBg"></div>
                             <img
                               id="previewImage"
-                              src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 300'%3E%3Crect fill='%23e2e8f0' width='400' height='300'/%3E%3Ctext x='50%25' y='50%25' fill='%2394a3b8' text-anchor='middle' font-family='sans-serif'%3EFotoğraf Yok%3C/text%3E%3C/svg%3E"
-                              alt="Önizleme"
+                              src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 300'%3E%3Crect fill='%23e2e8f0' width='400' height='300'/%3E%3Ctext x='50%25' y='50%25' fill='%2394a3b8' text-anchor='middle' font-family='sans-serif'%3ENo%20Photo%3C/text%3E%3C/svg%3E"
+                              alt="Preview"
                             />
                             <button class="favorite-button" type="button">
                               <i class="far fa-heart"></i>
@@ -287,7 +287,7 @@
                               class="fit-toggle-button"
                               id="fitToggleBtn"
                               type="button"
-                              title="Görseli Sığdır"
+                              title="Fit Image"
                             >
                               <i class="fas fa-expand"></i>
                             </button>
@@ -297,7 +297,7 @@
                             </div>
                           </div>
                           <div class="table-model" id="previewCategory">
-                            Kategori
+                            Category
                           </div>
                         </div>
                         <div class="listing-content">
@@ -306,7 +306,7 @@
                               class="listing-title verde-title"
                               id="previewTitle"
                             >
-                              İlan Başlığı
+                              Listing Title
                             </h3>
                           </div>
                           <div class="listing-actions">
@@ -317,8 +317,7 @@
                                 class="listing-location verde-location"
                                 id="previewLocation"
                               >
-                                <i class="fas fa-map-marker-alt"></i> Şehir
-                                seçiniz
+                                <i class="fas fa-map-marker-alt"></i> Select city
                               </div>
                               <div
                                 class="listing-price verde-price"
@@ -327,7 +326,7 @@
                                 €0
                               </div>
                               <div class="listing-date">
-                                <i class="fas fa-clock"></i> Şimdi
+                                <i class="fas fa-clock"></i> Now
                               </div>
                             </div>
                           </div>
@@ -341,7 +340,7 @@
                           margin-top: 1rem;
                         "
                       >
-                        * Fotoğrafı sürükleyerek ayarlayabilirsiniz.
+                        * You can adjust the photo by dragging.
                       </p>
                     </div>
 
@@ -404,7 +403,7 @@
               <div class="form-section">
                 <h2 class="section-title">
                   <i class="fas fa-list"></i>
-                  Ürün Özellikleri
+                  Product Features
                 </h2>
                 <div id="categorySpecificFields"></div>
               </div>
@@ -415,10 +414,10 @@
               <div class="form-section">
                 <h2 class="section-title">
                   <i class="fas fa-cogs"></i>
-                  Teknik Detaylar
+                  Technical Details
                 </h2>
                 <p class="section-subtitle">
-                  Aracınızın donanım özelliklerini seçin.
+                  Select your vehicle's hardware features.
                 </p>
 
                 <div id="techDetailsContainer" class="tech-details-container">
@@ -432,11 +431,11 @@
               <div class="form-section contact-section">
                 <h2 class="section-title">
                   <i class="fas fa-phone-alt"></i>
-                  İletişim Bilgileri
+                  Contact Information
                 </h2>
 
                 <div class="form-group">
-                  <label class="form-label">Size nasıl ulaşılsın?</label>
+                  <label class="form-label">How should people contact you?</label>
                   <div class="contact-options">
                     <label class="radio-option">
                       <input
@@ -445,7 +444,7 @@
                         value="phone"
                         checked
                       />
-                      <span>Telefon numaralarımla</span>
+                      <span>With my phone numbers</span>
                     </label>
                     <label class="radio-option">
                       <input
@@ -453,19 +452,18 @@
                         name="contactPreference"
                         value="message"
                       />
-                      <span>Telefonla ulaşılmak istemiyorum</span>
+                      <span>I don't want to be contacted by phone</span>
                     </label>
                   </div>
                   <p class="contact-hint" id="contactHintPhone">
-                    İlanda telefon numaran görünür ve arama yapılabilir.
+                    Your phone number will be visible in the listing and can be called.
                   </p>
                   <p
                     class="contact-hint"
                     id="contactHintMessage"
                     style="display: none"
                   >
-                    İlana bakanlar yalnızca uygulama içi mesajlaşma ile
-                    ulaşabilir, telefonun görünmez.
+                    Viewers can only contact you via in-app messaging; your phone will not be visible.
                   </p>
                 </div>
 
@@ -474,31 +472,31 @@
                     <div class="contact-card" id="contactCard">
                       <div class="contact-row">
                         <label class="contact-label"
-                          >İlanda görünecek ad soyad</label
+                          >Name and surname to appear in the listing</label
                         >
                         <input
                           type="text"
                           id="contactName"
                           name="contactName"
                           class="form-input"
-                          placeholder="Yükleniyor..."
+                          placeholder="Loading..."
                           disabled
                         />
                         <span class="input-help"
-                          >Profil bilgilerinizden otomatik alınır.</span
+                          >Automatically taken from your profile information.</span
                         >
                       </div>
                       <div class="contact-row">
-                        <label class="contact-label">Cep Telefonu</label>
+                        <label class="contact-label">Mobile Phone</label>
                         <input
                           type="tel"
                           id="contactPhoneDisplay"
                           class="form-input"
-                          placeholder="Yükleniyor..."
+                          placeholder="Loading..."
                           disabled
                         />
                         <span class="input-help"
-                          >Profil bilgilerinizden otomatik alınır.</span
+                          >Automatically taken from your profile information.</span
                         >
                       </div>
                     </div>
@@ -507,7 +505,7 @@
                     <div class="form-section terms-section">
                       <h2 class="section-title">
                         <i class="fas fa-check-circle"></i>
-                        Koşullar & Onay
+                        Terms & Consent
                       </h2>
 
                       <div class="form-group checkbox-group">
@@ -520,6 +518,7 @@
                             required
                           />
                           <span>
+                            I accept the
                             <a
                               href="#"
                               style="
@@ -527,9 +526,9 @@
                                 text-decoration: none;
                                 border-bottom: 1px solid #10b981;
                               "
-                              >Kullanım Koşullarını</a
+                              >Terms of Use</a
                             >
-                            ve
+                            and
                             <a
                               href="#"
                               style="
@@ -537,9 +536,8 @@
                                 text-decoration: none;
                                 border-bottom: 1px solid #10b981;
                               "
-                              >Gizlilik Politikasını</a
+                              >Privacy Policy</a
                             >
-                            kabul ediyorum
                           </span>
                         </label>
                       </div>
@@ -554,8 +552,7 @@
                             required
                           />
                           <span
-                            >İlanın doğru ve güncel bilgiler içerdiğini teyit
-                            ediyorum</span
+                            >I confirm that the listing contains accurate and up-to-date information</span
                           >
                         </label>
                       </div>
@@ -568,7 +565,7 @@
                             name="contact"
                             class="form-checkbox"
                           />
-                          <span>VERDE bana uygun öneriler gönderebilir</span>
+                          <span>VERDE can send me personalized recommendations</span>
                         </label>
                       </div>
                     </div>
@@ -579,10 +576,10 @@
             <!-- Sticky Footer (shows publish on last step) -->
             <div class="form-footer sticky-footer">
               <button type="button" id="stickyPrev" class="btn btn-secondary">
-                Geri
+                Back
               </button>
               <button type="button" id="stickyNext" class="btn btn-primary">
-                İleri
+                Next
               </button>
               <button
                 type="submit"
@@ -591,7 +588,7 @@
                 style="display: none"
               >
                 <i class="fas fa-check"></i>
-                İlanı Yayınla
+                Publish Listing
               </button>
             </div>
           </form>
@@ -603,7 +600,7 @@
     <div id="loadingModal" class="loading-modal" style="display: none">
       <div class="loading-content">
         <i class="fas fa-spinner"></i>
-        <p>İlanınız kaydediliyor...</p>
+        <p>Saving your listing...</p>
       </div>
     </div>
 
@@ -613,13 +610,13 @@
         <div class="success-icon">
           <i class="fas fa-check"></i>
         </div>
-        <h3>İlanınız Yayınlandı!</h3>
-        <p>Teşekkürler! İlanınız inceleme sürecine girdi.</p>
+        <h3>Listing Published!</h3>
+        <p>Thank you! Your listing is now under review.</p>
         <p style="font-size: 0.9rem; color: #64748b; margin-top: 1rem">
-          İlan numaranız: <span id="adId" style="font-weight: 700">-</span>
+          Listing number: <span id="adId" style="font-weight: 700">-</span>
         </p>
         <button class="btn btn-primary" onclick="redirectHome()">
-          Ana Sayfaya Dön
+          Back to Homepage
         </button>
       </div>
     </div>

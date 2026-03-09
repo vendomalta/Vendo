@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Profilim - VENDO</title>
+    <title>My Profile - VENDO</title>
     <link rel="icon" type="image/svg+xml" href="assets/images/verde-logo.svg" sizes="any">
     <link rel="shortcut icon" href="assets/images/verde-logo.svg">
     <link rel="apple-touch-icon" href="assets/images/verde-logo.svg">
@@ -23,27 +23,27 @@
         <div class="container">
             <div class="profile-header">
                 <div class="profile-avatar">
-                    <img src="assets/images/default-avatar.svg" alt="Profil Fotoğrafı" id="profileImage">
+                    <img src="assets/images/default-avatar.svg" alt="Profile Picture" id="profileImage">
                     <button class="change-avatar-btn">
                         <i class="fas fa-camera"></i>
                     </button>
                     <input type="file" id="avatarInput" accept="image/*" style="display: none;">
                 </div>
                 <div class="profile-info">
-                    <h1 class="profile-name">Yükleniyor...</h1>
-                    <p class="profile-title">Vendo Kullanıcısı</p>
+                    <h1 class="profile-name">Loading...</h1>
+                    <p class="profile-title">Vendo User</p>
                     <div class="profile-stats">
                         <div class="stat-item">
                             <span class="stat-number">0</span>
-                            <span class="stat-label">Aktif İlan</span>
+                            <span class="stat-label">Active Listings</span>
                         </div>
                         <div class="stat-item">
                             <span class="stat-number">0</span>
-                            <span class="stat-label">Toplam İlan</span>
+                            <span class="stat-label">Total Listings</span>
                         </div>
                         <div class="stat-item">
                             <span class="stat-number">0</span>
-                            <span class="stat-label">Değerlendirme</span>
+                            <span class="stat-label">Reviews</span>
                         </div>
                     </div>
                 </div>
@@ -54,27 +54,27 @@
                     <nav class="profile-nav">
                         <a href="#personal-info" class="nav-item active">
                             <i class="fas fa-user"></i>
-                            <span>Kişisel Bilgiler</span>
+                            <span>Personal Info</span>
                         </a>
                         <a href="ilanlarim.html" class="nav-item">
                             <i class="fas fa-list-alt"></i>
-                            <span>İlanlarım</span>
+                            <span>My Listings</span>
                         </a>
                         <a href="favorilerim.html" class="nav-item">
                             <i class="fas fa-heart"></i>
-                            <span>Favorilerim</span>
+                            <span>My Favorites</span>
                         </a>
                         <a href="mesajlar.html" class="nav-item">
                             <i class="fas fa-envelope"></i>
-                            <span>Mesajlarım</span>
+                            <span>My Messages</span>
                         </a>
                         <a href="#reviews" class="nav-item">
                             <i class="fas fa-star"></i>
-                            <span>Değerlendirmeler</span>
+                            <span>Reviews</span>
                         </a>
                         <a href="ayarlar.html" class="nav-item">
                             <i class="fas fa-cog"></i>
-                            <span>Hesap Ayarları</span>
+                            <span>Account Settings</span>
                         </a>
                     </nav>
                 </div>
@@ -83,28 +83,28 @@
                     <!-- Kişisel Bilgiler Sekmesi -->
                     <div id="personal-info" class="tab-content active">
                         <div class="section-header">
-                            <h2>Kişisel Bilgiler</h2>
+                            <h2>Personal Info</h2>
                             <button id="edit-trigger" class="edit-btn">
                                 <i class="fas fa-edit"></i>
-                                Düzenle
+                                Edit
                             </button>
                         </div>
 
                         <div class="info-grid">
                             <div class="info-group">
-                                <label>Ad Soyad</label>
+                                <label>Full Name</label>
                                 <input type="text" name="full_name" value="" readonly required>
                             </div>
                             <div class="info-group">
-                                <label>E-posta</label>
+                                <label>Email</label>
                                 <input type="email" name="email" value="" readonly>
                             </div>
                             <div class="info-group">
-                                <label>Telefon</label>
+                                <label>Phone</label>
                                 <div class="phone-input-container">
                                     <select class="area-code-select" name="area_code" disabled>
                                         <option value="+356">🇲🇹 Malta (+356)</option>
-                                        <option value="+90">🇹🇷 Türkiye (+90)</option>
+                                        <option value="+90">🇹🇷 Turkey (+90)</option>
                                         <option value="+44">🇬🇧 UK (+44)</option>
                                         <option value="+1">🇺🇸 USA (+1)</option>
                                         <option value="+49">🇩🇪 Germany (+49)</option>
@@ -118,13 +118,13 @@
                                 </div>
                             </div>
                             <div class="info-group">
-                                <label>Doğum Tarihi</label>
+                                <label>Date of Birth</label>
                                 <input type="date" name="birth_date" value="" readonly>
                             </div>
                             <div class="info-group">
-                                <label>Şehir</label>
+                                <label>City</label>
                                 <select name="city" disabled>
-                                    <option value="">Seçiniz</option>
+                                    <option value="">Select</option>
                                     <option value="Valletta">Valletta</option>
                                     <option value="Birkirkara">Birkirkara</option>
                                     <option value="Mosta">Mosta</option>
@@ -157,40 +157,40 @@
                         </div>
 
                         <div class="bio-section">
-                            <label>Hakkımda</label>
-                            <textarea name="bio" readonly placeholder="Kendinizi tanıtın..."></textarea>
+                            <label>About Me</label>
+                            <textarea name="bio" readonly placeholder="Introduce yourself..."></textarea>
                         </div>
 
                         <div id="edit-mode-buttons" class="form-actions" style="display: none;">
                             <button id="cancel-trigger" class="cancel-btn">
                                 <i class="fas fa-times"></i>
-                                İptal
+                                Cancel
                             </button>
                             <button id="save-trigger" class="save-btn edit-btn">
                                 <i class="fas fa-save"></i>
-                                Kaydet
+                                Save
                             </button>
                         </div>
 
                         <div class="verification-section">
-                            <h3>Doğrulama Durumu</h3>
+                            <h3>Verification Status</h3>
                             <div class="verification-items">
                                 <div class="verification-item verified">
                                     <div class="item-content">
                                         <i class="fas fa-check-circle"></i>
-                                        <span>E-posta Doğrulandı</span>
+                                        <span>Email Verified</span>
                                     </div>
                                 </div>
                                 <div class="verification-item verified">
                                     <div class="item-content">
                                         <i class="fas fa-check-circle"></i>
-                                        <span>Telefon Doğrulandı</span>
+                                        <span>Phone Verified</span>
                                     </div>
                                 </div>
                                 <div class="verification-item pending">
                                     <div class="item-content">
                                         <i class="fas fa-clock"></i>
-                                        <span>Kimlik Doğrulama Bekliyor</span>
+                                        <span>Identity Verification Pending</span>
                                     </div>
                                 </div>
                             </div>
@@ -199,32 +199,32 @@
                         </div>
                     </div>
 
-                    <!-- İlanlarım Sekmesi -->
+                    <!-- My Listings Tab -->
                     <div id="my-ads" class="tab-content">
                         <div class="section-header">
-                            <h2>İlanlarım</h2>
+                            <h2>My Listings</h2>
                             <button class="add-btn">
                                 <i class="fas fa-plus"></i>
-                                Yeni İlan Ekle
+                                Add New Listing
                             </button>
                         </div>
 
                         <div class="ads-filter">
-                            <button class="filter-btn active">Tümü (45)</button>
-                            <button class="filter-btn">Aktif (12)</button>
-                            <button class="filter-btn">Pasif (8)</button>
-                            <button class="filter-btn">Satıldı (25)</button>
+                            <button class="filter-btn active">All (45)</button>
+                            <button class="filter-btn">Active (12)</button>
+                            <button class="filter-btn">Inactive (8)</button>
+                            <button class="filter-btn">Sold (25)</button>
                         </div>
 
                         <div class="ads-list">
-                            <!-- İlan örnekleri buraya gelecek -->
+                            <!-- Listing items will go here -->
                             <div class="ad-item">
-                                <img src="https://via.placeholder.com/100x100" alt="İlan Görseli">
+                                <img src="https://via.placeholder.com/100x100" alt="Listing Image">
                                 <div class="ad-details">
                                     <h4>2019 Model Volkswagen Golf</h4>
-                                    <p class="ad-location">İstanbul, Kadıköy</p>
+                                    <p class="ad-location">Istanbul, Kadikoy</p>
                                     <p class="ad-price">450.000 TL</p>
-                                    <span class="ad-status active">Aktif</span>
+                                    <span class="ad-status active">Active</span>
                                 </div>
                                 <div class="ad-actions">
                                     <button class="action-btn edit"><i class="fas fa-edit"></i></button>
@@ -235,25 +235,25 @@
                         </div>
                     </div>
 
-                    <!-- Diğer sekmeler için placeholder içerik -->
+                    <!-- Placeholder content for other tabs -->
                     <div id="favorites" class="tab-content">
-                        <h2>Favorilerim</h2>
-                        <p>Favori ilanlarınız burada görünecek.</p>
+                        <h2>My Favorites</h2>
+                        <p>Your favorite listings will appear here.</p>
                     </div>
 
                     <div id="messages" class="tab-content">
-                        <h2>Mesajlarım</h2>
-                        <p>Mesajlarınız burada görünecek.</p>
+                        <h2>My Messages</h2>
+                        <p>Your messages will appear here.</p>
                     </div>
 
                     <div id="reviews" class="tab-content">
-                        <h2>Değerlendirmeler</h2>
-                        <p>Bu özellik cok yakında</p>
+                        <h2>Reviews</h2>
+                        <p>This feature is coming soon.</p>
                     </div>
 
                     <div id="settings" class="tab-content">
-                        <h2>Hesap Ayarları</h2>
-                        <p>Hesap ayarlarınız burada görünecek.</p>
+                        <h2>Account Settings</h2>
+                        <p>Your account settings will appear here.</p>
                     </div>
                 </div>
             </div>
@@ -271,16 +271,16 @@
         import { supabase } from './js/supabase.js';
         import { getProfile, updateProfile, uploadAvatar, getUserStats } from './js/profile-manager.js';
 
-        // Profil sayfası başlatma
+        // Profile page initialization
         document.addEventListener('DOMContentLoaded', async () => {
             await initializeProfile();
             setupEventListeners();
         });
 
-        // Profil verilerini yükle ve UI'ı güncelle
+        // Load profile data and update UI
         async function initializeProfile() {
             try {
-                // Kullanıcı kontrolü
+                // User check
                 const { data: { user } } = await supabase.auth.getUser();
 
                 if (!user) {
@@ -288,27 +288,27 @@
                     return;
                 }
 
-                // Profil verilerini getir
+                // Fetch profile data
                 const profile = await getProfile();
                 const stats = await getUserStats();
 
-                // UI'ı güncelle
+                // Update UI
                 updateProfileUI(profile, stats, user);
 
             } catch (error) {
-                console.error('Profil yüklenirken hata:', error);
+                console.error('Error loading profile:', error);
 
                 if (typeof showNotification === 'function') {
-                    showNotification('Profil bilgileri yüklenemedi: ' + error.message, 'error');
+                    showNotification('Could not load profile information: ' + error.message, 'error');
                 } else if (typeof showInlineToast === 'function') {
-                    showInlineToast('Profil bilgileri yüklenemedi: ' + error.message, 'error');
+                    showInlineToast('Could not load profile information: ' + error.message, 'error');
                 } else {
-                    console.error('Profil bilgileri yüklenemedi: ' + error.message);
+                    console.error('Could not load profile information: ' + error.message);
                 }
             }
         }
 
-        // UI'ı profil verileriyle güncelle
+        // Update UI with profile data
         function updateProfileUI(profile, stats, user) {
             // Avatar
             const profileImage = document.getElementById('profileImage');
@@ -316,21 +316,21 @@
                 profileImage.src = profile.avatar_url || 'assets/images/default-avatar.svg';
             }
 
-            // İsim ve başlık
+            // Name and title
             const profileName = document.querySelector('.profile-name');
             const profileTitle = document.querySelector('.profile-title');
 
             if (profileName) {
-                profileName.textContent = profile.full_name || user.email?.split('@')[0] || 'Kullanıcı';
+                profileName.textContent = profile.full_name || user.email?.split('@')[0] || 'User';
             }
 
             if (profileTitle) {
                 profileTitle.textContent = profile.bio ?
                     (profile.bio.substring(0, 50) + (profile.bio.length > 50 ? '...' : '')) :
-                    'Vendo Kullanıcısı';
+                    'Vendo User';
             }
 
-            // İstatistikler
+            // Statistics
             const statNumbers = document.querySelectorAll('.stat-number');
             if (statNumbers.length >= 3) {
                 statNumbers[0].textContent = stats.activeAds || 0;
@@ -338,7 +338,7 @@
                 statNumbers[2].textContent = stats.reviews || 0;
             }
 
-            // Form alanları
+            // Form fields
             const fields = {
                 '[name="full_name"]': profile.full_name,
                 '[name="email"]': profile.email || user.email,
@@ -356,13 +356,13 @@
                 }
             });
 
-            // Telefon numarasını ayır
+            // Split phone number
             if (profile.phone) {
                 const areaCodeSelect = document.querySelector('[name="area_code"]');
                 const phoneInput = document.querySelector('[name="phone_number"]');
                 
                 if (areaCodeSelect && phoneInput) {
-                    // Ülke kodlarını kontrol et (uzunluk sırasına göre kontrol etmeliyiz ki +212, +21 den önce gelsin)
+                    // Check area codes (sort by length so +212 comes before +21)
                     const areaCodes = Array.from(areaCodeSelect.options).map(o => o.value).sort((a,b) => b.length - a.length);
                     const foundCode = areaCodes.find(code => profile.phone.startsWith(code));
                     
@@ -370,20 +370,20 @@
                         areaCodeSelect.value = foundCode;
                         phoneInput.value = profile.phone.replace(foundCode, '').trim();
                         
-                        // Formata uygunluk için placeholder güncelle
+                        // Update placeholder for format
                         updatePlaceholder(foundCode, phoneInput);
                     } else {
-                        // Bilinmeyen kod ise direkt girişe yaz
+                        // If unknown code, put it directly in input
                         phoneInput.value = profile.phone;
                     }
                 }
             }
 
-            // Doğrulama durumları
+            // Verification status
             updateVerificationStatus(profile);
         }
 
-        // Doğrulama durumlarını güncelle
+        // Update verification statuses
         function updateVerificationStatus(profile) {
             const verificationItems = document.querySelectorAll('.verification-item');
 
@@ -392,18 +392,18 @@
                 let isVerified = false;
                 let type = '';
 
-                if (text.includes('E-posta')) {
+                if (text.includes('Email')) {
                     isVerified = !!profile.email_verified;
                     type = 'email';
-                } else if (text.includes('Telefon')) {
+                } else if (text.includes('Phone')) {
                     isVerified = !!profile.phone_verified;
                     type = 'phone';
-                } else if (text.includes('Kimlik')) {
+                } else if (text.includes('Identity')) {
                     isVerified = !!profile.identity_verified;
                     type = 'identity';
                 }
 
-                // UI Güncelle
+                // Update UI
                 item.className = 'verification-item ' + (isVerified ? 'verified' : 'pending');
                 
                 const icon = item.querySelector('i');
@@ -413,19 +413,19 @@
 
                 const label = item.querySelector('span');
                 if (label) {
-                    if (type === 'email') label.textContent = isVerified ? 'E-posta Doğrulandı' : 'E-posta Doğrulama Bekliyor';
-                    if (type === 'phone') label.textContent = isVerified ? 'Telefon Doğrulandı' : 'Telefon Doğrulama Bekliyor';
-                    if (type === 'identity') label.textContent = isVerified ? 'Kimlik Doğrulandı' : 'Kimlik Doğrulama Bekliyor';
+                    if (type === 'email') label.textContent = isVerified ? 'Email Verified' : 'Email Verification Pending';
+                    if (type === 'phone') label.textContent = isVerified ? 'Phone Verified' : 'Phone Verification Pending';
+                    if (type === 'identity') label.textContent = isVerified ? 'Identity Verified' : 'Identity Verification Pending';
                 }
 
-                // "Şimdi Doğrula" butonu yönetimi
+                // Manage "Verify Now" button
                 let verifyBtn = item.querySelector('.verify-now-btn');
                 
                 if (!isVerified) {
                     if (!verifyBtn) {
                         verifyBtn = document.createElement('button');
                         verifyBtn.className = 'verify-now-btn';
-                        verifyBtn.innerHTML = 'Şimdi Doğrula';
+                        verifyBtn.innerHTML = 'Verify Now';
                         verifyBtn.onclick = () => {
                             if (type === 'identity') {
                                 window.location.href = 'ayarlar.html#verification';
@@ -441,7 +441,7 @@
             });
         }
 
-        // Event listener'ları kur
+        // Setup event listeners
         function setupEventListeners() {
             setupTabNavigation();
             setupAvatarUpload();
@@ -450,7 +450,7 @@
             setupProfileImageZoom();
         }
 
-        // Profil fotoğrafı büyütme (Zoom)
+        // Profile image zoom
         function setupProfileImageZoom() {
             const profileImage = document.getElementById('profileImage');
             if (!profileImage) return;
@@ -465,7 +465,7 @@
         }
 
         function openImageZoom(url) {
-            // Eğer zaten varsa sil
+            // Remove if already exists
             const existing = document.querySelector('.image-zoom-overlay');
             if (existing) existing.remove();
 
@@ -475,12 +475,12 @@
                 <button class="image-zoom-close">
                     <i class="fas fa-times"></i>
                 </button>
-                <img src="${url}" alt="Büyük Profil Fotoğrafı">
+                <img src="${url}" alt="Enlarged Profile Picture">
             `;
 
             document.body.appendChild(overlay);
 
-            // Reflow tetikle ve aktif et
+            // Trigger reflow and set active
             overlay.offsetHeight;
             overlay.classList.add('active');
 
@@ -583,33 +583,33 @@
                     const file = e.target.files[0];
                     if (!file) return;
 
-                    // Dosya boyut kontrolü (2MB)
+                    // File size check (2MB)
                     if (file.size > 2 * 1024 * 1024) {
                         if (typeof showNotification === 'function') {
-                            showNotification('Dosya boyutu 2MB\'dan küçük olmalıdır', 'error');
+                            showNotification('File size must be less than 2MB', 'error');
                         } else {
-                            alert('Dosya boyutu 2MB\'dan küçük olmalıdır');
+                            alert('File size must be less than 2MB');
                         }
                         return;
                     }
 
-                    // Dosya tipi kontrolü
+                    // File type check
                     const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
                     if (!allowedTypes.includes(file.type)) {
                         if (typeof showNotification === 'function') {
-                            showNotification('Sadece JPG, PNG ve WEBP formatları desteklenmektedir', 'error');
+                            showNotification('Only JPG, PNG and WEBP formats are supported', 'error');
                         } else {
-                            alert('Sadece JPG, PNG ve WEBP formatları desteklenmektedir');
+                            alert('Only JPG, PNG and WEBP formats are supported');
                         }
                         return;
                     }
 
                     try {
-                        // Loading göster
+                        // Show loading
                         avatarBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
                         avatarBtn.disabled = true;
 
-                        // Önizleme göster
+                        // Show preview
                         const reader = new FileReader();
                         reader.onload = (event) => {
                             if (profileImage) {
@@ -618,29 +618,29 @@
                         };
                         reader.readAsDataURL(file);
 
-                        // Upload et
+                        // Upload
                         const avatarUrl = await uploadAvatar(file);
 
                         if (typeof showNotification === 'function') {
-                            showNotification('Profil fotoğrafı başarıyla güncellendi', 'success');
+                            showNotification('Profile picture successfully updated', 'success');
                         }
 
                     } catch (error) {
-                        console.error('Avatar yükleme hatası:', error);
+                        console.error('Avatar upload error:', error);
 
                         if (typeof showNotification === 'function') {
-                            showNotification('Fotoğraf yüklenemedi: ' + error.message, 'error');
+                            showNotification('Failed to upload picture: ' + error.message, 'error');
                         } else if (typeof showInlineToast === 'function') {
-                            showInlineToast('Fotoğraf yüklenemedi: ' + error.message, 'error');
+                            showInlineToast('Failed to upload picture: ' + error.message, 'error');
                         } else {
-                            console.error('Fotoğraf yüklenemedi: ' + error.message);
+                            console.error('Failed to upload picture: ' + error.message);
                         }
 
-                        // Eski fotoğrafı geri yükle
+                        // Restore old picture
                         await initializeProfile();
 
                     } finally {
-                        // Butonu geri getir
+                        // Restore button
                         avatarBtn.innerHTML = '<i class="fas fa-camera"></i>';
                         avatarBtn.disabled = false;
                         avatarInput.value = '';
@@ -649,7 +649,7 @@
             }
         }
 
-        // Düzenleme modu
+        // Edit mode
         function setupEditMode() {
             const editBtn = document.getElementById('edit-trigger');
             const saveBtn = document.getElementById('save-trigger');
@@ -658,14 +658,14 @@
             
             if (!editBtn || !saveBtn || !cancelBtn) return;
 
-            // Düzenle butonu
+            // Edit button
             editBtn.addEventListener('click', () => {
                 enableEditMode();
                 editBtn.style.display = 'none';
                 editActions.style.display = 'flex';
             });
 
-            // Kaydet butonu
+            // Save button
             saveBtn.addEventListener('click', async () => {
                 const success = await saveProfile(saveBtn);
                 if (success) {
@@ -675,16 +675,16 @@
                 }
             });
 
-            // İptal butonu
+            // Cancel button
             cancelBtn.addEventListener('click', () => {
                 disableEditMode();
-                initializeProfile(); // Verileri geri yükle
+                initializeProfile(); // Restore data
                 editBtn.style.display = 'inline-flex';
                 editActions.style.display = 'none';
             });
         }
 
-        // Düzenleme modunu aç
+        // Enable edit mode
         function enableEditMode() {
             const inputs = document.querySelectorAll('#personal-info input:not([type="email"]), #personal-info select, #personal-info textarea');
 
@@ -694,15 +694,15 @@
                 input.classList.add('editing');
             });
 
-            // E-posta düzenlenemez
+            // Email cannot be edited
             const emailInput = document.querySelector('#personal-info input[type="email"]');
             if (emailInput) {
                 emailInput.setAttribute('readonly', true);
-                emailInput.title = 'E-posta adresi değiştirilemez';
+                emailInput.title = 'Email address cannot be changed';
             }
         }
 
-        // Düzenleme modunu kapat
+        // Disable edit mode
         function disableEditMode() {
             const inputs = document.querySelectorAll('#personal-info input, #personal-info select, #personal-info textarea');
 
@@ -715,15 +715,15 @@
             });
         }
 
-        // Profil kaydet
+        // Save profile
         async function saveProfile(btn) {
             try {
-                // Buton durumunu güncelle
+                // Update button status
                 const originalHTML = btn.innerHTML;
-                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Kaydediliyor...';
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
                 btn.disabled = true;
 
-                // Form verilerini topla
+                // Gather form data
                 const areaCode = document.querySelector('[name="area_code"]')?.value || '';
                 const phoneNumber = document.querySelector('[name="phone_number"]')?.value?.replace(/\s/g, '') || '';
                 
@@ -736,57 +736,57 @@
                     bio: document.querySelector('[name="bio"]')?.value?.trim()
                 };
 
-                // Validasyon
+                // Validation
                 if (!updates.full_name) {
-                    throw new Error('Ad Soyad alanı zorunludur');
+                    throw new Error('Full Name is required');
                 }
 
                 if (updates.phone && !validatePhone(updates.phone)) {
-                    throw new Error('Geçerli bir telefon numarası giriniz');
+                    throw new Error('Please enter a valid phone number');
                 }
 
-                // Boş alanları null yap
+                // Set empty fields to null
                 Object.keys(updates).forEach(key => {
                     if (updates[key] === '') updates[key] = null;
                 });
 
-                // Güncelle
+                // Update
                 await updateProfile(updates);
 
-                // Başarı mesajı
+                // Success message
                 if (typeof showNotification === 'function') {
-                    showNotification('Profil başarıyla güncellendi', 'success');
+                    showNotification('Profile successfully updated', 'success');
                 }
                 
                 return true;
             } catch (error) {
-                console.error('Kaydetme hatası:', error);
+                console.error('Save error:', error);
                 if (typeof showNotification === 'function') {
-                    showNotification('Hata: ' + error.message, 'error');
+                    showNotification('Error: ' + error.message, 'error');
                 }
                 return false;
             } finally {
                 btn.disabled = false;
-                btn.innerHTML = '<i class="fas fa-save"></i> Kaydet';
+                btn.innerHTML = '<i class="fas fa-save"></i> Save';
             }
         }
 
-        // Telefon formatlama
+        // Phone formatting
         function formatPhoneNumber(input) {
-            let value = input.value.replace(/\D/g, ''); // Sayı olmayanları sil
+            let value = input.value.replace(/\D/g, ''); // Remove non-numbers
             if (value.length <= 8) {
-                // Malta formatı (8 hane: XXXX XXXX)
+                // Malta format (8 digits: XXXX XXXX)
                 value = value.replace(/(\d{4})(\d{1,4})/, '$1 $2');
             } else if (value.length > 8) {
-                // Türkiye/Genel format (XXX XXX XXXX)
+                // Turkey/General format (XXX XXX XXXX)
                 value = value.replace(/(\d{3})(\d{3})(\d{1,4})/, '$1 $2 $3');
             }
             input.value = value;
         }
 
-        // Telefon validasyonu
+        // Phone validation
         function validatePhone(phone) {
-            // Basit telefon formatı kontrolü
+            // Simple phone format check
             const phoneRegex = /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{2}[-\s\.]?[0-9]{2}$/;
             return phoneRegex.test(phone.replace(/\s/g, ''));
         }

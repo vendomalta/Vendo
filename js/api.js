@@ -36,7 +36,7 @@ export async function createListing(listingData) {
     const { data: { user } } = await supabase.auth.getUser();
 
     if (!user) {
-        throw new Error('Kullanıcı girişi gerekli');
+        throw new Error('User sign in required');
     }
 
     // Başlık validation
@@ -275,7 +275,7 @@ export async function updateListing(listingId, updates) {
 /**
  * İlanı sil
  * @param {String} listingId - İlan ID'si
- * @returns {Promise<Boolean>} Başarılı mı?
+ * @returns {Promise<Boolean>} Success?
  */
 export async function deleteListing(listingId) {
     const { error } = await supabase
@@ -320,7 +320,7 @@ async function incrementViewCount(listingId) {
 export async function getMyListings() {
     const { data: { user } } = await supabase.auth.getUser();
 
-    if (!user) throw new Error('Kullanıcı girişi gerekli');
+    if (!user) throw new Error('User sign in required');
 
     const { data, error } = await supabase
         .from('listings')
@@ -339,12 +339,12 @@ export async function getMyListings() {
 /**
  * Favorilere ekle
  * @param {String} listingId - İlan ID'si
- * @returns {Promise<Boolean>} Başarılı mı?
+ * @returns {Promise<Boolean>} Success?
  */
 export async function addToFavorites(listingId) {
     const { data: { user } } = await supabase.auth.getUser();
 
-    if (!user) throw new Error('Kullanıcı girişi gerekli');
+    if (!user) throw new Error('User sign in required');
 
     const { error } = await supabase
         .from('favorites')
@@ -360,12 +360,12 @@ export async function addToFavorites(listingId) {
 /**
  * Favorilerden çıkar
  * @param {String} listingId - İlan ID'si
- * @returns {Promise<Boolean>} Başarılı mı?
+ * @returns {Promise<Boolean>} Success?
  */
 export async function removeFromFavorites(listingId) {
     const { data: { user } } = await supabase.auth.getUser();
 
-    if (!user) throw new Error('Kullanıcı girişi gerekli');
+    if (!user) throw new Error('User sign in required');
 
     const { error } = await supabase
         .from('favorites')
@@ -384,7 +384,7 @@ export async function removeFromFavorites(listingId) {
 export async function getFavorites() {
     const { data: { user } } = await supabase.auth.getUser();
 
-    if (!user) throw new Error('Kullanıcı girişi gerekli');
+    if (!user) throw new Error('User sign in required');
 
     const { data, error } = await supabase
         .from('favorites')
@@ -453,7 +453,7 @@ export async function isFavorite(listingId) {
 export async function uploadPhoto(file, listingId = null) {
     const { data: { user } } = await supabase.auth.getUser();
 
-    if (!user) throw new Error('Kullanıcı girişi gerekli');
+    if (!user) throw new Error('User sign in required');
 
     // Dosya adını benzersiz yap
     const fileExt = file.name.split('.').pop();
@@ -489,7 +489,7 @@ export async function uploadPhotos(files) {
 /**
  * Fotoğraf sil
  * @param {String} photoUrl - Silinecek fotoğraf URL'si
- * @returns {Promise<Boolean>} Başarılı mı?
+ * @returns {Promise<Boolean>} Success?
  */
 export async function deletePhoto(photoUrl) {
     // URL'den dosya yolunu çıkar
@@ -517,7 +517,7 @@ export async function getProfile(userId = null) {
 
     if (!userId) {
         const { data: { user } } = await supabase.auth.getUser();
-        if (!user) throw new Error('Kullanıcı girişi gerekli');
+        if (!user) throw new Error('User sign in required');
         targetUserId = user.id;
     }
 
@@ -539,7 +539,7 @@ export async function getProfile(userId = null) {
 export async function updateProfile(updates) {
     const { data: { user } } = await supabase.auth.getUser();
 
-    if (!user) throw new Error('Kullanıcı girişi gerekli');
+    if (!user) throw new Error('User sign in required');
 
     const { data, error } = await supabase
         .from('profiles')
@@ -563,7 +563,7 @@ export async function updateProfile(updates) {
 export async function getSessions() {
     const { data: { user } } = await supabase.auth.getUser();
 
-    if (!user) throw new Error('Kullanıcı girişi gerekli');
+    if (!user) throw new Error('User sign in required');
 
     const { data, error } = await supabase
         .from('user_sessions')
@@ -584,7 +584,7 @@ export async function createSession(deviceInfo = null) {
     const { data: { user } } = await supabase.auth.getUser();
     const { data: { session } } = await supabase.auth.getSession();
 
-    if (!user || !session) throw new Error('Kullanıcı girişi gerekli');
+    if (!user || !session) throw new Error('User sign in required');
 
     // Cihaz bilgisi sağlanmazsa otomatik algıla
     let finalDeviceInfo = deviceInfo;
@@ -657,12 +657,12 @@ export async function createSession(deviceInfo = null) {
  * Oturumu sonlandır (revoke)
  * @param {String} sessionId - Oturum ID'si
  * @param {Boolean} isCurrentSession - Geçerli oturum mu? (true ise Supabase signOut çağrılır)
- * @returns {Promise<Boolean>} Başarılı mı?
+ * @returns {Promise<Boolean>} Success?
  */
 export async function revokeSession(sessionId, isCurrentSession = false) {
     const { data: { user } } = await supabase.auth.getUser();
 
-    if (!user) throw new Error('Kullanıcı girişi gerekli');
+    if (!user) throw new Error('User sign in required');
 
     // Database'den oturumu sil
     const { error } = await supabase
@@ -684,13 +684,13 @@ export async function revokeSession(sessionId, isCurrentSession = false) {
 /**
  * Tüm diğer oturumları sonlandır (geçerli oturumdan başkasını)
  * ⚠️ ÖNEMLİ: Sadece diğer cihazların oturumlarını sonlandırır, mevcut cihaz aktif kalır
- * @returns {Promise<Boolean>} Başarılı mı?
+ * @returns {Promise<Boolean>} Success?
  */
 export async function revokeAllOtherSessions() {
     const { data: { user } } = await supabase.auth.getUser();
     const { data: { session } } = await supabase.auth.getSession();
 
-    if (!user || !session) throw new Error('Kullanıcı girişi gerekli');
+    if (!user || !session) throw new Error('User sign in required');
 
     // Geçerli session token'ını al (mevcut cihazın token'ı)
     const currentToken = session.access_token.substring(0, 50);
@@ -756,7 +756,7 @@ export async function getClientIp() {
  */
 export async function exportUserData() {
     const { data: { user } } = await supabase.auth.getUser();
-    if (!user) throw new Error('Kullanıcı girişi gerekli');
+    if (!user) throw new Error('User sign in required');
 
     const userId = user.id;
     const result = {
@@ -816,7 +816,7 @@ export async function exportUserData() {
  */
 export async function deleteAccountPermanently() {
     const { data: { user } } = await supabase.auth.getUser();
-    if (!user) throw new Error('Kullanıcı girişi gerekli');
+    if (!user) throw new Error('User sign in required');
 
     const userId = user.id;
 

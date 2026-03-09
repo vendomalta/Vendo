@@ -15,8 +15,8 @@
  */
 export function sanitizeHTML(dirtyHTML, options = {}) {
     if (typeof DOMPurify === 'undefined') {
-        console.warn('⚠️ DOMPurify is not loaded. HTML will not be sanitized!');
-        return dirtyHTML;
+        console.warn('⚠️ DOMPurify is not loaded. Using basic fallback sanitization!');
+        return fallbackSanitizeHTML(dirtyHTML);
     }
 
     const defaultOptions = {
@@ -41,8 +41,7 @@ export function sanitizeHTML(dirtyHTML, options = {}) {
  */
 export function sanitizeText(dirtyText) {
     if (typeof DOMPurify === 'undefined') {
-        console.warn('⚠️ DOMPurify is not loaded. Text will not be sanitized!');
-        return dirtyText;
+        return fallbackSanitizeText(dirtyText);
     }
 
     return DOMPurify.sanitize(dirtyText, { ALLOWED_TAGS: [], ALLOWED_ATTR: [] });
@@ -284,5 +283,29 @@ window.XSSProtection = {
     sanitizeMarkdown,
     isDOMPurifyLoaded
 };
+
+/**
+ * Fallback HTML Sanitization (Simple regex based)
+ * @param {string} html 
+ */
+function fallbackSanitizeHTML(html) {
+    if (!html) return '';
+    // Remove scripts and dangerous attributes
+    return html
+        .replace(/<script\b[^>]*>([\s\S]*?)<\/script>/gim, "")
+        .replace(/on\w+="[^"]*"/gim, "")
+        .replace(/javascript:[^"]*/gim, "");
+}
+
+/**
+ * Fallback Text Sanitization (Escaping)
+ * @param {string} text 
+ */
+function fallbackSanitizeText(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
 
 console.log('✅ XSS Protection module loaded');

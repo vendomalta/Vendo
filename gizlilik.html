@@ -1,10 +1,9 @@
-<!DOCTYPE html>
-<html lang="tr">
+<html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gizlilik Politikası - VENDO</title>
+    <title>Privacy Settings - VENDO</title>
     <link rel="icon" type="image/svg+xml" href="assets/images/verde-logo.svg" sizes="any">
     <link rel="shortcut icon" href="assets/images/verde-logo.svg">
     <link rel="apple-touch-icon" href="assets/images/verde-logo.svg">
@@ -19,36 +18,37 @@
         <div class="container">
             <div class="page-header">
                 <div class="breadcrumb">
-                    <a href="ayarlar.html"><i class="fas fa-cog"></i> Ayarlar</a>
+                    <a href="ayarlar.html"><i class="fas fa-cog"></i> Settings</a>
                     <i class="fas fa-chevron-right"></i>
-                    <span>Gizlilik</span>
+                    <span>Privacy</span>
                 </div>
-                <h1><i class="fas fa-lock"></i> Gizlilik Ayarları</h1>
-                <p class="header-subtitle">Gizlilik tercihlerinizi yönetin</p>
+                <h1><i class="fas fa-lock"></i> Privacy Settings</h1>
+                <p class="header-subtitle">Manage your privacy preferences</p>
             </div>
 
             <div class="settings-container">
                 <div class="settings-sidebar">
                     <nav class="settings-nav">
+                    <nav class="settings-nav">
                         <a href="hesap-bilgileri.html" class="nav-item">
                             <i class="fas fa-user"></i>
-                            <span>Hesap Bilgileri</span>
+                            <span>Account Info</span>
                         </a>
                         <a href="guvenlik.html" class="nav-item">
                             <i class="fas fa-shield-alt"></i>
-                            <span>Güvenlik</span>
+                            <span>Security</span>
                         </a>
                         <a href="gizlilik.html" class="nav-item active">
                             <i class="fas fa-lock"></i>
-                            <span>Gizlilik</span>
+                            <span>Privacy</span>
                         </a>
                         <a href="bildirimler.html" class="nav-item">
                             <i class="fas fa-bell"></i>
-                            <span>Bildirimler</span>
+                            <span>Notifications</span>
                         </a>
                         <a href="gorunum.html" class="nav-item">
                             <i class="fas fa-palette"></i>
-                            <span>Görünüm</span>
+                            <span>Appearance</span>
                         </a>
                         <a href="premium.html" class="nav-item">
                             <i class="fas fa-crown"></i>
@@ -56,31 +56,32 @@
                         </a>
                         <a href="veri-yonetimi.html" class="nav-item">
                             <i class="fas fa-download"></i>
-                            <span>Veri Yönetimi</span>
+                            <span>Data Management</span>
                         </a>
+                    </nav>
                     </nav>
                 </div>
 
                 <div class="settings-content">
                     <div class="settings-section active">
                         <div class="settings-card">
-                            <h3>Profil Görünürlüğü</h3>
+                            <h3>Profile Visibility</h3>
                             <div class="privacy-setting">
                                 <div class="setting-info">
-                                    <h4>Profil Sayfası</h4>
-                                    <p>Profilinizin diğer kullanıcılar tarafından görülmesini kontrol edin</p>
+                                    <h4>Profile Page</h4>
+                                    <p>Control who can see your profile page</p>
                                 </div>
                                 <select class="setting-select">
-                                    <option value="public">Herkese Açık</option>
-                                    <option value="registered">Sadece Kayıtlı Kullanıcılar</option>
-                                    <option value="private">Gizli</option>
+                                    <option value="public">Everyone</option>
+                                    <option value="registered">Registered Users Only</option>
+                                    <option value="private">Private</option>
                                 </select>
                             </div>
 
                             <div class="privacy-setting">
                                 <div class="setting-info">
-                                    <h4>İletişim Bilgileri</h4>
-                                    <p>Telefon numaranız ve e-posta adresinizin görünürlüğü</p>
+                                    <h4>Contact Information</h4>
+                                    <p>Visibility of your phone number and email address</p>
                                 </div>
                                 <div class="toggle-switch">
                                     <input type="checkbox" id="showContact" class="toggle-input" checked>
@@ -90,8 +91,8 @@
 
                             <div class="privacy-setting">
                                 <div class="setting-info">
-                                    <h4>Son Görülme</h4>
-                                    <p>En son ne zaman çevrimiçi olduğunuzun gösterilmesi</p>
+                                    <h4>Last Seen</h4>
+                                    <p>Show when you were last online</p>
                                 </div>
                                 <div class="toggle-switch">
                                     <input type="checkbox" id="showLastSeen" class="toggle-input" checked>
@@ -101,11 +102,11 @@
                         </div>
 
                         <div class="settings-card">
-                            <h3>İlan Gizliliği</h3>
+                            <h3>Listing Privacy</h3>
                             <div class="privacy-setting">
                                 <div class="setting-info">
-                                    <h4>İlan Geçmişi</h4>
-                                    <p>Daha önce verdiğiniz ilanların görünürlüğü</p>
+                                    <h4>Listing History</h4>
+                                    <p>Visibility of your previous listings</p>
                                 </div>
                                 <div class="toggle-switch">
                                     <input type="checkbox" id="showAdHistory" class="toggle-input" checked>
@@ -115,35 +116,35 @@
 
                             <div class="privacy-setting">
                                 <div class="setting-info">
-                                    <h4>Favori Listeleri</h4>
-                                    <p>Favori ilanlarınızın diğer kullanıcılara gösterilmesi</p>
+                                    <h4>Favorite Lists</h4>
+                                    <p>Show your favorite listings to other users</p>
                                 </div>
                                 <select class="setting-select">
-                                    <option value="private">Gizli</option>
-                                    <option value="friends">Arkadaşlar</option>
-                                    <option value="public">Herkese Açık</option>
+                                    <option value="private">Private</option>
+                                    <option value="friends">Friends</option>
+                                    <option value="public">Everyone</option>
                                 </select>
                             </div>
                         </div>
 
                         <div class="settings-card">
-                            <h3>Mesajlaşma Gizliliği</h3>
+                            <h3>Messaging Privacy</h3>
                             <div class="privacy-setting">
                                 <div class="setting-info">
-                                    <h4>Mesaj Gönderme Yetkisi</h4>
-                                    <p>Size kimler mesaj gönderebilir?</p>
+                                    <h4>Message Permission</h4>
+                                    <p>Who can send you messages?</p>
                                 </div>
                                 <select class="setting-select">
-                                    <option value="everyone">Herkes</option>
-                                    <option value="verified">Doğrulanmış Kullanıcılar</option>
-                                    <option value="mutual">Karşılıklı İletişim</option>
+                                    <option value="everyone">Everyone</option>
+                                    <option value="verified">Verified Users Only</option>
+                                    <option value="mutual">Mutual Contact</option>
                                 </select>
                             </div>
 
                             <div class="privacy-setting">
                                 <div class="setting-info">
-                                    <h4>Okundu Bilgisi</h4>
-                                    <p>Mesajları okuduğunuzun karşı tarafa bildirilmesi</p>
+                                    <h4>Read Receipts</h4>
+                                    <p>Notify others when you have read their messages</p>
                                 </div>
                                 <div class="toggle-switch">
                                     <input type="checkbox" id="showReadReceipts" class="toggle-input" checked>
@@ -153,8 +154,8 @@
 
                             <div class="privacy-setting">
                                 <div class="setting-info">
-                                    <h4>Çevrimiçi Durumu</h4>
-                                    <p>Çevrimiçi olduğunuzun mesajlarda gösterilmesi</p>
+                                    <h4>Online Status</h4>
+                                    <p>Show your online status in messages</p>
                                 </div>
                                 <div class="toggle-switch">
                                     <input type="checkbox" id="showOnlineStatus" class="toggle-input" checked>
@@ -164,11 +165,11 @@
                         </div>
 
                         <div class="settings-card">
-                            <h3>Veri Toplama</h3>
+                            <h3>Data Collection</h3>
                             <div class="privacy-setting">
                                 <div class="setting-info">
-                                    <h4>Kullanım Analitikleri</h4>
-                                    <p>Hizmet kalitesini artırmak için anonim kullanım verilerinin toplanması</p>
+                                    <h4>Usage Analytics</h4>
+                                    <p>Collection of anonymous usage data to improve service quality</p>
                                 </div>
                                 <div class="toggle-switch">
                                     <input type="checkbox" id="allowAnalytics" class="toggle-input" checked>
@@ -178,8 +179,8 @@
 
                             <div class="privacy-setting">
                                 <div class="setting-info">
-                                    <h4>Kişiselleştirilmiş Reklamlar</h4>
-                                    <p>İlgi alanlarınıza göre özelleştirilmiş reklamların gösterilmesi</p>
+                                    <h4>Personalized Ads</h4>
+                                    <p>Show advertisements tailored to your interests</p>
                                 </div>
                                 <div class="toggle-switch">
                                     <input type="checkbox" id="personalizedAds" class="toggle-input" checked>
@@ -189,8 +190,8 @@
 
                             <div class="privacy-setting">
                                 <div class="setting-info">
-                                    <h4>Konum Verileri</h4>
-                                    <p>Yakınınızdaki ilanları göstermek için konumunuzun kullanılması</p>
+                                    <h4>Location Data</h4>
+                                    <p>Use your location to show nearby listings</p>
                                 </div>
                                 <div class="toggle-switch">
                                     <input type="checkbox" id="allowLocation" class="toggle-input">
@@ -200,11 +201,11 @@
                         </div>
 
                         <div class="settings-card">
-                            <h3>Üçüncü Taraf Paylaşımlar</h3>
+                            <h3>Third Party Sharing</h3>
                             <div class="privacy-setting">
                                 <div class="setting-info">
-                                    <h4>Sosyal Medya Entegrasyonu</h4>
-                                    <p>İlanlarınızın sosyal medya hesaplarınızda paylaşılması</p>
+                                    <h4>Social Media Integration</h4>
+                                    <p>Share your listings on your social media accounts</p>
                                 </div>
                                 <div class="toggle-switch">
                                     <input type="checkbox" id="socialShare" class="toggle-input">
@@ -214,8 +215,8 @@
 
                             <div class="privacy-setting">
                                 <div class="setting-info">
-                                    <h4>E-posta Pazarlama</h4>
-                                    <p>Promosyon ve özel teklif e-postalarının gönderilmesi</p>
+                                    <h4>Email Marketing</h4>
+                                    <p>Receive promotional and special offer emails</p>
                                 </div>
                                 <div class="toggle-switch">
                                     <input type="checkbox" id="emailMarketing" class="toggle-input" checked>
@@ -227,11 +228,11 @@
                         <div class="form-actions">
                             <button class="btn-primary" onclick="savePrivacySettings()">
                                 <i class="fas fa-save"></i>
-                                Gizlilik Ayarlarını Kaydet
+                                Save Privacy Settings
                             </button>
                             <button class="btn-secondary" onclick="resetToDefaults()">
                                 <i class="fas fa-undo"></i>
-                                Varsayılan Ayarlara Dön
+                                Reset to Defaults
                             </button>
                         </div>
                     </div>
@@ -248,15 +249,15 @@
     <script src="js/script.js"></script>
     <script>
         function savePrivacySettings() {
-            showNotification('Gizlilik ayarlarınız başarıyla kaydedildi!', 'success');
+            showNotification('Privacy settings saved successfully!', 'success');
         }
 
         async function resetToDefaults() {
             let ok = false;
             if (typeof showConfirmDialog === 'function') {
-                ok = await showConfirmDialog('Ayarları sıfırla', 'Tüm gizlilik ayarlarını varsayılan değerlere döndürmek istediğinizden emin misiniz?');
+                ok = await showConfirmDialog('Reset Settings', 'Are you sure you want to reset all privacy settings to default values?');
             } else {
-                if (typeof showNotification === 'function') showNotification('Onay gerekiyor: gizlilik ayarlarını sıfırlamak için onaylayın', 'info');
+                if (typeof showNotification === 'function') showNotification('Approval required: confirm to reset privacy settings', 'info');
                 return;
             }
             if (!ok) return;
@@ -269,7 +270,7 @@
                 select.selectedIndex = 0;
             });
 
-            showNotification('Tüm ayarlar varsayılan değerlere sıfırlandı.', 'info');
+            showNotification('All settings have been reset to default values.', 'info');
         }
     </script>
 </body>

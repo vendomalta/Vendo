@@ -8,7 +8,7 @@ import { showLoading, hideLoading } from './loading.js';
 
 export async function initSellerProfile(supabase, sellerId) {
     try {
-        showLoading('Satıcı profili yükleniyor...');
+        showLoading('Loading seller profile...');
         
         // Satıcı bilgilerini ve istatistiklerini yükle
         await loadSellerInfo(supabase, sellerId);
@@ -30,7 +30,7 @@ export async function initSellerProfile(supabase, sellerId) {
     } catch (error) {
         console.error('Satıcı profili yükleme hatası:', error);
         hideLoading();
-        showError(`Satıcı profili yüklenirken bir hata oluştu: ${error.message}`);
+        showError(`An error occurred while loading the seller profile: ${error.message}`);
     }
 }
 
@@ -51,7 +51,7 @@ async function loadSellerInfo(supabase, sellerId) {
             console.error('Profil sorgusu hatası:', error);
             throw error;
         }
-        if (!seller) throw new Error('Satıcı bulunamadı');
+        if (!seller) throw new Error('Seller not found');
 
         console.log('Satıcı profili verisi:', seller);
 
@@ -72,13 +72,13 @@ async function loadSellerInfo(supabase, sellerId) {
  */
 function updateSellerHeader(seller) {
     // Satıcı adı: full_name'i kullan veya profil ID'sinden türet
-    let displayName = 'Anonim Satıcı';
+    let displayName = 'Anonymous Seller';
     
     if (seller.full_name && seller.full_name.trim()) {
         displayName = seller.full_name;
     } else if (seller.id) {
         // ID'nin ilk 8 karakterini kullan
-        displayName = `Satıcı-${seller.id.substring(0, 8)}`;
+        displayName = `Seller-${seller.id.substring(0, 8)}`;
     }
     
     document.getElementById('seller-display-name').textContent = displayName;
@@ -89,7 +89,7 @@ function updateSellerHeader(seller) {
             avatarImg.src = seller.avatar_url;
             // 🟢 YENİ: Büyütme özelliği için stil ve event
             avatarImg.style.cursor = 'pointer';
-            avatarImg.setAttribute('title', 'Büyütmek için tıklayın');
+            avatarImg.setAttribute('title', 'Click to enlarge');
             
             // Event listener'ı temizle ve yeniden ekle (tekrar çağrılırsa diye)
             const newAvatar = avatarImg.cloneNode(true);
@@ -114,14 +114,14 @@ function updateSellerHeader(seller) {
                           (now.getMonth() - joinDate.getMonth());
 
         let statusBadge = 'new-member';
-        let statusText = 'Yeni Üye';
+        let statusText = 'New Member';
 
         if (diffMonths > 6) {
             statusBadge = 'trusted';
-            statusText = 'Güvenilir Satıcı';
+            statusText = 'Trusted Seller';
         } else if (diffMonths > 3) {
             statusBadge = 'active';
-            statusText = 'Aktif Satıcı';
+            statusText = 'Active Seller';
         }
 
         const badge = document.querySelector('.status-badge');
@@ -130,10 +130,10 @@ function updateSellerHeader(seller) {
             badge.textContent = statusText;
         }
 
-        const monthText = diffMonths === 0 ? 'Bu ay' : `${diffMonths} ay önce`;
+        const monthText = diffMonths === 0 ? 'This month' : `${diffMonths} months ago`;
         const memberSince = document.getElementById('seller-member-since');
         if (memberSince) {
-            memberSince.textContent = `Üyelik: ${monthText}`;
+            memberSince.textContent = `Member for: ${monthText}`;
         }
     }
 }
@@ -238,7 +238,7 @@ function renderListings(containerId, listings) {
         // Grid görünümü temizle
         const gridContainer = document.getElementById(containerId);
         if (gridContainer) {
-            gridContainer.innerHTML = '<div class="loading-placeholder">İlan bulunamadı</div>';
+            gridContainer.innerHTML = '<div class="loading-placeholder">No listings found</div>';
         }
         
         // Tablo görünümünü temizle
@@ -247,7 +247,7 @@ function renderListings(containerId, listings) {
         if (tableContainer) {
             const tableBody = document.getElementById(containerId + '-list');
             if (tableBody) {
-                tableBody.innerHTML = '<div class="loading-placeholder">İlan bulunamadı</div>';
+                tableBody.innerHTML = '<div class="loading-placeholder">No listings found</div>';
             }
         }
         return;
@@ -256,7 +256,7 @@ function renderListings(containerId, listings) {
     // Grid görünümü HTML'i
     const gridHtml = listings.map(listing => {
         const isActive = listing.status === 'active';
-        const statusText = isActive ? 'Aktif' : 'Satıldı';
+        const statusText = isActive ? 'Active' : 'Sold';
         const statusClass = isActive ? 'active' : 'sold';
         // image_url veya photos[0] kontrolü
         const photos = Array.isArray(listing.photos) ? listing.photos : [];
@@ -266,9 +266,9 @@ function renderListings(containerId, listings) {
             <a href="/ilan-detay.html?id=${listing.id}" class="listing-card">
                 ${imageUrl 
                     ? `<img data-src="${imageUrl}" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="${listing.title}" class="listing-image lazy-blur">` 
-                    : `<div class="listing-image" style="background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%); display: flex; align-items: center; justify-content: center; color: #9ca3af; font-size: 0.875rem; font-weight: 500;">Resim Yok</div>`}
+                    : `<div class="listing-image" style="background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%); display: flex; align-items: center; justify-content: center; color: #9ca3af; font-size: 0.875rem; font-weight: 500;">No Image</div>`}
                 <div class="listing-info">
-                    <h3 class="listing-title">${listing.title || 'Başlıksız İlan'}</h3>
+                    <h3 class="listing-title">${listing.title || 'Untitled Listing'}</h3>
                     <div class="listing-meta">
                         <span class="listing-status ${statusClass}" data-status="${statusClass}">${statusText}</span>
                         <span>${formatDate(listing.created_at)}</span>
@@ -288,7 +288,7 @@ function renderListings(containerId, listings) {
     // Tablo görünümü HTML'i
     const tableHtml = listings.map(listing => {
         const isActive = listing.status === 'active';
-        const statusText = isActive ? 'Aktif' : 'Satıldı';
+        const statusText = isActive ? 'Active' : 'Sold';
         const statusClass = isActive ? 'active' : 'sold';
         
         const photos = Array.isArray(listing.photos) ? listing.photos : [];
@@ -302,7 +302,7 @@ function renderListings(containerId, listings) {
                         : `<div style="width: 100%; height: 75px; background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%); display: flex; align-items: center; justify-content: center; color: #9ca3af; font-size: 0.75rem; font-weight: 500;">Resim Yok</div>`}
                 </div>
                 <div class="col-title">
-                    <a href="/ilan-detay.html?id=${listing.id}" class="col-title">${listing.title || 'Başlıksız İlan'}</a>
+                    <a href="/ilan-detay.html?id=${listing.id}" class="col-title">${listing.title || 'Untitled Listing'}</a>
                 </div>
                 <div class="col-price">${formatPrice(listing.price)}</div>
                 <div class="col-date">${formatDate(listing.created_at)}</div>
@@ -331,7 +331,7 @@ function renderListingsTable(tableBodyId, listings) {
     if (!tableBody) return;
     
     if (!listings || listings.length === 0) {
-        tableBody.innerHTML = '<div class="loading-placeholder" style="grid-column: 1 / -1;">İlan bulunamadı</div>';
+        tableBody.innerHTML = '<div class="loading-placeholder" style="grid-column: 1 / -1;">No listings found</div>';
         return;
     }
 
@@ -349,7 +349,7 @@ function renderListingsTable(tableBodyId, listings) {
                          alt="${listing.title}">
                 </div>
                 <div class="col-title">
-                    <a href="/ilan-detay.html?id=${listing.id}" class="col-title">${listing.title || 'Başlıksız'}</a>
+                    <a href="/ilan-detay.html?id=${listing.id}" class="col-title">${listing.title || 'Untitled'}</a>
                 </div>
                 <div class="col-price">${formatPrice(listing.price)}</div>
                 <div class="col-date" data-status="${statusClass}">${formatDate(listing.created_at)}</div>
@@ -415,7 +415,7 @@ function renderReviews(reviews) {
     if (!container) return;
     
     if (!reviews || reviews.length === 0) {
-        container.innerHTML = '<div class="loading-placeholder">Henüz yorum yok</div>';
+        container.innerHTML = '<div class="loading-placeholder">No reviews yet</div>';
         return;
     }
 
@@ -424,7 +424,7 @@ function renderReviews(reviews) {
             .fill('<i class="fas fa-star"></i>')
             .join('');
 
-        const reviewerName = review.profiles?.full_name || 'Müşteri';
+        const reviewerName = review.profiles?.full_name || 'Customer';
 
         return `
             <div class="review-item">
@@ -574,11 +574,11 @@ function formatDate(dateString) {
     const diffMs = now - date;
     const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
 
-    if (diffDays === 0) return 'Bugün';
-    if (diffDays === 1) return 'Dün';
-    if (diffDays < 30) return `${diffDays} gün önce`;
-    if (diffDays < 365) return `${Math.floor(diffDays / 30)} ay önce`;
-    return `${Math.floor(diffDays / 365)} yıl önce`;
+    if (diffDays === 0) return 'Today';
+    if (diffDays === 1) return 'Yesterday';
+    if (diffDays < 30) return `${diffDays} days ago`;
+    if (diffDays < 365) return `${Math.floor(diffDays / 30)} months ago`;
+    return `${Math.floor(diffDays / 365)} years ago`;
 }
 
 function showError(message) {
@@ -587,9 +587,9 @@ function showError(message) {
         main.innerHTML = `
             <div style="padding: 3rem; text-align: center;">
                 <i class="fas fa-exclamation-triangle" style="font-size: 3rem; color: #ef4444; margin-bottom: 1rem;"></i>
-                <h2 style="margin-bottom: 0.5rem;">Hata</h2>
+                <h2 style="margin-bottom: 0.5rem;">Error</h2>
                 <p style="color: #6b7280;">${message}</p>
-                <a href="/" style="display: inline-block; margin-top: 1rem; padding: 0.5rem 1rem; background: #10b981; color: white; text-decoration: none; border-radius: 0.5rem;">Anasayfaya Dön</a>
+                <a href="/" style="display: inline-block; margin-top: 1rem; padding: 0.5rem 1rem; background: #10b981; color: white; text-decoration: none; border-radius: 0.5rem;">Back to Home</a>
             </div>
         `;
     }
@@ -613,15 +613,15 @@ function initActionButtons(supabase, sellerId) {
                     .single();
                 
                 if (error || !seller || !seller.phone) {
-                    alert('Telefon numarası bulunamadı.');
+                    alert('Phone number not found.');
                     return;
                 }
                 
                 phoneBtn.innerHTML = `<i class="fas fa-phone"></i> ${seller.phone}`;
                 phoneBtn.style.pointerEvents = 'none';
             } catch (error) {
-                console.error('Telefon numarası çekme hatası:', error);
-                alert('Telefon numarası yüklenirken hata oluştu.');
+                console.error('Error fetching phone number:', error);
+                alert('An error occurred while loading the phone number.');
             }
         });
     }
@@ -674,7 +674,7 @@ function openLightbox(imageUrl) {
                 cursor: grab;
                 transition: transform 0.1s ease-out;
                 transform-origin: center center;
-            " draggable="false" alt="Profil Fotoğrafı">
+            " draggable="false" alt="Profile Picture">
             
             <button id="close-lightbox" style="
                 position: absolute;

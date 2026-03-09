@@ -167,6 +167,30 @@ export const formLimiter = new RateLimiter(
   60 * 1000 // 1 minute
 );
 
+/**
+ * Message sending limiter (5 per minute)
+ */
+export const messageLimiter = new RateLimiter(
+  5, 
+  60 * 1000
+);
+
+/**
+ * Listing creation limiter (3 per 10 minutes)
+ */
+export const listingLimiter = new RateLimiter(
+  3,
+  10 * 60 * 1000
+);
+
+/**
+ * Profile update limiter (2 per minute)
+ */
+export const profileUpdateLimiter = new RateLimiter(
+  2,
+  60 * 1000
+);
+
 // ===== LOGIN SPECIFIC FUNCTIONS =====
 
 /**

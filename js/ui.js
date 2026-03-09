@@ -4,7 +4,7 @@
 
 // --- DARK MODE VE TEMA BAŞLANGICI ---
 document.addEventListener('DOMContentLoaded', () => {
-    console.log("🚀 Vendo UI Sistemleri Başlatılıyor...");
+    console.log("🚀 Initializing Vendo UI Systems...");
 
     // 1. Kayıtlı temayı yükle
     const savedTheme = localStorage.getItem('verde_theme') || 'light';
@@ -24,14 +24,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 6. Header yüklendikten sonra header aksiyonlarını başlat
     document.addEventListener('headerLoaded', () => {
-        console.log('✅ Header yüklendi, header aksiyonları başlatılıyor...');
+        console.log('✅ Header loaded, initializing header actions...');
         initializeHeaderActions();
     });
 
     // 7. Eğer header zaten yüklüyse direkt başlat
     setTimeout(() => {
         if (document.querySelector('.user-button')) {
-            console.log('✅ Header zaten mevcut, header aksiyonları başlatılıyor...');
+            console.log('✅ Header already exists, initializing header actions...');
             initializeHeaderActions();
         }
     }, 100);
@@ -99,7 +99,7 @@ function updateThemeUI(activeTheme) {
 
 // --- KULLANICI GİRİŞ DURUMUNU KONTROL ET ---
 function checkUserLoginStatus() {
-    // ✅ GÜVENLIK: Supabase session'ı kullan, localStorage'de kullanıcı bilgileri saklamayın
+    // ✅ SECURITY: Use Supabase session, do not store user info in localStorage
     // Email ve şifre bilgileri güvenliğe risk oluşturabilir
 
     // Auth durumunu auth.js'den kontrol et
@@ -248,12 +248,12 @@ function initializeListings() {
             } else {
                 icon.classList.remove('fas');
                 icon.classList.add('far');
-                showNotification('Favorilerden çıkarıldı', 'info');
+                showNotification('Removed from favorites', 'info');
             }
         });
     });
 
-    console.log('📋 İlan sistemi başlatıldı');
+    console.log('📋 Listing system initialized');
 }
 
 // --- SAYFALAMA BUTONLARINI DİNLE (YENİ EKLENEN) ---
@@ -342,7 +342,7 @@ window.showInlineToast = showNotification;
 window.showNotification = showNotification;
 
 // --- ÖZEL PROMPT DİYALOGU (Custom Prompt Dialog) ---
-function showPromptDialog(message, defaultValue = '', confirmText = 'Tamam', cancelText = 'İptal') {
+function showPromptDialog(message, defaultValue = '', confirmText = 'OK', cancelText = 'Cancel') {
     return new Promise((resolve) => {
         const overlay = document.createElement('div');
         overlay.className = 'confirm-dialog-overlay';
@@ -421,7 +421,7 @@ function showPromptDialog(message, defaultValue = '', confirmText = 'Tamam', can
 }
 
 // --- ÖZEL ONAY DİYALOGU (Custom Confirm Dialog) ---
-function showConfirmDialog(message, confirmText = 'Evet', cancelText = 'İptal') {
+function showConfirmDialog(message, confirmText = 'Yes', cancelText = 'Cancel') {
     return new Promise((resolve) => {
         const overlay = document.createElement('div');
         overlay.className = 'confirm-dialog-overlay';
@@ -613,7 +613,7 @@ function initializeViewControls() {
             document.querySelectorAll('.view-button, .view-toggle').forEach(btn => btn.classList.remove('active'));
             this.classList.add('active');
             applyView(viewMode);
-            console.log(`🖼️ İlan görünümü değiştirildi: ${viewMode}`);
+            console.log(`🖼️ Listing view changed: ${viewMode}`);
         });
     });
 }

@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Profili Tamamla - VENDO</title>
+    <title>Complete Profile - VENDO</title>
     
     <!-- CSP & Security -->
     <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com https://cdn.jsdelivr.net https://aiqweggiolawgphxupat.supabase.co wss://sxtfbxgeatfzjzsobjmq.supabase.co 'unsafe-inline' 'unsafe-eval'; img-src 'self' data: https:; blob-src 'self' data: https:;">
@@ -549,8 +549,8 @@
             <a href="index.html">
                 <img src="assets/verde-logo.svg" alt="VENDO" class="auth-logo">
             </a>
-            <h1 class="auth-title">Hoş Geldiniz!</h1>
-            <p class="auth-subtitle">Hesabınızı güvenle kullanmaya başlamak için lütfen aşağıdaki eksik bilgileri tamamlayın.</p>
+            <h1 class="auth-title">Welcome!</h1>
+            <p class="auth-subtitle">Please complete the missing information below to start using your account securely.</p>
         </div>
 
         <form id="completeProfileForm" onsubmit="event.preventDefault(); submitProfileCompletion();">
@@ -558,7 +558,7 @@
 
             <!-- Telefon -->
             <div class="form-group">
-                <label class="form-label" for="phoneInput">Telefon Numaranız <span class="text-error">*</span></label>
+                <label class="form-label" for="phoneInput">Your Phone Number <span class="text-error">*</span></label>
                 <div class="phone-input-group">
                     <div class="verde-select" id="customCountrySelector">
                         <div class="verde-select-trigger">
@@ -582,24 +582,24 @@
                     </div>
                     <input type="tel" id="phoneInput" class="form-control" placeholder="XX XXX XXXX" required style="flex: 1;">
                 </div>
-                <small style="color: var(--text-muted); margin-top: 0.5rem; display: block; font-size: 0.8rem; line-height: 1.3;">Telefon numaranız alıcı/satıcılarla iletişim kurabilmeniz için gereklidir.</small>
+                <small style="color: var(--text-muted); margin-top: 0.5rem; display: block; font-size: 0.8rem; line-height: 1.3;">Your phone number is required for communication with buyers and sellers.</small>
             </div>
 
             <!-- Kullanım Şartları -->
             <div class="checkbox-group">
                 <input type="checkbox" id="acceptTerms" required>
                 <label for="acceptTerms">
-                    <a href="#" id="openTermsModal">Kullanım Şartları ve Gizlilik Politikası</a>'nı okudum ve kabul ediyorum. VENDO platformu kurallarına uymayı taahhüt ederim.
+                    I have read and agree to the <a href="#" id="openTermsModal">Terms of Use and Privacy Policy</a>. I commit to follow VENDO platform rules.
                 </label>
             </div>
 
             <button type="submit" class="btn-submit" id="submitBtn">
-                <i class='bx bx-check-shield'></i> Kaydı Tamamla ve Başla
+                <i class='bx bx-check-shield'></i> Complete Registration & Start
             </button>
         </form>
 
         <a href="#" class="logout-link" onclick="handleLogout(event)">
-            Farklı bir hesapla giriş yap
+            Login with a different account
         </a>
     </div>
 
@@ -607,34 +607,34 @@
     <div class="terms-modal-overlay" id="termsModal">
         <div class="terms-modal">
             <div class="terms-modal-header">
-                <h2 class="terms-modal-title">Kullanım Şartları ve Gizlilik Politikası</h2>
-                <button class="terms-modal-close" id="closeTermsModal" aria-label="Kapat">&times;</button>
+                <h2 class="terms-modal-title">Terms of Use and Privacy Policy</h2>
+                <button class="terms-modal-close" id="closeTermsModal" aria-label="Close">&times;</button>
             </div>
             <div class="terms-modal-body">
-                <h3>1. Giriş ve Kabul</h3>
-                <p>Bu Kullanım Şartları ("Sözleşme"), VENDO platformuna ("Platform") erişiminizi ve kullanımınızı düzenler. Platforma kayıt olarak veya kullanarak, bu Sözleşme'deki tüm şartları kabul etmiş sayılırsınız. Avrupa Birliği Genel Veri Koruma Tüzüğü (GDPR) kapsamında haklarınız güvence altındadır.</p>
+                <h3>1. Introduction and Acceptance</h3>
+                <p>These Terms of Use ("Agreement") govern your access and use of the VENDO platform ("Platform"). By registering or using the Platform, you are deemed to have accepted all terms in this Agreement. Your rights are secured under the European Union General Data Protection Regulation (GDPR).</p>
                 
-                <h3>2. Kullanıcı Hesapları</h3>
-                <p>Bir hesap oluşturduğunuzda, doğru, eksiksiz ve güncel bilgiler sağlamalısınız. Hesabınızın güvenliğinden ve şifrenizin gizliliğinden siz sorumlusunuz.</p>
+                <h3>2. User Accounts</h3>
+                <p>When you create an account, you must provide accurate, complete, and up-to-date information. You are responsible for the security of your account and the confidentiality of your password.</p>
                 
-                <h3>3. İlan Verme Kuralları</h3>
+                <h3>3. Listing Rules</h3>
                 <ul>
-                    <li>İlanlarınız yasadışı, yanıltıcı veya telif hakkı ihlali içeren materyaller içermemelidir.</li>
-                    <li>Silah, uyuşturucu, çalıntı mal gibi yasaklı ürünlerin satışı kesinlikle yasaktır.</li>
-                    <li>Sadece sahip olduğunuz veya yasal olarak satmaya yetkili olduğunuz ürünleri listeleyebilirsiniz.</li>
+                    <li>Your listings must not contain materials that are illegal, misleading, or include copyright infringement.</li>
+                    <li>The sale of prohibited products such as weapons, drugs, and stolen goods is strictly forbidden.</li>
+                    <li>You may only list products that you own or are legally authorized to sell.</li>
                 </ul>
 
-                <h3>4. Güvenlik ve Dolandırıcılık</h3>
-                <p>VENDO, işlemler sırasında oluşabilecek anlaşmazlıklarda aracı kurum değildir. İşlem güvenliğinizi sağlamak kendi sorumluluğunuzdadır. Şüpheli durumları derhal yönetime bildirmelisiniz.</p>
+                <h3>4. Security and Fraud</h3>
+                <p>VENDO is not an intermediary for disputes that may arise during transactions. It is your responsibility to ensure your transaction security. You should immediately report suspicious situations to management.</p>
 
-                <h3>5. Veri Gizliliği (GDPR)</h3>
-                <p>Kişisel verileriniz (isim, e-posta, telefon, konum bilgileri) sadece platformun işleyişi amacıyla, açık rızanıza ve yasal dayanaklara uygun olarak işlenir. İstediğiniz zaman verilerinizi silme, aktarma ve düzeltme hakkına (Unutulma Hakkı vb.) sahipsiniz.</p>
+                <h3>5. Data Privacy (GDPR)</h3>
+                <p>Your personal data (name, email, phone, location info) is processed only for the operation of the platform, in accordance with your explicit consent and legal grounds. You have the right to delete, transfer, and correct your data at any time (Right to be Forgotten, etc.).</p>
 
-                <h3>6. Hesabın İptali ve Fesih</h3>
-                <p>Kurallara uymayan hesaplar önceden haber verilmeksizin askıya alınabilir veya kalıcı olarak silinebilir. Kullanıcılar hesaplarını istedikleri an sistem üzerinden tamamen silebilirler.</p>
+                <h3>6. Account Cancellation and Termination</h3>
+                <p>Accounts that do not comply with the rules may be suspended or permanently deleted without prior notice. Users can completely delete their accounts through the system at any time.</p>
             </div>
             <div class="terms-modal-footer">
-                <button class="terms-modal-btn" id="acceptTermsModalBtn">Okudum ve Anladım</button>
+                <button class="terms-modal-btn" id="acceptTermsModalBtn">I Read and Understood</button>
             </div>
         </div>
     </div>
@@ -822,12 +822,12 @@
             const termsAccepted = document.getElementById('acceptTerms').checked;
 
             if (!phoneStr || phoneStr.length < 5) {
-                showNotification("Lütfen geçerli bir telefon numarası girin.", "warning");
+                showNotification("Please enter a valid phone number.", "warning");
                 return;
             }
 
             if (!termsAccepted) {
-                showNotification("Devam etmek için Kuralları kabul etmelisiniz.", "warning");
+                showNotification("You must accept the terms to continue.", "warning");
                 return;
             }
 
@@ -835,7 +835,7 @@
 
             try {
                 btn.classList.add('loading');
-                btn.innerHTML = 'Kaydediliyor...';
+                btn.innerHTML = 'Saving...';
 
                 // 1. Update Profile Table (Postgres)
                 await updateProfile({
@@ -852,7 +852,7 @@
 
                 if (userError) throw userError;
 
-                showNotification("Profiliniz başarıyla tamamlandı!", "success");
+                showNotification("Your profile has been successfully completed!", "success");
                 
                 // Redirect to home
                 setTimeout(() => {
@@ -861,9 +861,9 @@
 
             } catch (error) {
                 console.error("Profile completion error:", error);
-                showNotification("Bir hata oluştu: " + error.message, "error");
+                showNotification("An error occurred: " + error.message, "error");
                 btn.classList.remove('loading');
-                btn.innerHTML = "<i class='bx bx-check-shield'></i> Kaydı Tamamla ve Başla";
+                btn.innerHTML = "<i class='bx bx-check-shield'></i> Complete Registration & Start";
             }
         };
     </script>

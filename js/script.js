@@ -45,7 +45,7 @@ document.addEventListener('submit', async function (e) {
     const originalText = submitBtn ? submitBtn.innerHTML : '';
     if (submitBtn) {
         submitBtn.disabled = true;
-        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Yükleniyor...';
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading...';
     }
 
     try {
@@ -53,7 +53,7 @@ document.addEventListener('submit', async function (e) {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) {
             // ✅ Alert yerine toast notification
-            logger.toast('İlan vermek için lütfen giriş yapınız', 'warning');
+            logger.toast('Please sign in to post an ad', 'warning');
             window.location.href = 'login.html';
             return;
         }
@@ -82,7 +82,7 @@ document.addEventListener('submit', async function (e) {
         }
 
         if (!title || !price || !description) {
-            throw new Error('Lütfen tüm zorunlu alanları doldurun!');
+            throw new Error('Please fill in all required fields!');
         }
 
         // 3. Dinamik alanları (extra_fields) topla
@@ -100,7 +100,7 @@ document.addEventListener('submit', async function (e) {
         // 4. Fotoğrafları yükle
         let photoUrls = [];
         if (window.uploadedPhotos && window.uploadedPhotos.length > 0) {
-            if (submitBtn) submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Fotoğraflar yükleniyor...';
+            if (submitBtn) submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading photos...';
             const photoFiles = window.uploadedPhotos.map(p => p.file);
             photoUrls = await uploadPhotos(photoFiles);
             // ✅ Logger ile debug
@@ -108,7 +108,7 @@ document.addEventListener('submit', async function (e) {
         }
 
         // 5. İlanı oluştur
-        if (submitBtn) submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> İlan oluşturuluyor...';
+        if (submitBtn) submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating listing...';
         const listingData = {
             title,
             price,
@@ -143,15 +143,15 @@ document.addEventListener('submit', async function (e) {
 
     } catch (error) {
         // ✅ Logger ile hata işleme
-        logger.error('İlan oluşturma hatası', error);
+        logger.error('Ad creation error', error);
 
-        const errorMessage = error?.message || 'Bilinmeyen hata';
+        const errorMessage = error?.message || 'Unknown error';
 
         // Hata mesajı özelleştirme
         if (errorMessage.includes('schema cache')) {
-            logger.toast('Veritabanı sütun hatası. Lütfen Supabase\'de tablolarını kontrol edin', 'error');
+            logger.toast('Database column error. Please check your tables in Supabase', 'error');
         } else if (errorMessage.includes('favorites_listing_id_fkey') || errorMessage.includes('profiles_updated_at')) {
-            logger.toast('RLS veya FOREIGN KEY Hatası! Supabase tablolarını kontrol edin', 'error');
+            logger.toast('RLS or FOREIGN KEY Error! Check your Supabase tables', 'error');
         }
     } finally {
         if (submitBtn) {

@@ -47,8 +47,8 @@ const enrichmentTemplates = {
     // Real estate common fields (used for the "Real Estate" main category)
     RealEstateCommon: {
         fields: [
-            { name: 'takas', label: 'Takas', type: 'select', options: ['Yes', 'No'], required: true },
-            { name: 'İlan Sahibi:', label: 'İlan Sahibi:', type: 'select', options: ['Owner', 'Agency', 'Other'], required: true },
+            { name: 'takas', label: 'Exchange', type: 'select', options: ['Yes', 'No'], required: true },
+            { name: 'listing_owner', label: 'Listing Owner:', type: 'select', options: ['Owner', 'Agency', 'Other'], required: true },
         ]
     },
     VehiclesCommon: { fields: [] },
@@ -65,29 +65,29 @@ const enrichmentTemplates = {
 // TEKNİK DETAYLAR (ARAÇ) VERİSİ
 // ==========================================
 const carTechDetails = {
-    'Güvenlik': [
-        'ABS', 'AEB', 'BAS', 'Çocuk Kilidi', 'Distronic', 'ESP / VSA', 'Gece Görüş Sistemi',
-        'Hava Yastığı (Sürücü)', 'Hava Yastığı (Yolcu)', 'Immobilizer', 'Isofix',
-        'Kör Nokta Uyarı Sistemi', 'Merkezi Kilit', 'Şerit Takip Sistemi',
-        'Yokuş Kalkış Desteği', 'Yorgunluk Tespit Sistemi', 'Zırhlı Araç'
+    'Security': [
+        'ABS', 'AEB', 'BAS', 'Child Lock', 'Distronic', 'ESP / VSA', 'Night Vision System',
+        'Airbag (Driver)', 'Airbag (Passenger)', 'Immobilizer', 'Isofix',
+        'Blind Spot Warning System', 'Central Locking', 'Lane Tracking System',
+        'Hill Start Assist', 'Fatigue Detection System', 'Armored Vehicle'
     ],
-    'İç Donanım': [
-        'Adaptive Cruise Control', 'Anahtarsız Giriş ve Çalıştırma', 'Deri Koltuk',
-        'Elektrikli Camlar', 'Fonksiyonel Direksiyon', 'Geri Görüş Kamerası', 'Head-up Display',
-        'Hız Sabitleme Sistemi', 'Hidrolik Direksiyon', 'Isıtmalı Direksiyon', 'Klima',
-        'Koltuklar (Elektrikli)', 'Koltuklar (Hafızalı)', 'Koltuklar (Isıtmalı)',
-        'Koltuklar (Soğutmalı)', 'Kumaş Koltuk', 'Otm.Kararan Dikiz Aynası', 'Ön Görüş Kamerası',
-        'Ön Koltuk Kol Dayaması', 'Soğutmalı Torpido', 'Start / Stop', 'Üçüncü Sıra Koltuklar',
-        'Yol Bilgisayarı'
+    'Interior': [
+        'Adaptive Cruise Control', 'Keyless Entry & Start', 'Leather Seats',
+        'Electric Windows', 'Functional Steering Wheel', 'Rear View Camera', 'Head-up Display',
+        'Cruise Control', 'Power Steering', 'Heated Steering Wheel', 'Air Conditioning',
+        'Electric Seats', 'Memory Seats', 'Heated Seats',
+        'Ventilated Seats', 'Fabric Seats', 'Auto-Dimming Rearview Mirror', 'Front View Camera',
+        'Front Armrest', 'Cooled Glove Box', 'Start / Stop', 'Third Row Seats',
+        'Trip Computer'
     ],
-    'Dış Donanım': [
-        'Ayakla Açılan Bagaj Kapağı', 'Hardtop', 'Far (Adaptif)', 'Aynalar (Elektrikli)',
-        'Aynalar (Isıtmalı)', 'Aynalar (Hafızalı)', 'Park Sensörü (Arka)', 'Park Sensörü (Ön)',
-        'Park Asistanı', 'Sunroof', 'Akıllı Bagaj Kapağı', 'Panoramik Cam Tavan', 'Römork Çeki Demiri'
+    'Exterior': [
+        'Hands-Free Tailgate', 'Hardtop', 'Adaptive Headlights', 'Electric Mirrors',
+        'Heated Mirrors', 'Memory Mirrors', 'Rear Parking Sensor', 'Front Parking Sensor',
+        'Parking Assistant', 'Sunroof', 'Smart Tailgate', 'Panoramic Roof', 'Tow Hitch'
     ],
-    'Multimedya': [
-        'Android Auto', 'Apple CarPlay', 'Bluetooth', 'USB / AUX', 'Navigasyon',
-        'Ses Sistemi', 'TV', 'Kablosuz Şarj'
+    'Multimedia': [
+        'Android Auto', 'Apple CarPlay', 'Bluetooth', 'USB / AUX', 'Navigation',
+        'Sound System', 'TV', 'Wireless Charging'
     ]
 };
 
@@ -240,30 +240,30 @@ function inferCategoryFromListing(listing) {
     let detail = category;
 
     // Determine main groups based on category
-    if (lc.includes('emlak') || lc.includes('konut') || lc.includes('daire') || lc.includes('ev')) {
+    if (lc.includes('emlak') || lc.includes('konut') || lc.includes('daire') || lc.includes('ev') || lc.includes('real estate') || lc.includes('residential')) {
         // New main category name is 'Real Estate' in category-data.js
         main = 'Real Estate';
         sub = 'Residential';
         detail = 'Residential';
-    } else if (lc.includes('otomobil') || lc.includes('araç') || lc.includes('vasıta') || lc.includes('araba')) {
+    } else if (lc.includes('otomobil') || lc.includes('araç') || lc.includes('vasıta') || lc.includes('araba') || lc.includes('cars') || lc.includes('vehicles')) {
         main = 'Vehicles';
         // But first check if an exact match exists
         const cat = getCategoryByName(category);
         if (cat && cat.extra_fields_config && cat.extra_fields_config.fields && cat.extra_fields_config.fields.length > 0) {
             detail = category; // Exact match found
-        } else if (lc.includes('elektrik')) {
+        } else if (lc.includes('elektrik') || lc.includes('electric')) {
             detail = 'Cars'; // Electric but brand not specified
             sub = 'Electric';
         } else {
             detail = 'Cars'; // Base cars
             sub = 'Cars';
         }
-    } else if (lc.includes('hayvan') || lc.includes('evcil')) {
-        main = 'Evcil Hayvan';
-        sub = 'Evcil Hayvan';
-    } else if (lc.includes('elektronik')) {
-        main = 'Elektronik';
-        sub = 'Elektronik';
+    } else if (lc.includes('hayvan') || lc.includes('evcil') || lc.includes('pets')) {
+        main = 'Pets';
+        sub = 'Pets';
+    } else if (lc.includes('elektronik') || lc.includes('technology')) {
+        main = 'Technology';
+        sub = 'Technology';
     }
 
     return {
@@ -396,26 +396,19 @@ function displayCategoryInfo() {
 
     // Set icon based on category (include both Turkish and English keys for compatibility)
     const iconMap = {
-        'Emlak': 'fa-home',
         'Real Estate': 'fa-home',
-        'Vasıta': 'fa-car',
         'Vehicles': 'fa-car',
-        'Yedek Parça': 'fa-cog',
         'Parts & Accessories': 'fa-cog',
-        'Elektronik': 'fa-mobile-alt',
         'Technology': 'fa-microchip',
-        'Ev & Yaşam': 'fa-couch',
         'Home & Decor': 'fa-couch',
-        'Evcil Hayvan': 'fa-paw',
         'Pets': 'fa-paw',
-        'İkinci El': 'fa-recycle',
         'Second Hand': 'fa-recycle',
-        'İş Makineleri': 'fa-tools',
-        'Ustalar': 'fa-wrench',
-        'Özel Ders': 'fa-book',
-        'İş İlanları': 'fa-briefcase',
-        'Hayvanlar': 'fa-cat',
-        'Yardımcı': 'fa-handshake'
+        'Construction Equipment': 'fa-tools',
+        'Service Providers': 'fa-wrench',
+        'Private Lessons': 'fa-book',
+        'Job Listings': 'fa-briefcase',
+        'Animals': 'fa-cat',
+        'Assistant Services': 'fa-handshake'
     };
 
     const iconClass = iconMap[main] || 'fa-box';
@@ -662,7 +655,7 @@ function renderTechDetails() {
     }
 
     if (!techDetailsToRender) {
-        container.innerHTML = '<p style="padding: 1rem; color: #64748b;">Bu kategori için teknik detay seçimi bulunmamaktadır. Devam edebilirsiniz.</p>';
+        container.innerHTML = '<p style="padding: 1rem; color: #64748b;">No technical details selection for this category. You can proceed.</p>';
         return;
     }
 
@@ -724,7 +717,7 @@ function setupFormListeners() {
                 if (!btn) return;
                 const cmd = btn.getAttribute('data-cmd');
                 if (cmd === 'createLink') {
-                    const url = prompt('Lütfen URL girin (ör: https://example.com):', 'https://');
+                    const url = prompt('Please enter a URL (e.g., https://example.com):', 'https://');
                     if (url) document.execCommand('createLink', false, url);
                 } else if (cmd === 'removeFormat') {
                     document.execCommand('removeFormat', false, null);
@@ -776,7 +769,7 @@ function setupFormListeners() {
             const previewPrice = document.getElementById('previewPrice');
             if (previewPrice) {
                 const digits = priceHidden.value || '0';
-                const formatted = parseInt(digits || '0').toLocaleString('tr-TR');
+                const formatted = parseInt(digits || '0').toLocaleString('en-GB');
                 previewPrice.textContent = `€${formatted}`;
             }
         });
@@ -846,6 +839,7 @@ async function setupContactSection() {
 
 // Update Progress Bar (Visual Only - Auto-updates on scroll)
 // Wizard: Step management (simple)
+import { listingLimiter } from './rate-limiter.js';
 let currentStepIndex = 1;
 function initWizard() {
     const steps = Array.from(document.querySelectorAll('.form-step'));
@@ -956,7 +950,7 @@ function updateProgress() {
     const progressFill = document.getElementById('progressFill');
 
     if (!form || !progressFill) {
-        console.warn('⚠️ Progress bar elements bulunamadı; ilerleme göstergesi devre dışı.');
+        console.warn('⚠️ Progress bar elements not found; skipping progress display.');
         return;
     }
 
@@ -1052,6 +1046,18 @@ function validateForm(container = null) {
 async function handleFormSubmit(event) {
     event.preventDefault();
 
+    // 🟢 YENİ: Rate Limit Kontrolü
+    const { supabase } = await import('./supabase.js');
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (user && listingLimiter.isLimited('user_' + user.id)) {
+        const minutesRemaining = listingLimiter.getLockTimeRemaining('user_' + user.id);
+        if (typeof showNotification === 'function') {
+            showNotification(`Too many listings. Please wait ${minutesRemaining} minutes.`, 'warning');
+        }
+        return;
+    }
+
     if (!validateForm()) {
         console.warn('Form validation failed.');
         return;
@@ -1096,7 +1102,7 @@ async function handleFormSubmit(event) {
                         reader.readAsDataURL(blob);
                     });
                 } catch (error) {
-                    console.warn('⚠️ Fotoğraf işlenirken hata:', error);
+                    console.warn('⚠️ Error processing photo:', error);
                 }
             }
         }
@@ -1137,6 +1143,9 @@ async function handleFormSubmit(event) {
             contactName = profile?.full_name || user.email || 'User';
             contactPhone = profile?.phone || '';
         }
+
+        // 🟢 YENİ: Rate Limit Kaydet
+        if (user) listingLimiter.recordAttempt('user_' + user.id);
 
         // Listing data object
         // Save category as slug (if possible) so homepage filtering by slug works.
@@ -1212,7 +1221,7 @@ async function handleFormSubmit(event) {
         document.getElementById('successModal').style.display = 'flex';
 
     } catch (error) {
-        console.error('❌ Hata:', error);
+        console.error('❌ Error:', error);
         document.getElementById('loadingModal').style.display = 'none';
         alert('An error occurred while publishing the listing: ' + error.message);
     }

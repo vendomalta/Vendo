@@ -17,7 +17,7 @@ const loadHtml2Pdf = async () => {
         const script = document.createElement('script');
         script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
         script.onload = () => resolve();
-        script.onerror = () => reject(new Error('PDF kütüphanesi yüklenemedi'));
+        script.onerror = () => reject(new Error('PDF library could not be loaded'));
         document.head.appendChild(script);
     });
 };
@@ -25,7 +25,7 @@ const loadHtml2Pdf = async () => {
 // PDF içeriği oluştur
 const createPdfContent = (userData) => {
     const { user, profile, listings } = userData;
-    const now = new Date().toLocaleDateString('tr-TR', { 
+    const now = new Date().toLocaleDateString('en-US', { 
         year: 'numeric', 
         month: 'long', 
         day: 'numeric',
@@ -62,35 +62,35 @@ const createPdfContent = (userData) => {
         </head>
         <body>
             <div class="header">
-                <h1>📋 Veri Arşivi - VERDE</h1>
-                <p>Oluşturulma Tarihi: ${now}</p>
-                <p>Kullanıcı: ${user?.email || 'Bilinmiyor'}</p>
+                <h1>📋 Data Archive - VENDO</h1>
+                <p>Creation Date: ${now}</p>
+                <p>User: ${user?.email || 'Unknown'}</p>
             </div>
 
             <div class="section">
-                <h2>👤 Kullanıcı Bilgileri</h2>
+                <h2>👤 User Information</h2>
                 <div class="info-block">
                     <div class="info-row">
-                        <div class="info-label">E-posta:</div>
+                        <div class="info-label">Email:</div>
                         <div class="info-value">${user?.email || '-'}</div>
                     </div>
                     <div class="info-row">
-                        <div class="info-label">İsim:</div>
+                        <div class="info-label">Name:</div>
                         <div class="info-value">${profile?.full_name || '-'}</div>
                     </div>
                     <div class="info-row">
-                        <div class="info-label">Telefon:</div>
+                        <div class="info-label">Phone:</div>
                         <div class="info-value">${user?.phone || '-'}</div>
                     </div>
                     ${user?.metadata?.city ? `
                     <div class="info-row">
-                        <div class="info-label">Şehir:</div>
+                        <div class="info-label">City:</div>
                         <div class="info-value">${user.metadata.city}</div>
                     </div>
                     ` : ''}
                     ${user?.metadata?.birth_date ? `
                     <div class="info-row">
-                        <div class="info-label">Doğum Tarihi:</div>
+                        <div class="info-label">Date of Birth:</div>
                         <div class="info-value">${user.metadata.birth_date}</div>
                     </div>
                     ` : ''}
@@ -102,23 +102,23 @@ const createPdfContent = (userData) => {
     if (listings && listings.length > 0) {
         html += `
             <div class="section">
-                <h2>📢 İlanlarım (${listings.length})</h2>
+                <h2>📢 My Listings (${listings.length})</h2>
                 <div class="listings-grid">
         `;
 
         listings.forEach((listing, idx) => {
             html += `
                 <div class="listing-card">
-                    <h3>${idx + 1}. ${listing.title || 'İlan'}</h3>
+                    <h3>${idx + 1}. ${listing.title || 'Listing'}</h3>
                     <div class="listing-meta">
-                        <div class="listing-row"><strong>Fiyat:</strong> ${listing.price || '-'} ${listing.currency || 'TL'}</div>
-                        <div class="listing-row"><strong>Kategori:</strong> ${listing.category_id || '-'}</div>
-                        <div class="listing-row"><strong>Konum:</strong> ${listing.location_city || '-'}</div>
-                        <div class="listing-row"><strong>Durum:</strong> <span class="badge ${listing.status === 'active' ? 'active' : 'inactive'}">${listing.status === 'active' ? 'Aktif' : 'İnaktif'}</span></div>
+                        <div class="listing-row"><strong>Price:</strong> ${listing.price || '-'} ${listing.currency || 'TL'}</div>
+                        <div class="listing-row"><strong>Category:</strong> ${listing.category_id || '-'}</div>
+                        <div class="listing-row"><strong>Location:</strong> ${listing.location_city || '-'}</div>
+                        <div class="listing-row"><strong>Status:</strong> <span class="badge ${listing.status === 'active' ? 'active' : 'inactive'}">${listing.status === 'active' ? 'Active' : 'Inactive'}</span></div>
                     </div>
-                    ${listing.description ? `<div class="listing-description"><strong>Açıklama:</strong> ${listing.description}</div>` : ''}
+                    ${listing.description ? `<div class="listing-description"><strong>Description:</strong> ${listing.description}</div>` : ''}
                     <div class="listing-row" style="margin-top: 10px; font-size: 11px; color: #999;">
-                        Oluşturulma: ${new Date(listing.created_at).toLocaleDateString('tr-TR')}
+                        Created: ${new Date(listing.created_at).toLocaleDateString('en-US')}
                     </div>
                 </div>
             `;
@@ -131,16 +131,16 @@ const createPdfContent = (userData) => {
     } else {
         html += `
             <div class="section">
-                <h2>📢 İlanlarım</h2>
-                <div class="info-block">Henüz ilan yayınlamamışsınız.</div>
+                <h2>📢 My Listings</h2>
+                <div class="info-block">You haven't published any listings yet.</div>
             </div>
         `;
     }
 
     html += `
             <div class="footer">
-                <p>Bu belge, VERDE platformu tarafından oluşturulmuştur. İçeriği gizli tutunuz.</p>
-                <p>© 2026 VERDE - Tüm Hakları Saklıdır</p>
+                <p>This document was created by the VENDO platform. Please keep the content confidential.</p>
+                <p>© 2026 VENDO - All Rights Reserved</p>
             </div>
         </body>
         </html>
@@ -202,8 +202,8 @@ const showConfirmModal = (title, message) => {
             <h4>${title}</h4>
             <p>${message}</p>
             <div class="inline-confirm-actions">
-                <button class="inline-btn cancel" type="button">Vazgeç</button>
-                <button class="inline-btn danger" type="button">Onayla</button>
+                <button class="inline-btn cancel" type="button">Cancel</button>
+                <button class="inline-btn danger" type="button">Confirm</button>
             </div>
         `;
         overlay.appendChild(modal);
@@ -228,7 +228,7 @@ export async function loadUserData() {
         const { data: { user }, error } = await supabase.auth.getUser();
         
         if (error || !user) {
-            console.log('Kullanıcı girişi bulunamadı, login sayfasına yönlendiriliyor...');
+            console.log('User login not found, redirecting to login page...');
             window.location.href = 'login.html';
             return;
         }
@@ -313,7 +313,7 @@ export async function loadUserData() {
         if (notifyMarketing) notifyMarketing.checked = preferences.marketing !== false;
 
     } catch (error) {
-        console.error('Kullanıcı verileri yüklenirken hata:', error);
+        console.error('Error loading user data:', error);
     }
 }
 
@@ -340,7 +340,7 @@ export async function updatePersonalInfo(formData) {
         
         return { success: true };
     } catch (error) {
-        console.error('Güncelleme hatası:', error);
+        console.error('Update error:', error);
         return { success: false, error: error.message };
     }
 }
@@ -390,14 +390,14 @@ export async function updateNotificationPreferences(preferences) {
         
         return { success: true };
     } catch (error) {
-        console.error('Bildirim tercihleri güncellenemedi:', error);
+        console.error('Notification preferences could not be updated:', error);
         return { success: false, error: error.message };
     }
 }
 
 // Form dinleyicilerini başlat
 export function initAccountSettings() {
-    console.log('✅ initAccountSettings başlatıldı');
+    console.log('✅ initAccountSettings started');
     
     // Kişisel bilgiler formu
     const personalInfoForm = document.getElementById('personalInfoForm');
@@ -407,7 +407,7 @@ export function initAccountSettings() {
             const submitBtn = this.querySelector('.btn-primary');
             const originalText = submitBtn.innerHTML;
             
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Kaydediliyor...';
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
             submitBtn.disabled = true;
 
             const formData = new FormData(this);
@@ -418,15 +418,15 @@ export function initAccountSettings() {
 
             if (result.success) {
                 if (typeof showNotification === 'function') {
-                    showNotification('Kişisel bilgileriniz başarıyla güncellendi!', 'success');
+                    showNotification('Your personal information has been updated successfully!', 'success');
                 } else {
-                    showInlineToast('Kişisel bilgileriniz başarıyla güncellendi!', 'success');
+                    showInlineToast('Your personal information has been updated successfully!', 'success');
                 }
             } else {
                 if (typeof showNotification === 'function') {
-                    showNotification('Güncelleme sırasında bir hata oluştu: ' + result.error, 'error');
+                    showNotification('An error occurred during update: ' + result.error, 'error');
                 } else {
-                    showInlineToast('Güncelleme sırasında bir hata oluştu: ' + result.error, 'error');
+                    showInlineToast('An error occurred during update: ' + result.error, 'error');
                 }
             }
         });
@@ -440,7 +440,7 @@ export function initAccountSettings() {
             const submitBtn = this.querySelector('.btn-primary');
             const originalText = submitBtn.innerHTML;
             
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Kaydediliyor...';
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
             submitBtn.disabled = true;
 
             const formData = new FormData(this);
@@ -451,15 +451,15 @@ export function initAccountSettings() {
 
             if (result.success) {
                 if (typeof showNotification === 'function') {
-                    showNotification('Adres bilgileriniz başarıyla kaydedildi!', 'success');
+                    showNotification('Address information saved successfully!', 'success');
                 } else {
-                    showInlineToast('Adres bilgileriniz başarıyla kaydedildi!', 'success');
+                    showInlineToast('Address information saved successfully!', 'success');
                 }
             } else {
                 if (typeof showNotification === 'function') {
-                    showNotification('Güncelleme sırasında bir hata oluştu: ' + result.error, 'error');
+                    showNotification('An error occurred during update: ' + result.error, 'error');
                 } else {
-                    showInlineToast('Güncelleme sırasında bir hata oluştu: ' + result.error, 'error');
+                    showInlineToast('An error occurred during update: ' + result.error, 'error');
                 }
             }
         });
@@ -484,15 +484,15 @@ export function initAccountSettings() {
                 const result = await updateNotificationPreferences({ [toggle.key]: this.checked });
                 if (result.success) {
                     if (typeof showNotification === 'function') {
-                        showNotification('Bildirim tercihleriniz güncellendi', 'success');
+                        showNotification('Notification preferences updated', 'success');
                     } else if (typeof showInlineToast === 'function') {
-                        showInlineToast('Bildirim tercihleriniz güncellendi', 'success');
+                        showInlineToast('Notification preferences updated', 'success');
                     }
                 } else {
                     // Hata durumunda eski haline getir
                     this.checked = !this.checked;
                     if (typeof showNotification === 'function') {
-                        showNotification('Hata: ' + result.error, 'error');
+                        showNotification('Error: ' + result.error, 'error');
                     }
                 }
             });
@@ -505,29 +505,29 @@ export function initAccountSettings() {
     if (deleteAccountBtn) {
         console.log('✅ deleteAccountBtn event listener ekleniyor');
         deleteAccountBtn.addEventListener('click', async () => {
-            const confirmed = await showConfirmModal('Hesabı kalıcı olarak sil', 'Hesabınız ve verileriniz kalıcı olarak silinecek. Onaylıyor musunuz?');
+            const confirmed = await showConfirmModal('Permanently delete account', 'Your account and data will be permanently deleted. Do you confirm?');
             if (!confirmed) return;
 
             const originalHTML = deleteAccountBtn.innerHTML;
             deleteAccountBtn.disabled = true;
-            deleteAccountBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Siliniyor...';
+            deleteAccountBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Deleting...';
 
             try {
                 await deleteAccountPermanently();
 
                 if (typeof showNotification === 'function') {
-                    showNotification('Hesabınız silindi. Güle güle!', 'success');
+                    showNotification('Your account has been deleted. Goodbye!', 'success');
                 } else {
-                    showInlineToast('Hesabınız silindi. Güle güle!', 'success');
+                    showInlineToast('Your account has been deleted. Goodbye!', 'success');
                 }
 
                 window.location.href = 'login.html';
             } catch (error) {
-                console.error('Hesap silme hatası:', error);
+                console.error('Account deletion error:', error);
                 if (typeof showNotification === 'function') {
-                    showNotification('Hesap silinemedi: ' + error.message, 'error');
+                    showNotification('Account could not be deleted: ' + error.message, 'error');
                 } else {
-                    showInlineToast('Hesap silinemedi: ' + error.message, 'error');
+                    showInlineToast('Account could not be deleted: ' + error.message, 'error');
                 }
             } finally {
                 deleteAccountBtn.disabled = false;
@@ -564,15 +564,15 @@ function formatLastActivity(lastActivityTime) {
     const diffDays = Math.floor(diffHours / 24);
 
     if (diffMins < 1) {
-        return 'Şimdi';
+        return 'Now';
     } else if (diffMins < 60) {
-        return `${diffMins} dakika önce`;
+        return `${diffMins} minutes ago`;
     } else if (diffHours < 24) {
-        return `${diffHours} saat önce`;
+        return `${diffHours} hours ago`;
     } else if (diffDays < 7) {
-        return `${diffDays} gün önce`;
+        return `${diffDays} days ago`;
     } else {
-        return lastActivity.toLocaleDateString('tr-TR');
+        return lastActivity.toLocaleDateString('en-US');
     }
 }
 
@@ -615,22 +615,22 @@ function createSessionHTML(session, isCurrent) {
                 <div class="session-device">
                     <i class="fas ${icon}"></i>
                     <span>${displayDeviceName}</span>
-                    ${isCurrent ? '<span class="current-badge">Mevcut</span>' : ''}
+                    ${isCurrent ? '<span class="current-badge">Current</span>' : ''}
                 </div>
                 <div class="session-details">
                     <span><i class="fas fa-map-marker-alt"></i> ${location}</span>
-                    <span><i class="fas fa-clock"></i> Son etkinlik: ${lastActivity}</span>
-                    <span style="font-size: 0.8rem; color: #9ca3af;"><i class="fas fa-plus"></i> Giriş: ${createdDate}</span>
+                    <span><i class="fas fa-clock"></i> Last activity: ${lastActivity}</span>
+                    <span style="font-size: 0.8rem; color: #9ca3af;"><i class="fas fa-plus"></i> Logged in: ${createdDate}</span>
                 </div>
             </div>
             <div class="session-actions">
-                <button class="btn-danger-outline revoke-session-btn" data-session-id="${session.id}" title="Bu oturumu sonlandır">
+                <button class="btn-danger-outline revoke-session-btn" data-session-id="${session.id}" title="Terminate this session">
                     <i class="fas fa-times-circle"></i>
-                    <span>Sonlandır</span>
+                    <span>Terminate</span>
                 </button>
                 ${isCurrent ? `
-                    <span class="session-warning-badge" title="Bu cihazdan çıkış yapacaksınız">
-                        <i class="fas fa-exclamation-triangle"></i> Dikkat
+                    <span class="session-warning-badge" title="You will be logged out from this device">
+                        <i class="fas fa-exclamation-triangle"></i> Warning
                     </span>
                 ` : ''}
             </div>
@@ -666,7 +666,7 @@ async function loadAndDisplaySessions() {
                 sessionsList.innerHTML = `
                     <div style="text-align: center; padding: 2rem; color: #6b7280;">
                         <i class="fas fa-info-circle" style="font-size: 1.5rem; margin-bottom: 0.5rem;"></i>
-                        <p>Henüz kayıtlı oturum yok</p>
+                        <p>No active sessions found</p>
                     </div>
                 `;
             }
@@ -700,7 +700,7 @@ async function loadAndDisplaySessions() {
             errorContainer.style.display = 'block';
             const errorMsg = document.getElementById('sessionsErrorMessage');
             if (errorMsg) {
-                errorMsg.textContent = error.message || 'Oturumlar yüklenirken bir hata oluştu';
+                errorMsg.textContent = error.message || 'An error occurred while loading sessions';
             }
         }
         
@@ -725,18 +725,18 @@ function setupSessionEventListeners() {
                 const isCurrent = sessionItem?.classList.contains('current');
                 
                 // Uyarı mesajı
-                let confirmMessage = 'Bu oturumu sonlandırmak istediğinizden emin misiniz?';
+                let confirmMessage = 'Are you sure you want to terminate this session?';
                 if (isCurrent) {
-                    confirmMessage = '⚠️ BU OTURUM ŞU ANKİ OTURUMUNUZDUR!\n\nSonlandırırsanız, şu anda kullanmakta olduğunuz cihazdan çıkış yapacaksınız.\n\nDevam etmek istediğinizden emin misiniz?';
+                    confirmMessage = '⚠️ THIS IS YOUR CURRENT SESSION!\n\nIf you terminate it, you will be logged out from the device you are currently using.\n\nAre you sure you want to proceed?';
                 }
                 
-                const _ok = await showConfirmModal('Oturumu sonlandır', confirmMessage);
+                const _ok = await showConfirmModal('Terminate Session', confirmMessage);
                 if (!_ok) return;
 
                 try {
                     revokeBtn.disabled = true;
                     const originalHTML = revokeBtn.innerHTML;
-                    revokeBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span>Sonlandırılıyor...</span>';
+                    revokeBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span>Terminating...</span>';
 
                     // Mevcut oturum mu değil mi bilgisini gönder
                     await revokeSession(sessionId, isCurrent);
@@ -747,14 +747,14 @@ function setupSessionEventListeners() {
                         setupSessionEventListeners(); // Event listener'ları yeniden kur
 
                         if (typeof showNotification === 'function') {
-                            showNotification('Oturum başarıyla sonlandırıldı', 'success');
+                            showNotification('Session terminated successfully', 'success');
                         } else {
-                            showInlineToast('Oturum başarıyla sonlandırıldı', 'success');
+                            showInlineToast('Session terminated successfully', 'success');
                         }
                     } else {
                         // Mevcut oturumsa, signOut otomatik çalıştı, login'e yönlendir
                         if (typeof showNotification === 'function') {
-                            showNotification('Çıkış yapılıyor...', 'success');
+                            showNotification('Logging out...', 'success');
                         }
                         setTimeout(() => {
                             window.location.href = 'login.html';
@@ -766,9 +766,9 @@ function setupSessionEventListeners() {
                     revokeBtn.innerHTML = originalHTML;
                     
                     if (typeof showNotification === 'function') {
-                        showNotification('Oturum sonlandırılamadı: ' + error.message, 'error');
+                        showNotification('Session could not be terminated: ' + error.message, 'error');
                     } else {
-                        showInlineToast('❌ Oturum sonlandırılamadı: ' + error.message, 'error');
+                        showInlineToast('❌ Session could not be terminated: ' + error.message, 'error');
                     }
                 }
             }
@@ -790,7 +790,7 @@ function setupSessionEventListeners() {
             try {
                 this.disabled = true;
                 const originalHTML = this.innerHTML;
-                this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sonlandırılıyor...';
+                this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Terminating...';
 
                 await revokeAllOtherSessions();
 
@@ -799,9 +799,9 @@ function setupSessionEventListeners() {
                 setupSessionEventListeners();
 
                 if (typeof showNotification === 'function') {
-                    showNotification('✅ Diğer tüm oturumlar başarıyla sonlandırıldı. Sadece bu cihaz aktif.', 'success');
+                    showNotification('✅ All other sessions terminated successfully. Only this device is active.', 'success');
                 } else {
-                    showInlineToast('✅ Diğer tüm oturumlar başarıyla sonlandırıldı', 'success');
+                    showInlineToast('✅ All other sessions terminated successfully', 'success');
                 }
 
                 this.disabled = false;
@@ -812,9 +812,9 @@ function setupSessionEventListeners() {
                 this.innerHTML = originalHTML;
                 
                 if (typeof showNotification === 'function') {
-                    showNotification('❌ Oturumlar sonlandırılamadı: ' + error.message, 'error');
+                    showNotification('❌ Sessions could not be terminated: ' + error.message, 'error');
                 } else {
-                    showInlineToast('❌ Oturumlar sonlandırılamadı: ' + error.message, 'error');
+                    showInlineToast('❌ Sessions could not be terminated: ' + error.message, 'error');
                 }
             }
         });
