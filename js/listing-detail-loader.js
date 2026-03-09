@@ -761,7 +761,7 @@ function buildSpecsTable(listing) {
   const extra = listing.extra_fields || {};
 
   // Kategoriye göre gösterilecek özellikler
-  const category = (listing.category_id || "").toLowerCase();
+  const category = String(listing.category_text || listing.category_id || "").toLowerCase();
 
   console.log("🔍 Detay - Kategori (orijinal):", listing.category_id);
   console.log("🔍 Detay - Kategori (lowercase):", category);
@@ -2044,7 +2044,7 @@ function renderBreadcrumb(listing) {
   if (!breadcrumb) return;
 
   const extra = listing.extra_fields || {};
-  const category = listing.category_id || "Diğer";
+  const category = listing.category_text || String(listing.category_id || '') || "Diğer";
   const breadcrumbItems = [];
 
   // Ana Sayfa zaten HTML'de var
