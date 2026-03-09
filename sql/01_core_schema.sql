@@ -77,7 +77,7 @@ CREATE TABLE IF NOT EXISTS public.listings (
     price DECIMAL(12,2) NOT NULL DEFAULT 0,
     currency TEXT DEFAULT 'EUR',
     status listing_status_enum DEFAULT 'draft',
-    images TEXT[] DEFAULT '{}',
+    photos TEXT[] DEFAULT '{}',
     video_url TEXT,
     location_city TEXT,
     location_district TEXT,
