@@ -19,7 +19,6 @@ ALTER TABLE public.listing_questions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.listing_answers ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.reports ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.blocked_users ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.admin_logs ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.site_settings ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.notifications ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.listing_stats ENABLE ROW LEVEL SECURITY;
@@ -150,8 +149,6 @@ DROP POLICY IF EXISTS "Users can see own button logs" ON public.button_actions;
 CREATE POLICY "Users can see own button logs" ON public.button_actions FOR SELECT USING (auth.uid() = user_id);
 
 -- 5. ADMIN SPECIFIC POLICIES
-DROP POLICY IF EXISTS "Admins can manage logs" ON public.admin_logs;
-CREATE POLICY "Admins can manage logs" ON public.admin_logs FOR ALL USING (public.is_admin(auth.uid()));
 
 DROP POLICY IF EXISTS "Admins can manage site settings" ON public.site_settings;
 CREATE POLICY "Admins can manage site settings" ON public.site_settings FOR ALL USING (public.is_admin(auth.uid()));

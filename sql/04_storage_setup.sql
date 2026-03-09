@@ -17,20 +17,24 @@ ON CONFLICT (id) DO UPDATE SET
 -- 2. STORAGE POLICIES (RLS)
 
 -- Public Read Access
+DROP POLICY IF EXISTS "Public read" ON storage.objects;
 CREATE POLICY "Public read" ON storage.objects FOR SELECT USING (TRUE);
 
 -- Authenticated Upload Access
+DROP POLICY IF EXISTS "Authenticated upload" ON storage.objects;
 CREATE POLICY "Authenticated upload" ON storage.objects FOR INSERT 
 TO authenticated 
 WITH CHECK (bucket_id IN ('listing-photos', 'profile-photos', 'banners', 'site-assets'));
 
 -- Owner Resource Management
+DROP POLICY IF EXISTS "Owner manage" ON storage.objects;
 CREATE POLICY "Owner manage" ON storage.objects FOR ALL
 TO authenticated
 USING (auth.uid()::text = (storage.foldername(name))[1])
 WITH CHECK (auth.uid()::text = (storage.foldername(name))[1]);
 
 -- Special Admin Management for assets
+DROP POLICY IF EXISTS "Admin manage assets" ON storage.objects;
 CREATE POLICY "Admin manage assets" ON storage.objects FOR ALL
 TO authenticated
 USING (bucket_id IN ('banners', 'site-assets') AND (SELECT public.is_admin(auth.uid())))
