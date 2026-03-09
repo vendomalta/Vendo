@@ -64,6 +64,23 @@ export async function createListing(listingData) {
         return photo; // zaten string
     });
 
+    // Kategori slug'ını bigint ID'ye çevir
+    let resolvedCategoryId = null;
+    if (listingData.category) {
+        // Eğer sayısal geliyorsa direkt kullan, yoksa slug'ı çöz
+        const asNum = parseInt(listingData.category);
+        if (!isNaN(asNum)) {
+            resolvedCategoryId = asNum;
+        } else {
+            const { data: catRow } = await supabase
+                .from('categories')
+                .select('id')
+                .eq('slug', listingData.category)
+                .maybeSingle();
+            resolvedCategoryId = catRow?.id ?? null;
+        }
+    }
+
     const { data, error } = await supabase
         .from('listings')
         .insert([{
@@ -72,11 +89,11 @@ export async function createListing(listingData) {
             title: title,
             description: listingData.description || '',
             price: parseFloat(listingData.price) || 0,
-            currency: listingData.currency || 'TL',
-            category: listingData.category,
-            location: listingData.location || '',
+            currency: listingData.currency || 'EUR',
+            category_id: resolvedCategoryId,
+            location_city: listingData.location || '',
             photos: photos.length > 0 ? photos : [],
-            extra_fields: extraFields, // <-- Artık veritabanındaki JSONB alanına doğru şekilde gidiyor.
+            extra_fields: extraFields,
             status: 'active'
         }])
         .select()
