@@ -107,6 +107,22 @@ export async function getListings(options = {}) {
         random = false // New option for random listings (home page)
     } = options;
 
+    // Slug'dan category_id'ye çevir (bigint olduğu için direkt slug filtrelenemez)
+    let resolvedCategoryIds = null;
+    const slugsToResolve = Array.isArray(categories) && categories.length > 0
+        ? categories
+        : (category && typeof category === 'string' ? [category] : []);
+
+    if (slugsToResolve.length > 0) {
+        const { data: catData } = await supabase
+            .from('categories')
+            .select('id')
+            .in('slug', slugsToResolve);
+        if (catData && catData.length > 0) {
+            resolvedCategoryIds = catData.map(c => c.id);
+        }
+    }
+
     async function run(orderBy) {
         let query = supabase
             .from('listings')
@@ -114,10 +130,10 @@ export async function getListings(options = {}) {
             .select('id, title, price, currency, location_city, category_id, photos, extra_fields, created_at, user_id, status', { count: 'exact' });
 
         if (status) query = query.eq('status', status);
-        if (Array.isArray(categories) && categories.length > 0) {
-            query = query.in('category_id', categories);
-        } else if (category) {
-            query = query.eq('category_id', category);
+
+        // category_id bigint → önce category_ids'e çevrildi
+        if (resolvedCategoryIds && resolvedCategoryIds.length > 0) {
+            query = query.in('category_id', resolvedCategoryIds);
         }
         if (location) {
             if (Array.isArray(location) && location.length > 0) {
