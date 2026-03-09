@@ -111,7 +111,7 @@ export async function getListings(options = {}) {
         let query = supabase
             .from('listings')
             // Sadece gerekli alanları seç - daha hızlı
-            .select('id, title, price, currency, location, category, photos, extra_fields, created_at, user_id, status', { count: 'exact' });
+            .select('id, title, price, currency, location_city, category_id, photos, extra_fields, created_at, user_id, status', { count: 'exact' });
 
         if (status) query = query.eq('status', status);
         if (Array.isArray(categories) && categories.length > 0) {
