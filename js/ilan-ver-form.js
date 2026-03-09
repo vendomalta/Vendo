@@ -754,7 +754,34 @@ function setupFormListeners() {
     // Photo upload - NOW HANDLED BY photo-upload.js
     // Removed duplicate photo upload code to prevent conflicts
     // See js/photo-upload.js for the active implementation
-}
+
+    // ── Fiyat biçimlendirme (max 9 rakam, nokta ayraçlı: 111.111.111) ──
+    const priceDisplay = document.getElementById('price-display');
+    const priceHidden  = document.getElementById('price');
+    if (priceDisplay && priceHidden) {
+        priceDisplay.addEventListener('input', () => {
+            // Sadece rakam bırak
+            let digits = priceDisplay.value.replace(/\D/g, '');
+            // Max 9 rakam
+            if (digits.length > 9) digits = digits.slice(0, 9);
+            // Nokta ayraçlı formatlama (türk formatı: 1.000.000)
+            const formatted = digits.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+            priceDisplay.value = formatted;
+            // Hidden alana ham sayıyı yaz
+            priceHidden.value = digits;
+        });
+
+        // Live preview için price güncellemesi
+        priceDisplay.addEventListener('input', () => {
+            const previewPrice = document.getElementById('previewPrice');
+            if (previewPrice) {
+                const digits = priceHidden.value || '0';
+                const formatted = parseInt(digits || '0').toLocaleString('tr-TR');
+                previewPrice.textContent = `€${formatted}`;
+            }
+        });
+    }
+} // end setupFormListeners
 
 async function setupContactSection() {
     const contactNameInput = document.getElementById('contactName');
