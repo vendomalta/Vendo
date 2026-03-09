@@ -538,7 +538,7 @@ const adminPanel = {
     try {
       const { data: listings, error } = await window.supabase
         .from("listings")
-        .select("id, title, category, user_id, status, created_at")
+        .select("id, title, category_id, user_id, status, created_at")
         .order("created_at", { ascending: false });
 
       if (error) throw error;
