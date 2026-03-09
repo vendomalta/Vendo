@@ -119,7 +119,7 @@ function createAdCard(listing) {
                 <h3 class="ad-title">${escapeHtml(listing.title)}</h3>
                 <p class="ad-location">
                     <i class="fas fa-map-marker-alt"></i>
-                    ${escapeHtml(listing.location || 'Belirtilmemiş')}
+                    ${escapeHtml(listing.location_city || 'Belirtilmemiş')}
                 </p>
                 <p class="ad-price">${currency}${formattedPrice}</p>
                 <div class="ad-meta">

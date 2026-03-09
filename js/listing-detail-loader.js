@@ -29,7 +29,7 @@ function updateSeoMeta(listing) {
   const currency = listing.currency === "TL" ? "₺" : listing.currency;
   const priceText = `${formattedPrice} ${currency}`;
   const title = listing.title || "İlan";
-  const location = listing.location ? ` • ${listing.location}` : "";
+  const location = listing.location_city ? ` • ${listing.location_city}` : "";
   const descRaw =
     listing.description || `${title}${location} — Fiyat: ${priceText}`;
   const description = String(descRaw).slice(0, 160);
@@ -211,7 +211,7 @@ async function renderListing(listing) {
 
     const locationSpan = mobileLocationEl.querySelector("span");
     if (locationSpan) {
-      locationSpan.textContent = listing.location || "Belirtilmemiş";
+      locationSpan.textContent = listing.location_city || "Belirtilmemiş";
     }
 
     // İlan tarihi
@@ -239,7 +239,7 @@ async function renderListing(listing) {
   // Meta Bilgileri - Daha detaylı gösterim (elemanlar opsiyonel olabilir)
   const locationEl = document.getElementById("detail-location");
   if (locationEl) {
-    locationEl.textContent = listing.location || "Belirtilmemiş";
+    locationEl.textContent = listing.location_city || "Belirtilmemiş";
   } else {
     console.warn("detail-location öğesi bulunamadı, atlandı.");
   }
@@ -446,7 +446,7 @@ async function renderListing(listing) {
   // Haritayı Başlat (Malta)
   import("./map-handler.js")
     .then((module) => {
-      module.initSellerMap(listing.location);
+      module.initSellerMap(listing.location_city);
     })
     .catch((err) => console.error("Harita yüklenemedi:", err));
 }
@@ -761,9 +761,9 @@ function buildSpecsTable(listing) {
   const extra = listing.extra_fields || {};
 
   // Kategoriye göre gösterilecek özellikler
-  const category = (listing.category || "").toLowerCase();
+  const category = (listing.category_id || "").toLowerCase();
 
-  console.log("🔍 Detay - Kategori (orijinal):", listing.category);
+  console.log("🔍 Detay - Kategori (orijinal):", listing.category_id);
   console.log("🔍 Detay - Kategori (lowercase):", category);
   console.log("🔍 Detay - Extra Fields:", extra);
 
@@ -1006,7 +1006,7 @@ function buildSpecsTable(listing) {
   }
 
   // Her zaman gösterilecekler - Sadece bir kez
-  specs.unshift(["Kategori", listing.category || "-"]);
+  specs.unshift(["Kategori", listing.category_id || "-"]);
   specs.unshift(["İlan Tarihi", formatDate(listing.created_at)]);
   // Eğer DB'de atomik `listing_number` varsa onu göster, yoksa mevcut UUID özetini göster
   const publicListingNo =
@@ -1014,7 +1014,7 @@ function buildSpecsTable(listing) {
       ? String(listing.listing_number)
       : listing.id?.substring(0, 8)?.toUpperCase() || "-";
   specs.unshift(["İlan No", publicListingNo]);
-  specs.push(["Konum", listing.location || "-"]);
+  specs.push(["Konum", listing.location_city || "-"]);
 
   // Ekstra alanların tamamını göster: daha önce özel olarak eklenmemiş anahtarları ekle
   const handledKeys = new Set([
@@ -1517,7 +1517,7 @@ function renderEditForm(listing) {
                                     Kategori <span class="required">*</span>
                                 </label>
                                 <div class="category-visual">
-                                    ${(listing.category || "")
+                                    ${(listing.category_id || "")
                                       .split(">")
                                       .map(
                                         (c) =>
@@ -1527,7 +1527,7 @@ function renderEditForm(listing) {
                                         '<i class="fas fa-chevron-right" style="font-size: 0.7rem; color: var(--gray-300)"></i>',
                                       )}
                                 </div>
-                                <input type="hidden" id="edit-category" name="category" value="${escapeHtml(listing.category || "")}">
+                                <input type="hidden" id="edit-category" name="category" value="${escapeHtml(listing.category_id || "")}">
                             </div>
                             
                             <div class="form-group">
@@ -1536,7 +1536,7 @@ function renderEditForm(listing) {
                                     Konum <span class="required">*</span>
                                 </label>
                                 <input type="text" id="edit-location" name="location" 
-                                    value="${escapeHtml(listing.location || "")}" 
+                                    value="${escapeHtml(listing.location_city || "")}" 
                                     required placeholder="Örn: Valletta, Malta">
                             </div>
                             
@@ -2044,7 +2044,7 @@ function renderBreadcrumb(listing) {
   if (!breadcrumb) return;
 
   const extra = listing.extra_fields || {};
-  const category = listing.category || "Diğer";
+  const category = listing.category_id || "Diğer";
   const breadcrumbItems = [];
 
   // Ana Sayfa zaten HTML'de var

@@ -455,7 +455,7 @@ function createListingCard(listing) {
     const priceText = `${currency}${formattedPrice}`;
     const titleText = escapeHtml(listing.title || 'İlan');
     // Clean location: remove null/undefined values
-    const rawLocation = listing.location || '';
+    const rawLocation = listing.location_city || '';
     const locationParts = rawLocation.split(',').map(p => p.trim()).filter(p => p && p !== 'null' && p !== 'undefined');
     const locationText = locationParts.length > 0 ? escapeHtml(locationParts.join(', ')) : 'Belirtilmemiş';
     const postedTime = formatDate(listing.created_at);
@@ -470,10 +470,10 @@ function createListingCard(listing) {
     const color = listing.extra_fields?.color || listing.extra_fields?.renk || '';
     const model = listing.extra_fields?.model || '';
     const brand = listing.extra_fields?.brand || listing.extra_fields?.marka || '';
-    const categoryText = listing.category_name || listing.category || listing.category_slug || brand || model || '';
+    const categoryText = listing.category_id_name || listing.category_id || listing.category_id_slug || brand || model || '';
 
     function renderSpecs() {
-        const category = (listing.category || listing.category_name || listing.category_slug || '').toLowerCase();
+        const category = (listing.category_id || listing.category_id_name || listing.category_id_slug || '').toLowerCase();
         if (category.includes('vasıta') || category.includes('araba') || (km || fuel || transmission)) {
             return `
                 <div class="listing-specs">

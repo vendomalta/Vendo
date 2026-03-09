@@ -112,8 +112,8 @@ const createPdfContent = (userData) => {
                     <h3>${idx + 1}. ${listing.title || 'İlan'}</h3>
                     <div class="listing-meta">
                         <div class="listing-row"><strong>Fiyat:</strong> ${listing.price || '-'} ${listing.currency || 'TL'}</div>
-                        <div class="listing-row"><strong>Kategori:</strong> ${listing.category || '-'}</div>
-                        <div class="listing-row"><strong>Konum:</strong> ${listing.location || '-'}</div>
+                        <div class="listing-row"><strong>Kategori:</strong> ${listing.category_id || '-'}</div>
+                        <div class="listing-row"><strong>Konum:</strong> ${listing.location_city || '-'}</div>
                         <div class="listing-row"><strong>Durum:</strong> <span class="badge ${listing.status === 'active' ? 'active' : 'inactive'}">${listing.status === 'active' ? 'Aktif' : 'İnaktif'}</span></div>
                     </div>
                     ${listing.description ? `<div class="listing-description"><strong>Açıklama:</strong> ${listing.description}</div>` : ''}

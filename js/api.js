@@ -115,16 +115,16 @@ export async function getListings(options = {}) {
 
         if (status) query = query.eq('status', status);
         if (Array.isArray(categories) && categories.length > 0) {
-            query = query.in('category', categories);
+            query = query.in('category_id', categories);
         } else if (category) {
-            query = query.eq('category', category);
+            query = query.eq('category_id', category);
         }
         if (location) {
             if (Array.isArray(location) && location.length > 0) {
                 const orQuery = location.map(loc => `location.ilike.%${loc}%`).join(',');
                 query = query.or(orQuery);
             } else if (typeof location === 'string' && location.trim() !== '') {
-                query = query.ilike('location', `%${location}%`);
+                query = query.ilike('location_city', `%${location}%`);
             }
         }
         if (search) {

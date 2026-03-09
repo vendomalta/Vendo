@@ -199,7 +199,7 @@ function createFavoriteCard(listing) {
                 </p>
                 <p class="favorite-location">
                     <i class="fas fa-map-marker-alt"></i>
-                    ${escapeHtml(listing.location || 'Belirtilmemiş')}
+                    ${escapeHtml(listing.location_city || 'Belirtilmemiş')}
                 </p>
                 <div class="favorite-meta">
                     <span class="added-date">

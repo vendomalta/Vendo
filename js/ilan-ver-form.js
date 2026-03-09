@@ -233,7 +233,7 @@ async function loadListingForEdit(listingId) {
 }
 
 function inferCategoryFromListing(listing) {
-    const category = listing.category || 'Genel';
+    const category = listing.category_id || 'Genel';
     const lc = category.toLowerCase();
     let main = 'Genel';
     let sub = 'Genel';
@@ -293,8 +293,8 @@ function prefillFormWithListing(listing) {
     if (priceInput && listing.price) priceInput.value = listing.price;
 
     const citySelect = document.getElementById('city');
-    if (citySelect && listing.location) {
-        const normalized = (listing.location || '').toLowerCase();
+    if (citySelect && listing.location_city) {
+        const normalized = (listing.location_city || '').toLowerCase();
         const matchOption = Array.from(citySelect.options).find(opt => opt.value && normalized.includes(opt.value.toLowerCase()));
         if (matchOption) citySelect.value = matchOption.value;
     }
@@ -386,7 +386,7 @@ function displayCategoryInfo() {
         sub = selectedCategory.sub;
         detail = selectedCategory.detail;
     } else {
-        main = 'Category';
+        main = 'category_id';
         sub = 'Not found';
         detail = 'Select';
     }
