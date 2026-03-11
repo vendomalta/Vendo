@@ -153,8 +153,16 @@ async function loadListingDetail() {
       await initQASection(listing.id, listing.user_id);
     }
   } catch (error) {
-    console.error("Error loading listing:", error);
-    showError("An error occurred while loading the listing");
+    console.error("❌ Error loading listing detail:", error);
+    
+    let userMessage = "An error occurred while loading the listing";
+    if (error.code === "PGRST116") {
+      userMessage = "Listing not found or has been removed.";
+    } else if (error.message) {
+      userMessage = `Error: ${error.message}`;
+    }
+    
+    showError(userMessage);
   }
 }
 
