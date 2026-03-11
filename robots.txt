@@ -6,4 +6,4 @@ Disallow: /profil.html
 Disallow: /favorilerim.html
 Disallow: /mesajlar.html
 
-Sitemap: https://vendo.com.mt/sitemap.xml
+Sitemap: https://vendomalta.com/sitemap.xml
