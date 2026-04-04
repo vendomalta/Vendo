@@ -273,28 +273,29 @@ BEGIN
         last_updated = NOW();
     RETURN NEW;
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- Intelligent message notification
+-- WhatsApp-style immediate message notification (Honors 'messages' preference)
 CREATE OR REPLACE FUNCTION public.handle_new_message_notification()
 RETURNS TRIGGER AS $$
 DECLARE
     recipient_profile RECORD;
 BEGIN
-    SELECT last_seen, is_notified_offline, (raw_user_meta_data->'preferences') as prefs
+    -- Fetch preferences and status from profiles
+    -- Note: App saves notification toggles to public.profiles.preferences
+    SELECT last_seen, preferences
     INTO recipient_profile
-    FROM public.profiles p
-    JOIN auth.users u ON u.id = p.id
-    WHERE p.id = NEW.receiver_id;
+    FROM public.profiles
+    WHERE id = NEW.receiver_id;
 
-    IF (recipient_profile.prefs->>'messages')::boolean IS NOT FALSE AND
-       recipient_profile.last_seen < (NOW() - INTERVAL '5 minutes') AND
-       recipient_profile.is_notified_offline = FALSE THEN
+    -- Check if user has messages enabled (Defaults to TRUE if NULL)
+    IF (recipient_profile.preferences->>'messages')::boolean IS NOT FALSE AND
+       -- Notify if recipient is either offline (NULL) or hasn't been seen in the last 20 seconds
+       (recipient_profile.last_seen IS NULL OR recipient_profile.last_seen < (NOW() - INTERVAL '20 seconds')) THEN
        
        INSERT INTO public.notification_queue (recipient_id, notification_type, related_id, content)
        VALUES (NEW.receiver_id, 'new_message', NEW.id::text, jsonb_build_object('sender_id', NEW.sender_id));
        
-       UPDATE public.profiles SET is_notified_offline = TRUE WHERE id = NEW.receiver_id;
     END IF;
     RETURN NEW;
 END;
@@ -307,10 +308,15 @@ BEGIN
     IF NEW.buyer_approved = TRUE AND NEW.seller_approved = TRUE AND NEW.transaction_completed = FALSE THEN
         NEW.transaction_completed = TRUE;
         NEW.transaction_completed_at = NOW();
+
+        -- Automatically mark the listing as SOLD
+        UPDATE public.listings 
+        SET status = 'sold' 
+        WHERE id = NEW.listing_id;
     END IF;
     RETURN NEW;
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- Price drop/update notification handler
 CREATE OR REPLACE FUNCTION public.handle_price_drop_notification()
@@ -335,9 +341,14 @@ BEGIN
                         COALESCE(NEW.price, 0)::text || ' ' || COALESCE(NEW.currency, 'EUR') || '.';
         END IF;
 
-        -- Notify ALL users who favorited this listing
-        FOR fav_record IN (SELECT user_id FROM public.favorites WHERE listing_id = NEW.id) LOOP
-            -- 1. App Notification
+        -- Notify ALL users who favorited this listing (Honors 'priceChanges' preference)
+        FOR fav_record IN (
+            SELECT f.user_id, p.preferences 
+            FROM public.favorites f
+            JOIN public.profiles p ON p.id = f.user_id
+            WHERE f.listing_id = NEW.id
+        ) LOOP
+            -- 1. App Notification (Internal record - always recorded)
             INSERT INTO public.notifications (
                 user_id,
                 type,
@@ -347,31 +358,33 @@ BEGIN
                 action_url
             ) VALUES (
                 fav_record.user_id,
-                'price_drop', -- Keeping 'price_drop' type for constraint compatibility, or we could add 'price_update'
+                'price_drop',
                 v_title,
                 v_message,
                 NEW.id,
                 '/ilan-detay.html?id=' || NEW.id
             );
 
-            -- 2. Email/Push Queue
-            INSERT INTO public.notification_queue (
-                recipient_id,
-                notification_type,
-                related_id,
-                content
-            ) VALUES (
-                fav_record.user_id,
-                'price_drop',
-                NEW.id::text,
-                jsonb_build_object(
-                    'title', v_title,
-                    'message', v_message,
-                    'old_price', OLD.price,
-                    'new_price', NEW.price,
-                    'listing_status', NEW.status
-                )
-            );
+            -- 2. Push Queue (Honors toggle - Defaults to TRUE)
+            IF (fav_record.preferences->>'priceChanges')::boolean IS NOT FALSE THEN
+                INSERT INTO public.notification_queue (
+                    recipient_id,
+                    notification_type,
+                    related_id,
+                    content
+                ) VALUES (
+                    fav_record.user_id,
+                    'price_drop',
+                    NEW.id::text,
+                    jsonb_build_object(
+                        'title', v_title,
+                        'message', v_message,
+                        'old_price', OLD.price,
+                        'new_price', NEW.price,
+                        'listing_status', NEW.status
+                    )
+                );
+            END IF;
         END LOOP;
     END IF;
     RETURN NEW;
@@ -425,6 +438,25 @@ CREATE TRIGGER tr_listing_messages_count AFTER INSERT ON public.messages FOR EAC
 
 DROP TRIGGER IF EXISTS tr_seller_ratings_update ON public.seller_ratings;
 CREATE TRIGGER tr_seller_ratings_update AFTER INSERT OR UPDATE ON public.seller_ratings FOR EACH ROW EXECUTE FUNCTION public.update_seller_stats();
+
+
+-- Marketing / Campaign notification helper (Honors 'consent_marketing')
+CREATE OR REPLACE FUNCTION public.send_marketing_notification(p_title TEXT, p_message TEXT, p_related_id TEXT DEFAULT NULL)
+RETURNS VOID AS $$
+DECLARE
+    user_record RECORD;
+BEGIN
+    FOR user_record IN (SELECT id FROM public.profiles WHERE consent_marketing = TRUE) LOOP
+        -- 1. App Notification
+        INSERT INTO public.notifications (user_id, type, title, message, related_listing_id)
+        VALUES (user_record.id, 'marketing', p_title, p_message, p_related_id::uuid);
+
+        -- 2. Push Queue
+        INSERT INTO public.notification_queue (recipient_id, notification_type, related_id, content)
+        VALUES (user_record.id, 'marketing', p_related_id, jsonb_build_object('title', p_title, 'message', p_message));
+    END LOOP;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- Business Logic Triggers
 DROP TRIGGER IF EXISTS tr_new_message_notification ON public.messages;

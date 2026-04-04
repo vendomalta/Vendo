@@ -346,29 +346,34 @@ const adminPanel = {
 
       if (!finalReports || finalReports.length === 0) {
         tbody.innerHTML =
-          '<tr><td colspan="6" style="text-align: center; padding: 20px;">Rapor bulunamadı</td></tr>';
+          '<tr><td colspan="8" style="text-align: center; padding: 20px;">Rapor bulunamadı</td></tr>';
         return;
       }
 
       tbody.innerHTML = finalReports
         .map((report) => {
-          // Handle complex object or flat structure
           const reporter =
             report.reporter?.email ||
             report.email ||
             report.reporter_id ||
             "Anonim";
-          const reported = report.reported?.email || report.reported_id;
+          const reported = report.reported?.email || report.reported_id || "Sistem";
+          const typeLabel = report.report_type === 'message' ? '<i class="fas fa-comment"></i> Mesaj' : '<i class="fas fa-tag"></i> İlan';
+          const typeClass = report.report_type === 'message' ? 'badge-info' : 'badge-primary';
+          const listingNo = report.listing_id ? report.listing_id.substring(0, 8).toUpperCase() : '-';
 
           return `
                     <tr>
                         <td>${new Date(report.created_at).toLocaleDateString("tr-TR")} ${new Date(report.created_at).toLocaleTimeString("tr-TR")}</td>
+                        <td><span class="badge ${typeClass}">${typeLabel}</span></td>
+                        <td style="font-family: monospace; font-weight: bold; color: var(--primary);">${listingNo}</td>
                         <td>${reporter}</td>
                         <td>${reported}</td>
                         <td>${report.reason}</td>
                         <td><span class="badge ${report.status === "pending" ? "warning" : "success"}">${report.status}</span></td>
                         <td>
-                            <button class="btn btn-small btn-primary" onclick="alert('${report.description?.replace(/'/g, "\\'")}')" title="Açıklamayı Oku"><i class="fas fa-eye"></i></button>
+                            <button class="btn btn-small btn-primary" onclick="adminPanel.viewReportDetail('${report.id}')" title="Detaylar"><i class="fas fa-eye"></i></button>
+                            <button class="btn btn-small btn-success" onclick="adminPanel.updateReportStatus('${report.id}', 'resolved')" title="Çözüldü"><i class="fas fa-check"></i></button>
                         </td>
                     </tr>
                 `;
@@ -376,6 +381,57 @@ const adminPanel = {
         .join("");
     } catch (error) {
       console.error("Reports load error:", error);
+    }
+  },
+
+  async viewReportDetail(reportId) {
+    try {
+      const { data: report, error } = await window.supabase
+        .from("reports")
+        .select("*, reporter:reporter_id(email, full_name), reported:reported_id(email, full_name)")
+        .eq("id", reportId)
+        .single();
+
+      if (error) throw error;
+
+      const listingNo = report.listing_id ? report.listing_id.substring(0, 8).toUpperCase() : 'N/A';
+
+      const content = `
+        <div class="report-detail">
+            <p><strong>İlan No:</strong> <span style="font-family: monospace; font-weight: bold;">${listingNo}</span></p>
+            <p><strong>Rapor Eden:</strong> ${report.reporter?.full_name || 'Anonim'} (${report.reporter?.email || report.email || 'N/A'})</p>
+            <p><strong>Şikayet Edilen:</strong> ${report.reported?.full_name || 'Sistem'} (${report.reported?.email || 'N/A'})</p>
+            <p><strong>Tür:</strong> ${report.report_type || 'Bilinmiyor'}</p>
+            <p><strong>Sebep:</strong> ${report.reason}</p>
+            <hr>
+            <p><strong>Açıklama:</strong></p>
+            <div class="well">${report.description || 'Açıklama yok'}</div>
+            ${report.listing_id ? `<button class="btn btn-info" style="margin-top:10px" onclick="adminPanel.editListing('${report.listing_id}')">İlanı İncele</button>` : ''}
+        </div>
+      `;
+
+      Modal.open("Rapor Detayı", content, [
+        { label: "Kapat", class: "btn-secondary", action: "Modal.close()" },
+        { label: "Çözüldü İşaretle", class: "btn-success", action: `adminPanel.updateReportStatus('${reportId}', 'resolved')` }
+      ]);
+    } catch (error) {
+      Toast.show("Detaylar yüklenemedi: " + error.message, "error");
+    }
+  },
+
+  async updateReportStatus(reportId, status) {
+    try {
+      const { error } = await window.supabase
+        .from("reports")
+        .update({ status, updated_at: new Date() })
+        .eq("id", reportId);
+
+      if (error) throw error;
+      Toast.show("Rapor durumu güncellendi", "success");
+      Modal.close();
+      this.loadReports();
+    } catch (error) {
+      Toast.show("Hata: " + error.message, "error");
     }
   },
 
@@ -546,15 +602,17 @@ const adminPanel = {
       const tbody = document.getElementById("listings-table-body");
       tbody.innerHTML =
         listings
-          ?.map((listing) => {
+          ?.map((listing, index) => {
             const statusBadges = {
               pending: "pending",
               active: "success",
               rejected: "danger",
             };
+            const shortId = listing.id.substring(0, 8).toUpperCase();
             return `
                     <tr>
                         <td><input type="checkbox" class="listing-checkbox" data-listing-id="${listing.id}" onchange="adminPanel.updateListingBulkActions()"></td>
+                        <td style="font-family: monospace; font-weight: bold; color: var(--primary);">${shortId}</td>
                         <td>${listing.title}</td>
                         <td>${listing.category}</td>
                         <td>${listing.user_id}</td>
@@ -584,7 +642,7 @@ const adminPanel = {
                 `;
           })
           .join("") ||
-        '<tr><td colspan="6" style="text-align: center; padding: 20px;">İlan bulunamadı</td></tr>';
+        '<tr><td colspan="7" style="text-align: center; padding: 20px;">İlan bulunamadı</td></tr>';
 
       // Add listing bulk actions bar
       this.addListingBulkActionsBar();

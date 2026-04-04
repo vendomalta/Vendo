@@ -269,6 +269,10 @@
                             <i class="fas fa-download"></i>
                             <span>Data Management</span>
                         </a>
+                        <a href="#legal" class="nav-item" onclick="showSection('legal')">
+                            <i class="fas fa-file-contract"></i>
+                            <span>Legal Resources</span>
+                        </a>
                     </nav>
                 </div>
 
@@ -499,6 +503,49 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- Legal Resources -->
+                    <div id="legal" class="settings-section">
+                        <div class="section-header">
+                            <h2>Legal Resources</h2>
+                            <p>View our official documents and policies</p>
+                        </div>
+
+                        <div class="settings-card">
+                            <style>
+                                .legal-buttons {
+                                    display: flex;
+                                    gap: 1rem;
+                                }
+                                @media (max-width: 640px) {
+                                    .legal-buttons {
+                                        flex-direction: column;
+                                    }
+                                }
+                                .legal-buttons .btn-secondary {
+                                    display: inline-flex;
+                                    align-items: center;
+                                    justify-content: center;
+                                    gap: 0.75rem;
+                                    text-decoration: none;
+                                    color: #4b5563;
+                                    font-weight: 500;
+                                }
+                                .legal-buttons .btn-secondary:hover {
+                                    background-color: #f3f4f6;
+                                    color: #111827;
+                                }
+                            </style>
+                            <div class="legal-buttons">
+                                <a href="privacy-policy/" target="_blank" class="btn-secondary">
+                                    <i class="fas fa-user-shield"></i> Privacy Policy
+                                </a>
+                                <a href="terms-of-service/" target="_blank" class="btn-secondary">
+                                    <i class="fas fa-gavel"></i> Terms of Service
+                                </a>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -658,6 +705,7 @@
         function saveAccountSettings() {
             showSaveNotification('Account settings updated successfully!', 'success');
         }
+
 
         // Phone number formatting
         function formatPhoneNumber(input) {
