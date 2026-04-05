@@ -817,7 +817,7 @@ const adminPanel = {
           <i class="fas ${cat.icon || "fa-folder"}" style="color: ${cat.icon_color || "#3b82f6"}"></i>
         </div>
         <div class="category-text">
-          <span class="category-name">${cat.name}</span>
+          <span class="category-name">${cat.name} ${cat.is_locked ? '<i class="fas fa-lock" style="color: #ef4444; font-size: 0.8em; margin-left: 5px;" title="Kilitli"></i>' : ""}</span>
         </div>
         <div class="category-actions">
           <button class="action-btn add" title="Alt Kategori Ekle" onclick="event.stopPropagation(); adminPanel.showAddCategoryForm('${cat.id}')"><i class="fas fa-plus"></i></button>
@@ -3475,6 +3475,12 @@ const adminPanel = {
                         <label>Seviye (0: Ana, 1: Alt, 2: Detay)</label>
                         <input type="number" id="cat-level" class="form-control" value="${preLevel}">
                     </div>
+                    <div class="form-group" style="display: flex; align-items: center; gap: 10px; padding: 10px; background: #fff5f5; border-radius: 8px; border: 1px solid #feb2b2;">
+                        <input type="checkbox" id="cat-locked" style="width: 20px; height: 20px; cursor: pointer;">
+                        <label for="cat-locked" style="margin: 0; cursor: pointer; color: #c53030; font-weight: bold;">
+                            <i class="fas fa-lock"></i> Bu Kategoriyi Kilitle (Görünür ama tıklanamaz)
+                        </label>
+                    </div>
                 </div>
                 <div id="tab-fields" class="tab-pane">
                     ${this.renderFieldBuilder([])}
@@ -3549,6 +3555,12 @@ const adminPanel = {
                         <div class="form-group">
                             <label>Seviye</label>
                             <input type="number" id="cat-level" class="form-control" value="${cat.level || 0}">
+                        </div>
+                        <div class="form-group" style="display: flex; align-items: center; gap: 10px; padding: 10px; background: #fff5f5; border-radius: 8px; border: 1px solid #feb2b2;">
+                            <input type="checkbox" id="cat-locked" ${cat.is_locked ? "checked" : ""} style="width: 20px; height: 20px; cursor: pointer;">
+                            <label for="cat-locked" style="margin: 0; cursor: pointer; color: #c53030; font-weight: bold;">
+                                <i class="fas fa-lock"></i> Bu Kategoriyi Kilitle (Görünür ama tıklanamaz)
+                            </label>
                         </div>
                     </div>
                     <div id="tab-fields" class="tab-pane">
@@ -3853,6 +3865,7 @@ const adminPanel = {
       const icon_color = document.getElementById("cat-color").value;
       const parent_id = document.getElementById("cat-parent").value || null;
       const level = parseInt(document.getElementById("cat-level").value) || 0;
+      const is_locked = document.getElementById("cat-locked").checked;
 
       // Force sync from builder UI to JSON textarea before saving
       this.syncFieldsToJson();
@@ -3893,6 +3906,7 @@ const adminPanel = {
         icon_color,
         parent_id,
         level,
+        is_locked,
         extra_fields_config,
       };
 
