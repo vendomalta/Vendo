@@ -1081,18 +1081,19 @@
 
   .listings-grid.table-view .listing-content {
     padding: 12px;
-    display: flex;
+    display: flex !important;
     flex-direction: column;
     justify-content: space-between;
     height: 120px;
   }
 
   .listings-grid.table-view .price-title {
+    display: block !important;
     margin-bottom: 0;
   }
 
   .listings-grid.table-view .listing-title {
-    display: -webkit-box;
+    display: -webkit-box !important;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
