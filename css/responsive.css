@@ -614,17 +614,17 @@
     }
     
     .site-header {
-        height: 64px !important;
+        height: 60px !important;
         padding: 0 16px !important;
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
         background: #ffffff !important;
-        border-bottom: none !important;
+        border-bottom: 1px solid #f1f5f9 !important;
         position: sticky !important;
         top: 0 !important;
         z-index: 9999 !important;
-        box-shadow: none !important;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.02) !important;
     }
 
     .header-main {
@@ -638,7 +638,6 @@
         margin: 0 !important;
         gap: 0 !important;
         background: transparent !important;
-        position: relative !important;
     }
 
     .site-logo {
@@ -648,24 +647,28 @@
         margin: 0 !important;
         padding: 0 !important;
         flex: 0 0 auto !important;
-        position: static !important;
-        transform: none !important;
-        left: auto !important;
     }
 
     .logo-icon {
         width: 32px !important;
         height: 32px !important;
         font-size: 1rem !important;
-        flex-shrink: 0 !important;
+        background: #10b981 !important;
+        color: white !important;
+        border-radius: 8px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        font-weight: 800 !important;
     }
 
     .logo-text {
         display: block !important;
-        font-size: 1.1rem !important;
-        font-weight: 700 !important;
+        font-size: 1.2rem !important;
+        font-weight: 800 !important;
         margin: 0 !important;
         color: #0f172a !important;
+        letter-spacing: -0.5px;
     }
 
     .mobile-actions-container {
@@ -673,29 +676,22 @@
         flex-direction: row !important;
         align-items: center !important;
         justify-content: flex-end !important;
-        gap: 12px !important;
+        gap: 4px !important;
         margin-left: auto !important;
-        flex: 1 !important;
-        position: relative !important;
     }
 
     .mobile-actions-container .header-icon {
         display: inline-flex !important;
         align-items: center !important;
         justify-content: center !important;
-        font-size: 1.25rem !important;
+        font-size: 1.2rem !important;
         color: #1e293b !important;
         background: transparent !important;
         border: none !important;
-        padding: 8px !important;
+        padding: 0 !important;
         width: 40px !important;
         height: 40px !important;
-        min-width: 40px !important;
-        min-height: 40px !important;
         text-decoration: none !important;
-        flex: 0 0 auto !important;
-        margin: 0 !important;
-        position: relative !important;
     }
 
     .mobile-actions-container .header-icon i {
@@ -707,7 +703,7 @@
         display: none !important;
     }
 
-    /* Mobile Action Bar */
+    /* Mobile Action Bar - Improved Pill Design */
     .mobile-action-bar {
         display: flex !important;
         flex-direction: row !important;
@@ -715,15 +711,15 @@
         justify-content: space-between !important;
         background: #ffffff !important;
         border: 1px solid #e2e8f0 !important;
-        border-radius: 12px !important;
-        margin: 8px 16px 16px 16px !important; /* Balanced margins for a floating app-bar look */
-        padding: 0 4px !important;
+        border-radius: 16px !important;
+        margin: 12px 16px 20px 16px !important;
+        padding: 0 8px !important;
         height: 52px !important;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.04) !important;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.03) !important;
         width: auto !important;
         overflow: hidden !important;
         position: sticky !important;
-        top: 64px !important; /* Stuck below header */
+        top: 68px !important;
         z-index: 9998 !important;
     }
 
@@ -736,21 +732,20 @@
         flex-direction: row !important;
         align-items: center !important;
         justify-content: center !important;
-        gap: 8px !important;
+        gap: 6px !important;
         font-weight: 700 !important;
         font-size: 0.85rem !important;
         color: #1e293b !important;
-        cursor: pointer !important;
         padding: 0 !important;
-        transition: all 0.2s ease;
     }
 
     .mobile-action-bar .action-btn i {
-        font-size: 0.95rem;
+        font-size: 1rem;
+        color: #64748b;
     }
 
     .mobile-action-bar .action-btn.sort-btn {
-        color: #10b981 !important; /* Native app zümrüt green */
+        color: #10b981 !important;
     }
     
     .mobile-action-bar .action-btn.sort-btn i {
@@ -761,32 +756,25 @@
         width: 1px;
         height: 20px;
         background: #e2e8f0;
+        flex-shrink: 0;
     }
 
     .mobile-action-bar .view-btn {
-        flex: 0 0 48px !important;
-        width: 48px !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        padding: 0 !important;
-        border-left: 1px solid #e2e8f0 !important;
-        margin-left: 4px !important;
-    }
-    
-    .mobile-action-bar .view-btn:active {
-        background-color: #f1f5f9;
+        flex: 0 0 44px !important;
+        width: 44px !important;
+        border-left: none !important;
+        margin-left: 0 !important;
     }
     
     .mobile-action-bar .view-btn i {
         font-size: 1.1rem !important;
-        color: #64748b !important;
+        color: #1e293b !important;
     }
 
     /* Ensure listings start slightly below mobile action/filter bar */
     .page-wrapper .main-content,
     .page-wrapper .featured-listings {
-        margin-top: -40px !important;
+        margin-top: -20px !important;
     }
     /* Mobile Filter Modal */
     .mobile-filter-modal {
