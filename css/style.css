@@ -140,19 +140,20 @@ body.no-scroll {
 }
 /* === /KATEGORI PANELI STIL === */
 
-/* 5. Özel Scrollbar (Tema Uyumu) */
+/* 5. Scroll Optimization */
 html {
-  /* İçerik ekran yüksekliğini aşarsa dikey scrollbar göster */
-  overflow-y: scroll;
-  scrollbar-width: thin; /* Firefox */
-  scrollbar-color: var(--primary) var(--muted-surface); /* Firefox renkleri */
+  overflow-x: hidden;
+  height: auto;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
 }
 
-/* Body'nin de taşma durumunda kaydırılabilir olmasını sağla */
 body {
   min-height: 100vh;
-  overflow-y: visible; /* CRITICAL: Must be visible for position: sticky to work on children */
   position: relative;
+  overflow-x: hidden;
+  overflow-y: visible !important;
+  touch-action: pan-y; /* Ensure vertical touch gestures always work */
 }
 
 /* WebKit Tabanlı Tarayıcılar */
