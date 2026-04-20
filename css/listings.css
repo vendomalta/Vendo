@@ -1034,34 +1034,55 @@
   }
 
   .listings-grid.table-view .listing-card {
-    grid-template-columns: 110px 1fr;
+    grid-template-columns: 80px 1fr;
     grid-auto-rows: auto;
-    gap: 10px;
+    gap: 8px;
     align-items: flex-start;
+    padding: 6px;
+    min-height: auto;
   }
 
   .listings-grid.table-view .table-media {
     align-items: flex-start;
+    padding: 0;
+    border: none;
   }
 
-  .listings-grid.table-view .table-model {
-    text-align: left;
+  .listings-grid.table-view .listing-image {
+    width: 80px;
+    height: 54px;
+    min-width: 80px;
   }
 
   .listings-grid.table-view .table-fields {
     display: grid;
     grid-template-columns: 1fr;
-    row-gap: 6px;
+    row-gap: 2px;
+    padding: 0;
+    border: none;
   }
 
   .listings-grid.table-view .table-title {
     grid-column: 1;
+    font-size: 0.9rem;
+    -webkit-line-clamp: 1;
+    padding: 0;
+    align-self: flex-start;
   }
 
   .listings-grid.table-view .table-price {
     grid-column: 1;
     text-align: left;
-    font-size: 1.05rem;
+    font-size: 0.95rem;
+    padding: 0;
+  }
+
+  .listings-grid.table-view .table-location {
+    grid-column: 1;
+    font-size: 0.8rem;
+    text-align: left;
+    align-items: flex-start;
+    padding: 0;
   }
 
   .listings-grid.table-view .table-location {
