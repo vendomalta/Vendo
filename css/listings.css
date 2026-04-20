@@ -1118,10 +1118,10 @@
 
   .listings-grid.table-view .listing-meta-inline {
     display: flex !important;
-    justify-content: flex-start !important;
-    align-items: center;
+    flex-direction: row !important;
+    justify-content: space-between !important;
+    align-items: flex-end !important;
     width: 100%;
-    gap: 12px;
   }
 
   .listings-grid.table-view .listing-location {
@@ -1132,6 +1132,7 @@
     align-items: center;
     gap: 4px;
     margin: 0;
+    text-align: left !important;
   }
 
   .listings-grid.table-view .listing-location i {
@@ -1144,7 +1145,8 @@
     font-weight: 800 !important;
     color: #10b981 !important;
     margin: 0;
-    display: block !important;
+    display: inline-block !important;
+    text-align: right !important;
   }
 
   .listings-grid.table-view .listing-date {
