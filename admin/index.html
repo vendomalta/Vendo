@@ -7,8 +7,7 @@
     <title>Admin Paneli - Sistem Yönetimi</title>
 
     <!-- Supabase Configuration -->
-    <meta name="supabase-url" content="https://aiqweggiolawgphxupat.supabase.co">
-    <meta name="supabase-key" content="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFpcXdlZ2dpb2xhd2dwaHh1cGF0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMwNDQwNjksImV4cCI6MjA4ODYyMDA2OX0.x2QOi8OuQRRR0iM_NqSIVw8igSXcb9bQ5s3VVAsc-3Y">
+
 
     <!-- CSS Files -->
     <link rel="stylesheet" href="css/admin-modern.css">
@@ -436,6 +435,7 @@
                                     <option value="">Tüm İlanlar</option>
                                     <option value="pending">Beklemede</option>
                                     <option value="active">Aktif</option>
+                                    <option value="suspended">Askıya Alınanlar</option>
                                     <option value="rejected">Reddedildi</option>
                                 </select>
                                 <input type="text" class="search-input" id="listings-search" placeholder="İlan ara...">
@@ -985,6 +985,128 @@
                                         </div>
                                     </div>
                                 </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- BANNERS SECTION -->
+                <div id="banners-section" class="section-content">
+                    <div class="section-header">
+                        <h2 class="section-title">
+                            <i class="fas fa-ad"></i>
+                            Reklam Yönetimi
+                        </h2>
+                    </div>
+
+                    <div style="display: grid; gap: 30px;">
+                        <!-- İlan Detay Sayfası Banner -->
+                        <div class="settings-card">
+                            <div class="settings-card-header">
+                                <div class="header-info">
+                                    <h3><i class="fas fa-image"></i> İlan Detay Sayfası Banner</h3>
+                                    <p>İlan detay sayfasının üst kısmında gösterilecek reklam banner'ı</p>
+                                </div>
+                                <div class="header-actions">
+                                    <div class="status-toggle-wrapper">
+                                        <span>Banner Aktif</span>
+                                        <input type="checkbox" id="banner-active" class="toggle-checkbox">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="settings-card-body">
+                                <div class="settings-group">
+                                    <label class="control-label">Banner Resmi (PNG/JPG/WebP)</label>
+                                    <div class="image-upload-wrapper">
+                                        <div class="preview-box" id="banner-preview-container" 
+                                             onclick="document.getElementById('banner-file').click();"
+                                             style="cursor: pointer; background: var(--light-bg); border: 2px dashed var(--border); border-radius: 8px; padding: 20px; text-align: center; min-height: 100px; display: flex; align-items: center; justify-content: center;">
+                                            <img id="banner-preview-img" src="" style="max-width: 100%; max-height: 150px; display: none;">
+                                            <div id="banner-placeholder" style="color: var(--gray);">
+                                                <i class="fas fa-cloud-upload-alt" style="font-size: 24px; margin-bottom: 10px; display: block;"></i>
+                                                Tıkla veya sürükle bırak
+                                            </div>
+                                        </div>
+                                        <input type="file" id="banner-file" style="display: none;" accept="image/*"
+                                               onchange="adminPanel.handleBannerUpload(event, 'detail')">
+                                        <small style="color: var(--gray); display: block; margin-top: 10px;">Önerilen boyut: 1600x180 piksel</small>
+                                    </div>
+                                </div>
+
+                                <div class="settings-group" style="margin-top: 20px;">
+                                    <label class="control-label">Tıklama Linki (Opsiyonel)</label>
+                                    <input type="url" id="banner-link" class="form-control" placeholder="https://example.com">
+                                </div>
+
+                                <div class="settings-group" style="margin-top: 15px;">
+                                    <label class="control-label">Alt Metin</label>
+                                    <input type="text" id="banner-alt" class="form-control" placeholder="Reklam açıklaması">
+                                </div>
+                            </div>
+
+                            <div class="settings-card-footer">
+                                <button class="btn btn-primary" onclick="adminPanel.saveBannerSettings('detail')">
+                                    <i class="fas fa-save"></i> Değişiklikleri Kaydet
+                                </button>
+                                <button class="btn btn-danger" onclick="adminPanel.deleteBanner('detail')" style="margin-left: 10px;">
+                                    <i class="fas fa-trash"></i> Banner'ı Sil
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Ana Sayfa Banner -->
+                        <div class="settings-card">
+                            <div class="settings-card-header">
+                                <div class="header-info">
+                                    <h3><i class="fas fa-home"></i> Ana Sayfa Banner</h3>
+                                    <p>Ana sayfanın üst kısmında gösterilecek reklam banner'ı</p>
+                                </div>
+                                <div class="header-actions">
+                                    <div class="status-toggle-wrapper">
+                                        <span>Banner Aktif</span>
+                                        <input type="checkbox" id="homepage-banner-active" class="toggle-checkbox">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="settings-card-body">
+                                <div class="settings-group">
+                                    <label class="control-label">Banner Resmi (PNG/JPG/WebP)</label>
+                                    <div class="image-upload-wrapper">
+                                        <div class="preview-box" id="homepage-banner-preview-container" 
+                                             onclick="document.getElementById('homepage-banner-file').click();"
+                                             style="cursor: pointer; background: var(--light-bg); border: 2px dashed var(--border); border-radius: 8px; padding: 20px; text-align: center; min-height: 100px; display: flex; align-items: center; justify-content: center;">
+                                            <img id="homepage-banner-preview-img" src="" style="max-width: 100%; max-height: 150px; display: none;">
+                                            <div id="homepage-banner-placeholder" style="color: var(--gray);">
+                                                <i class="fas fa-cloud-upload-alt" style="font-size: 24px; margin-bottom: 10px; display: block;"></i>
+                                                Tıkla veya sürükle bırak
+                                            </div>
+                                        </div>
+                                        <input type="file" id="homepage-banner-file" style="display: none;" accept="image/*"
+                                               onchange="adminPanel.handleBannerUpload(event, 'homepage')">
+                                        <small style="color: var(--gray); display: block; margin-top: 10px;">Önerilen boyut: 1600x180 piksel</small>
+                                    </div>
+                                </div>
+
+                                <div class="settings-group" style="margin-top: 20px;">
+                                    <label class="control-label">Tıklama Linki (Opsiyonel)</label>
+                                    <input type="url" id="homepage-banner-link" class="form-control" placeholder="https://example.com">
+                                </div>
+
+                                <div class="settings-group" style="margin-top: 15px;">
+                                    <label class="control-label">Alt Metin</label>
+                                    <input type="text" id="homepage-banner-alt" class="form-control" placeholder="Reklam açıklaması">
+                                </div>
+                            </div>
+
+                            <div class="settings-card-footer">
+                                <button class="btn btn-primary" onclick="adminPanel.saveBannerSettings('homepage')">
+                                    <i class="fas fa-save"></i> Değişiklikleri Kaydet
+                                </button>
+                                <button class="btn btn-danger" onclick="adminPanel.deleteBanner('homepage')" style="margin-left: 10px;">
+                                    <i class="fas fa-trash"></i> Banner'ı Sil
+                                </button>
                             </div>
                         </div>
                     </div>

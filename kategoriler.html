@@ -7,18 +7,17 @@
     <meta name="theme-color" content="#10b981">
     
     <!-- Supabase Configuration -->
-    <meta name="supabase-url" content="https://aiqweggiolawgphxupat.supabase.co">
-    <meta name="supabase-key" content="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFpcXdlZ2dpb2xhd2dwaHh1cGF0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMwNDQwNjksImV4cCI6MjA4ODYyMDA2OX0.x2QOi8OuQRRR0iM_NqSIVw8igSXcb9bQ5s3VVAsc-3Y">
+
 
     <link rel="stylesheet" href="/css/style.css">
     <link rel="stylesheet" href="/css/mobile-loading.css">
+    <link rel="stylesheet" href="/css/mobile-app-shell.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     
     <style>
         body {
             background-color: #f8fafc;
-            padding-bottom: 80px; /* Bottom nav space */
         }
         
         .categories-header {
@@ -202,12 +201,23 @@
             text-align: center;
             color: #64748b;
         }
+
+        /* Locked State */
+        .category-item.locked {
+            opacity: 0.6;
+            pointer-events: none;
+            filter: grayscale(0.8);
+            background: #f1f5f9;
+        }
+        .category-item.locked .cat-name {
+            color: #64748b;
+        }
     </style>
 </head>
 <body>
 
     <header class="categories-header">
-        <a href="/index.html" class="site-logo" style="display: flex; align-items: center; gap: 0.75rem; text-decoration: none;">
+        <a href="/" class="site-logo" style="display: flex; align-items: center; gap: 0.75rem; text-decoration: none;">
             <div class="logo-icon" style="width: 2.25rem; height: 2.25rem; background: #10b981; color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.25rem; border-radius: 8px;">V</div>
             <h1 class="logo-text" style="font-size: 1.4rem; color: #0f172a; font-weight: 700; letter-spacing: -0.5px; margin: 0;">VENDO</h1>
         </a>
@@ -274,7 +284,7 @@
             // Add "See All" option for this category
             if (parentCat) {
                 html += `
-                <a href="/index.html?cat=${parentCat.slug}" class="category-item" style="border-bottom: 2px solid #f1f5f9;">
+                <a href="/?cat=${parentCat.slug}" class="category-item" style="border-bottom: 2px solid #f1f5f9;">
                     <div class="cat-icon" style="color: #64748b;">
                         <i class="fas fa-th-large"></i>
                     </div>
@@ -298,16 +308,17 @@
                         ? subCats.map(sc => sc.name).slice(0, 5).join(', ') + (subCats.length > 5 ? '...' : '')
                         : 'View Listings';
 
+                    const isLocked = cat.is_locked === true;
                     return `
-                    <div class="category-item" onclick="handleCategoryClick('${cat.slug || cat.id}', ${cat.id}, ${hasChildren})">
+                    <div class="category-item ${isLocked ? 'locked' : ''}" onclick="${isLocked ? '' : `handleCategoryClick('${cat.slug || cat.id}', ${cat.id}, ${hasChildren})`}">
                         <div class="cat-icon" style="color: #64748b;">
                             <i class="fas ${cat.icon || 'fa-folder'}"></i>
                         </div>
                         <div class="cat-info">
-                            <span class="cat-name">${cat.name}</span>
+                            <span class="cat-name">${cat.name} ${isLocked ? '<i class="fas fa-lock" style="font-size: 0.8rem; margin-left: 0.4rem; opacity: 0.6;"></i>' : ''}</span>
                             <span class="cat-count">${subCatText}</span>
                         </div>
-                        <i class="fas fa-chevron-right cat-arrow"></i>
+                        ${isLocked ? '' : '<i class="fas fa-chevron-right cat-arrow"></i>'}
                     </div>
                 `}).join('');
             }
@@ -320,7 +331,7 @@
             if (hasChildren) {
                 renderCategories(id);
             } else {
-                window.location.href = `/index.html?cat=${slugOrId}`;
+                window.location.href = `/?cat=${slugOrId}`;
             }
         };
 
@@ -393,6 +404,8 @@
     </script>
     
     <!-- Mobile Enhancements (Bottom Nav) -->
+    <div id="bottom-nav-placeholder"></div>
+    <script src="js/layout.js"></script>
     <script src="js/mobile-enhancements.js"></script>
 
 </body>

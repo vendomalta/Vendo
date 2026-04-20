@@ -12,10 +12,10 @@
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/pages/messages.css">
     <link rel="stylesheet" href="css/transaction-approval.css">
+    <link rel="stylesheet" href="css/mobile-app-shell.css">
 
     <!-- Supabase Configuration -->
-    <meta name="supabase-url" content="https://aiqweggiolawgphxupat.supabase.co">
-    <meta name="supabase-key" content="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFpcXdlZ2dpb2xhd2dwaHh1cGF0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMwNDQwNjksImV4cCI6MjA4ODYyMDA2OX0.x2QOi8OuQRRR0iM_NqSIVw8igSXcb9bQ5s3VVAsc-3Y">
+
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -30,89 +30,141 @@
     <input type="file" id="fileInput" style="display: none;" multiple>
 
     <main class="messages-page">
-        <div class="messages-container">
+        <!-- Desktop View: Original 2-column layout -->
+        <div class="desktop-only-messages-view">
+            <div class="messages-container">
+                <div class="conversations-list">
+                    <div class="conversations-header">
+                        <div style="display: flex; gap: 6px; margin-bottom: 8px;">
+                            <input type="text" id="conversationSearch" placeholder="Search..."
+                                style="flex: 1; padding: 10px 12px; border: 1px solid var(--gray-300); border-radius: 8px; font-size: 0.9rem;">
+                            <!-- Bulk Delete Button (Moved next to Search bar) -->
+                            <button id="bulkDeleteToggleBtn" class="bulk-delete-btn" title="Bulk Delete">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
 
-            <div class="conversations-list">
-                <div class="conversations-header">
-                    <div style="display: flex; gap: 6px; margin-bottom: 8px;">
-                        <input type="text" id="conversationSearch" placeholder="Search..."
-                            style="flex: 1; padding: 10px 12px; border: 1px solid var(--gray-300); border-radius: 8px; font-size: 0.9rem;">
-                        <!-- Bulk Delete Button (Moved next to Search bar) -->
-                         <button id="bulkDeleteToggleBtn" class="bulk-delete-btn" title="Bulk Delete">
-                            <i class="fas fa-trash"></i>
-                        </button>
+                        <!-- Search Filters -->
+                        <div class="search-filters" id="searchFilters">
+                            <button class="filter-chip active" data-filter="all">All</button>
+                            <button class="filter-chip" data-filter="buying">Buying</button>
+                            <button class="filter-chip" data-filter="selling">Selling</button>
+                            <button class="filter-chip" data-filter="archived">Archive</button>
+                            <button class="filter-chip" data-filter="blocked">Blocked</button>
+                        </div>
+
+                        <div class="bulk-delete-controls"
+                            style="display: flex; gap: 6px; align-items: center; margin-top: 8px;">
+                            <div id="bulkDeleteActions" class="bulk-delete-actions"
+                                style="display: none; flex: 1; gap: 6px;">
+                                <button id="selectAllBtn" class="btn-secondary-small">
+                                    <i class="fas fa-check-square"></i> Select All
+                                </button>
+                                <button id="deleteSelectedBtn" class="btn-danger-small" disabled>
+                                    <i class="fas fa-trash"></i> Delete (<span id="selectedCount">0</span>)
+                                </button>
+                                <button id="cancelBulkDeleteBtn" class="btn-cancel-small">Cancel</button>
+                            </div>
+                        </div>
                     </div>
 
-                    <!-- Search Filters -->
-                    <div class="search-filters" id="searchFilters">
-                        <button class="filter-chip active" data-filter="all">
-                            All
-                        </button>
-                        <button class="filter-chip" data-filter="buying">
-                            Buying
-                        </button>
-                        <button class="filter-chip" data-filter="selling">
-                            Selling
-                        </button>
-                        <button class="filter-chip" data-filter="archived">
-                            Archive
-                        </button>
-                    </div>
-
-                    <div class="bulk-delete-controls"
-                        style="display: flex; gap: 6px; align-items: center; margin-top: 8px;">
-                        
-                        <div id="bulkDeleteActions" class="bulk-delete-actions"
-                            style="display: none; flex: 1; gap: 6px;">
-                            <button id="selectAllBtn" class="btn-secondary-small">
-                                <i class="fas fa-check-square"></i> Select All
-                            </button>
-                            <button id="deleteSelectedBtn" class="btn-danger-small" disabled>
-                                <i class="fas fa-trash"></i> Delete (<span id="selectedCount">0</span>)
-                            </button>
-                            <button id="cancelBulkDeleteBtn" class="btn-cancel-small">
-                                Cancel
-                            </button>
+                    <div class="conversations" id="conversationsList">
+                        <!-- Conversations will be loaded dynamically here -->
+                        <div class="loading-state">
+                            <i class="fas fa-spinner fa-spin"></i>
+                            <p>Loading conversations...</p>
                         </div>
                     </div>
                 </div>
 
-                <div class="conversations" id="conversationsList">
-                    <!-- Conversations will be loaded dynamically here -->
-                    <div class="loading-state">
-                        <i class="fas fa-spinner fa-spin"></i>
-                        <p>Loading conversations...</p>
+                <div class="message-detail" id="messageDetail">
+                    <div class="ad-reference" id="adReference" style="display: none;">
+                        <!-- Ad details will be dynamically loaded here -->
                     </div>
-                </div>
-            </div>
 
-            <div class="message-detail" id="messageDetail">
-                <div class="ad-reference" id="adReference" style="display: none;">
-                    <!-- Ad details will be dynamically loaded here -->
-                </div>
-
-                <div class="messages-content" id="messagesContent">
-                    <!-- Messages will be horizontally loaded here -->
-                    <div class="empty-state">
-                        <i class="fas fa-comments" style="font-size: 4rem; color: #d1d5db; margin-bottom: 1rem;"></i>
-                        <p>Select a conversation</p>
+                    <div class="messages-content" id="messagesContent">
+                        <!-- Messages will be horizontally loaded here -->
+                        <div class="empty-state">
+                            <i class="fas fa-comments" style="font-size: 4rem; color: #d1d5db; margin-bottom: 1rem;"></i>
+                            <p>Select a conversation</p>
+                        </div>
                     </div>
-                </div>
 
-                <!-- Transaction Approval Section -->
-                <div id="transaction-container"></div>
+                    <!-- Transaction Approval Section -->
+                    <div id="transaction-container"></div>
 
-                <div class="message-input-area">
-                    <div class="input-container">
-                        <button class="approval-toggle-btn" title="Transaction Approval"><i
-                                class="fas fa-handshake"></i></button>
-                        <input type="text" placeholder="Write a message..." class="message-input">
-                        <button class="send-btn"><i class="fas fa-paper-plane"></i></button>
+                    <div class="message-input-area">
+                        <div class="input-container">
+                            <button class="approval-toggle-btn" title="Transaction Approval"><i
+                                    class="fas fa-handshake"></i></button>
+                            <input type="text" placeholder="Write a message..." class="message-input" maxlength="1000">
+                            <button class="send-btn"><i class="fas fa-paper-plane"></i></button>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
+
+        <!-- Mobile View: Native App Experience -->
+        <div class="mobile-only-messages-view">
+            <!-- Screen 1: Native Inbox -->
+            <div id="mobile-inbox-screen" class="mobile-screen active">
+                <div class="native-inbox-header">
+                    <div class="header-row-native">
+                        <button class="back-btn-native" id="native-inbox-back"><i class="fas fa-arrow-left"></i></button>
+                        <h1 class="native-title">My Messages</h1>
+                    </div>
+                    <div class="native-search-row">
+                        <div class="native-search-bar">
+                            <i class="fas fa-search"></i>
+                            <input type="text" id="native-conversation-search" placeholder="Search...">
+                        </div>
+                    </div>
+                    <div class="native-filters-scroll">
+                        <button class="native-filter-chip active" data-filter="all">All</button>
+                        <button class="native-filter-chip" data-filter="buying">Buying</button>
+                        <button class="native-filter-chip" data-filter="selling">Selling</button>
+                        <button class="native-filter-chip" data-filter="archived">Archive</button>
+                        <button class="native-filter-chip" data-filter="blocked">Blocked</button>
+                    </div>
+                </div>
+                <div class="native-conversations-list" id="nativeConversationsList">
+                    <!-- App-like conversation items -->
+                </div>
+            </div>
+
+            <!-- Screen 2: Native Chat Detail -->
+            <div id="mobile-chat-screen" class="mobile-screen">
+                <div class="native-chat-header">
+                    <button class="back-btn-native" id="native-chat-back"><i class="fas fa-arrow-left" style="color: #1e293b;"></i></button>
+                    <div class="native-header-listing" id="native-chat-listing-info">
+                        <img src="" alt="" class="native-header-img" id="native-header-listing-img">
+                        <div class="native-header-text">
+                            <h4 id="native-header-title">Listing Title</h4>
+                            <p id="native-header-subtitle">Chatting with User</p>
+                        </div>
+                    </div>
+                    <button class="native-options-btn" id="native-chat-options"><i class="fas fa-ellipsis-v"></i></button>
+                </div>
+                
+                <div class="native-chat-content" id="nativeChatContent">
+                    <!-- Native-style bubbles -->
+                </div>
+
+                <div class="native-chat-input-area">
+                    <button class="native-transaction-btn" id="native-chat-transaction-btn">Sold</button>
+                    <div class="native-input-box">
+                        <textarea id="native-chat-input" placeholder="Type a message..." rows="1"></textarea>
+                    </div>
+                    <button class="native-send-btn" id="native-chat-send" disabled>
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
     </main>
+
+    <div id="bottom-nav-placeholder"></div>
 
     <!-- Report Modal -->
     <div id="report-modal" class="modal-overlay" style="display: none;">
@@ -162,7 +214,14 @@
     <script src="js/layout.js"></script>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Check authentication
+            const { data: { user }, error: authError } = await window.supabase.auth.getUser();
+            if (authError || !user) {
+                window.location.href = 'login.html?redirect=' + encodeURIComponent(window.location.pathname);
+                return;
+            }
+
             // Check if messages.js is loaded
             const scriptCheck = document.querySelector('script[src="js/messages.js"]');
             if (scriptCheck) {

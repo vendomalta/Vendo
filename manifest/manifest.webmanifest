@@ -1,7 +1,7 @@
 {
-  "name": "VERDE - İlan Platformu",
+  "name": "VERDE - Classifieds Platform",
   "short_name": "VERDE",
-  "description": "Emlak, vasıta, elektronik ilanları kolayca paylaşın ve bulun",
+  "description": "Easily post and find real estate, vehicles, and electronics ads.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
@@ -52,25 +52,23 @@
   "prefer_related_applications": false,
   "shortcuts": [
     {
-      "name": "İlan Ver",
-      "short_name": "İlan Ver",
-      "description": "Yeni bir ilan oluşturun",
+      "name": "Sell Now",
+      "short_name": "Sell Now",
+      "description": "Create a new listing",
       "url": "/ilan-ver.html",
       "icons": [{ "src": "/assets/images/verde-logo-96.png", "sizes": "96x96" }]
     },
     {
-      "name": "İlanlarım",
-      "short_name": "İlanlarım",
-      "description": "Yayınladığınız ilanları görüntüleyin",
+      "name": "My Listings",
+      "short_name": "My Listings",
       "url": "/ilanlarim.html",
-      "icons": [{ "src": "/assets/images/verde-logo-96.png", "sizes": "96x96" }]
+      "icons": [{ "src": "/assets/images/icons/my-listings-96.png", "sizes": "96x96" }]
     },
     {
-      "name": "Favorilerim",
-      "short_name": "Favorilerim",
-      "description": "Kaydettiğiniz ilanları görmek",
+      "name": "Favorites",
+      "short_name": "Favorites",
       "url": "/favorilerim.html",
-      "icons": [{ "src": "/assets/images/verde-logo-96.png", "sizes": "96x96" }]
+      "icons": [{ "src": "/assets/images/icons/favorites-96.png", "sizes": "96x96" }]
     }
   ]
 }

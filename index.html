@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="en">
 
 <head>
     <meta charset="UTF-8">
@@ -12,9 +12,8 @@
     <meta name="theme-color" content="#10b981">
     
     <!-- Supabase Configuration -->
-    <meta name="supabase-url" content="https://aiqweggiolawgphxupat.supabase.co">
-    <meta name="supabase-key" content="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFpcXdlZ2dpb2xhd2dwaHh1cGF0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMwNDQwNjksImV4cCI6MjA4ODYyMDA2OX0.x2QOi8OuQRRR0iM_NqSIVw8igSXcb9bQ5s3VVAsc-3Y">
-    <!-- Canonical: Yayına alırken ekleyin (alan adı hazır olunca) -->
+
+    <!-- Canonical: Add when going live (when domain is ready) -->
 
     <!-- Open Graph -->
     <meta property="og:type" content="website">
@@ -39,6 +38,7 @@
     <link rel="stylesheet" href="/css/mobile-loading.css">
     <link rel="stylesheet" href="/css/filters.css">
     <link rel="stylesheet" href="/css/breadcrumb.css">
+    <link rel="stylesheet" href="/css/mobile-app-shell.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     
     <!-- LCP Optimizasyonu: Kritik fontlar ve stiller için preload -->
@@ -51,7 +51,7 @@
     <!-- ✅ GÜVENLIK: DOMPurify XSS koruması -->
     <script src="https://cdn.jsdelivr.net/npm/dompurify@latest/dist/purify.min.js"></script>
 
-    <!-- Structured Data: Alan adı hazır olunca ekleyin (WebSite JSON-LD) -->
+    <!-- Structured Data: Add when domain is ready (WebSite JSON-LD) -->
 </head>
 
 <body class="home">
@@ -59,11 +59,28 @@
         <div class="scroll-progress__bar"></div>
     </div>
     <div id="header-placeholder"></div>
+    
+    <!-- Mobile Action Bar (Hidden on Desktop) - Positioned below header for mobile app feel -->
+    <div class="mobile-action-bar">
+        <button class="action-btn sort-btn" id="mobileSortBtn">
+            <i class="fas fa-clock"></i>
+            <span>Newest</span>
+        </button>
+        <div class="action-divider"></div>
+        <button class="action-btn filter-btn" id="mobileFilterBtn">
+            <i class="fas fa-filter"></i>
+            <span>Filter</span>
+        </button>
+        <div class="action-divider"></div>
+        <button class="action-btn view-btn" id="viewModeToggle">
+            <i class="fas fa-th-large"></i>
+        </button>
+    </div>
 
 
-    <!-- Ana İçerik Wrapper -->
+    <!-- Main Content Wrapper -->
     <div class="page-wrapper">
-        <!-- Sol Sidebar - Kategoriler -->
+        <!-- Left Sidebar - Categories -->
         <aside class="sidebar-categories">
             <div class="sidebar-header">
                 <button class="sidebar-toggle-btn" aria-label="Toggle categories" title="Toggle categories">
@@ -81,7 +98,7 @@
                 <!-- Kategoriler dinamik olarak JS tarafından yüklenecek -->
             </nav>
             
-            <!-- Sol Sidebar - Filtreler -->
+            <!-- Left Sidebar - Filters -->
             <div class="sidebar-header filters-header">
                 <button class="sidebar-toggle-btn" id="toggleFiltersBtn" aria-label="Toggle filters" title="Toggle filters">
                     <i class="fas fa-chevron-down expand-icon"></i>
@@ -93,9 +110,10 @@
             </div>
         </aside>
 
-        <!-- Ana İçerik -->
+        <!-- Main Content -->
         <main class="main-content">
-            <!-- Ana Sayfa Banner -->
+
+            <!-- Home Page Banner -->
             <div class="homepage-banner-container" id="homepage-banner-section" style="display: none;">
                 <div class="homepage-banner-wrapper">
                     <a href="#" id="homepage-banner-link" target="_blank" rel="noopener noreferrer">
@@ -114,30 +132,28 @@
             <section class="featured-listings">
                 <div class="section-header">
                     <h2>Featured Listings</h2>
-                    <div class="header-actions">
-                        <div class="view-controls">
-                            <button class="view-button active" data-view="grid" aria-label="Grid view"
-                                title="Grid view">
-                                <i class="fas fa-th-large" aria-hidden="true"></i>
-                                <span class="view-label">Grid</span>
-                            </button>
-                            <button class="view-button" data-view="table" aria-label="Table view" title="Table view">
-                                <i class="fas fa-table" aria-hidden="true"></i>
-                                <span class="view-label">Table</span>
-                            </button>
-                        </div>
+                    <div class="view-controls grid-v-active">
+                        <button class="view-button active" data-view="grid" aria-label="Grid View">
+                            <i class="fas fa-th-large"></i>
+                            <span>Grid</span>
+                        </button>
+                        <button class="view-button" data-view="table" aria-label="Table View">
+                            <i class="fas fa-list"></i>
+                            <span>Table</span>
+                        </button>
                     </div>
                 </div>
-                <div class="listings-table-header" aria-hidden="true">
-                    <div>Model</div>
-                    <div>Listing Title</div>
+                <!-- Table Header (Hidden by default) -->
+                <div class="listings-table-header">
+                    <div class="table-media">Model</div>
+                    <div class="table-title">Listing Title</div>
                     <div class="table-km">KM</div>
                     <div class="table-color">Color</div>
                     <div class="table-year">Year</div>
-                    <div>Date/City</div>
-                    <div>Price</div>
+                    <div class="table-location">Date/City</div>
+                    <div class="table-price">Price</div>
                 </div>
-                <!-- Dynamic listings go here -->
+
                 <div class="listings-grid"></div>
 
                 <!-- Pagination -->
@@ -155,15 +171,39 @@
     </div>
 
     <!-- Quick Post Fab Button -->
-    <button class="post-ad-fab" aria-label="Post Ad">
+    <button class="post-ad-fab" aria-label="Sell Now">
         <i class="fas fa-plus"></i>
-        <span>Post Ad</span>
+        <span>Sell Now</span>
     </button>
 
+    <div id="bottom-nav-placeholder"></div>
+
+    <!-- Mobile Filter Modal -->
+    <div id="mobileFilterModal" class="mobile-filter-modal" style="display: none;">
+        <div class="mobile-filter-overlay"></div>
+        <div class="mobile-filter-content">
+            <div class="mobile-filter-header">
+                <h3>Filters</h3>
+                <button class="mobile-filter-close" id="mobileFilterClose">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="mobile-filter-body">
+                <div id="mobileSidebarFilters" class="mobile-sidebar-filters">
+                    <!-- Filters will be loaded here -->
+                </div>
+            </div>
+            <div class="mobile-filter-footer">
+                <button class="btn btn-secondary" id="mobileFilterClear">Clear All</button>
+                <button class="btn btn-primary" id="mobileFilterApply">Apply Filters</button>
+            </div>
+        </div>
+    </div>
 
 
-    <!-- JS BAĞLANTILARI -->
-    <!-- type="module" olanlar Supabase kullanan dosyalardır -->
+
+    <!-- JS CONNECTIONS -->
+    <!-- type="module" files use Supabase -->
     <script type="module" src="/js/supabase.js"></script>
     <script type="module" src="/js/auth.js"></script>
     <script type="module" src="/js/category-router.js"></script>
@@ -172,21 +212,22 @@
     <script type="module" src="/js/sidebar-manager.js"></script>
     <script type="module" src="/js/script.js"></script>
     <script type="module" src="/js/listings-loader.js"></script>
+    <script src="/js/homepage-sort-controls.js"></script>
     <script type="module" src="/js/search-filter.js"></script>
     <script type="module" src="/js/pagination.js"></script>
 
-    <!-- Diğer yardımcı dosyalar (varsa) -->
+    <!-- Other helper files -->
     <script type="module" src="/js/sidebar-filters.js"></script>
     <script src="/js/ui.js"></script>
     <script src="/js/layout.js"></script>
 
-    <!-- Arama sistemini başlat -->
+    <!-- Initialize Search System -->
     <script type="module">
         import { initializeSearchAndFilters } from '/js/search-filter.js';
         document.addEventListener('DOMContentLoaded', initializeSearchAndFilters);
     </script>
 
-    <!-- Service Worker Kaydı -->
+    <!-- Service Worker Registration -->
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
@@ -201,10 +242,10 @@
         }
     </script>
 
-    <!-- Global hata yöneticisi ve toast -->
+    <!-- Global error manager and toast -->
     <script type="module" src="js/toast.js"></script>
 
-    <!-- Viewport Optimizer - Ekran ölçülerine göre otomatik optimizasyon -->
+    <!-- Viewport Optimizer - Auto optimization based on screen dimensions -->
     <script src="js/viewport-optimizer.js"></script>
 
     <!-- Mobile Enhancements - Touch gestures, bottom nav, pull-to-refresh -->
@@ -244,8 +285,22 @@
                         : data.setting_value;
 
                     if (bannerData.image_url) {
+                        // Resim yüklenemezse (404 vb) tüm bölümü gizle
+                        bannerImage.onerror = () => {
+                            bannerSection.style.display = 'none';
+                        };
+
+                        // Resim başarıyla yüklendiğinde ve kullanıcı kapatmamışsa göster
+                        bannerImage.onload = () => {
+                            if (localStorage.getItem('homepageBannerClosed') === 'true') {
+                                bannerSection.style.display = 'none';
+                            } else {
+                                bannerSection.style.display = 'block';
+                            }
+                        };
+
                         bannerImage.src = bannerData.image_url;
-                        bannerImage.alt = bannerData.alt_text || 'Reklam';
+                        bannerImage.alt = bannerData.alt_text || 'Advertisement';
 
                         if (bannerData.link_url) {
                             bannerLink.href = bannerData.link_url;
@@ -253,8 +308,6 @@
                             bannerLink.style.cursor = 'default';
                             bannerLink.onclick = (e) => e.preventDefault();
                         }
-
-                        bannerSection.style.display = 'block';
 
                         const handleClose = (e) => {
                             e.preventDefault();
@@ -265,14 +318,15 @@
 
                         closeBtn.addEventListener('click', handleClose);
                         closeBtn.addEventListener('touchstart', handleClose, { passive: false });
-
-                        if (localStorage.getItem('homepageBannerClosed') === 'true') {
-                            bannerSection.style.display = 'none';
-                        }
+                    } else {
+                        bannerSection.style.display = 'none';
                     }
+                } else {
+                    // Explicitly hide if inactive or error
+                    bannerSection.style.display = 'none';
                 }
             } catch (error) {
-                console.error('Homepage banner yükleme hatası:', error);
+                console.error('Homepage banner loading error:', error);
             }
         }
 

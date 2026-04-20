@@ -502,19 +502,7 @@ class RealtimeNotifications {
             this.closeNotification(notification);
         });
 
-        // 5 saniye sonra otomatik kapat
-        setTimeout(() => {
-            this.closeNotification(notification);
         }, 5000);
-
-        // Browser notification (izin varsa)
-        if ('Notification' in window && Notification.permission === 'granted') {
-            new Notification(title, {
-                body: body,
-                icon: '/favicon.ico',
-                badge: '/favicon.ico'
-            });
-        }
     }
 
     closeNotification(notification) {
@@ -584,11 +572,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     const { data: { user } } = await supabase.auth.getUser();
     if (user) {
         await realtimeNotifications.initialize();
-        
-        // Browser notification izni iste
-        if ('Notification' in window && Notification.permission === 'default') {
-            Notification.requestPermission();
-        }
     }
 });
 

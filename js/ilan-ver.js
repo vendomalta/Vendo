@@ -110,6 +110,7 @@ function renderMainCategories() {
             name: cat.name,
             icon: cat.icon,
             iconColor: cat.iconColor,
+            isLocked: cat.is_locked,
             onClick: () => handleMainCategoryClick(cat.id)
         });
         mainCategoriesEl.appendChild(li);
@@ -171,6 +172,7 @@ function renderSubCategories(mainId) {
             name: sub.name,
             icon: sub.icon,
             iconColor: sub.iconColor,
+            isLocked: sub.is_locked,
             onClick: () => handleSubCategoryClick(mainId, sub.id)
         });
         subCategoriesEl.appendChild(li);
@@ -224,17 +226,15 @@ function renderDetailCategories(subId) {
     if (details.length === 0) {
         // No further children - this is the end, allow selection
         const subCat = getCategoryById(subId);
-        const li = document.createElement('li');
-        li.className = 'category-item active';
-        li.innerHTML = `
-            <div class="category-icon" style="background: ${subCat.iconColor}15">
-                <i class="fas ${subCat.icon}" style="color: ${subCat.iconColor}"></i>
-            </div>
-            <div class="category-text">
-                <span class="category-name">${subCat.name}</span>
-            </div>
-        `;
-        li.addEventListener('click', () => handleDetailClick(subId));
+        const li = createCategoryItem({
+            id: subCat.id,
+            name: subCat.name,
+            icon: subCat.icon,
+            iconColor: subCat.iconColor,
+            isLocked: subCat.is_locked, // Correctly handle locking here too
+            onClick: () => handleDetailClick(subCat.id)
+        });
+        li.classList.add('active'); // Maintain the active highlight for the selected leaf
         detailCategoriesEl.appendChild(li);
         return;
     }
@@ -245,6 +245,7 @@ function renderDetailCategories(subId) {
             name: detail.name,
             icon: detail.icon,
             iconColor: detail.iconColor,
+            isLocked: detail.is_locked,
             onClick: () => handleDetailClick(detail.id)
         });
         detailCategoriesEl.appendChild(li);
@@ -291,16 +292,27 @@ async function handleDetailClick(catId) {
 }
 
 // Create Category Item Element
-function createCategoryItem({ id, name, icon, iconColor, onClick }) {
+function createCategoryItem({ id, name, icon, iconColor, isLocked, onClick }) {
     const li = document.createElement('li');
     li.className = 'category-item';
+    if (isLocked) li.classList.add('locked');
     li.dataset.id = id;
-    li.addEventListener('click', onClick);
+
+    // Handle click
+    li.addEventListener('click', (e) => {
+        if (isLocked) {
+            e.preventDefault();
+            e.stopPropagation();
+            alert('This category is currently locked and cannot be selected.');
+            return;
+        }
+        onClick();
+    });
 
     const iconDiv = document.createElement('div');
     iconDiv.className = 'category-icon';
-    iconDiv.style.background = `${iconColor}15`;
-    iconDiv.innerHTML = `<i class="fas ${icon}" style="color: ${iconColor}"></i>`;
+    iconDiv.style.background = isLocked ? '#f3f4f6' : `${iconColor}15`;
+    iconDiv.innerHTML = `<i class="fas ${icon}" style="color: ${isLocked ? '#9ca3af' : iconColor}"></i>`;
 
     const textDiv = document.createElement('div');
     textDiv.className = 'category-text';
@@ -308,11 +320,16 @@ function createCategoryItem({ id, name, icon, iconColor, onClick }) {
     const nameSpan = document.createElement('span');
     nameSpan.className = 'category-name';
     nameSpan.textContent = name;
+    if (isLocked) nameSpan.style.color = '#9ca3af';
     textDiv.appendChild(nameSpan);
 
     const arrowSpan = document.createElement('span');
     arrowSpan.className = 'category-arrow';
-    arrowSpan.innerHTML = '<i class="fas fa-chevron-right"></i>';
+    if (isLocked) {
+        arrowSpan.innerHTML = '<i class="fas fa-lock" style="color: #9ca3af; font-size: 0.8rem;"></i>';
+    } else {
+        arrowSpan.innerHTML = '<i class="fas fa-chevron-right"></i>';
+    }
 
     li.appendChild(iconDiv);
     li.appendChild(textDiv);

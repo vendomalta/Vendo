@@ -14,6 +14,9 @@ class SidebarFiltersManager {
         };
         this.debounceTimeout = null;
         this.isCollapsed = false; // Master toggle state
+        this.maltaCities = [
+            'Attard', 'Balzan', 'Birgu', 'Birkirkara', 'Birżebbuġa', 'Bormla', 'Dingli', 'Fgura', 'Floriana', 'Fontana (Gozo)', 'Għajnsielem (Gozo)', 'Għarb (Gozo)', 'Għargħur', 'Għasri (Gozo)', 'Għaxaq', 'Gżira', 'Hamrun', 'Iklin', 'Isla', 'Kalkara', 'Kerċem (Gozo)', 'Kirkop', 'Lija', 'Luqa', 'Marsaskala', 'Marsaxlokk', 'Mdina', 'Mellieħa', 'Mġarr', 'Mosta', 'Mqabba', 'Msida', 'Mtarfa', 'Munxar (Gozo)', 'Nadur (Gozo)', 'Naxxar', 'Paola', 'Pembroke', 'Pietà', 'Qala (Gozo)', 'Qormi', 'Qrendi', 'Rabat', 'Rabat (Gozo)', 'Safi', 'San Ġiljan', 'San Gwann', 'San Lawrenz (Gozo)', 'San Pawl il-Baħar', 'Sannat (Gozo)', 'Santa Luċija', 'Santa Venera', 'Siġġiewi', 'Sliema', "St. Paul's Bay", 'Swieqi', "Ta' Xbiex", 'Tarxien', 'Valletta', 'Xagħra (Gozo)', 'Xewkija (Gozo)', 'Xgħajra', 'Żabbar', 'Żebbuġ', 'Żebbuġ (Gozo)', 'Żejtun', 'Żurrieq', 'Other'
+        ];
     }
 
     getInheritedConfig(categoryId) {
@@ -94,97 +97,47 @@ class SidebarFiltersManager {
 
         this.container.innerHTML = `
             <div class="filter-action-zone">
-                <button id="sideSearchBtn" class="btn-sidebar-search">Ara</button>
+                <button id="sideSearchBtn" class="btn-sidebar-search">Search</button>
             </div>
             
             <!-- Konum Filtresi -->
             <div class="filter-accordion active">
                 <div class="filter-accordion-header">
-                    <h4>Konum</h4>
+                    <h4>Location</h4>
                     <i class="fas fa-chevron-down"></i>
                 </div>
                 <div class="filter-accordion-content">
                     <div class="location-checkboxes">
-                        <label class="filter-checkbox-item">
-                            <input type="checkbox" class="city-checkbox" value="valletta" ${this.currentFilters.city.includes('valletta') ? 'checked' : ''}>
-                            <span>Valletta</span>
-                        </label>
-                        <label class="filter-checkbox-item">
-                            <input type="checkbox" class="city-checkbox" value="birkirkara" ${this.currentFilters.city.includes('birkirkara') ? 'checked' : ''}>
-                            <span>Birkirkara</span>
-                        </label>
-                        <label class="filter-checkbox-item">
-                            <input type="checkbox" class="city-checkbox" value="mosta" ${this.currentFilters.city.includes('mosta') ? 'checked' : ''}>
-                            <span>Mosta</span>
-                        </label>
-                        <label class="filter-checkbox-item">
-                            <input type="checkbox" class="city-checkbox" value="qormi" ${this.currentFilters.city.includes('qormi') ? 'checked' : ''}>
-                            <span>Qormi</span>
-                        </label>
-                        <label class="filter-checkbox-item">
-                            <input type="checkbox" class="city-checkbox" value="zabbar" ${this.currentFilters.city.includes('zabbar') ? 'checked' : ''}>
-                            <span>Żabbar</span>
-                        </label>
-                        <label class="filter-checkbox-item">
-                            <input type="checkbox" class="city-checkbox" value="sliema" ${this.currentFilters.city.includes('sliema') ? 'checked' : ''}>
-                            <span>Sliema</span>
-                        </label>
-                        <label class="filter-checkbox-item">
-                            <input type="checkbox" class="city-checkbox" value="naxxar" ${this.currentFilters.city.includes('naxxar') ? 'checked' : ''}>
-                            <span>Naxxar</span>
-                        </label>
-                        <label class="filter-checkbox-item">
-                            <input type="checkbox" class="city-checkbox" value="rabat" ${this.currentFilters.city.includes('rabat') ? 'checked' : ''}>
-                            <span>Rabat</span>
-                        </label>
-                        <label class="filter-checkbox-item">
-                            <input type="checkbox" class="city-checkbox" value="stpauls-bay" ${this.currentFilters.city.includes('stpauls-bay') ? 'checked' : ''}>
-                            <span>St. Paul's Bay</span>
-                        </label>
-                        <label class="filter-checkbox-item">
-                            <input type="checkbox" class="city-checkbox" value="marsaskala" ${this.currentFilters.city.includes('marsaskala') ? 'checked' : ''}>
-                            <span>Marsaskala</span>
-                        </label>
-                        <label class="filter-checkbox-item">
-                            <input type="checkbox" class="city-checkbox" value="mellieha" ${this.currentFilters.city.includes('mellieha') ? 'checked' : ''}>
-                            <span>Mellieħa</span>
-                        </label>
-                        <label class="filter-checkbox-item">
-                            <input type="checkbox" class="city-checkbox" value="birzebbuga" ${this.currentFilters.city.includes('birzebbuga') ? 'checked' : ''}>
-                            <span>Birżebbuġa</span>
-                        </label>
-                        <label class="filter-checkbox-item">
-                            <input type="checkbox" class="city-checkbox" value="attard" ${this.currentFilters.city.includes('attard') ? 'checked' : ''}>
-                            <span>Attard</span>
-                        </label>
-                        <label class="filter-checkbox-item">
-                            <input type="checkbox" class="city-checkbox" value="siggiewi" ${this.currentFilters.city.includes('siggiewi') ? 'checked' : ''}>
-                            <span>Siġġiewi</span>
-                        </label>
-                        <label class="filter-checkbox-item">
-                            <input type="checkbox" class="city-checkbox" value="other" ${this.currentFilters.city.includes('other') ? 'checked' : ''}>
-                            <span>Diğer</span>
-                        </label>
+                        ${this.maltaCities.map(city => `
+                            <label class="filter-checkbox-item">
+                                <input type="checkbox" class="city-checkbox" value="${city.toLowerCase().replace(/\s+/g, '-')}" ${this.currentFilters.city.includes(city.toLowerCase().replace(/\s+/g, '-')) ? 'checked' : ''}>
+                                <span>${city}</span>
+                            </label>
+                        `).join('')}
                     </div>
                 </div>
             </div>
 
             <div class="filter-accordion active">
                 <div class="filter-accordion-header">
-                    <h4>Fiyat</h4>
+                    <h4>Price</h4>
                     <i class="fas fa-chevron-down"></i>
                 </div>
                 <div class="filter-accordion-content">
                     <div class="price-inputs">
-                        <input type="number" id="sideMinPrice" placeholder="En Az" value="${this.currentFilters.minPrice}">
-                        <input type="number" id="sideMaxPrice" placeholder="En Çok" value="${this.currentFilters.maxPrice}">
+                        <div class="price-input-wrapper">
+                            <input type="text" id="sideMinPrice" placeholder="Min" value="${this.currentFilters.minPrice ? this.currentFilters.minPrice.toLocaleString('en-MT') : ''}">
+                        </div>
+                        <div class="price-input-wrapper">
+                            <input type="text" id="sideMaxPrice" placeholder="Max" value="${this.currentFilters.maxPrice ? this.currentFilters.maxPrice.toLocaleString('en-MT') : ''}">
+                        </div>
                     </div>
                 </div>
             </div>
 
             <div id="dynamicFilterAccordions"></div>
             
-            <a class="clear-filters-link" id="clearSideFilters">Filtreleri Temizle</a>
+            <a class="clear-filters-link" id="clearSideFilters">Clear Filters</a>
         `;
 
         this.renderDynamicFields();
@@ -244,9 +197,9 @@ class SidebarFiltersManager {
         if (!(mainName.includes('vasıta') || mainName.includes('vehicle') || mainName.includes('otomobil'))) return;
 
         const carTechDetails = {
-            'Güvenlik': ['ABS', 'AEB', 'BAS', 'ESP / VSA', 'Yokuş Kalkış Desteği', 'Şerit Takip Sistemi'],
-            'İç Donanım': ['Klima', 'Hız Sabitleme Sistemi', 'Geri Görüş Kamerası', 'Deri Koltuk', 'Sunroof'],
-            'Multimedya': ['Bluetooth', 'Navigasyon', 'Apple CarPlay', 'Android Auto']
+            'Security': ['ABS', 'AEB', 'BAS', 'ESP / VSA', 'Hill Start Assist', 'Lane Keeping System'],
+            'Interior': ['A/C', 'Cruise Control', 'Reverse Camera', 'Leather Seats', 'Sunroof'],
+            'Multimedia': ['Bluetooth', 'Navigation', 'Apple CarPlay', 'Android Auto']
         };
 
         let html = '';
@@ -281,7 +234,7 @@ class SidebarFiltersManager {
         if (field.type === 'select' && field.options) {
             return `
                 <select class="filter-field dynamic-filter" data-name="${field.name}">
-                    <option value="">Tümü</option>
+                    <option value="">All</option>
                     ${field.options.map(opt => `
                         <option value="${opt}" ${opt === value ? 'selected' : ''}>${opt}</option>
                     `).join('')}
@@ -347,14 +300,21 @@ class SidebarFiltersManager {
             });
         });
 
-        // Fiyat değişimlerini state'e aktar ama hemen arama yapma (Ara butonuna basılınca yapılacak)
-        minInput?.addEventListener('input', () => {
-            this.currentFilters.minPrice = minInput.value;
-        });
+        // Fiyat değişimlerini state'e aktar
+        const handlePriceInput = (e, filterKey) => {
+            const val = e.target.value.replace(/[^0-9]/g, '');
+            if (val === '') {
+                this.currentFilters[filterKey] = '';
+                e.target.value = '';
+                return;
+            }
+            const num = parseInt(val);
+            this.currentFilters[filterKey] = num;
+            e.target.value = num.toLocaleString('en-MT');
+        };
 
-        maxInput?.addEventListener('input', () => {
-            this.currentFilters.maxPrice = maxInput.value;
-        });
+        minInput?.addEventListener('input', (e) => handlePriceInput(e, 'minPrice'));
+        maxInput?.addEventListener('input', (e) => handlePriceInput(e, 'maxPrice'));
 
         clearBtn?.addEventListener('click', (e) => {
             e.preventDefault();

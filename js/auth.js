@@ -78,7 +78,7 @@ async function loadProfile() {
         currentProfile = profile;
         
         // --- GUARD MANTIĞI: Profil eksikse complete-profile.html'ye at ---
-        const currentPath = window.location.pathname.split('/').pop() || 'index.html';
+        const currentPath = window.location.pathname.split('/').pop() || '/';
         const publicPages = ['login.html', 'reset-password.html'];
         
         const hasPhone = profile.phone && profile.phone.trim().length > 0;
@@ -89,12 +89,12 @@ async function loadProfile() {
         
         // Manuel kayıt olanlar (OAuth olmayanlar) genellikle bu bilgilere sahiptir.
         // Google kullanıcıları ise bu bilgileri tamamlamalıdır.
-        const isProfileIncomplete = !hasPhone || !hasCity || !hasAcceptedTerms;
+        const isProfileIncomplete = !hasPhone || !hasAcceptedTerms;
 
         if (currentPath === 'complete-profile.html') {
             if (!isProfileIncomplete) {
                 console.log('Profile looks complete, redirecting to homepage...');
-                window.location.href = 'index.html';
+                window.location.href = '/';
                 return;
             }
         } else if (!publicPages.includes(currentPath)) {
@@ -214,7 +214,11 @@ window.register = async () => {
             options: {
                 data: {
                     full_name: username,
+                    first_name: firstName,
+                    last_name: lastName,
                     phone: fullPhone,
+                    phone_prefix: countryCode ? `+${countryCode}` : '',
+                    phone_number: phone,
                     terms_accepted: true // Manual registrants must check terms to submit
                 }
             }
@@ -227,16 +231,23 @@ window.register = async () => {
 
         console.log('✅ Registration successful:', data);
         
-        if (data.user && data.user.identities && data.user.identities.length === 0) {
-            // Email verification required
-            showNotification('✅ Registration successful!\n\n📧 We have sent a verification link to your email address. Please check your inbox to verify your account.', 'success');
+        if (data.user && !data.user.email_confirmed_at) {
+            // New OTP Flow: Redirect to verification page
+            console.log('➡️ Redirecting to verification page...');
+            const params = new URLSearchParams(window.location.search);
+            const redirectUrl = params.get('redirect') || '/';
+            const catId = params.get('catId');
+            
+            let verifyUrl = `verify-account.html?redirect=${encodeURIComponent(redirectUrl)}`;
+            if (catId) verifyUrl += `&catId=${catId}`;
+            
+            window.location.href = verifyUrl;
         } else {
             showNotification('✅ Registration successful! You can now log in.', 'success');
+            // Switch to login tab
+            const loginTab = document.querySelector('[data-tab="login"]');
+            if (loginTab) loginTab.click();
         }
-        
-        // Aynı sayfada giriş formuna geç
-        const signupTab = document.querySelector('[data-tab="login"]');
-        if (signupTab) signupTab.click();
     } catch (error) {
         console.error('❌ Registration error:', error);
         showNotification('❌ Registration failed: ' + error.message, 'error');
@@ -299,8 +310,15 @@ window.login = async () => {
         console.log('✅ Login successful!', data);
         
         if (data.user && !data.user.email_confirmed_at) {
-            showNotification('⚠️ Email address not verified!\n\n📧 Please click the verification link sent to your email.\n\nCheck your spam folder if you didn\'t receive it.', 'warning');
-            await supabase.auth.signOut();
+            console.log('⚠️ Email not verified. Redirecting to OTP verification...');
+            const params = new URLSearchParams(window.location.search);
+            const redirectUrl = params.get('redirect') || '/';
+            const catId = params.get('catId');
+            
+            let verifyUrl = `verify-account.html?redirect=${encodeURIComponent(redirectUrl)}`;
+            if (catId) verifyUrl += `&catId=${catId}`;
+            
+            window.location.href = verifyUrl;
             return;
         }
         
@@ -316,7 +334,7 @@ window.login = async () => {
             console.log('➡️ Redirecting to:', redirectUrl);
             window.location.href = redirectUrl;
         } else {
-            window.location.href = 'index.html';
+            window.location.href = '/';
         }
     } catch (error) {
         console.error('❌ Login error:', error);
@@ -353,7 +371,7 @@ window.socialLogin = async (provider) => {
         const redirectParam = params.get('redirect');
         const redirectTo = redirectParam 
             ? `${window.location.origin}/${redirectParam}` 
-            : `${window.location.origin}/index.html`;
+            : `${window.location.origin}/`;
 
         // Supabase OAuth
         const { data, error } = await supabase.auth.signInWithOAuth({

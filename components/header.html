@@ -1,9 +1,14 @@
 <header class="site-header" role="banner">
     <div class="header-main">
-        <a href="/index.html" class="site-logo" aria-label="VENDO Homepage">
+        <a href="/" class="site-logo" aria-label="VENDO Homepage">
             <div class="logo-icon">V</div>
             <h1 class="logo-text">VENDO</h1>
         </a>
+
+        <!-- Mobile Title (Hidden on Desktop) -->
+        <div class="mobile-page-title" style="display: none;">
+            <span id="headerPageTitle">VENDO</span>
+        </div>
 
         <div class="search-bar-container">
             <div class="search-wrapper">
@@ -15,19 +20,17 @@
 
         <div class="header-right">
             <div class="header-actions" role="navigation" aria-label="Quick Actions">
-                <a href="/ilan-ver.html" class="btn-post-ad" aria-label="Post an ad">
+                <a href="/ilan-ver.html" class="btn-post-ad" aria-label="Sell Now">
                     <i class="fas fa-plus"></i>
-                    <span>Post Ad</span>
+                    <span>Sell Now</span>
                 </a>
 
-                <div class="header-divider"></div>
+                <div class="header-divider desktop-only-icon"></div>
 
-                <a href="/mesajlar.html" class="header-icon" aria-label="Messages">
+                <a href="/mesajlar.html" class="header-icon desktop-only-icon" aria-label="Messages">
                     <i class="far fa-comment-dots"></i>
                     <span class="notification-badge" style="display: none;"></span>
-                </a>
-
-                <button class="header-icon" id="notificationBtn" type="button" aria-haspopup="true"
+                </a>                <button class="header-icon desktop-only-icon" id="notificationBtn" type="button" aria-haspopup="true"
                     aria-expanded="false" aria-controls="notificationDropdown" aria-label="Notifications">
                     <i class="far fa-bell"></i>
                     <span class="notification-badge" style="display: none;"></span>
@@ -43,8 +46,7 @@
                         <a href="#all-notifications">See All</a>
                     </div>
                 </div>
-
-            <a href="/favorilerim.html" class="header-icon" aria-label="Favorites">
+                <a href="/favorilerim.html" class="header-icon desktop-only-icon" aria-label="Favorites">
                     <i class="far fa-heart"></i>
                 </a>
             </div>
@@ -77,16 +79,16 @@
                         </div>
                     </div>
                     <hr class="dropdown-divider">
-                    <a href="/profil.html" class="dropdown-item" role="menuitem"><i class="fas fa-user"></i><span>My
-                            Profile</span></a>
-                    <a href="/ilanlarim.html" class="dropdown-item" role="menuitem"><i class="fas fa-list"></i><span>My
-                            Ads</span></a>
+                    <a href="/personal-info.html" class="dropdown-item" role="menuitem"><i class="fas fa-user"></i><span>Profile</span></a>
+                    <a href="/ilanlarim.html" class="dropdown-item" role="menuitem"><i class="fas fa-list"></i><span>Listings</span></a>
                     <a href="/favorilerim.html" class="dropdown-item" role="menuitem"><i
-                            class="fas fa-heart"></i><span>My Favorites</span></a>
+                            class="fas fa-heart"></i><span>Favorites</span></a>
                     <a href="/mesajlar.html" class="dropdown-item" role="menuitem"><i
                             class="fas fa-envelope"></i><span>Messages</span></a>
-                    <a href="/ayarlar.html" class="dropdown-item" role="menuitem"><i
-                            class="fas fa-cog"></i><span>Settings</span></a>
+                    <a href="/reviews.html" class="dropdown-item" role="menuitem"><i
+                            class="fas fa-star"></i><span>Reviews</span></a>
+
+
                     <hr class="dropdown-divider">
                     <a href="#" class="dropdown-item logout" role="menuitem"><i
                             class="fas fa-sign-out-alt"></i><span>Sign Out</span></a>
@@ -94,14 +96,18 @@
             </div>
         </div>
 
-        <button class="mobile-search-toggle" type="button" aria-label="Search" aria-expanded="false">
-            <i class="fas fa-search"></i>
-        </button>
-
-        <button class="mobile-notification-toggle" type="button" aria-label="Notifications">
-            <i class="far fa-bell"></i>
-            <span class="notification-badge" style="display: none;"></span>
-        </button>
+        <div class="mobile-actions-container">
+            <button class="header-icon mobile-search-btn" aria-label="Search">
+                <i class="fas fa-search"></i>
+            </button>
+            <a href="/favorilerim.html" class="header-icon mobile-fav-btn" aria-label="Favorites">
+                <i class="far fa-heart"></i>
+            </a>
+            <button class="header-icon mobile-notif-btn" aria-label="Notifications">
+                <i class="far fa-bell"></i>
+                <span class="notification-badge" style="display: none;"></span>
+            </button>
+        </div>
 
         <div class="notification-dropdown mobile-dropdown" id="mobileNotificationDropdown">
             <div class="notification-header">

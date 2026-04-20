@@ -192,25 +192,50 @@ body {
 .progress-container {
     margin-bottom: 0rem;
     position: sticky;
-    top: 1rem;
+    top: 0;
     z-index: 50;
     background: white;
-    padding: 1rem 3.5rem;
+    padding: 1.5rem 2.5rem;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.progress-steps-labels {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.75rem;
+}
+
+.step-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.step-label.active {
+    color: #10b981;
+}
+
+.step-label.completed {
+    color: #10b981;
 }
 
 .progress-bar {
     width: 100%;
-    height: 4px;
-    background: #e2e8f0;
-    border-radius: 2px;
+    height: 6px;
+    background: #f1f5f9;
+    border-radius: 3px;
     overflow: hidden;
 }
 
 .progress-fill {
     height: 100%;
-    background: linear-gradient(90deg, #10b981 0%, #059669 100%);
+    background: linear-gradient(90deg, #10b981 0%, #34d399 100%);
     width: 0%;
-    transition: width 0.3s ease;
+    transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Wizard step handling */
@@ -371,9 +396,123 @@ body {
     margin-bottom: 2rem;
 }
 
+/* ==========================================
+   FORM & PREVIEW SIDEBAR LAYOUT
+   ========================================== */
+
+.form-and-preview-wrapper {
+    display: flex;
+    gap: 2.5rem;
+    align-items: flex-start;
+}
+
+#listingForm {
+    flex: 1;
+    min-width: 0; /* Prevent overflow */
+}
+
+.form-preview-sidebar {
+    width: 320px;
+    flex-shrink: 0;
+    position: sticky;
+    top: 5rem;
+    display: block;
+}
+
+.sticky-preview-wrapper {
+    background: white;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+    padding: 0;
+}
+
+.preview-header {
+    padding: 1rem 1.25rem;
+    background: #f8fafc;
+    border-bottom: 1px solid #e2e8f0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.preview-header h4 {
+    margin: 0;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #475569;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.preview-status {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #10b981;
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.preview-status::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    background: #10b981;
+    border-radius: 50%;
+    display: inline-block;
+    animation: pulse-green 2s infinite;
+}
+
+@keyframes pulse-green {
+    0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+    70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+    100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+}
+
+.preview-content-card {
+    padding: 1.25rem;
+}
+
+.preview-content-card .listing-card {
+    margin: 0 auto;
+    width: 100%;
+}
+
+.preview-tips {
+    padding: 1rem 1.25rem;
+    background: #f0fdf4;
+    border-top: 1px solid #d1fae5;
+}
+
+.preview-tips p {
+    margin: 0;
+    font-size: 0.85rem;
+    line-height: 1.5;
+    color: #065f46;
+}
+
+.preview-tips i {
+    color: #10b981;
+    margin-right: 0.25rem;
+}
+
+/* Hide sidebar on tablet and below, or handle differently */
+@media (max-width: 1200px) {
+    .form-preview-sidebar {
+        display: none; /* We can add a toggle button or bottom drawer later */
+    }
+    
+    .form-and-preview-wrapper {
+        display: block; /* Form takes full width */
+    }
+}
+
 /* Live Preview Card Styles */
 #livePreviewCard {
-    /* Existing styles are fine, just ensure overflow hidden */
+    overflow: hidden;
+    height: auto;
 }
 
 .listing-image {

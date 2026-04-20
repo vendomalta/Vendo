@@ -3,29 +3,36 @@
 /* === MOBİL-ONLY BUTONLAR === */
 /* Desktop'ta gizle, mobilde göster */
 .categories-toggle-btn,
-.sidebar-close-btn {
-    display: none;
+.sidebar-close-btn,
+.mobile-action-bar,
+.mobile-actions-container {
+    display: none !important;
+}
+
+/* Post Ad FAB - Desktop'ta gizle, mobilde de alt menüde olduğu için gizle */
+.post-ad-fab {
+    display: none !important;
 }
 
 @media (max-width: 768px) {
     .categories-toggle-btn,
     .sidebar-close-btn {
-        display: block;
+        display: block !important;
     }
-}
-/* === /MOBİL-ONLY BUTONLAR === */
-
-/* === FLOATING ACTION BUTTON (FAB) === */
-/* Desktop'ta göster, mobilde gizle (mobil menüde İlan Ver var) */
-.post-ad-fab {
-    display: flex;
-}
-
-@media (max-width: 768px) {
+    .mobile-action-bar,
+    .mobile-actions-container {
+        display: flex !important;
+    }
+    /* Tel görünümünde masaüstü ikonlarını ve gereksiz mobil header butonlarını gizle */
+    /* Alt bar olduğu için FAB butonu da mobilde gizli kalsın */
+    .desktop-only-icon,
+    .mobile-fav-btn,
+    .mobile-notif-btn,
     .post-ad-fab {
         display: none !important;
     }
 }
+/* === /MOBİL-ONLY BUTONLAR === */
 /* === /FLOATING ACTION BUTTON === */
 
 /* === SIDEBAR RESPONSIVE === */
@@ -35,20 +42,7 @@
     }
 
     .sidebar-categories {
-        position: fixed;
-        top: 0;
-        left: 0;
-        height: 100vh;
-        width: 75vw;
-        max-width: 280px;
-        transform: translateX(-100%);
-        transition: transform var(--transition-base);
-        z-index: 999;
-        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
-    }
-
-    .sidebar-categories.open {
-        transform: translateX(0);
+        display: none !important; /* Disabled for mobile as per native app parity */
     }
 
     .main-content {
@@ -112,8 +106,9 @@
     }
     
     .listings-grid {
-        grid-template-columns: repeat(2, 1fr) !important; /* Max 2 columns on very small screens */
-        gap: 0.25rem !important;
+        grid-template-columns: repeat(2, 1fr) !important; /* Force 2 columns on all mobile screens */
+        gap: 0.75rem !important;
+        padding: 0.5rem !important;
     }
     
     .listing-image {
@@ -191,13 +186,26 @@
     
     /* Listings Grid */
     .listings-grid {
-        gap: 2rem;
-        grid-template-columns: repeat(2, 1fr) !important; /* Max 2 columns on tablets and below */
+        gap: 0.75rem !important;
+        grid-template-columns: repeat(2, 1fr) !important; 
     }
     
     .listings-grid.grid-view-verde {
-        gap: 2rem;
-        grid-template-columns: repeat(2, 1fr) !important; /* Max 2 columns on tablets and below */
+        gap: 0.75rem !important;
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+
+    /* Hide Featured Listings Title & Desktop-style View Buttons on Mobile */
+    .featured-listings .section-header h2,
+    .featured-listings .section-header .header-actions {
+        display: none !important;
+    }
+
+    .featured-listings .section-header {
+        border: none !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        min-height: 0 !important;
     }
     
     /* Listings Card - Tablet */
@@ -210,13 +218,23 @@
     }
     
     .verde-price {
-        font-size: 1.5rem;
-        font-weight: 700;
+        font-size: 1.1rem !important;
+        font-weight: 800 !important;
+        color: #10b981 !important;
+        display: block !important;
+        margin-top: 4px !important;
     }
     
     .verde-title {
-        font-size: 1rem;
-        line-height: 1.4;
+        font-size: 0.95rem !important;
+        font-weight: 650 !important;
+        line-height: 1.3 !important;
+        color: #0f172a !important;
+        margin-bottom: 2px !important;
+    }
+
+    .homepage-banner-container#homepage-banner-section {
+        display: none !important;
     }
     
     /* Search */
@@ -577,8 +595,8 @@
     }
 }
 
-/* Mobile - 480px */
-@media (max-width: 480px) {
+/* Mobile & Tablet - 768px (Native Parity) */
+@media (max-width: 768px) {
     /* Header */
     .site-logo {
         gap: 0.5rem;
@@ -592,42 +610,359 @@
     }
     
     .logo-text {
+        display: none !important;
+    }
+    
+    .site-header {
+        height: 64px !important;
+        padding: 0 16px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        background: #ffffff !important;
+        border-bottom: none !important;
+        position: sticky !important;
+        top: 0 !important;
+        z-index: 9999 !important;
+        box-shadow: none !important;
+    }
+
+    .header-main {
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        width: 100% !important;
+        max-width: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        gap: 0 !important;
+        background: transparent !important;
+        position: relative !important;
+    }
+
+    .site-logo {
+        display: flex !important;
+        align-items: center !important;
+        gap: 8px !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        flex: 0 0 auto !important;
+        position: static !important;
+        transform: none !important;
+        left: auto !important;
+    }
+
+    .logo-icon {
+        width: 32px !important;
+        height: 32px !important;
+        font-size: 1rem !important;
+        flex-shrink: 0 !important;
+    }
+
+    .logo-text {
         display: block !important;
+        font-size: 1.1rem !important;
+        font-weight: 700 !important;
+        margin: 0 !important;
+        color: #0f172a !important;
+    }
+
+    .mobile-actions-container {
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        justify-content: flex-end !important;
+        gap: 12px !important;
+        margin-left: auto !important;
+        flex: 1 !important;
+        position: relative !important;
+    }
+
+    .mobile-actions-container .header-icon {
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        font-size: 1.25rem !important;
+        color: #1e293b !important;
+        background: transparent !important;
+        border: none !important;
+        padding: 8px !important;
+        width: 40px !important;
+        height: 40px !important;
+        min-width: 40px !important;
+        min-height: 40px !important;
+        text-decoration: none !important;
+        flex: 0 0 auto !important;
+        margin: 0 !important;
+        position: relative !important;
+    }
+
+    .mobile-actions-container .header-icon i {
+        color: #1e293b !important;
+    }
+
+    /* Hide others explicitly */
+    .search-bar-container, .header-right:not(.mobile-actions-container), .mobile-page-title {
+        display: none !important;
+    }
+
+    /* Mobile Action Bar */
+    .mobile-action-bar {
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        background: #ffffff !important;
+        border: 1px solid #e2e8f0 !important;
+        border-radius: 12px !important;
+        margin: 8px 16px 16px 16px !important; /* Balanced margins for a floating app-bar look */
+        padding: 0 4px !important;
+        height: 52px !important;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.04) !important;
+        width: auto !important;
+        overflow: hidden !important;
+        position: sticky !important;
+        top: 64px !important; /* Stuck below header */
+        z-index: 9998 !important;
+    }
+
+    .mobile-action-bar .action-btn {
+        flex: 1 !important;
+        height: 100% !important;
+        background: none !important;
+        border: none !important;
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 8px !important;
+        font-weight: 700 !important;
+        font-size: 0.85rem !important;
+        color: #1e293b !important;
+        cursor: pointer !important;
+        padding: 0 !important;
+        transition: all 0.2s ease;
+    }
+
+    .mobile-action-bar .action-btn i {
+        font-size: 0.95rem;
+    }
+
+    .mobile-action-bar .action-btn.sort-btn {
+        color: #10b981 !important; /* Native app zümrüt green */
+    }
+    
+    .mobile-action-bar .action-btn.sort-btn i {
+        color: #10b981 !important;
+    }
+
+    .mobile-action-bar .action-divider {
+        width: 1px;
+        height: 20px;
+        background: #e2e8f0;
+    }
+
+    .mobile-action-bar .view-btn {
+        flex: 0 0 48px !important;
+        width: 48px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        padding: 0 !important;
+        border-left: 1px solid #e2e8f0 !important;
+        margin-left: 4px !important;
+    }
+    
+    .mobile-action-bar .view-btn:active {
+        background-color: #f1f5f9;
+    }
+    
+    .mobile-action-bar .view-btn i {
+        font-size: 1.1rem !important;
+        color: #64748b !important;
+    }
+
+    /* Ensure listings start slightly below mobile action/filter bar */
+    .page-wrapper .main-content,
+    .page-wrapper .featured-listings {
+        margin-top: -40px !important;
+    }
+    /* Mobile Filter Modal */
+    .mobile-filter-modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 10000;
+        display: none;
+    }
+
+    .mobile-filter-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(4px);
+    }
+
+    .mobile-filter-content {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-radius: 16px 16px 0 0;
+        max-height: 80vh;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .mobile-filter-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .mobile-filter-header h3 {
+        margin: 0;
         font-size: 1.25rem;
         font-weight: 700;
-        letter-spacing: -0.5px;
+        color: #1e293b;
     }
-    
+
+    .mobile-filter-close {
+        background: none;
+        border: none;
+        font-size: 1.25rem;
+        color: #64748b;
+        cursor: pointer;
+        padding: 0.5rem;
+        border-radius: 8px;
+        transition: background 0.2s;
+    }
+
+    .mobile-filter-close:hover {
+        background: #f1f5f9;
+    }
+
+    .mobile-filter-body {
+        flex: 1;
+        overflow-y: auto;
+        padding: 1rem 1.5rem;
+    }
+
+    .mobile-filter-footer {
+        display: flex;
+        gap: 0.75rem;
+        padding: 1rem 1.5rem;
+        border-top: 1px solid #e2e8f0;
+        background: #ffffff;
+    }
+
+    .mobile-filter-footer .btn {
+        flex: 1;
+        padding: 0.75rem 1rem;
+        border-radius: 8px;
+        font-weight: 600;
+    }
     /* Listing Cards - Mobile */
     .listings-grid {
-        grid-template-columns: 1fr;
-        gap: 1.5rem;
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 12px !important;
+        padding: 0 4px !important;
     }
-    
-    .listing-image {
-        height: 200px;
+
+    .listing-card {
+        border-radius: 16px !important;
+        overflow: hidden;
+        border: none !important;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.06) !important;
+        background: white;
+        display: flex;
+        flex-direction: column;
     }
-    
-    .verde-price {
-        font-size: 1.4rem;
+
+    .listing-image-container {
+        height: 140px !important;
+        position: relative;
     }
-    
-    .verde-title {
-        font-size: 1rem;
+
+    .card-badges {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        padding: 8px;
+        z-index: 5;
     }
-    
-    .listing-specs {
-        gap: 8px;
+
+    .fav-toggle {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        background: rgba(15, 23, 42, 0.5);
+        border: none;
+        color: white;
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         font-size: 0.8rem;
+        pointer-events: auto;
     }
-    
+
+    .gallery-badge {
+        position: absolute;
+        bottom: 8px;
+        right: 8px;
+        background: rgba(15, 23, 42, 0.7);
+        color: white;
+        padding: 2px 6px;
+        border-radius: 6px;
+        font-size: 0.65rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .fav-count-badge {
+        position: absolute;
+        bottom: 8px;
+        left: 8px;
+        background: rgba(15, 23, 42, 0.7);
+        color: white;
+        padding: 2px 6px;
+        border-radius: 6px;
+        font-size: 0.65rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
     .listing-content {
-        padding: 14px 16px 16px 16px;
+        padding: 12px !important;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
     }
     
     .message-button {
-        padding: 10px 12px;
-        font-size: 12px;
+        padding: 10px 12px !important;
+        font-size: 12px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
     }
     
     /* Search */
@@ -763,6 +1098,78 @@
         font-size: 0.7rem;
     }
     
+    /* Settings & Profile List UI for Mobile */
+    .settings-container,
+    .profile-content {
+        flex-direction: column;
+        gap: 0;
+    }
+
+    .settings-sidebar,
+    .profile-sidebar {
+        width: 100%;
+        background: white;
+        margin-bottom: 1rem;
+    }
+
+    .settings-nav .nav-item,
+    .profile-nav .nav-item {
+        padding: 1.25rem 1rem;
+        border-bottom: 1px solid #f1f5f9;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: white;
+        margin: 0;
+        border-radius: 0;
+    }
+
+    .settings-nav .nav-item i,
+    .profile-nav .nav-item i {
+        margin-right: 1rem;
+        width: 20px;
+        text-align: center;
+        font-size: 1.1rem;
+        color: #64748b;
+    }
+
+    .settings-nav .nav-item span,
+    .profile-nav .nav-item span {
+        flex: 1;
+        font-size: 1rem;
+        color: #1e293b;
+    }
+
+    .settings-nav .nav-item::after,
+    .profile-nav .nav-item::after {
+        content: '\f054';
+        font-family: 'Font Awesome 6 Free';
+        font-weight: 900;
+        font-size: 0.8rem;
+        color: #cbd5e1;
+    }
+
+    .settings-nav .nav-item.active,
+    .profile-nav .nav-item.active {
+        background: white;
+        border-right: none;
+    }
+
+    .settings-content,
+    .profile-main {
+        padding: 0 1rem;
+    }
+
+    .settings-section,
+    .tab-content {
+        display: none !important; /* Hide sections by default on mobile unless navigated to */
+    }
+
+    .settings-section.active,
+    .tab-content.active {
+        display: block !important;
+    }
+
     .category-selection {
         padding: 1rem;
     }
@@ -1253,8 +1660,9 @@
         margin: 0 !important;
         word-wrap: break-word !important;
         overflow-wrap: break-word !important;
-        display: -webkit-box !important;
-        -webkit-line-clamp: 5 !important;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        line-clamp: 2;
         -webkit-box-orient: vertical !important;
         overflow: hidden !important;
         width: 100% !important;
@@ -1526,5 +1934,518 @@
         display: inline-flex !important;
         align-items: center;
         justify-content: center;
+    }
+}
+}
+
+/* Default hidden mobile components */
+.mobile-listing-header {
+    display: none !important;
+}
+
+/* ============================================================
+   MY LISTINGS (İlanlarım) MOBILE REDESIGN 
+   ============================================================ */
+@media (max-width: 768px) {
+    .mobile-listing-header {
+        display: flex !important;
+    }
+    /* Hide default header and page header on this page for mobile */
+    body:has(.my-ads-page) .site-header,
+    .listings-page .page-header,
+    .favorites-page .page-header {
+        display: none !important;
+    }
+
+    .my-ads-page {
+        background: #f8fafc;
+        min-height: 100vh;
+        padding-top: 64px !important;
+        margin: 0 !important;
+    }
+
+    /* Mobile Header Styling */
+    .mobile-listing-header {
+        display: flex !important;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 16px;
+        height: 64px;
+        background: #ffffff;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        z-index: 1000;
+        box-shadow: 0 1px 0 rgba(0,0,0,0.05);
+    }
+
+    .mobile-listing-header h2 {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #0f172a;
+        margin: 0;
+        flex: 1;
+        margin-left: 12px;
+    }
+
+    .mobile-listing-header .back-btn,
+    .mobile-listing-header .view-toggle-btn {
+        background: none;
+        border: none;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        color: #1e293b;
+        cursor: pointer;
+    }
+
+    .mobile-listing-header .view-toggle-btn {
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        width: 36px;
+        height: 36px;
+        font-size: 1rem;
+    }
+
+    /* Stats Grid Redesign (Mobile Only) */
+    .listings-page .stats-grid,
+    .favorites-page .stats-grid {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+        gap: 12px !important;
+        padding: 16px !important;
+        margin-bottom: 0 !important;
+    }
+
+    .my-ads-page .stat-card {
+        background: #ffffff;
+        border-radius: 16px;
+        padding: 16px !important;
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        gap: 12px !important;
+        box-shadow: none !important;
+        border: 1px solid #f1f5f9;
+        height: auto !important;
+    }
+
+    .stat-card .stat-icon {
+        width: 40px !important;
+        height: 40px !important;
+        border-radius: 12px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        font-size: 1rem !important;
+        margin-bottom: 0 !important;
+    }
+
+    /* Target specific cards for mobile */
+    .stat-card:nth-child(1) { border-color: #f1f5f9; }
+    .stat-card:nth-child(1) .stat-icon {
+        background: #ecfdf5;
+        color: #10b981 !important;
+    }
+    
+    .stat-card:nth-child(2) { border-color: #f1f5f9; }
+    .stat-card:nth-child(2) .stat-icon {
+        background: #fef2f2;
+        color: #ef4444 !important;
+    }
+
+    /* Both cards are visible on mobile */
+
+    .stat-content h3 {
+        font-size: 1.1rem !important;
+        font-weight: 800 !important;
+        margin: 0 !important;
+        color: #0f172a;
+    }
+
+    .stat-content p {
+        font-size: 0.7rem !important;
+        font-weight: 700 !important;
+        text-transform: uppercase !important;
+        color: #64748b !important;
+        margin: 0 !important;
+        letter-spacing: 0.5px;
+    }
+
+    /* Filter Tabs Redesign (Segmented Control) */
+    .ads-controls {
+        padding: 0 16px 16px 16px !important;
+        background: transparent !important;
+    }
+
+    .filter-tabs {
+        background: #f1f5f9 !important;
+        padding: 4px !important;
+        border-radius: 12px !important;
+        display: flex !important;
+        gap: 0 !important;
+        border: none !important;
+        overflow: hidden !important;
+    }
+
+    .tab-btn {
+        flex: 1 !important;
+        padding: 10px !important;
+        font-size: 0.85rem !important;
+        font-weight: 600 !important;
+        color: #64748b !important;
+        background: transparent !important;
+        border: none !important;
+        border-radius: 10px !important;
+        transition: all 0.2s ease !important;
+        height: 40px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+
+    .tab-btn.active {
+        background: #ffffff !important;
+        color: #10b981 !important;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.06) !important;
+    }
+
+    .search-sort {
+        display: none !important;
+    }
+
+    /* Listings Logic: Grid & List Modes */
+    .ads-container.grid-view {
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 12px !important;
+        padding: 0 16px 40px 16px !important;
+    }
+
+    .ads-container.list-view {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 12px !important;
+        padding: 0 16px 40px 16px !important;
+    }
+
+    /* Common Card Styles */
+    .ad-card {
+        background: #ffffff !important;
+        border-radius: 16px !important;
+        overflow: hidden !important;
+        box-shadow: none !important;
+        border: 1px solid #f1f5f9 !important;
+        display: flex !important;
+        transition: all 0.2s ease;
+    }
+
+    /* Grid Specific Styles */
+    .grid-view .ad-card {
+        flex-direction: column !important;
+    }
+
+    .grid-view .ad-image {
+        height: 120px !important;
+        width: 100%;
+        position: relative;
+    }
+
+    .grid-view .delete-text {
+        display: none !important;
+    }
+
+    /* List Specific Styles */
+    .list-view .ad-card {
+        flex-direction: row !important;
+        padding: 8px !important;
+        height: auto !important;
+        align-items: center !important;
+    }
+
+    .list-view .ad-image {
+        width: 100px !important;
+        height: 100px !important;
+        min-width: 100px !important;
+        border-radius: 12px !important;
+        overflow: hidden;
+        position: relative;
+    }
+
+    .list-view .ad-content {
+        padding: 0 12px !important;
+        flex: 1 !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: center !important;
+        min-width: 0;
+    }
+
+    .list-view .ad-title {
+        font-size: 0.9rem !important;
+        margin-bottom: 2px !important;
+    }
+
+    .list-view .ad-info-row {
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        gap: 12px !important;
+        margin-top: 6px !important;
+    }
+
+    .list-view .ad-location, 
+    .list-view .ad-meta {
+        display: flex !important;
+        align-items: center !important;
+        gap: 4px;
+        font-size: 0.75rem !important;
+        color: #64748b !important;
+        margin: 0 !important;
+    }
+
+    .grid-view .ad-info-row {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 4px !important;
+        margin-top: 8px !important;
+    }
+
+    .grid-view .ad-location,
+    .grid-view .ad-meta {
+        display: flex !important;
+        align-items: center !important;
+        gap: 6px;
+        font-size: 0.75rem !important;
+        color: #64748b !important;
+    }
+
+    .list-view .ad-meta .ad-expires {
+        display: none !important;
+    }
+
+    /* Badge tweaks (Ultra-compact) */
+    .ad-badge {
+        position: absolute !important;
+        top: 4px !important;
+        left: 4px !important;
+        border-radius: 4px !important;
+        padding: 1px 4px !important;
+        font-size: 0.55rem !important;
+        font-weight: 700 !important;
+        z-index: 10;
+    }
+
+    .ad-badge.active { background: #10b981 !important; color: white !important; }
+    .ad-badge.inactive, .ad-badge.sold { background: #ef4444 !important; color: white !important; }
+
+    .ad-views {
+        display: none !important;
+    }
+
+    /* Actions positioning */
+    .grid-view .ad-actions {
+        padding: 8px 12px 12px 12px !important;
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+        gap: 10px !important;
+    }
+
+    .list-view .ad-actions {
+        display: flex !important;
+        gap: 8px !important;
+        padding: 8px 0 !important;
+        margin-top: 8px;
+        border-top: 1px solid #f1f5f9;
+        justify-content: flex-end;
+    }
+
+    .list-view .ad-card { position: relative; }
+
+    .action-btn {
+        height: 36px !important;
+        border-radius: 10px !important;
+        border: none !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        font-size: 0.95rem !important;
+        padding: 0 10px !important;
+        transition: transform 0.1s ease !important;
+        min-width: 36px;
+    }
+
+    .list-view .delete-btn {
+        background: #fef2f2 !important;
+        color: #ef4444 !important;
+        width: auto !important;
+        gap: 6px;
+        font-weight: 700;
+        font-size: 0.85rem !important;
+        border: 1px solid #fee2e2 !important;
+    }
+
+    .list-view .edit-btn {
+        background: #ffffff !important;
+        color: #10b981 !important;
+        border: 1px solid #e2e8f0 !important;
+        width: 36px !important;
+    }
+
+    .grid-view .edit-btn { color: #10b981 !important; background: #ecfdf5 !important; }
+    .grid-view .delete-btn { color: #ef4444 !important; background: #fef2f2 !important; }
+
+    .pause-btn, .activate-btn, .stats-btn {
+        display: none !important;
+    }
+}
+
+/* ============================================================
+   FAVORITES (Favorilerim) MOBILE REDESIGN 
+   ============================================================ */
+@media (max-width: 768px) {
+    /* Hide default header and page header on favorites page for mobile */
+    body:has(.favorites-grid) .site-header,
+    body:has(.favorites-grid) .page-header {
+        display: none !important;
+    }
+
+    /* Favorites Stats Grid (Mobile Only) */
+    body:has(.favorites-grid) .stats-grid {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+        gap: 12px !important;
+        padding: 16px !important;
+        margin-bottom: 0 !important;
+    }
+
+    /* Total Favorites Card styling */
+    body:has(.favorites-grid) .stat-card:nth-child(1) {
+        border-color: #f1f5f9 !important;
+    }
+
+    body:has(.favorites-grid) .stat-card:nth-child(1) .stat-icon {
+        background: #fef2f2 !important;
+        color: #ef4444 !important;
+    }
+    
+    /* Price Dropped Card styling (Now 2nd child) */
+    body:has(.favorites-grid) .stat-card:nth-child(2) .stat-icon {
+        background: #fffbeb !important;
+        color: #f59e0b !important;
+    }
+
+    /* Clear any legacy hide rules for the 2nd card */
+    .favorites-page .stat-card:nth-child(2) {
+        display: flex !important;
+    }
+    
+    .favorites-page .stat-card:nth-child(n+3) {
+        display: none !important;
+    }
+
+    /* Text styling for stats */
+    body:has(.favorites-grid) .stat-content h3 {
+        font-size: 1.1rem !important;
+        margin: 0 !important;
+    }
+    body:has(.favorites-grid) .stat-content p {
+        font-size: 0.7rem !important;
+        text-transform: uppercase !important;
+        font-weight: 700 !important;
+        color: #64748b !important;
+    }
+
+    /* Favorites Grid layout */
+    .favorites-grid {
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 12px !important;
+        padding: 0 16px 40px 16px !important;
+    }
+
+    .favorite-card {
+        background: #ffffff !important;
+        border-radius: 16px !important;
+        overflow: hidden !important;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.03) !important;
+        border: 1px solid #f1f5f9 !important;
+        display: flex !important;
+        flex-direction: column !important;
+    }
+
+    .favorite-image {
+        height: 120px !important;
+        position: relative;
+    }
+
+    .favorite-image img {
+        height: 100% !important;
+        width: 100% !important;
+        object-fit: cover !important;
+    }
+
+    /* Red heart on white circle */
+    .favorite-remove {
+        position: absolute !important;
+        top: 8px !important;
+        right: 8px !important;
+        background: #ffffff !important;
+        border: none !important;
+        width: 28px !important;
+        height: 28px !important;
+        border-radius: 50% !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        color: #ef4444 !important;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+        font-size: 0.85rem !important;
+    }
+
+    .favorite-content {
+        padding: 10px 12px !important;
+        flex: 1 !important;
+    }
+
+    .favorite-title {
+        font-size: 0.85rem !important;
+        font-weight: 700 !important;
+        color: #0f172a !important;
+        margin-bottom: 4px !important;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .favorite-location {
+        font-size: 0.75rem !important;
+        color: #64748b !important;
+        margin-bottom: 4px !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 4px !important;
+    }
+
+    .favorite-location i {
+        color: #10b981 !important;
+    }
+
+    .favorite-price {
+        font-size: 0.95rem !important;
+        font-weight: 800 !important;
+        color: #10b981 !important;
+        margin: 0 !important;
+    }
+
+    /* Simplified for mobile - hide extra meta and action buttons as seen in reference image */
+    .favorite-meta,
+    .favorite-actions {
+        display: none !important;
     }
 }

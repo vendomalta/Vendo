@@ -66,7 +66,7 @@ BEGIN
         NEW.raw_user_meta_data->>'phone',
         NEW.raw_user_meta_data->>'phone_prefix',
         NEW.raw_user_meta_data->>'phone_number',
-        COALESCE(NEW.raw_user_meta_data->>'city', 'Valletta'),
+        NEW.raw_user_meta_data->>'city',
         (NEW.phone_confirmed_at IS NOT NULL),
         (NEW.email_confirmed_at IS NOT NULL),
         COALESCE((NEW.raw_user_meta_data->>'consent_marketing')::boolean, FALSE)

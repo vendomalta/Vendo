@@ -10,8 +10,8 @@
         const scrollBtn = document.createElement('button');
         scrollBtn.className = 'scroll-top-btn';
         scrollBtn.innerHTML = '<i class="fas fa-arrow-up"></i>';
-        scrollBtn.setAttribute('aria-label', 'Yukarı kaydır');
-        scrollBtn.title = 'Yukarı kaydır';
+        scrollBtn.setAttribute('aria-label', 'Scroll to top');
+        scrollBtn.title = 'Scroll to top';
         
         document.body.appendChild(scrollBtn);
 

@@ -137,6 +137,14 @@ const adminPanel = {
   selectedLevel1Id: null,
   selectedLevel2Id: null,
   selectedLevel3Id: null,
+  banners: {
+    detail: null,
+    homepage: null,
+    files: {
+      detail: null,
+      homepage: null,
+    },
+  },
 
   async init() {
     try {
@@ -252,6 +260,9 @@ const adminPanel = {
         break;
       case "reports":
         await this.loadReports();
+        break;
+      case "banners":
+        await this.loadBanners();
         break;
     }
   },
@@ -606,6 +617,7 @@ const adminPanel = {
             const statusBadges = {
               pending: "pending",
               active: "success",
+              suspended: "warning",
               rejected: "danger",
             };
             const shortId = listing.id.substring(0, 8).toUpperCase();
@@ -629,6 +641,15 @@ const adminPanel = {
                                 </button>
                                 <button class="btn btn-small btn-warning" onclick="adminPanel.rejectListing('${listing.id}')">
                                     <i class="fas fa-times"></i>
+                                </button>
+                            `
+                                : listing.status === "suspended"
+                                ? `
+                                <button class="btn btn-small btn-success" onclick="adminPanel.approveAndProtectListing('${listing.id}')" title="Onayla ve Koru">
+                                    <i class="fas fa-shield-alt"></i>
+                                </button>
+                                <button class="btn btn-small btn-danger" onclick="adminPanel.rejectListing('${listing.id}')" title="Reddet/Sil">
+                                    <i class="fas fa-trash"></i>
                                 </button>
                             `
                                 : `
@@ -1378,6 +1399,31 @@ const adminPanel = {
     } catch (error) {
       console.error("Reject error:", error);
       Toast.show("✗ İlan reddedilirken hata oluştu", "error");
+    }
+  },
+
+  async approveAndProtectListing(id) {
+    if (!confirm("Bu ilanı onaylayıp korumaya almak istediğinize emin misiniz? Bu işlemden sonra ilan raporlar yüzünden otomatik askıya alınamaz.")) return;
+    
+    try {
+      const { error } = await window.supabase.rpc('approve_and_protect_listing', { p_listing_id: id });
+      
+      // Fallback if RPC fails (e.g. not created yet)
+      if (error) {
+          console.warn("RPC failed, falling back to manual update:", error);
+          const { error: updateError } = await window.supabase
+            .from("listings")
+            .update({ status: "active", is_protected: true })
+            .eq("id", id);
+          if (updateError) throw updateError;
+      }
+
+      Toast.show("✓ İlan onaylandı ve korumaya alındı!", "success");
+      ActivityLogger.log("approve_and_protect_listing", "listings", id);
+      this.loadListings();
+    } catch (error) {
+      console.error("Approve/Protect error:", error);
+      Toast.show("✗ İşlem sırasında hata oluştu", "error");
     }
   },
 
@@ -4024,35 +4070,213 @@ const adminPanel = {
         } finally {
             event.target.value = ''; 
         }
+    },
+
+  // ============================================================
+  // BANNER MANAGEMENT
+  // ============================================================
+
+  async loadBanners() {
+    try {
+      const { data, error } = await window.supabase
+        .from("site_settings")
+        .select("*")
+        .in("setting_key", ["detail_page_banner", "homepage_banner"]);
+
+      if (error) throw error;
+
+      // Reset
+      this.banners.detail = data.find(
+        (s) => s.setting_key === "detail_page_banner",
+      );
+      this.banners.homepage = data.find(
+        (s) => s.setting_key === "homepage_banner",
+      );
+
+      // Update UI
+      this.updateBannerUI("detail");
+      this.updateBannerUI("homepage");
+    } catch (error) {
+      console.error("Load banners error:", error);
+      Toast.show("Bannerlar yüklenirken hata oluştu", "error");
+    }
+  },
+
+  updateBannerUI(type) {
+    const banner =
+      type === "detail" ? this.banners.detail : this.banners.homepage;
+    const prefix = type === "detail" ? "" : "homepage-";
+
+    // Clear previous values first
+    document.getElementById(`${prefix}banner-active`).checked = false;
+    document.getElementById(`${prefix}banner-link`).value = "";
+    document.getElementById(`${prefix}banner-alt`).value = "";
+    document.getElementById(`${prefix}banner-preview-img`).style.display =
+      "none";
+    const placeholder = document.getElementById(`${prefix}banner-placeholder`);
+    if (placeholder) placeholder.style.display = "block";
+
+    if (banner && banner.setting_value) {
+      const config =
+        typeof banner.setting_value === "string"
+          ? JSON.parse(banner.setting_value)
+          : banner.setting_value;
+
+      document.getElementById(`${prefix}banner-active`).checked =
+        banner.is_active;
+      document.getElementById(`${prefix}banner-link`).value =
+        config.link_url || "";
+      document.getElementById(`${prefix}banner-alt`).value =
+        config.alt_text || "";
+
+      if (config.image_url) {
+        const previewImg = document.getElementById(`${prefix}banner-preview-img`);
+        previewImg.src = config.image_url;
+        previewImg.style.display = "block";
+        if (placeholder) placeholder.style.display = "none";
+      }
+    }
+  },
+
+  handleBannerUpload(event, type) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const prefix = type === "detail" ? "" : "homepage-";
+
+    // Show selection in Toast
+    Toast.show(`Dosya seçildi: ${file.name}`, "info");
+
+    // Preview
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const previewImg = document.getElementById(`${prefix}banner-preview-img`);
+      const placeholder = document.getElementById(`${prefix}banner-placeholder`);
+      previewImg.src = e.target.result;
+      previewImg.style.display = "block";
+      if (placeholder) placeholder.style.display = "none";
+    };
+    reader.readAsDataURL(file);
+
+    // Store file for saving
+    this.banners.files[type] = file;
+  },
+
+  async saveBannerSettings(type) {
+    const prefix = type === "detail" ? "" : "homepage-";
+    const isActive = document.getElementById(`${prefix}banner-active`).checked;
+    const linkUrl = document.getElementById(`${prefix}banner-link`).value;
+    const altText = document.getElementById(`${prefix}banner-alt`).value;
+    const file = this.banners.files[type];
+
+    const banner =
+      type === "detail" ? this.banners.detail : this.banners.homepage;
+    const settingKey =
+      type === "detail" ? "detail_page_banner" : "homepage_banner";
+
+    let imageUrl = banner?.setting_value?.image_url;
+    if (typeof banner?.setting_value === "string") {
+      imageUrl = JSON.parse(banner.setting_value).image_url;
     }
 
+    try {
+      Toast.show("Kaydediliyor...", "info");
+
+      // Upload image if provided
+      if (file) {
+        const timestamp = Date.now();
+        const fileName = `${type}-banner-${timestamp}.${file.name
+          .split(".")
+          .pop()}`;
+        const filePath = `${type}/${fileName}`;
+
+        const { error: uploadError } = await window.supabase.storage
+          .from("banners")
+          .upload(filePath, file, {
+            cacheControl: "3600",
+            upsert: true,
+          });
+
+        if (uploadError) throw uploadError;
+
+        const { data: publicUrlData } = window.supabase.storage
+          .from("banners")
+          .getPublicUrl(filePath);
+
+        imageUrl = publicUrlData.publicUrl;
+      }
+
+      if (!imageUrl) {
+        throw new Error("Banner resmi gereklidir.");
+      }
+
+      const bannerData = {
+        image_url: imageUrl,
+        link_url: linkUrl,
+        alt_text: altText,
+      };
+
+      const saveData = {
+        setting_key: settingKey,
+        setting_value: bannerData,
+        is_active: isActive,
+        updated_at: new Date().toISOString(),
+      };
+
+      const { error } = await window.supabase
+        .from("site_settings")
+        .upsert(saveData, { onConflict: "setting_key" });
+
+      if (error) throw error;
+
+      Toast.show("Banner başarıyla kaydedildi", "success");
+      await this.loadBanners(); // Reload
+      this.banners.files[type] = null; // Clear file
+    } catch (error) {
+      console.error("Save banner error:", error);
+      Toast.show("Hata: " + error.message, "error");
+    }
+  },
+
+  async deleteBanner(type) {
+    if (!confirm("Bu bannerı silmek istediğinizden emin misiniz?")) return;
+
+    const settingKey =
+      type === "detail" ? "detail_page_banner" : "homepage_banner";
+
+    try {
+      const { error } = await window.supabase
+        .from("site_settings")
+        .delete()
+        .eq("setting_key", settingKey);
+
+      if (error) throw error;
+
+      Toast.show("Banner başarıyla silindi", "success");
+      await this.loadBanners();
+
+      // Reset UI manually in case loadBanners doesn't find it
+      const prefix = type === "detail" ? "" : "homepage-";
+      document.getElementById(`${prefix}banner-active`).checked = false;
+      document.getElementById(`${prefix}banner-link`).value = "";
+      document.getElementById(`${prefix}banner-alt`).value = "";
+      document.getElementById(`${prefix}banner-preview-img`).src = "";
+      document.getElementById(`${prefix}banner-preview-img`).style.display =
+        "none";
+      const placeholder = document.getElementById(
+        `${prefix}banner-placeholder`,
+      );
+      if (placeholder) placeholder.style.display = "block";
+    } catch (error) {
+      console.error("Delete banner error:", error);
+      Toast.show("Silme hatası: " + error.message, "error");
+    }
+  }
 };
 
-// Initialize on load
+// Initialization on load
 document.addEventListener("DOMContentLoaded", () => {
   adminPanel.init();
-});
-
-// Reklam Yönetimi sayfasına yönlendirme
-document.addEventListener("DOMContentLoaded", () => {
-  const bannerNavItem = document.querySelector(
-    '.nav-item[data-section="banners"]',
-  );
-  if (bannerNavItem) {
-    bannerNavItem.addEventListener("click", () => {
-      window.location.href = "html/banner-settings.html";
-    });
-  }
-
-  // Yorum Yönetimi sayfasına yönlendirme
-  const reviewsNavItem = document.querySelector(
-    '.nav-item[data-section="reviews"]',
-  );
-  if (reviewsNavItem) {
-    reviewsNavItem.addEventListener("click", () => {
-      window.location.href = "html/review-management.html";
-    });
-  }
 });
 
 // Make objects global

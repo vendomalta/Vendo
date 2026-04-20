@@ -168,10 +168,10 @@ export const formLimiter = new RateLimiter(
 );
 
 /**
- * Message sending limiter (5 per minute)
+ * Message sending limiter (15 per minute)
  */
 export const messageLimiter = new RateLimiter(
-  5, 
+  15, 
   60 * 1000
 );
 

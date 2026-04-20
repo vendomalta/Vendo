@@ -4,7 +4,7 @@
     "details": [
       {
         "appID": "95DHY8F63S.com.vendo.mobileapp",
-        "paths": [ "/ilan-detay.html*" ]
+        "paths": [ "/listing/*" ]
       }
     ]
   }

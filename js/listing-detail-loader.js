@@ -23,8 +23,11 @@ function setOrCreateMeta(selector, attrs) {
 function updateSeoMeta(listing) {
   if (!listing) return;
   const photos = Array.isArray(listing.photos) ? listing.photos : [];
-  const image = photos[0] || "/assets/images/verde-logo-og.png";
-  const url = window.location.href;
+  const image = photos[0] || "https://vendomalta.com/assets/images/verde-logo-og.png";
+  
+  const listingNumber = listing.listing_number || listing.id;
+  const canonicalUrl = `https://vendomalta.com/listing/${listingNumber}`;
+  
   const formattedPrice = new Intl.NumberFormat("tr-TR").format(listing.price);
   const currency = listing.currency === "TL" ? "₺" : listing.currency;
   const priceText = `${formattedPrice} ${currency}`;
@@ -62,7 +65,7 @@ function updateSeoMeta(listing) {
   });
   setOrCreateMeta('meta[property="og:url"]', {
     property: "og:url",
-    content: url,
+    content: canonicalUrl,
   });
 
   // Twitter Card
@@ -143,14 +146,16 @@ async function loadListingDetail() {
     } else {
       await renderListing(listing);
       updateSeoMeta(listing);
-      await initializeFavoriteButton(listing.id);
-      initializeActions(listing);
       initializeGallery(listing);
       subscribeListingRealtime(listing.id);
 
       // Soru-Cevap bölümünü başlat
       const { initQASection } = await import("./qa-system.js");
       await initQASection(listing.id, listing.user_id);
+
+      // Raporlama sistemini başlat
+      const { initReportSystem } = await import("./report-system.js");
+      await initReportSystem(listing.id, listing.user_id);
     }
   } catch (error) {
     console.error("❌ Error loading listing detail:", error);
@@ -167,575 +172,412 @@ async function loadListingDetail() {
 }
 
 async function renderListing(listing) {
-  // Breadcrumb Navigation
-  renderBreadcrumb(listing);
+  const isMobile = window.innerWidth <= 768;
 
-  // Fiyat
+  // 1. Breadcrumb (Desktop Only)
+  if (!isMobile) renderBreadcrumb(listing);
+
+  // 2. Format Price
   const formattedPrice = new Intl.NumberFormat("tr-TR", {
     style: "decimal",
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   }).format(listing.price);
-  // Force Euro symbol
   const currency = "€";
-  const priceText = `${currency}${formattedPrice}`;
-  document.getElementById("detail-price").textContent = priceText;
+  const priceText = `${formattedPrice} ${currency}`;
 
-  // Başlık + Premium Badge
-  const titleEl = document.getElementById("detail-title");
-  const titleContainer = titleEl.parentElement;
-  titleEl.textContent = listing.title;
+  // Update Prices
+  const priceDesktop = document.getElementById("detail-price-desktop");
+  const priceMobile = document.getElementById("detail-price-mobile");
+  if (priceDesktop) priceDesktop.textContent = priceText;
+  if (priceMobile) priceMobile.textContent = priceText;
 
-  // Premium badge ekle (eğer premium listing ise)
+  // 3. Title & Premium Badge
+  const titleDesktop = document.getElementById("detail-title-desktop");
+  const titleMobile = document.getElementById("detail-title-mobile");
+  if (titleDesktop) titleDesktop.textContent = listing.title;
+  if (titleMobile) titleMobile.textContent = listing.title;
+
+  const premiumDesktop = document.querySelector(".header-actions-extra"); // Breadcrumb area
+  const premiumMobile = document.getElementById("premium-badge-mobile");
   if (listing.is_premium || listing.premium) {
-    const badge = document.createElement("span");
-    badge.className = "premium-badge";
-    badge.textContent = "PREMIUM";
-    titleContainer.insertBefore(badge, titleEl.nextSibling);
+      if (premiumMobile) premiumMobile.innerHTML = '<span class="premium-badge">PREMIUM</span>';
+      // In desktop, logic might differ but we can add badge to title
+      if (titleDesktop) titleDesktop.innerHTML += ' <span class="premium-badge">PREMIUM</span>';
   }
 
-  // MOBİL BAŞLIK KARTI
-  const mobileTitleEl = document.getElementById("mobile-title");
-  const mobilePriceEl = document.getElementById("mobile-price");
-  const mobileLocationEl = document.getElementById("mobile-location");
-  const mobilePostedEl = document.getElementById("mobile-posted");
+  // 4. Meta Row (Mobile Only)
+  const locMobile = document.getElementById("detail-location-mobile");
+  const postMobile = document.getElementById("detail-posted-mobile");
+  if (locMobile) locMobile.textContent = listing.location_city || "Not specified";
+  if (postMobile) postMobile.textContent = formatDateRelative(listing.created_at);
 
-  if (mobileTitleEl) {
-    // Clear previous content
-    mobileTitleEl.innerHTML = "";
-
-    // Add title text
-    mobileTitleEl.textContent = listing.title;
-
-    // Add premium badge if applicable
-    if (listing.is_premium || listing.premium) {
-      const badgeSpan = document.createElement("span");
-      badgeSpan.className = "premium-badge";
-      badgeSpan.textContent = "PREMIUM";
-      mobileTitleEl.after(badgeSpan);
-    }
-
-    mobilePriceEl.textContent = priceText;
-
-    const locationSpan = mobileLocationEl.querySelector("span");
-    if (locationSpan) {
-      locationSpan.textContent = listing.location_city || "Not specified";
-    }
-
-    // İlan tarihi
-    if (mobilePostedEl) {
-      const postedDate = new Date(listing.created_at);
-      const now = new Date();
-      const diffMinutes = Math.floor((now - postedDate) / (1000 * 60));
-      let timeText = "";
-
-      if (diffMinutes < 60) {
-        timeText = `${diffMinutes} minutes ago`;
-      } else if (diffMinutes < 1440) {
-        const hours = Math.floor(diffMinutes / 60);
-        timeText = `${hours} hours ago`;
-      } else if (diffMinutes < 10080) {
-        const days = Math.floor(diffMinutes / 1440);
-        timeText = `${days} days ago`;
-      } else {
-        timeText = postedDate.toLocaleDateString("en-GB");
-      }
-      mobilePostedEl.textContent = `Posted ${timeText}`;
-    }
-  }
-
-  // Meta Bilgileri - Daha detaylı gösterim (elemanlar opsiyonel olabilir)
-  const locationEl = document.getElementById("detail-location");
-  if (locationEl) {
-    locationEl.textContent = listing.location_city || "Not specified";
-  } else {
-    console.warn("detail-location element not found, skipped.");
-  }
-
-  const viewsEl = document.getElementById("detail-views");
-  if (viewsEl) {
-    const viewsCount = listing.views_count || 0;
-    viewsEl.textContent = `${viewsCount} ${viewsCount === 1 ? "view" : "views"}`;
-  } else {
-    console.warn("detail-views element not found, skipped.");
-  }
-
-  // Açıklama - render edilmiş HTML göster (sanitize ile)
-  const descriptionElement = document.getElementById("detail-description");
-  const safeHtml =
-    sanitizeHtml(listing.description) || "<p>No description added</p>";
-  if (descriptionElement) descriptionElement.innerHTML = safeHtml;
-
-  // Galeri resimleri
-  const mainImage = document.getElementById("main-image");
-  if (listing.photos && listing.photos.length > 0) {
-    mainImage.src = listing.photos[0];
-    document.getElementById("current-image").textContent = "1";
-    document.getElementById("total-images").textContent = listing.photos.length;
-
-    // Thumbnail'ler
-    const thumbnailsGrid = document.getElementById("thumbnails-grid");
-    thumbnailsGrid.innerHTML = listing.photos
-      .map(
-        (photo, idx) => `
-            <div class="gallery-thumbnail ${idx === 0 ? "active" : ""}" data-index="${idx}">
-                <img src="${photo}" alt="Foto ${idx + 1}">
-            </div>
-        `,
-      )
-      .join("");
-  } else {
-    mainImage.src =
-      "https://via.placeholder.com/800x600/10b981/ffffff?text=No+Photo";
-    document.getElementById("current-image").textContent = "0";
-    document.getElementById("total-images").textContent = "0";
-  }
-
-  // Özellikler Tablosu
-  const specsTable = document.getElementById("specs-table");
-  const specs = buildSpecsTable(listing);
-  specsTable.innerHTML = specs;
-
-  // Teknik Detayları Göster
-  renderTechnicalDetails(listing);
-
-  // ===== UNAUTHENTICATED USER PROTECTION (Satıcı Bilgilerini Koru) =====
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  const sellerCard =
-    document.getElementById("seller-card") ||
-    document.querySelector(".seller-card");
-  const isUnauthenticated = !user;
-
-  if (isUnauthenticated && sellerCard) {
-    console.log(
-      "👤 Unauthenticated user - Seller info will be blurred",
-    );
-    sellerCard.classList.add("blurred");
-
-    // Login overlay oluştur
-    const overlay = document.createElement("div");
-    overlay.className = "seller-card-login-overlay";
-    overlay.innerHTML = `
-            <i class="fas fa-lock"></i>
-            <p>You must log in to view seller information</p>
-            <a href="login.html?redirect=${encodeURIComponent(window.location.href)}" class="btn-login">
-                Log In
-            </a>
-        `;
-    sellerCard.appendChild(overlay);
-  }
-
-  // Satıcı Bilgilerini Profil Tablosundan Çek
+  // 5. Seller Profile
   try {
     const sellerProfile = await getProfile(listing.user_id);
-    console.log("✅ Seller profile loaded:", sellerProfile);
+    const sellerNameD = document.getElementById("seller-name-desktop");
+    const sellerAvatarD = document.getElementById("seller-avatar-desktop");
+    const sellerMemberD = document.getElementById("seller-member-since-desktop");
+    
+    const sellerNameM = document.getElementById("seller-name-mobile");
+    const sellerAvatarM = document.getElementById("seller-avatar-mobile");
+    const sellerMemberM = document.getElementById("seller-member-mobile");
 
-    // Satıcı adı
-    const sellerName = document.getElementById("seller-name");
-    const fullSellerName =
-      sellerProfile.full_name ||
-      sellerProfile.username ||
-      listing.user_email?.split("@")[0] ||
-      "Seller";
-    sellerName.textContent = fullSellerName;
-    sellerName.dataset.sellerId = listing.user_id;
+    const fullName = sellerProfile.full_name || sellerProfile.username || "Seller";
+    const memberSince = sellerProfile.created_at ? `Member since ${new Date(sellerProfile.created_at).getFullYear()}` : "New Member";
 
-    // Satıcı avatarı
-    const sellerAvatar = document.getElementById("seller-avatar");
-    if (sellerProfile.avatar_url) {
-      sellerAvatar.src = sellerProfile.avatar_url;
-    } else {
-      sellerAvatar.src = "assets/images/default-avatar.svg";
-    }
+    if (sellerNameD) sellerNameD.textContent = fullName;
+    if (sellerAvatarD && sellerProfile.avatar_url) sellerAvatarD.src = sellerProfile.avatar_url;
+    if (sellerMemberD) sellerMemberD.textContent = memberSince;
 
-    // Hata durumunda varsayılan görseli göster
-    sellerAvatar.onerror = function () {
-      this.src = "assets/images/default-avatar.svg";
-    };
+    if (sellerNameM) sellerNameM.textContent = fullName;
+    if (sellerAvatarM && sellerProfile.avatar_url) sellerAvatarM.src = sellerProfile.avatar_url;
+    if (sellerMemberM) sellerMemberM.textContent = memberSince;
 
-    // Satıcı istatistikleri
-    const sellerStats = document.getElementById("seller-stats");
-    const activeCountEl = document.getElementById("seller-active-count");
-    const memberSinceEl = document.getElementById("seller-member-since");
+    // Seller action wiring
+    const sellerTriggerM = document.getElementById("seller-card-mobile-trigger");
+    if (sellerTriggerM) sellerTriggerM.onclick = () => window.location.href = `seller-profile.html?id=${listing.user_id}`;
+    
+    if (sellerNameD) sellerNameD.onclick = () => window.location.href = `seller-profile.html?id=${listing.user_id}`;
+  } catch (err) { console.error("Seller profile err:", err); }
 
-    // Aktif ilan sayısını hesapla
-    const { count: activeAdsCount } = await supabase
-      .from("listings")
-      .select("*", { count: "exact", head: true })
-      .eq("user_id", listing.user_id)
-      .eq("status", "active");
+  // 6. Specs Table (Desktop) & Specs List (Mobile)
+  const specsTableD = document.getElementById("specs-table-desktop");
+  const specsListM = document.getElementById("specs-list-mobile");
+  const specsData = buildSpecsTableData(listing); // Array of [key, val]
 
-    // Üyelik tarihini formatla (örneğin "12 June 2026")
-    let memberSince = "Date unknown";
-    if (sellerProfile.created_at) {
-      const createdDate = new Date(sellerProfile.created_at);
-      memberSince = createdDate.toLocaleDateString('en-GB', {
-        day: 'numeric',
-        month: 'long',
-        year: 'numeric'
+  if (specsTableD) {
+      specsTableD.innerHTML = specsData.map(row => `
+        <div class="spec-row">
+            <span class="spec-label">${row[0]}</span>
+            <span class="spec-value">${row[1]}</span>
+        </div>
+      `).join('');
+  }
+
+  if (specsListM) {
+      specsListM.innerHTML = specsData.map(row => `
+        <div class="spec-row-native">
+            <span class="spec-key">${row[0]}</span>
+            <span class="spec-val">${row[1]}</span>
+        </div>
+      `).join('');
+  }
+
+  // 7. Description
+  const descD = document.getElementById("detail-description-desktop");
+  const descM = document.getElementById("detail-description-mobile");
+  const safeDesc = (listing.description || "No description.").replace(/\n/g, '<br>');
+  if (descD) descD.innerHTML = safeDesc;
+  if (descM) descM.innerHTML = safeDesc;
+
+  // 8. Technical Details
+  const techD = document.getElementById("tech-details-desktop");
+  const techM = document.getElementById("tech-details-mobile");
+  renderBothTechnicalDetails(listing, techD, techM);
+
+  // 9. Gallery & Carousel
+  if (listing.photos && listing.photos.length > 0) {
+    const mainD = document.getElementById("main-image-desktop");
+    const carouselM = document.getElementById("mobile-carousel");
+    
+    // Desktop Gallery
+    if (mainD) mainD.src = listing.photos[0];
+    const totalD = document.getElementById("total-images-desktop");
+    if (totalD) totalD.textContent = listing.photos.length;
+
+    // Mobile Native Carousel
+    if (carouselM) {
+      carouselM.innerHTML = listing.photos.map(p => `
+        <div class="native-carousel-item" onclick="openLightbox(0)">
+          <img src="${p}" alt="Listing Photo" loading="lazy">
+        </div>
+      `).join('');
+
+      // Add scroll listener for index indicator
+      carouselM.addEventListener('scroll', () => {
+        const width = carouselM.offsetWidth;
+        const index = Math.round(carouselM.scrollLeft / width);
+        const countM = document.getElementById("photo-count-text-mobile");
+        if (countM) countM.textContent = `${index + 1} / ${listing.photos.length}`;
       });
     }
 
-    if (sellerStats) {
-      const responseRate = "95%"; // Bu değer gerçek mesajlaşma verilerinden hesaplanabilir
-      sellerStats.textContent = `${activeAdsCount || 0} active listings • ${memberSince} • ${responseRate} response rate`;
-    }
-    if (activeCountEl) activeCountEl.textContent = activeAdsCount || 0;
-    if (memberSinceEl) memberSinceEl.textContent = memberSince;
+    const countM = document.getElementById("photo-count-text-mobile");
+    if (countM) countM.textContent = `1 / ${listing.photos.length}`;
 
-    // Mobil minimal seller özetini güncelle
-    const mobileSellerNameEl = document.getElementById("mobile-seller-name-preview");
-    const mobileSellerDateEl = document.getElementById("mobile-seller-date-preview");
-    if (mobileSellerNameEl) {
-      mobileSellerNameEl.textContent = fullSellerName;
-      mobileSellerNameEl.dataset.sellerId = listing.user_id;
-    }
-    if (mobileSellerDateEl) mobileSellerDateEl.textContent = memberSince;
-
-    // Satıcı doğrulama durumu (eğer profile'da verified alanı varsa)
-    if (sellerProfile.verified) {
-      document.getElementById("seller-verified-badge").style.display = "flex";
-    }
-  } catch (error) {
-    console.error("❌ Error loading seller profile:", error);
-    // Hata durumunda temel bilgileri göster
-    const sellerName = document.getElementById("seller-name");
-    sellerName.textContent = listing.user_email?.split("@")[0] || "Seller";
-    const sellerStats = document.getElementById("seller-stats");
-    const activeCountEl = document.getElementById("seller-active-count");
-    const memberSinceEl = document.getElementById("seller-member-since");
-
-    if (sellerStats)
-      sellerStats.textContent = "0 active listings • New member • 95% response rate";
-    if (activeCountEl) activeCountEl.textContent = "0";
-    if (memberSinceEl) memberSinceEl.textContent = "New member";
-
-    // Mobil minimal seller özetini fallback için de güncelle
-    const mobileSellerNameEl = document.getElementById("mobile-seller-name-preview");
-    const mobileSellerDateEl = document.getElementById("mobile-seller-date-preview");
-    if (mobileSellerNameEl) mobileSellerNameEl.textContent = sellerName.textContent;
-    if (mobileSellerDateEl) mobileSellerDateEl.textContent = "New member";
-  }
-
-  // Satıcı Değerlendirmesini Yükle
-  loadSellerRating(listing.user_id);
-
-  // Değerlendirme Ekleme Butonunu Ayarla
-  const addRatingBtn = document.getElementById("add-rating-btn");
-  if (addRatingBtn && !addRatingBtn.dataset.bound) {
-    // Kullanıcı giriş yapmışsa butonu göster
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (user && user.id !== listing.user_id) {
-      addRatingBtn.style.display = "flex";
-      addRatingBtn.addEventListener("click", () => {
-        if (typeof showRatingForm !== "undefined") {
-          showRatingForm(listing.id, listing.user_id);
-        } else {
-          console.error("showRatingForm function not found");
-        }
-      });
-      addRatingBtn.dataset.bound = "true";
+    // Thumbnails Desktop
+    const thumbGridD = document.getElementById("thumbnails-grid-desktop");
+    if (thumbGridD) {
+        thumbGridD.innerHTML = listing.photos.map((p, i) => `
+            <div class="gallery-thumbnail ${i === 0 ? 'active' : ''}" data-index="${i}">
+                <img src="${p}" alt="Photo">
+            </div>
+        `).join('');
     }
   }
 
-  // Sayfa başlığını güncelle
-  document.title = `${listing.title} - VENDO`;
+  // 10. Actions Init
+  initializeAllActions(listing);
 
-  // Satıcı adı tıklama işlevini başlat
-  initSellerProfileLink();
+  // 11. Initializations
+  if (isMobile) initializeNativeTabs();
 
-  // Mobil Sekmeleri Başlat
-  initializeMobileTabs();
-
-  // Haritayı Başlat (Malta)
-  import("./map-handler.js")
-    .then((module) => {
-      module.initSellerMap(listing.location_city);
-    })
-    .catch((err) => console.error("Harita yüklenemedi:", err));
+  // 12. Map
+  import("./malta-map-svg.js").then(m => {
+      if (!isMobile) m.initMaltaSVGMap(listing.location_city, 'seller-map-container-desktop');
+      m.initMaltaSVGMap(listing.location_city, 'malta-map-svg-mobile');
+  });
 }
 
-function initializeMobileTabs() {
-    const tabBtns = document.querySelectorAll('.ad-tab-btn');
-    const tabContents = {
-        'info': document.getElementById('tab-content-info'),
-        'tech': document.getElementById('tab-content-tech'),
-        'desc': document.getElementById('tab-content-desc'),
-        'loc': document.getElementById('tab-content-loc'),
-        'qa': document.getElementById('tab-content-qa')
-    };
-
-    if (!tabBtns.length || Object.values(tabContents).some(c => !c)) return;
-
-    // Sadece mobil görünümdeyken tetiklenecek şekilde ayarla. Responsive tabiatı gereği
-    const isMobile = window.innerWidth <= 768;
+/**
+ * Build data for specs table
+ */
+function buildSpecsTableData(listing) {
+    const data = [];
+    data.push(["Listing No", listing.listing_number || listing.id.substring(0,8)]);
+    data.push(["Category", listing.category_text || "General"]);
+    if (listing.item_condition) data.push(["Condition", listing.item_condition]);
     
-    // Varsayılan olarak sadece ilki gösterecek şekilde gizle
-    if (isMobile) {
-        tabContents['tech'].classList.add('mobile-hidden');
-        tabContents['desc'].classList.add('mobile-hidden');
-        tabContents['loc'].classList.add('mobile-hidden');
-        tabContents['qa'].classList.add('mobile-hidden');
+    const extra = listing.extra_fields || {};
+    Object.keys(extra).forEach(k => {
+        if (k === 'technical_details') return;
+        const label = k.charAt(0).toUpperCase() + k.slice(1).replace(/_/g, ' ');
+        data.push([label, extra[k]]);
+    });
+    return data;
+}
+
+function renderBothTechnicalDetails(listing, containerD, containerM) {
+    let tech = listing.extra_fields?.technical_details;
+    if (typeof tech === 'string') {
+        try {
+            tech = JSON.parse(tech);
+        } catch (e) {
+            tech = [];
+        }
     }
 
-    tabBtns.forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            tabBtns.forEach(b => b.classList.remove('active'));
-            e.currentTarget.classList.add('active');
+    let html = '';
 
-            const target = e.currentTarget.dataset.target;
-            Object.values(tabContents).forEach(content => {
-                content.classList.add('mobile-hidden');
+    if (Array.isArray(tech) && tech.length > 0) {
+        html = `<ul class="tech-details-list">
+            ${tech.map(feature => `
+                <li>
+                    <i class="fas fa-check-circle"></i>
+                    <span>${feature}</span>
+                </li>
+            `).join('')}
+        </ul>`;
+    } else if (tech && typeof tech === 'object') {
+        const items = [];
+        Object.entries(tech).forEach(([group, features]) => {
+            if (!Array.isArray(features) || features.length === 0) return;
+            features.forEach((f) => {
+                items.push(f);
             });
+        });
+        
+        if (items.length > 0) {
+            html = `<ul class="tech-details-list">
+                ${items.map(feature => `
+                    <li>
+                        <i class="fas fa-check-circle"></i>
+                        <span>${feature}</span>
+                    </li>
+                `).join('')}
+            </ul>`;
+        }
+    }
 
-            if (tabContents[target]) {
-                tabContents[target].classList.remove('mobile-hidden');
+    const finalHtml = html || '<p style="text-align: center; color: #999; padding: 1rem;">No technical details available.</p>';
+    if (containerD) containerD.innerHTML = finalHtml;
+    if (containerM) containerM.innerHTML = finalHtml;
+}
+
+async function initializeAllActions(listing) {
+    const { data: { user } } = await supabase.auth.getUser();
+    const isOwner = user && user.id === listing.user_id;
+
+    // Desktop Elements
+    const favD = document.getElementById("favorite-btn-desktop");
+    const msgD = document.getElementById("message-btn-desktop");
+    const phnD = document.getElementById("phone-btn-desktop");
+
+    // Mobile Elements
+    const backBtn = document.getElementById("mobile-back-btn");
+    const favM = document.getElementById("mobile-favorite-btn");
+    const shareM = document.getElementById("mobile-share-btn");
+    const msgM = document.getElementById("message-btn-footer-mobile");
+    const editM = document.getElementById("edit-btn-footer-mobile");
+
+    // Initialize State (Favorite status)
+    if (user) {
+        try {
+            const { isFavorite } = await import("./api.js");
+            const isInFav = await isFavorite(listing.id);
+            updateFavUI(isInFav);
+        } catch (e) { console.error("Initial favorite check failed", e); }
+    }
+
+    // Toggle Mobile Footer Buttons (Owner vs Guest)
+    if (isOwner) {
+        if (msgM) msgM.style.display = "none";
+        if (editM) {
+            editM.style.display = "flex";
+            editM.onclick = () => window.location.href = `ilan-ekle.html?edit=${listing.id}`;
+        }
+    } else {
+        if (msgM) msgM.style.display = "flex";
+        if (editM) editM.style.display = "none";
+    }
+
+    // --- Action: Favorite ---
+    const updateFavUI = (isActive) => {
+        [favD, favM].forEach(btn => {
+            if (!btn) return;
+            const icon = btn.querySelector('i');
+            if (isActive) {
+                btn.classList.add('active');
+                if (icon) icon.className = 'fas fa-heart';
+                if (btn.id.includes('mobile')) btn.style.color = '#ef4444';
+            } else {
+                btn.classList.remove('active');
+                if (icon) icon.className = 'far fa-heart';
+                if (btn.id.includes('mobile')) btn.style.color = '#fff';
             }
         });
-    });
-}
+    };
 
-function showError(message) {
-  // Sayfada farklı kapsayıcılar olabilir; uygun olanı seç
-  const container =
-    document.querySelector(".ad-container") ||
-    document.querySelector(".ad-detail-page") ||
-    document.querySelector(".ad-detail-container") ||
-    document.querySelector("main") ||
-    document.body;
-
-  if (container) {
-    container.innerHTML = `
-            <div style="text-align: center; padding: 3rem;">
-                <i class="fas fa-exclamation-triangle" style="font-size: 3rem; color: var(--danger);"></i>
-                <h2 style="margin-top: 1rem;">${message}</h2>
-                <a href="index.html" class="btn-primary" style="margin-top: 1.5rem; display: inline-block; padding: 0.75rem 2rem; text-decoration: none;">
-                    <i class="fas fa-home"></i> Return to Homepage
-                </a>
-            </div>
-        `;
-  } else {
-    alert(message);
-  }
-}
-
-// Favori butonunu başlat ve mevcut durumu kontrol et
-async function initializeFavoriteButton(listingId) {
-  const favoriteBtn = document.getElementById("favorite-btn");
-  if (!favoriteBtn) return;
-
-  try {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (!user) return; // Giriş yapmamışsa varsayılan durumda kalır
-
-    // Favori durumunu kontrol et
-    const isInFavorites = await isFavorite(listingId);
-    if (isInFavorites) {
-      favoriteBtn.classList.add("active");
-      const mobileFavBtn = document.getElementById("mobile-favorite-btn");
-      if (mobileFavBtn) mobileFavBtn.classList.add("active");
-
-      const icons = [
-        favoriteBtn.querySelector("i"),
-        mobileFavBtn?.querySelector("i"),
-      ];
-
-      icons.forEach((icon) => {
-        if (icon) {
-          icon.classList.remove("far");
-          icon.classList.add("fas");
+    const handleToggleFav = async () => {
+        if (!user) {
+            if (typeof showNotification === 'function') showNotification('Please log in to add favorites', 'warning');
+            else alert('Please log in to add favorites');
+            window.location.href = `login.html?redirect=${encodeURIComponent(window.location.href)}`;
+            return;
         }
-      });
-    }
-  } catch (error) {
-    console.error("Favori durumu kontrol hatası:", error);
-  }
-}
 
-// Mesaj gönder ve telefon göster fonksiyonları
-function initializeActions(listing) {
-  const messageBtn = document.getElementById("message-btn");
-  const phoneBtn = document.getElementById("phone-btn");
-  const favoriteBtn = document.getElementById("favorite-btn");
-  const mobileFavBtn = document.getElementById("mobile-favorite-btn");
-  const mobileBackBtn = document.getElementById("mobile-back-btn");
-  const mobileShareBtn = document.getElementById("mobile-share-btn");
+        const btn = favM || favD;
+        const willBeActive = !btn.classList.contains('active');
+        
+        try {
+            updateFavUI(willBeActive); // Optimistic UI update
+            if (willBeActive) {
+                await addToFavorites(listing.id);
+                if (typeof showNotification === 'function') showNotification('Added to favorites', 'success');
+            } else {
+                await removeFromFavorites(listing.id);
+                if (typeof showNotification === 'function') showNotification('Removed from favorites', 'info');
+            }
+        } catch (error) {
+            console.error('Favorite error:', error);
+            updateFavUI(!willBeActive); // Rollback on error
+            if (typeof showNotification === 'function') showNotification('Failed to update favorites', 'error');
+        }
+    };
 
-  // Mobil Geri Butonu
-  if (mobileBackBtn) {
-    mobileBackBtn.addEventListener("click", () => {
-      if (window.history.length > 1) {
-        window.history.back();
-      } else {
-        window.location.href = "index.html";
-      }
-    });
-  }
+    if (favD) favD.onclick = handleToggleFav;
+    if (favM) favM.onclick = handleToggleFav;
 
-  // Mobil Paylaş Butonu
-  if (mobileShareBtn) {
-    mobileShareBtn.addEventListener("click", async () => {
-      try {
-        if (navigator.share) {
-          await navigator.share({
+    // --- Action: Message ---
+    const handleMessage = () => {
+        if (!user) {
+            if (typeof showNotification === 'function') showNotification('Please log in to send a message', 'warning');
+            window.location.href = 'login.html';
+            return;
+        }
+        if (isOwner) {
+            if (typeof showNotification === 'function') showNotification('You cannot message your own listing', 'warning');
+            return;
+        }
+        window.location.href = `mesajlar.html?listing_id=${listing.id}&seller_id=${listing.user_id}`;
+    };
+
+    if (msgD) msgD.onclick = handleMessage;
+    if (msgM) msgM.onclick = handleMessage;
+
+    // --- Action: Phone ---
+    const handlePhone = async (btn) => {
+        if (!user) {
+            if (typeof showNotification === 'function') showNotification('Please log in to view phone number', 'warning');
+            window.location.href = 'login.html';
+            return;
+        }
+        try {
+            const { data } = await supabase.from("profiles").select("phone").eq("id", listing.user_id).single();
+            if (data?.phone) btn.innerHTML = `<i class="fas fa-phone"></i> ${data.phone}`;
+            else {
+                if (typeof showNotification === 'function') showNotification('Phone number not shared', 'info');
+                else alert("Phone hidden");
+            }
+        } catch (e) {
+            console.error('Phone error:', e);
+            if (typeof showNotification === 'function') showNotification('Failed to load phone number', 'error');
+        }
+    };
+
+    if (phnD) phnD.onclick = () => handlePhone(phnD);
+
+    // --- Action: Share ---
+    const handleShare = async () => {
+        const shareData = {
             title: listing.title,
-            text: `${listing.title} - VENDO`,
-            url: window.location.href,
-          });
-        } else {
-          // Fallback: Copy to clipboard
-          await navigator.clipboard.writeText(window.location.href);
-          if (typeof showNotification === "function") {
-            showNotification("Link copied", "success");
-          } else {
-            alert("Link copied");
-          }
+            text: `Check out this listing: ${listing.title}`,
+            url: window.location.href
+        };
+
+        try {
+            if (navigator.share) {
+                await navigator.share(shareData);
+            } else {
+                await navigator.clipboard.writeText(window.location.href);
+                if (typeof showNotification === 'function') showNotification('Link copied to clipboard!', 'success');
+                else alert('Link copied to clipboard!');
+            }
+        } catch (err) {
+            console.error('Share error:', err);
         }
-      } catch (err) {
-        console.error("Share error:", err);
-      }
+    };
+
+    if (shareM) shareM.onclick = handleShare;
+
+    // --- Navigation ---
+    if (backBtn) backBtn.onclick = () => window.history.back();
+}
+
+function initializeNativeTabs() {
+  const tabs = document.querySelectorAll('.tab-item');
+  const panes = document.querySelectorAll('.native-tab-pane');
+  const wrapper = document.querySelector('.native-tabs-scroll');
+  
+  if (!tabs.length || !wrapper) return;
+
+  tabs.forEach(tab => {
+    tab.addEventListener('click', (e) => {
+      e.preventDefault();
+      const targetId = tab.getAttribute('data-tab');
+      
+      // Update Tabs
+      tabs.forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+
+      // Update Panes
+      panes.forEach(p => p.classList.remove('active'));
+      const targetPane = document.getElementById(`tab-${targetId}`);
+      if (targetPane) targetPane.classList.add('active');
+
+      // Scroll into view if needed
+      tab.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
     });
-  }
+  });
+}
 
-  // Favorileme (Ortak fonksiyon)
-  const toggleFavorite = async () => {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (!user) {
-      if (typeof showNotification === "function") {
-        showNotification("Log in to add to favorites", "warning");
-      } else {
-        alert("Log in to add to favorites");
-      }
-      window.location.href = `login.html?redirect=${encodeURIComponent(window.location.href)}`;
-      return;
-    }
 
-    try {
-      const isFavorited = favoriteBtn.classList.contains("active");
-      const icons = [
-        favoriteBtn?.querySelector("i"),
-        mobileFavBtn?.querySelector("i"),
-      ];
-
-      if (isFavorited) {
-        await removeFromFavorites(listing.id);
-        favoriteBtn.classList.remove("active");
-        if (mobileFavBtn) mobileFavBtn.classList.remove("active");
-
-        icons.forEach((icon) => {
-          if (icon) {
-            icon.classList.remove("fas");
-            icon.classList.add("far");
-          }
-        });
-
-        if (typeof showNotification === "function") {
-          showNotification("Removed from favorites", "info");
-        }
-      } else {
-        await addToFavorites(listing.id);
-        favoriteBtn.classList.add("active");
-        if (mobileFavBtn) mobileFavBtn.classList.add("active");
-
-        icons.forEach((icon) => {
-          if (icon) {
-            icon.classList.remove("far");
-            icon.classList.add("fas");
-          }
-        });
-
-        if (typeof showNotification === "function") {
-          showNotification("Added to favorites", "success");
-        }
-      }
-    } catch (error) {
-      console.error("Favorite action error:", error);
-      if (typeof showNotification === "function") {
-        showNotification("Favorite action failed", "error");
-      }
-    }
-  };
-
-  if (favoriteBtn) favoriteBtn.addEventListener("click", toggleFavorite);
-  if (mobileFavBtn) mobileFavBtn.addEventListener("click", toggleFavorite);
-
-  // Mesaj Gönder
-  if (messageBtn) {
-    messageBtn.addEventListener("click", async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (!user) {
-        if (typeof showNotification === "function") {
-          showNotification("Log in to send a message", "warning");
-        } else {
-          alert("Log in to send a message");
-        }
-        window.location.href = "login.html";
-        return;
-      }
-
-      if (user.id === listing.user_id) {
-        if (typeof showNotification === "function") {
-          showNotification("You cannot send a message to your own listing", "warning");
-        } else {
-          alert("You cannot send a message to your own listing");
-        }
-        return;
-      }
-
-      window.location.href = `mesajlar.html?listing_id=${listing.id}&seller_id=${listing.user_id}`;
-    });
-  }
-
-  // Telefon Numarası Göster
-  if (phoneBtn) {
-    phoneBtn.addEventListener("click", async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (!user) {
-        if (typeof showNotification === "function") {
-          showNotification(
-            "Log in to view phone number",
-            "warning",
-          );
-        } else {
-          alert("Log in to view phone number");
-        }
-        window.location.href = "login.html";
-        return;
-      }
-
-      try {
-        const { data: profile } = await supabase
-          .from("profiles")
-          .select("phone")
-          .eq("id", listing.user_id)
-          .single();
-
-        const phone = profile?.phone || "Phone number not added";
-        phoneBtn.innerHTML = `<i class="fas fa-phone"></i><span>${phone}</span>`;
-        phoneBtn.style.pointerEvents = "none";
-        phoneBtn.style.opacity = "0.7";
-      } catch (error) {
-        console.error("Phone fetch failed:", error);
-        if (typeof showNotification === "function") {
-          showNotification("Could not fetch phone number", "error");
-        } else {
-          alert("Could not fetch phone number");
-        }
-      }
-    });
-  }
+function formatDateRelative(dateStr) {
+  const diff = new Date() - new Date(dateStr);
+  const hrs = Math.floor(diff / 3600000);
+  if (hrs < 24) return `${hrs} hours ago`;
+  return `${Math.floor(hrs/24)} days ago`;
 }
 
 /**
@@ -1126,7 +968,7 @@ function buildSpecsTable(listing) {
  * Galeri navigasyon
  */
 function initializeGallery(listing) {
-  const mainImage = document.getElementById("main-image");
+  const mainImage = document.getElementById("main-image-desktop") || document.getElementById("main-image");
 
   // Tek fotoğraf varsa da lightbox ekle
   if (!listing.photos || listing.photos.length <= 1) {
@@ -1137,13 +979,18 @@ function initializeGallery(listing) {
         openLightbox(listing.photos, 0);
       });
     }
+    const totalEl = document.getElementById("total-images-desktop") || document.getElementById("total-images");
+    if (totalEl) totalEl.textContent = listing.photos ? listing.photos.length : 1;
     return;
   }
 
   let currentIndex = 0;
-  const prevBtn = document.querySelector(".gallery-nav.prev");
-  const nextBtn = document.querySelector(".gallery-nav.next");
-  const currentImageEl = document.getElementById("current-image");
+  const prevBtn = document.querySelector(".gallery-nav.prev") || document.getElementById("prev-image");
+  const nextBtn = document.querySelector(".gallery-nav.next") || document.getElementById("next-image");
+  const currentImageEl = document.getElementById("current-image-desktop") || document.getElementById("current-image");
+  const totalImageEl = document.getElementById("total-images-desktop") || document.getElementById("total-images");
+
+  if (totalImageEl) totalImageEl.textContent = listing.photos.length;
 
   const updateImage = (index, direction = 0) => {
     const nextIndex = (index + listing.photos.length) % listing.photos.length;
@@ -2064,7 +1911,7 @@ function renderBreadcrumb(listing) {
 
   // Ana Sayfa zaten HTML'de var
   breadcrumbItems.push(`
-        <a href="index.html" class="breadcrumb-item">
+        <a href="/" class="breadcrumb-item">
             <i class="fas fa-home"></i>
             Home
         </a>
@@ -2074,7 +1921,7 @@ function renderBreadcrumb(listing) {
   if (category) {
     breadcrumbItems.push(`
             <span class="breadcrumb-separator"><i class="fas fa-chevron-right"></i></span>
-            <a href="index.html?category=${encodeURIComponent(category)}" class="breadcrumb-item">
+            <a href="/?category=${encodeURIComponent(category)}" class="breadcrumb-item">
                 ${category}
             </a>
         `);
@@ -2092,7 +1939,7 @@ function renderBreadcrumb(listing) {
       const brand = extra.brand || extra.marka;
       breadcrumbItems.push(`
                 <span class="breadcrumb-separator"><i class="fas fa-chevron-right"></i></span>
-                <a href="index.html?category=${encodeURIComponent(category)}&brand=${encodeURIComponent(brand)}" class="breadcrumb-item">
+                <a href="/?category=${encodeURIComponent(category)}&brand=${encodeURIComponent(brand)}" class="breadcrumb-item">
                     ${brand}
                 </a>
             `);
@@ -2102,7 +1949,7 @@ function renderBreadcrumb(listing) {
     if (extra.model) {
       breadcrumbItems.push(`
                 <span class="breadcrumb-separator"><i class="fas fa-chevron-right"></i></span>
-                <a href="index.html?category=${encodeURIComponent(category)}&brand=${encodeURIComponent(extra.brand || extra.marka || "")}&model=${encodeURIComponent(extra.model)}" class="breadcrumb-item">
+                <a href="/?category=${encodeURIComponent(category)}&brand=${encodeURIComponent(extra.brand || extra.marka || "")}&model=${encodeURIComponent(extra.model)}" class="breadcrumb-item">
                     ${extra.model}
                 </a>
             `);
@@ -2465,24 +2312,7 @@ function sanitizeHtml(dirty) {
 
 // Collapsible kartlar için işlev
 function initCollapsibles() {
-  document
-    .querySelectorAll(".description-card .card-title")
-    .forEach((title) => {
-      title.addEventListener("click", function () {
-        const card = this.closest(".description-card");
-        const content = card.querySelector(
-          ".tech-details-content, .description-text",
-        );
-
-        if (content && content.style.display === "none") {
-          content.style.display = "block";
-          this.classList.remove("collapsed");
-        } else if (content) {
-          content.style.display = "none";
-          this.classList.add("collapsed");
-        }
-      });
-    });
+  // Collapse behavior removed; Technical Details and description sections remain expanded.
 }
 
 // Satıcı kartına "View Profile" linki ekle

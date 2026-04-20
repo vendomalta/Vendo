@@ -1,0 +1,518 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Edit Listing | VENDO</title>
+    <link rel="stylesheet" href="css/variables.css" />
+    <link rel="stylesheet" href="css/reset.css" />
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/ilan-ver-form.css" />
+    <link rel="stylesheet" href="css/listings.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+  </head>
+
+  <body>
+    <div id="header-placeholder"></div>
+
+    <!-- Main Content -->
+    <main class="form-main full-bleed">
+      <!-- Form Container -->
+      <div class="form-container">
+        <div class="progress-container">
+          <div
+            class="progress-bar"
+            role="progressbar"
+            aria-label="Form progress"
+          >
+            <div id="progressFill" class="progress-fill"></div>
+          </div>
+        </div>
+        <div class="form-content">
+          <!-- Category Info Banner -->
+          <div class="category-banner">
+            <div class="banner-content">
+              <i class="fas fa-tag" id="categoryIcon"></i>
+              <div>
+                <h3 id="categoryTitle">Category</h3>
+                <p id="categorySubtitle">Loading...</p>
+              </div>
+            </div>
+            <button type="button" class="change-category-btn" id="changeCategoryBtn">
+              <i class="fas fa-edit"></i>
+              Change
+            </button>
+          </div>
+
+          <div class="form-and-preview-wrapper">
+
+          <!-- Single Form - Wizard steps -->
+          <form id="listingForm">
+            <input type="hidden" id="listingId" name="listingId">
+            <!-- STEP 1: Temel Bilgiler + Fotoğraf -->
+            <div class="form-step" data-step="1">
+              <div class="two-column-wrapper">
+                <!-- LEFT COLUMN: Temel Bilgiler -->
+                <div class="form-section left-column">
+                  <h2 class="section-title">
+                    <i class="fas fa-info-circle"></i>
+                    Edit Basic Information
+                  </h2>
+
+                  <!-- Title -->
+                  <div class="form-group">
+                    <label for="title" class="form-label">
+                      <span>Listing Title</span>
+                      <span class="required">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      id="title"
+                      name="title"
+                      class="form-input"
+                      placeholder="e.g. private bedroom"
+                      maxlength="100"
+                      required
+                    />
+                    <span class="input-help"
+                      >You can write up to 100 characters</span
+                    >
+                  </div>
+
+                  <!-- Description (Rich Text Editor) -->
+                  <div class="form-group">
+                    <label for="descriptionEditor" class="form-label">
+                      <span>Description</span>
+                      <span class="required">*</span>
+                    </label>
+
+                    <div
+                      class="rich-text-toolbar"
+                      id="rteToolbar"
+                      aria-hidden="false"
+                      role="toolbar"
+                    >
+                      <button
+                        type="button"
+                        data-cmd="bold"
+                        title="Bold (Ctrl+B)"
+                      >
+                        <i class="fas fa-bold"></i>
+                      </button>
+                      <button
+                        type="button"
+                        data-cmd="italic"
+                        title="Italic (Ctrl+I)"
+                      >
+                        <i class="fas fa-italic"></i>
+                      </button>
+                      <button
+                        type="button"
+                        data-cmd="underline"
+                        title="Underline"
+                      >
+                        <i class="fas fa-underline"></i>
+                      </button>
+                      <button
+                        type="button"
+                        data-cmd="insertUnorderedList"
+                        title="Bullet List"
+                      >
+                        <i class="fas fa-list-ul"></i>
+                      </button>
+                      <button
+                        type="button"
+                        data-cmd="insertOrderedList"
+                        title="Numbered List"
+                      >
+                        <i class="fas fa-list-ol"></i>
+                      </button>
+                      <button
+                        type="button"
+                        data-cmd="justifyLeft"
+                        title="Align Left"
+                      >
+                        <i class="fas fa-align-left"></i>
+                      </button>
+                      <button
+                        type="button"
+                        data-cmd="justifyCenter"
+                        title="Align Center"
+                      >
+                        <i class="fas fa-align-center"></i>
+                      </button>
+                      <button
+                        type="button"
+                        data-cmd="justifyRight"
+                        title="Align Right"
+                      >
+                        <i class="fas fa-align-right"></i>
+                      </button>
+                      <button
+                        type="button"
+                        data-cmd="createLink"
+                        title="Add Link"
+                      >
+                        <i class="fas fa-link"></i>
+                      </button>
+                      <button
+                        type="button"
+                        data-cmd="removeFormat"
+                        title="Clear Formatting"
+                      >
+                        <i class="fas fa-eraser"></i>
+                      </button>
+                    </div>
+
+                    <div
+                      id="descriptionEditor"
+                      class="form-textarea rich-text-editor"
+                      contenteditable="true"
+                      aria-multiline="true"
+                      role="textbox"
+                      placeholder="Write the details of your listing..."
+                    ></div>
+
+                    <!-- Hidden field that will be submitted containing HTML content -->
+                    <textarea
+                      id="description"
+                      name="description"
+                      class="visually-hidden"
+                      aria-hidden="true"
+                      style="display: none"
+                    ></textarea>
+
+                    <span class="input-help"
+                      ><span id="charCount">0</span>/2000</span
+                    >
+                  </div>
+                  <!-- Price & Location -->
+                  <div class="form-row">
+                    <!-- Price -->
+                    <div class="form-group">
+                      <label for="price" class="form-label">
+                        <span>Price</span>
+                        <span class="required">*</span>
+                      </label>
+                      <div class="price-input-wrapper">
+                        <input
+                          type="text"
+                          id="price-display"
+                          inputmode="numeric"
+                          class="form-input"
+                          placeholder="0"
+                          maxlength="13"
+                          autocomplete="off"
+                        />
+                        <input type="hidden" id="price" name="price" required />
+                        <span class="price-currency">€</span>
+                      </div>
+                    </div>
+
+                    <!-- City -->
+                    <div class="form-group">
+                      <label for="city" class="form-label">
+                        <span>City</span>
+                        <span class="required">*</span>
+                      </label>
+                      <select id="city" name="city" class="form-input" required>
+                        <option value="">Select city...</option>
+                        <option value="Attard">Attard</option>
+                        <option value="Balzan">Balzan</option>
+                        <option value="Birgu">Birgu</option>
+                        <option value="Birkirkara">Birkirkara</option>
+                        <option value="Birżebbuġa">Birżebbuġa</option>
+                        <option value="Bormla">Bormla</option>
+                        <option value="Dingli">Dingli</option>
+                        <option value="Fgura">Fgura</option>
+                        <option value="Floriana">Floriana</option>
+                        <option value="Fontana">Fontana (Gozo)</option>
+                        <option value="Għajnsielem">Għajnsielem (Gozo)</option>
+                        <option value="Għarb">Għarb (Gozo)</option>
+                        <option value="Għargħur">Għargħur</option>
+                        <option value="Għasri">Għasri (Gozo)</option>
+                        <option value="Għaxaq">Għaxaq</option>
+                        <option value="Gżira">Gżira</option>
+                        <option value="Hamrun">Hamrun</option>
+                        <option value="Iklin">Iklin</option>
+                        <option value="Isla">Isla</option>
+                        <option value="Kalkara">Kalkara</option>
+                        <option value="Kerċem">Kerċem (Gozo)</option>
+                        <option value="Kirkop">Kirkop</option>
+                        <option value="Lija">Lija</option>
+                        <option value="Luqa">Luqa</option>
+                        <option value="Marsaskala">Marsaskala</option>
+                        <option value="Marsaxlokk">Marsaxlokk</option>
+                        <option value="Mdina">Mdina</option>
+                        <option value="Mellieha">Mellieħa</option>
+                        <option value="Mgarr">Mġarr</option>
+                        <option value="Mosta">Mosta</option>
+                        <option value="Mqabba">Mqabba</option>
+                        <option value="Msida">Msida</option>
+                        <option value="Mtarfa">Mtarfa</option>
+                        <option value="Munxar">Munxar (Gozo)</option>
+                        <option value="Nadur">Nadur (Gozo)</option>
+                        <option value="Naxxar">Naxxar</option>
+                        <option value="Paola">Paola</option>
+                        <option value="Pembroke">Pembroke</option>
+                        <option value="Pieta">Pietà</option>
+                        <option value="Qala">Qala (Gozo)</option>
+                        <option value="Qormi">Qormi</option>
+                        <option value="Qrendi">Qrendi</option>
+                        <option value="Rabat">Rabat</option>
+                        <option value="Rabat-Gozo">Rabat (Gozo)</option>
+                        <option value="Safi">Safi</option>
+                        <option value="San Giljan">San Ġiljan</option>
+                        <option value="San Gwann">San Gwann</option>
+                        <option value="San Lawrenz">San Lawrenz (Gozo)</option>
+                        <option value="San Pawl">San Pawl il-Baħar</option>
+                        <option value="Sannat">Sannat (Gozo)</option>
+                        <option value="Santa Lucija">Santa Luċija</option>
+                        <option value="Santa Venera">Santa Venera</option>
+                        <option value="Siggiewi">Siġġiewi</option>
+                        <option value="Sliema">Sliema</option>
+                        <option value="Stpauls-Bay">St. Paul's Bay</option>
+                        <option value="Swieqi">Swieqi</option>
+                        <option value="Taxbiex">Ta' Xbiex</option>
+                        <option value="Tarxien">Tarxien</option>
+                        <option value="Valletta">Valletta</option>
+                        <option value="Xaghra">Xagħra (Gozo)</option>
+                        <option value="Xewkija">Xewkija (Gozo)</option>
+                        <option value="Xghajra">Xgħajra</option>
+                        <option value="Zabbar">Żabbar</option>
+                        <option value="Zebbug">Żebbuġ</option>
+                        <option value="Zebbug-Gozo">Żebbuġ (Gozo)</option>
+                        <option value="Zejtun">Żejtun</option>
+                        <option value="Zurrieq">Żurrieq</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- RIGHT COLUMN: Fotoğraf Yükleme -->
+                <div class="form-section right-column">
+                  <h2 class="section-title">
+                    <i class="fas fa-images"></i>
+                    Update Photos
+                  </h2>
+
+                  <div class="photo-upload-area" id="photoUploadArea">
+                    <div class="upload-placeholder-content">
+                      <div class="upload-icon">
+                        <i class="fas fa-image"></i>
+                      </div>
+                      <div class="upload-text">
+                        <p class="upload-title">
+                          Add new photos
+                        </p>
+                        <p class="upload-hint">
+                          JPG, PNG (Max 5MB, Max 10 photos total)
+                        </p>
+                      </div>
+                    </div>
+
+                    <input
+                      type="file"
+                      id="photoInput"
+                      name="photo"
+                      class="photo-input"
+                      accept="image/jpeg,image/png"
+                      multiple
+                    />
+                  </div>
+
+                  <!-- Fotoğraf Önizleme Kutuları -->
+                  <div class="photo-preview-grid" id="photoPreviewGrid">
+                    <!-- JS will populate existing photos here -->
+                  </div>
+
+                  <div
+                    id="photoPreview"
+                    class="photo-preview"
+                    style="display: none"
+                  ></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- STEP 2: Kategori Özel Alanlar -->
+            <div class="form-step" data-step="2">
+              <div class="form-section">
+                <h2 class="section-title">
+                  <i class="fas fa-list"></i>
+                  Product Features
+                </h2>
+                <div id="categorySpecificFields"></div>
+              </div>
+            </div>
+
+            <!-- STEP 3: Teknik Detaylar -->
+            <div class="form-step" data-step="3">
+              <div class="form-section">
+                <h2 class="section-title">
+                  <i class="fas fa-cogs"></i>
+                  Technical Details
+                </h2>
+                <div id="techDetailsContainer" class="tech-details-container"></div>
+              </div>
+            </div>
+
+            <!-- STEP 4: İletişim Bilgileri -->
+            <div class="form-step" data-step="4">
+              <div class="form-section contact-section">
+                <h2 class="section-title">
+                  <i class="fas fa-phone-alt"></i>
+                  Contact Information
+                </h2>
+
+                <div class="form-group">
+                  <label class="form-label">How should people contact you?</label>
+                  <div class="contact-options">
+                    <label class="radio-option">
+                      <input
+                        type="radio"
+                        name="contactPreference"
+                        value="phone"
+                        checked
+                      />
+                      <span>With my phone numbers</span>
+                    </label>
+                    <label class="radio-option">
+                      <input
+                        type="radio"
+                        name="contactPreference"
+                        value="message"
+                      />
+                      <span>I don't want to be contacted by phone</span>
+                    </label>
+                  </div>
+                </div>
+
+                <div class="two-column-wrapper">
+                  <div class="left-column">
+                    <div class="contact-card" id="contactCard">
+                      <div class="contact-row">
+                        <label class="contact-label">Listing Contact Name</label>
+                        <input
+                          type="text"
+                          id="contactName"
+                          name="contactName"
+                          class="form-input"
+                          placeholder="Loading..."
+                          disabled
+                        />
+                      </div>
+                      <div class="contact-row">
+                        <label class="contact-label">Mobile Phone</label>
+                        <input
+                          type="tel"
+                          id="contactPhoneDisplay"
+                          class="form-input"
+                          placeholder="Loading..."
+                          disabled
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  <div class="right-column">
+                    <div class="form-section terms-section">
+                      <h2 class="section-title">
+                        <i class="fas fa-check-circle"></i>
+                        Confirm Changes
+                      </h2>
+                      <p class="contact-hint" style="margin-bottom: 1.5rem">
+                        Confirming these changes will update your listing immediately.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- Sticky Footer -->
+            <div class="form-footer sticky-footer">
+              <button type="button" id="stickyPrev" class="btn btn-secondary">
+                Back
+              </button>
+              <button type="button" id="stickyNext" class="btn btn-primary">
+                Next
+              </button>
+              <button
+                type="submit"
+                id="publishBtn"
+                class="btn btn-success"
+                style="display: none"
+              >
+                <i class="fas fa-save"></i>
+                Save Changes
+              </button>
+            </div>
+          </form>
+
+          <!-- Live Preview -->
+          <aside class="form-preview-sidebar">
+            <div class="sticky-preview-wrapper" id="stickyPreview">
+                <div class="preview-header">
+                    <h4>Preview Changes</h4>
+                </div>
+                <div class="preview-content-card">
+                  <!-- Reusing the preview card structure -->
+                  <div class="listing-card verde-card" id="livePreviewCard">
+                      <div class="listing-image" id="previewImageContainer">
+                        <img id="previewImage" src="" alt="Preview" />
+                        <div class="listing-badge active">UPDATING</div>
+                      </div>
+                      <div class="listing-content">
+                        <h3 class="listing-title verde-title" id="previewTitle">Listing Title</h3>
+                        <div class="listing-meta verde-meta">
+                          <div class="listing-location verde-location" id="previewLocation">Location</div>
+                          <div class="listing-price verde-price" id="previewPrice">€0</div>
+                        </div>
+                      </div>
+                  </div>
+                </div>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </main>
+
+    <!-- Loading Modal -->
+    <div id="loadingModal" class="loading-modal" style="display: none">
+      <div class="loading-content">
+        <i class="fas fa-spinner fa-spin"></i>
+        <p>Updating your listing...</p>
+      </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div id="successModal" class="success-modal" style="display: none">
+      <div class="success-content">
+        <div class="success-icon"><i class="fas fa-check"></i></div>
+        <h3>Changes Saved!</h3>
+        <p>Your listing has been successfully updated.</p>
+        <button class="btn btn-primary" onclick="redirectToListing()">
+          View Listing
+        </button>
+        <button class="btn btn-secondary" onclick="redirectHome()" style="margin-top: 10px;">
+          Back to Homepage
+        </button>
+      </div>
+    </div>
+
+    <script src="js/layout.js"></script>
+    <script type="module" src="js/form-validator.js"></script>
+    <script type="module" src="js/edit-listing.js"></script>
+    <script src="js/live-preview.js"></script>
+    <script>
+      function redirectHome() { window.location.href = '/'; }
+      function redirectToListing() { 
+        const id = document.getElementById('listingId').value;
+        window.location.href = `ilan-detay.html?id=${id}`; 
+      }
+    </script>
+  </body>
+</html>

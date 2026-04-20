@@ -25,6 +25,19 @@ import { messageLimiter } from './rate-limiter.js';
     const approvalToggleBtn = document.querySelector('.approval-toggle-btn');
     const conversationSearch = document.getElementById('conversationSearch'); // 🔎 Arama kutusu
 
+    // Native Mobile Elements
+    const nativeConversationsList = document.getElementById('nativeConversationsList');
+    const nativeChatContent = document.getElementById('nativeChatContent');
+    const nativeInboxScreen = document.getElementById('mobile-inbox-screen');
+    const nativeChatScreen = document.getElementById('mobile-chat-screen');
+    const nativeInboxBackBtn = document.getElementById('native-inbox-back');
+    const nativeChatBackBtn = document.getElementById('native-chat-back');
+    const nativeChatInput = document.getElementById('native-chat-input');
+    const nativeChatSendBtn = document.getElementById('native-chat-send');
+    const nativeHeaderImg = document.getElementById('native-header-listing-img');
+    const nativeHeaderTitle = document.getElementById('native-header-title');
+    const nativeHeaderSubtitle = document.getElementById('native-header-subtitle');
+
     // --- 2. STATE (DURUM) YÖNETİMİ ---
     let currentUser = null;
     let currentConversation = null;
@@ -50,6 +63,12 @@ import { messageLimiter } from './rate-limiter.js';
             if (container) {
                 container.classList.add('chat-active');
             }
+            if (nativeInboxScreen && nativeChatScreen) {
+                nativeInboxScreen.classList.remove('active');
+                nativeChatScreen.classList.add('active');
+            }
+            const bottomNav = document.querySelector('.bottom-nav');
+            if (bottomNav) bottomNav.style.display = 'none';
         }
     }
 
@@ -80,6 +99,15 @@ import { messageLimiter } from './rate-limiter.js';
             if (container) {
                 container.classList.remove('chat-active');
             }
+            if (nativeInboxScreen && nativeChatScreen) {
+                nativeChatScreen.classList.remove('active');
+                nativeInboxScreen.classList.add('active');
+            }
+            const bottomNav = document.querySelector('.bottom-nav');
+            if (bottomNav) bottomNav.style.display = 'flex';
+            if (nativeChatInput) {
+                nativeChatInput.value = '';
+            }
         }
     }
   
@@ -106,6 +134,9 @@ import { messageLimiter } from './rate-limiter.js';
     function scrollToBottom() {
         if (messagesContent) {
             messagesContent.scrollTop = messagesContent.scrollHeight;
+        }
+        if (nativeChatContent) {
+            nativeChatContent.scrollTop = nativeChatContent.scrollHeight;
         }
     }
 
@@ -334,11 +365,19 @@ import { messageLimiter } from './rate-limiter.js';
 
             const listingMap = new Map(listings?.map(l => [l.id, l]) || []);
 
+            // Blokladığımız kullanıcıları toplu olarak getir
+            const { data: blockRecords } = await supabase
+                .from('blocked_users')
+                .select('blocked_id')
+                .eq('blocker_id', currentUser.id);
+            const blockedSet = new Set(blockRecords?.map(b => b.blocked_id) || []);
+
             // Konuşmaları oluştur
             conversations = Array.from(conversationMap.values()).map(conv => ({
                 ...conv,
                 other_user: profileMap.get(conv.other_user_id) || { id: conv.other_user_id, full_name: 'User', avatar_url: null },
-                listing: listingMap.get(conv.listing_id) || null
+                listing: listingMap.get(conv.listing_id) || null,
+                isBlocked: blockedSet.has(conv.other_user_id)
             }));
 
             // Tür sınıflandırması: eğer ilanın `user_id` alanı bizim kullanıcımıza aitse "selling",
@@ -391,10 +430,16 @@ import { messageLimiter } from './rate-limiter.js';
                     <p>No results found.</p>
                 </div>
             `;
+            if (nativeConversationsList) {
+                nativeConversationsList.innerHTML = `<div style="padding: 30px; text-align: center; color: #64748b;">No results found.</div>`;
+            }
             return;
         }
 
-        conversationsList.innerHTML = filteredConversations.map((conv, index) => {
+        let desktopHtml = '';
+        let nativeHtml = '';
+
+        filteredConversations.forEach((conv, index) => {
             // İlk ilan fotoğrafını avatar olarak kullan; yoksa logo kullan
             const avatarUrl = (conv.listing && Array.isArray(conv.listing.photos) && conv.listing.photos.length > 0)
                 ? conv.listing.photos[0]
@@ -404,13 +449,17 @@ import { messageLimiter } from './rate-limiter.js';
             const isSelected = selectedConversations.has(conversationKey);
             const isArchived = (typeof localStorage !== 'undefined') && localStorage.getItem(`conv_archived_${conversationKey}`) === 'true';
 
-            return `
+            const title = sanitizeText(conv.listing ? conv.listing.title : 'Listing');
+            const userName = sanitizeText(conv.other_user.full_name || 'User');
+            
+            desktopHtml += `
                 <div class="conversation-item ${!currentConversation && index === 0 && !bulkDeleteMode && searchTerm === '' ? 'active' : ''} ${conv.unread_count > 0 ? 'unread' : ''} ${isSelected ? 'selected' : ''} ${conv.type || ''} ${isArchived ? 'archived' : ''}" 
                      data-listing-id="${conv.listing_id}" 
                      data-user-id="${conv.other_user.id}"
                      data-conversation-key="${conversationKey}"
                      data-type="${conv.type || 'other'}"
-                     data-archived="${isArchived ? 'true' : 'false'}">
+                     data-archived="${isArchived ? 'true' : 'false'}"
+                     data-blocked="${conv.isBlocked ? 'true' : 'false'}">
                     ${bulkDeleteMode ? `
                         <div class="conversation-checkbox">
                             <input type="checkbox" 
@@ -420,14 +469,14 @@ import { messageLimiter } from './rate-limiter.js';
                         </div>
                     ` : ''}
                     <div class="conversation-avatar">
-                        <img src="${avatarUrl}" alt="${conv.other_user.full_name}">
+                        <img src="${avatarUrl}" alt="${userName}">
                     </div>
                     <div class="conversation-content">
                         <div class="conversation-header">
-                            <h4>${sanitizeText(conv.listing ? conv.listing.title : 'Listing')}</h4>
+                            <h4>${title}</h4>
                             <span class="conversation-time">${formatDate(conv.last_message_time)}</span>
                         </div>
-                        <p class="conversation-listing-title">${sanitizeText(conv.other_user.full_name || 'User')}</p>
+                        <p class="conversation-listing-title">${userName}</p>
                         <p class="last-message ${conv.unread_count > 0 ? 'unread-text' : ''}">${sanitizeText(conv.last_message.substring(0, 50) + (conv.last_message.length > 50 ? '...' : ''))}</p>
                     </div>
                     ${conv.unread_count > 0 ? `<span class="unread-badge">${conv.unread_count > 99 ? '99+' : conv.unread_count}</span>` : ''}
@@ -440,10 +489,34 @@ import { messageLimiter } from './rate-limiter.js';
                     </div>
                 </div>
             `;
-        }).join('');
 
-        // İlk konuşmayı otomatik seç (eğer seçili yoksa, bulk delete değilse ve arama yapılmıyorsa)
-        if (conversations.length > 0 && !currentConversation && !bulkDeleteMode && searchTerm === '') {
+            nativeHtml += `
+                <div class="native-conv-item" data-listing-id="${conv.listing_id}" data-user-id="${conv.other_user.id}" data-blocked="${conv.isBlocked ? 'true' : 'false'}">
+                    <div class="native-avatar-container">
+                        <img src="${avatarUrl}" alt="${userName}" class="native-avatar">
+                    </div>
+                    <div class="native-conv-content">
+                        <div class="native-conv-header">
+                            <h4 class="native-listing-title">${title}</h4>
+                            <span class="native-conv-time">${formatTime(conv.last_message_time)}</span>
+                        </div>
+                        <p class="native-user-name">${userName}</p>
+                        <p class="native-last-msg ${conv.unread_count > 0 ? 'unread' : ''}">
+                            ${sanitizeText(conv.last_message.substring(0, 40) + (conv.last_message.length > 40 ? '...' : ''))}
+                        </p>
+                    </div>
+                    ${conv.unread_count > 0 ? `<span class="native-unread-badge">${conv.unread_count > 99 ? '99+' : conv.unread_count}</span>` : ''}
+                </div>
+            `;
+        });
+
+        conversationsList.innerHTML = desktopHtml;
+        if (nativeConversationsList) {
+            nativeConversationsList.innerHTML = nativeHtml;
+        }
+
+        // İlk konuşmayı otomatik seç (Mobilde listeyi göster, Desktop'ta ilk mesajı seç)
+        if (conversations.length > 0 && !currentConversation && !bulkDeleteMode && searchTerm === '' && !isMobileView()) {
             selectConversation(conversations[0].listing_id, conversations[0].other_user.id);
         } else if (currentConversation && bulkDeleteMode === false) {
              // Arama yaparken veya normal durumda aktif konuşmayı highlight et
@@ -496,6 +569,11 @@ import { messageLimiter } from './rate-limiter.js';
                 const listing = conversation.listing;
                 const mainImage = listing.photos && listing.photos.length > 0 ? listing.photos[0] : 'https://via.placeholder.com/150';
                 
+                // Native header update
+                if (nativeHeaderImg) nativeHeaderImg.src = mainImage;
+                if (nativeHeaderTitle) nativeHeaderTitle.textContent = listing.title;
+                if (nativeHeaderSubtitle) nativeHeaderSubtitle.textContent = conversation.other_user.full_name;
+
                 adReference.style.display = 'flex';
                 adReference.innerHTML = `
                     <button class="back-to-list-btn" onclick="window.MessagesApp?.backToList()" title="Back">
@@ -507,6 +585,12 @@ import { messageLimiter } from './rate-limiter.js';
                         <p class="ad-price">${listing.currency || '€'}${listing.price.toLocaleString()}</p>
                     </div>
                     <div class="ad-actions">
+                        ${listing.user_id === currentUser.id ? `
+                            <button class="btn-seller-action sell-btn" id="markAsSoldBtn" title="Mark as Sold">
+                                <i class="fas fa-check-circle"></i>
+                                <span>Sold</span>
+                            </button>
+                        ` : ''}
                         <button class="view-ad-btn" onclick="window.location.href='ilan-detay.html?id=${listing.id}'">View Listing</button>
                         <div class="action-menu-wrapper">
                             <button class="three-dots-btn" title="Other actions"> 
@@ -517,11 +601,34 @@ import { messageLimiter } from './rate-limiter.js';
                                 <button class="ad-action delete-action">Delete Chat</button>
                                 <button class="ad-action report-action">Report</button>
                                 <button class="ad-action block-action">Block</button>
-                                
                             </div>
                         </div>
                     </div>
                 `;
+
+                // Logic for Mark as Sold
+                if (listing.user_id === currentUser.id) {
+                    const soldBtn = adReference.querySelector('#markAsSoldBtn');
+                    if (soldBtn) {
+                        soldBtn.addEventListener('click', async () => {
+                            const confirmed = confirm('Are you sure you want to mark this item as sold?');
+                            if (confirmed) {
+                                try {
+                                    const { error } = await supabase
+                                        .from('listings')
+                                        .update({ status: 'sold' })
+                                        .eq('id', listing.id);
+                                    if (error) throw error;
+                                    alert('Item marked as sold!');
+                                    soldBtn.disabled = true;
+                                    soldBtn.classList.add('disabled');
+                                } catch (err) {
+                                    alert('Error: ' + err.message);
+                                }
+                            }
+                        });
+                    }
+                }
 
                 // initialize actions after inserting markup
                 const conversationKey = `${listing.id}_${conversation.other_user.id}`;
@@ -531,11 +638,11 @@ import { messageLimiter } from './rate-limiter.js';
             // Mobilde chat alanını göster
             showChatArea();
 
+            // 🟢 YENİ: Subscribe BEFORE loading to ensure no messages are missed in the selection gap
+            subscribeToMessages(listingId, otherUserId);
+
             // Mesajları yükle
             await loadMessages(listingId, otherUserId);
-
-            // Realtime subscription başlat
-            subscribeToMessages(listingId, otherUserId);
 
             // Mesaj input alanına odaklan
             if (messageInput) {
@@ -858,30 +965,35 @@ import { messageLimiter } from './rate-limiter.js';
     function renderMessages() {
         if (messages.length === 0) {
             showEmpty(messagesContent, 'Henüz mesaj yok. İlk mesajı siz gönderin!', 'fa-comment-dots');
+            if (nativeChatContent) nativeChatContent.innerHTML = `<div style="padding: 30px; text-align: center; color: #64748b;">No messages yet.</div>`;
             return;
         }
 
-        let html = messages.map(msg => {
+        // 🟢 YENİ: Her zaman kronolojik olarak sırala (Eşzamanlı mesajlarda düzeni korur)
+        messages.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+
+        let desktopHtml = '';
+        let nativeHtml = '';
+
+        messages.forEach(msg => {
             const isSent = msg.sender_id === currentUser.id;
             let tickMarkup = '';
+            let nativeTickMarkup = '';
             
             if (isSent) {
-                // Özel durum: Bloklu mesaj (Sadece tek tık)
                 if (msg.is_blocked_delivery) {
                      tickMarkup = '<span class="read-receipt sent" title="Delivered"><i class="fas fa-check"></i></span>';
-                } 
-                else if (msg.is_read) {
+                     nativeTickMarkup = '<i class="fas fa-check native-status-icon"></i>';
+                } else if (msg.is_read) {
                     tickMarkup = '<span class="read-receipt read" title="Read"><i class="fas fa-check"></i><i class="fas fa-check"></i></span>';
+                    nativeTickMarkup = '<i class="fas fa-check-double native-status-icon read"></i>';
                 } else {
-                    // Normal gönderildi (tek tık veya çift tık server durumuna göre değişebilir ama şimdilik tek tık mantığı)
-                    // İstenen: "mesaj tek tık olarak kalsın iletilmesin" -> Bloklu ise tek tık.
-                    // Normalde okundu değilse gri çift tık veya tek tık olabilir.
-                    // Biz burada standart "iletildi" (gri çift tık) kullanıyorduk, onu koruyalım.
                     tickMarkup = '<span class="read-receipt sent" title="Sent"><i class="fas fa-check"></i><i class="fas fa-check"></i></span>';
+                    nativeTickMarkup = '<i class="fas fa-check-double native-status-icon"></i>';
                 }
             }
-            
-            return `
+
+            desktopHtml += `
                 <div class="message ${isSent ? 'sent' : 'received'}" data-message-id="${msg.id}">
                     <div class="message-bubble">
                         <p>${sanitizeHTML(msg.content)}</p>
@@ -890,10 +1002,22 @@ import { messageLimiter } from './rate-limiter.js';
                     </div>
                 </div>
             `;
-        }).join('');
+
+            nativeHtml += `
+                <div class="native-bubble-group">
+                    <div class="native-bubble ${isSent ? 'sent' : 'received'}">
+                        ${sanitizeHTML(msg.content)}
+                        <div class="native-bubble-meta">
+                            <span>${formatTime(msg.created_at)}</span>
+                            ${nativeTickMarkup}
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
 
         // Yazıyor göstergesi için placeholder ekle
-        html += `<div id="typing-indicator-wrapper" style="display: none;">
+        const typingHtml = `<div id="typing-indicator-wrapper" style="display: none;">
                     <div class="typing-indicator">
                         <div class="typing-dot"></div>
                         <div class="typing-dot"></div>
@@ -902,7 +1026,11 @@ import { messageLimiter } from './rate-limiter.js';
                     </div>
                  </div>`;
 
-        messagesContent.innerHTML = html;
+        messagesContent.innerHTML = desktopHtml + typingHtml;
+        if (nativeChatContent) {
+            nativeChatContent.innerHTML = nativeHtml + typingHtml;
+        }
+        
         scrollToBottom();
     }
 
@@ -910,7 +1038,7 @@ import { messageLimiter } from './rate-limiter.js';
      * 🟢 GELİŞTİRİLMİŞ: Mesaj gönder
      * Gönderilen mesaj otomatik chatte görünsün
      */
-    async function sendMessage() {
+    async function sendMessage(source = 'desktop') {
         // 🟢 YENİ: Rate Limit Kontrolü
         if (messageLimiter.isLimited('user_' + currentUser?.id)) {
             const minutesRemaining = messageLimiter.getLockTimeRemaining('user_' + currentUser?.id);
@@ -920,7 +1048,12 @@ import { messageLimiter } from './rate-limiter.js';
             return;
         }
 
-        const content = messageInput.value.trim();
+        const inputField = source === 'native' ? nativeChatInput : messageInput;
+        const currentSendBtn = source === 'native' ? nativeChatSendBtn : sendBtn;
+        
+        let content = '';
+        if (inputField) content = inputField.value.trim();
+        else content = messageInput.value.trim() || (nativeChatInput ? nativeChatInput.value.trim() : '');
 
         // Kontrol: Mesaj, konuşma ve kullanıcı bilgisi var mı?
         if (!content || !currentConversation || !currentUser) {
@@ -929,6 +1062,14 @@ import { messageLimiter } from './rate-limiter.js';
                  showNotification('Log in or select a valid conversation to send a message.', 'warning');
             }
             return; 
+        }
+
+        // 🟢 YENİ: Karakter Sınırı Kontrolü (1000 karakter)
+        if (content.length > 1000) {
+            if (typeof showNotification === 'function') {
+                showNotification(`Message is too long. Maximum 1000 characters allowed (Current: ${content.length}).`, 'warning');
+            }
+            return;
         }
 
         // Dosya veya metin yoksa gönderme
@@ -975,9 +1116,11 @@ import { messageLimiter } from './rate-limiter.js';
         let originalIcon = '';
         try {
             // 🟢 YENİ: Send butonunu disable et (double-click'i önle)
-            sendBtn.disabled = true;
-            originalIcon = sendBtn.innerHTML;
-            sendBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            if (currentSendBtn) {
+                currentSendBtn.disabled = true;
+                originalIcon = currentSendBtn.innerHTML;
+                currentSendBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            }
 
             const { data, error } = await supabase
                 .from('messages')
@@ -1002,8 +1145,13 @@ import { messageLimiter } from './rate-limiter.js';
             scrollToBottom();
 
             // Input'u temizle
-            messageInput.value = '';
-            messageInput.focus();
+            if (messageInput) messageInput.value = '';
+            if (nativeChatInput) {
+                nativeChatInput.value = '';
+                nativeChatSendBtn.disabled = true;
+            }
+            
+            if (inputField) inputField.focus();
 
             // 🟢 YENİ: Konuşma listesini de güncelle
             updateConversationPreview(
@@ -1011,11 +1159,6 @@ import { messageLimiter } from './rate-limiter.js';
                 currentConversation.otherUserId,
                 data
             );
-
-            // 🟢 YENİ: Başarı bildirimini göster
-            if (typeof showNotification === 'function') {
-                showNotification('✅ Message sent!', 'success');
-            }
 
             console.log('✅ Mesaj gönderildi ve otomatik gösterildi:', data);
 
@@ -1030,8 +1173,10 @@ import { messageLimiter } from './rate-limiter.js';
             }
         } finally {
             // 🟢 YENİ: Send butonunu tekrar enable et
-            sendBtn.disabled = false;
-            sendBtn.innerHTML = originalIcon;
+            if (currentSendBtn) {
+                currentSendBtn.disabled = false;
+                currentSendBtn.innerHTML = originalIcon;
+            }
         }
     }
 
@@ -1060,14 +1205,41 @@ import { messageLimiter } from './rate-limiter.js';
      * Mesajları dinler ve conversations listesini otomatik güncellemeler
      */
     function subscribeToMessages(listingId, otherUserId) {
-        // Önceki subscription varsa iptal et
+        // Önceki subscription varsa tamamen kaldır
         if (messageSubscription) {
-            messageSubscription.unsubscribe();
+            console.log(`[Realtime] Removing old channel: ${messageSubscription.topic}`);
+            supabase.removeChannel(messageSubscription);
+            messageSubscription = null;
         }
 
-        // Yeni subscription
+        // --- 🟢 YENİ: Yarım kalmış tik güncellemeleri için yardımcı fonksiyon ---
+        const updateMessageTicksLocally = (messageId, statusInfo) => {
+            const msgEl = document.querySelector(`[data-message-id="${messageId}"]`);
+            if (!msgEl) return;
+
+            const readReceipt = msgEl.querySelector('.read-receipt');
+            const nativeIcon = msgEl.querySelector('.native-status-icon');
+
+            if (statusInfo.is_read) {
+                if (readReceipt) {
+                    readReceipt.className = 'read-receipt read';
+                    readReceipt.innerHTML = '<i class="fas fa-check"></i><i class="fas fa-check"></i>';
+                }
+                if (nativeIcon) {
+                    nativeIcon.className = 'fas fa-check-double native-status-icon read';
+                }
+            }
+        };
+
+        // --- 🟢 DETERMINISTIC CHANNEL NAME (Crucial for Seen/Typing Sync) ---
+        // Her iki taraf da aynı "odaya" girebilmesi için User ID'leri alfabetik sıralıyoruz.
+        const sortedIds = [currentUser.id, otherUserId].sort().join('_');
+        const channelName = `chat:${listingId}_${sortedIds}`;
+        
+        console.log(`[Realtime] Joining deterministic channel: ${channelName}`);
+        
         messageSubscription = supabase
-            .channel(`messages:${listingId}:${otherUserId}`)
+            .channel(channelName)
             .on('postgres_changes', {
                 event: 'INSERT',
                 schema: 'public',
@@ -1091,9 +1263,17 @@ import { messageLimiter } from './rate-limiter.js';
                     // Conversations listesini güncelle
                     updateConversationPreview(listingId, otherUserId, newMessage);
 
-                    // Gelen mesajı okundu işaretle
+                    // Gelen mesajı okundu işaretle (Gecikmeli ve Broadcast ile)
                     if (newMessage.receiver_id === currentUser.id) {
-                        markAsRead(listingId, otherUserId);
+                        setTimeout(() => {
+                            markAsRead(listingId, otherUserId);
+                            // 🟢 YENİ: Anlık Broadcast gönder (DB beklemeden karşı tarafa söyle)
+                            messageSubscription.send({
+                                type: 'broadcast',
+                                event: 'seen',
+                                payload: { message_id: newMessage.id, seen_at: new Date().toISOString() }
+                            });
+                        }, 300);
                     }
                 }
             })
@@ -1104,12 +1284,24 @@ import { messageLimiter } from './rate-limiter.js';
                 filter: `listing_id=eq.${listingId}`
             }, (payload) => {
                 const updatedMessage = payload.new;
-                // Aktif mesajlar listesinde güncelle (özellikle okundu bilgisi için)
+                console.log('[Realtime] Message updated:', updatedMessage);
+                
+                // Aktif mesajlar listesinde güncelle
                 const index = messages.findIndex(m => m.id === updatedMessage.id);
                 if (index !== -1) {
                     messages[index] = updatedMessage;
-                    renderMessages();
+                    // 🟢 OPTİMİZE: Tüm sayfayı renderlamak yerine sadece ilgili mesajın tiklerini düzelt
+                    updateMessageTicksLocally(updatedMessage.id, { is_read: updatedMessage.is_read });
                 }
+            })
+            .on('broadcast', { event: 'seen' }, (payload) => {
+                console.log('[Realtime] Broadcast Seen received:', payload);
+                // 🟢 OPTİMİZE: Veritabanından önce broadcast gelirse tikleri mavi yap
+                updateMessageTicksLocally(payload.payload.message_id, { is_read: true });
+                
+                // Local state'i de güncelle ki ilerde renderMessages çağrılırsa bozulmasın
+                const index = messages.findIndex(m => m.id === payload.payload.message_id);
+                if (index !== -1) messages[index].is_read = true;
             })
             .on('presence', { event: 'sync' }, () => {
                 const state = messageSubscription.presenceState();
@@ -1121,11 +1313,16 @@ import { messageLimiter } from './rate-limiter.js';
                 }
             })
             .subscribe(async (status) => {
+                console.log(`[Realtime] Channel status (${channelName}):`, status);
                 if (status === 'SUBSCRIBED') {
                     await messageSubscription.track({
                         user_id: currentUser.id,
                         is_typing: false
                     });
+                } else if (status === 'CHANNEL_ERROR') {
+                    console.error(`[Realtime] Channel error on ${channelName}`);
+                    // Re-subscribe attempt after a delay
+                    setTimeout(() => subscribeToMessages(listingId, otherUserId), 3000);
                 }
             });
     }
@@ -1175,8 +1372,9 @@ import { messageLimiter } from './rate-limiter.js';
      * Arka planda tüm konuşmaları izle
      */
     function subscribeToAllConversations() {
+        const channelName = 'all-messages-global';
         return supabase
-            .channel('all-messages')
+            .channel(channelName)
             .on('postgres_changes', {
                 event: 'INSERT',
                 schema: 'public',
@@ -1184,10 +1382,32 @@ import { messageLimiter } from './rate-limiter.js';
                 filter: `receiver_id=eq.${currentUser.id}`
             }, async (payload) => {
                 const newMessage = payload.new;
+                console.log('[Realtime-Global] Event received:', newMessage);
 
-                // Eğer aktif konuşma değilse işle
-                if (!currentConversation || currentConversation.listingId !== newMessage.listing_id || currentConversation.otherUserId !== newMessage.sender_id) {
-                    
+                const isCurrentChat = currentConversation && 
+                                    currentConversation.listingId == newMessage.listing_id && 
+                                    (currentConversation.otherUserId == newMessage.sender_id || currentConversation.otherUserId == newMessage.receiver_id);
+
+                // EĞER AKTİF KONUŞMAYSA: Güvenlik ağı (Safety Net)
+                // Spesifik kanal (`chat:ID_ID`) çalışmazsa veya koparsa bu global dinleyici mesajı yakalar.
+                if (isCurrentChat) {
+                    console.log('[Realtime-Global] Safety net: Message belongs to active chat.');
+                    const alreadyExists = messages.some(m => m.id === newMessage.id);
+                    if (!alreadyExists) {
+                        console.log('[Realtime-Global] Pushing missing message to UI.');
+                        messages.push(newMessage);
+                        renderMessages();
+                        scrollToBottom();
+                        
+                        // Okundu işaretle
+                        if (newMessage.receiver_id === currentUser.id) {
+                            markAsRead(newMessage.listing_id, newMessage.sender_id);
+                        }
+                    }
+                }
+
+                // KONUŞMA LİSTESİNİ GÜNCELLE (Her durumda)
+                if (!currentConversation || currentConversation.listingId != newMessage.listing_id || currentConversation.otherUserId != newMessage.sender_id) {
                     const convIndex = conversations.findIndex(c =>
                         c.listing_id == newMessage.listing_id && c.other_user.id == newMessage.sender_id
                     );
@@ -1201,7 +1421,7 @@ import { messageLimiter } from './rate-limiter.js';
                         const conv = conversations.splice(convIndex, 1)[0];
                         conversations.unshift(conv);
                         renderConversations();
-                    } else {
+                    } else if (!isCurrentChat) {
                         // Yeni konuşma tespit edildi - detayları çek ve ekle
                         await addNewConversationToList(newMessage.listing_id, newMessage.sender_id, newMessage);
                     }
@@ -1214,10 +1434,46 @@ import { messageLimiter } from './rate-limiter.js';
                 filter: `sender_id=eq.${currentUser.id}`
             }, (payload) => {
                 const updatedMessage = payload.new;
-                // Okundu bilgisi güncellemesi olabilir, listedeki önizlemeyi güncellemeye gerek var mı?
-                // Genellikle gerek yok ama read receipt (tık işareti) için chat zaten kendi kanalında dinliyor.
+                console.log('[Realtime] Global message updated:', updatedMessage);
+                
+                // Eğer benden çıkan bir mesaj okunmuşsa, listedeki unread_count'u sıfırla (eğer gerekliyse)
+                // Ama genellikle unread_count alıcı tarafındadır.
+                // Eğer BİZ alıcıysak ve bir şekilde başka bir cihazdan okundu olarak işaretlenmişse:
+                if (updatedMessage.receiver_id === currentUser.id && updatedMessage.is_read) {
+                    const convIndex = conversations.findIndex(c =>
+                        c.listing_id == updatedMessage.listing_id && c.other_user.id == updatedMessage.sender_id
+                    );
+                    if (convIndex !== -1) {
+                        conversations[convIndex].unread_count = 0;
+                        renderConversations();
+                    }
+                }
             })
-            .subscribe();
+            .on('postgres_changes', {
+                event: 'UPDATE',
+                schema: 'public',
+                table: 'messages',
+                filter: `receiver_id=eq.${currentUser.id}`
+            }, (payload) => {
+                const updatedMessage = payload.new;
+                console.log('[Realtime-Global] Message updated (Seen):', updatedMessage);
+
+                // Eğer bu mesaj okunduysa, konuşma listesindeki unread_count'u güncelle
+                if (updatedMessage.is_read) {
+                    const convIndex = conversations.findIndex(c =>
+                        c.listing_id == updatedMessage.listing_id && c.other_user.id == updatedMessage.sender_id
+                    );
+
+                    if (convIndex !== -1) {
+                        conversations[convIndex].unread_count = 0; // Tek mesaj bile okunsa o chat genellikle okunmuş sayılır (basit mantık)
+                        // Veya daha iyisi DB'den tekrar çekmek ama burada sıfırlamak performansı artırır
+                        renderConversations();
+                    }
+                }
+            })
+            .subscribe((status) => {
+                console.log(`[Realtime] Global channel status (${channelName}):`, status);
+            });
     }
 
     /**
@@ -1265,15 +1521,16 @@ import { messageLimiter } from './rate-limiter.js';
   
     // --- 5. EVENT LISTENER'LAR (Değişiklik Yok) ---
 
+    // Desktop/Default Events
     if (sendBtn) {
-        sendBtn.addEventListener('click', sendMessage);
+        sendBtn.addEventListener('click', () => sendMessage('desktop'));
     }
     
     if (messageInput) {
         messageInput.addEventListener('keydown', (e) => {
             if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
-                sendMessage();
+                sendMessage('desktop');
                 sendTypingStatus(false);
             }
         });
@@ -1288,7 +1545,59 @@ import { messageLimiter } from './rate-limiter.js';
         });
     }
 
-    // Konuşma seçme
+    // Native Mobile Events
+    if (nativeChatSendBtn) {
+        nativeChatSendBtn.addEventListener('click', () => sendMessage('native'));
+    }
+
+    if (nativeChatInput) {
+        nativeChatInput.addEventListener('input', (e) => {
+            // Enable/disable send button based on input
+            if (nativeChatSendBtn) {
+                nativeChatSendBtn.disabled = e.target.value.trim() === '';
+            }
+            sendTypingStatus(true);
+            if (typingTimeout) clearTimeout(typingTimeout);
+            typingTimeout = setTimeout(() => sendTypingStatus(false), 3000);
+        });
+
+        nativeChatInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                if (e.target.value.trim() !== '') {
+                    sendMessage('native');
+                    sendTypingStatus(false);
+                }
+            }
+        });
+    }
+
+    if (nativeInboxBackBtn) {
+        nativeInboxBackBtn.addEventListener('click', () => {
+            // Can add logic to go back to previous page or close app wrapper
+            window.location.href = '/';
+        });
+    }
+
+    if (nativeChatBackBtn) {
+        nativeChatBackBtn.addEventListener('click', () => {
+            showConversationList();
+        });
+    }
+
+    // Native List item selection
+    if (nativeConversationsList) {
+        nativeConversationsList.addEventListener('click', (e) => {
+            const item = e.target.closest('.native-conv-item');
+            if (item) {
+                const listingId = item.dataset.listingId;
+                const userId = item.dataset.userId;
+                selectConversation(listingId, userId);
+            }
+        });
+    }
+
+    // Konuşma seçme (Desktop)
     if (conversationsList) {
         conversationsList.addEventListener('click', (e) => {
             // Checkbox tıklandıysa, seçim işlemini yap
@@ -1831,6 +2140,9 @@ import { messageLimiter } from './rate-limiter.js';
                 case 'archived':
                     // Show ONLY archived items
                     item.style.display = isArchived ? '' : 'none';
+                    break;
+                case 'blocked':
+                    item.style.display = (item.dataset.blocked === 'true' && !isArchived) ? '' : 'none';
                     break;
                 case 'all':
                 default:

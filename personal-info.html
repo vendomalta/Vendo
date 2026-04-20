@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personal Info - VENDO</title>
+    <link rel="icon" type="image/svg+xml" href="assets/images/verde-logo.svg">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/pages/profile.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --surface: #ffffff;
+            --bg: #f8fafc;
+            --primary: #10b981;
+            --text: #1f2937;
+            --gray-400: #9ca3af;
+            --gray-500: #6b7280;
+            --gray-100: #f3f4f6;
+            --border: #e2e8f0;
+            --input-readonly-bg: #f1f5f9;
+        }
+
+        body {
+            background-color: var(--bg);
+            font-family: 'Inter', sans-serif;
+            color: var(--text);
+        }
+
+        .personal-info-page {
+            width: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Header */
+        .mobile-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .back-btn {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: white;
+            border: 1px solid var(--border);
+            color: var(--text);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .back-btn:hover {
+            background: var(--gray-100);
+            transform: translateX(-2px);
+        }
+
+        .mobile-header h1 {
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin: 0;
+        }
+
+        /* Card System */
+        .card {
+            background: var(--surface);
+            border-radius: 20px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .card-header h2 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        /* Buttons */
+        .edit-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: #ecfdf5;
+            color: var(--primary);
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+
+        .edit-btn:hover {
+            background: #d1fae5;
+        }
+
+        .edit-actions {
+            display: none;
+            gap: 0.75rem;
+        }
+
+        .is-editing .edit-actions {
+            display: flex;
+        }
+
+        .is-editing .edit-btn {
+            display: none;
+        }
+
+        .save-btn {
+            padding: 0.5rem 1.25rem;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .cancel-btn {
+            padding: 0.5rem 1.25rem;
+            background: white;
+            border: 1px solid var(--border);
+            color: var(--gray-500);
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .is-editing .bio-save-btn {
+            display: flex !important;
+        }
+
+        /* Form Grid */
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.25rem;
+        }
+
+        .form-group.full {
+            grid-column: span 2;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text);
+        }
+
+        .input-wrapper {
+            background: var(--input-readonly-bg);
+            border: 1px solid transparent;
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.2s;
+        }
+
+        .is-editing .input-wrapper {
+            background: white;
+            border-color: var(--border);
+        }
+
+        .is-editing .input-wrapper:focus-within {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: transparent;
+            border: none;
+            font-family: inherit;
+            font-size: 0.95rem;
+            color: var(--text);
+            outline: none;
+        }
+
+        input:disabled, textarea:disabled, select:disabled {
+            cursor: default;
+        }
+
+        .phone-row {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .phone-area {
+            width: 80px;
+            flex-shrink: 0;
+        }
+
+        .city-selector {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 44px;
+            padding: 0 1rem;
+            cursor: default;
+        }
+
+        .is-editing .city-selector {
+            cursor: pointer;
+        }
+
+        .city-selector i {
+            color: var(--gray-400);
+            display: none;
+        }
+
+        .is-editing .city-selector i {
+            display: block;
+        }
+
+        /* Verification List */
+        .verification-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .verify-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem;
+            background: var(--bg);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+        }
+
+        .verify-item.pending {
+            background: white;
+        }
+
+        .verify-left {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .verify-icon {
+            font-size: 1.2rem;
+            color: var(--gray-400);
+            width: 24px;
+            text-align: center;
+        }
+
+        .verify-icon.verified {
+            color: var(--primary);
+        }
+
+        .verify-text {
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .verify-item.pending .verify-text {
+            color: var(--gray-500);
+        }
+
+        .verify-btn {
+            padding: 0.4rem 1rem;
+            background: white;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+        }
+
+        .verified-shield {
+            color: var(--primary);
+            font-size: 1.1rem;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(4px);
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 24px;
+            width: 90%;
+            max-width: 400px;
+            padding: 2rem;
+            position: relative;
+            text-align: center;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--gray-400);
+            cursor: pointer;
+        }
+
+        .modal-icon {
+            width: 80px;
+            height: 80px;
+            background: #ecfdf5;
+            color: var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            font-size: 2rem;
+        }
+
+        .modal h3 {
+            font-size: 1.25rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+        }
+
+        .modal p {
+            color: var(--gray-500);
+            font-size: 0.9rem;
+            line-height: 1.5;
+            margin-bottom: 1.5rem;
+        }
+
+        .otp-input-group {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .otp-input {
+            width: 100%;
+            height: 50px;
+            background: var(--bg);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            font-size: 1.5rem;
+            font-weight: 800;
+            text-align: center;
+            letter-spacing: 0.5rem;
+        }
+
+        .otp-input:focus {
+            border-color: var(--primary);
+        }
+
+        .modal-btn {
+            width: 100%;
+            padding: 1rem;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-bottom: 1rem;
+        }
+
+        .resend-btn {
+            background: none;
+            border: none;
+            color: var(--gray-500);
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+
+        /* City List Modal */
+        .city-modal-content {
+            padding: 0;
+            max-height: 70vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .city-modal-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border);
+            text-align: left;
+        }
+
+        .city-list {
+            overflow-y: auto;
+            text-align: left;
+        }
+
+        .city-item {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--gray-100);
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .city-item:hover {
+            background: var(--gray-100);
+        }
+
+        .city-item.selected {
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        @media (max-width: 640px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            .form-group.full {
+                grid-column: span 1;
+            }
+        }
+
+        /* Dashboard specific overrides for personal info */
+        @media (min-width: 992px) {
+            .mobile-header {
+                display: none; /* Hide mobile-style header on desktop */
+            }
+            .sidebar-user-info {
+                display: none; /* User info is handled by profile-manager.js usually, but we'll keep sidebar menu static */
+            }
+            .personal-info-page {
+                max-width: none;
+                padding: 0;
+            }
+        }
+    </style>
+</head>
+
+<body class="profile-page-body">
+    <div id="header-placeholder"></div>
+
+    <main class="personal-info-page profile-page">
+        <div class="container scroll-content">
+            <div class="profile-layout">
+                <!-- Sidebar (Replicated for persistence) -->
+                <aside class="profile-sidebar">
+                    <div class="profile-card">
+                        <div class="avatar-wrapper" id="sidebarAvatarWrapper">
+                            <div class="avatar-circle">
+                                <img src="assets/images/default-avatar.svg" alt="Profile Picture" id="sidebarProfileImage">
+                            </div>
+                            <div class="edit-avatar-btn">
+                                <i class="fas fa-camera"></i>
+                            </div>
+                            <input type="file" id="sidebarAvatarInput" accept="image/*" style="display: none;">
+                        </div>
+                        <div class="profile-info-text">
+                            <h2 class="user-name" id="sidebarProfileName">Loading...</h2>
+                            <p class="user-role">Vendo User</p>
+                        </div>
+                    </div>
+
+                    <div class="menu-section">
+                        <a href="personal-info.html" class="menu-item active">
+                            <div class="menu-icon-container"><i class="fas fa-user-circle"></i></div>
+                            <span class="menu-item-text">Personal Info</span>
+                            <i class="fas fa-chevron-right chevron-icon"></i>
+                        </a>
+                        <a href="change-password.html" class="menu-item">
+                            <div class="menu-icon-container"><i class="fas fa-lock"></i></div>
+                            <span class="menu-item-text">Change Password</span>
+                            <i class="fas fa-chevron-right chevron-icon"></i>
+                        </a>
+                        <a href="notifications.html" class="menu-item">
+                            <div class="menu-icon-container"><i class="fas fa-bell"></i></div>
+                            <span class="menu-item-text">Notifications</span>
+                            <i class="fas fa-chevron-right chevron-icon"></i>
+                        </a>
+                        <a href="engellenenler.html" class="menu-item">
+                            <div class="menu-icon-container"><i class="fas fa-user-slash"></i></div>
+                            <span class="menu-item-text">Blocked Users</span>
+                            <i class="fas fa-chevron-right chevron-icon"></i>
+                        </a>
+                        <a href="ilanlarim.html" class="menu-item">
+                            <div class="menu-icon-container"><i class="fas fa-list"></i></div>
+                            <span class="menu-item-text">Listings</span>
+                            <i class="fas fa-chevron-right chevron-icon"></i>
+                        </a>
+                        <a href="favorilerim.html" class="menu-item">
+                            <div class="menu-icon-container"><i class="fas fa-heart"></i></div>
+                            <span class="menu-item-text">Favorites</span>
+                            <i class="fas fa-chevron-right chevron-icon"></i>
+                        </a>
+                        <a href="mesajlar.html" class="menu-item">
+                            <div class="menu-icon-container"><i class="fas fa-envelope"></i></div>
+                            <span class="menu-item-text">Messages</span>
+                            <i class="fas fa-chevron-right chevron-icon"></i>
+                        </a>
+                        <a href="reviews.html" class="menu-item">
+                            <div class="menu-icon-container"><i class="fas fa-star"></i></div>
+                            <span class="menu-item-text">Reviews</span>
+                            <i class="fas fa-chevron-right chevron-icon"></i>
+                        </a>
+                        <a href="delete-account.html" class="menu-item">
+                            <div class="menu-icon-container"><i class="fas fa-trash"></i></div>
+                            <span class="menu-item-text">Delete Account</span>
+                            <i class="fas fa-chevron-right chevron-icon"></i>
+                        </a>
+                    </div>
+                </aside>
+
+                <!-- Content Area -->
+                <article class="profile-content">
+                    <!-- Header (Mobile only) -->
+                    <header class="mobile-header">
+                        <button class="back-btn" onclick="window.location.href='index.html'">
+                            <i class="fas fa-arrow-left"></i>
+                        </button>
+                        <h1>Personal Info</h1>
+                    </header>
+
+                    <!-- Profile Info Card -->
+                    <div class="card" id="profileCard">
+                        <div class="card-header">
+                            <h2>Profile Details</h2>
+                            <button class="edit-btn" onclick="toggleEdit(true)">
+                                <i class="fas fa-edit"></i> Edit
+                            </button>
+                            <div class="edit-actions">
+                                <button class="cancel-btn" onclick="toggleEdit(false)">Cancel</button>
+                                <button class="save-btn" onclick="handleSave()">Save</button>
+                            </div>
+                        </div>
+
+                        <form id="profileForm" class="form-grid">
+                            <div class="form-group">
+                                <label>First Name *</label>
+                                <div class="input-wrapper">
+                                    <input type="text" id="firstName" placeholder="First Name" disabled>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Last Name *</label>
+                                <div class="input-wrapper">
+                                    <input type="text" id="lastName" placeholder="Last Name" disabled>
+                                </div>
+                            </div>
+
+                            <div class="form-group full">
+                                <label>Email</label>
+                                <div class="input-wrapper">
+                                    <input type="email" id="displayEmail" placeholder="email@example.com" disabled>
+                                </div>
+                            </div>
+
+                            <div class="form-group full">
+                                <label>Phone *</label>
+                                <div class="phone-row">
+                                    <div class="input-wrapper phone-area">
+                                        <input type="text" id="phoneArea" placeholder="+356" disabled>
+                                    </div>
+                                    <div class="input-wrapper" style="flex: 1;">
+                                        <input type="text" id="phoneNumber" placeholder="Phone Number" disabled>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group full">
+                                <label>Birth Date (DD/MM/YYYY)</label>
+                                <div class="input-wrapper">
+                                    <input type="text" id="birthDate" placeholder="DD/MM/YYYY" disabled maxlength="10">
+                                </div>
+                            </div>
+
+                            <div class="form-group full">
+                                <label>City</label>
+                                <div class="input-wrapper">
+                                    <div class="city-selector" onclick="openCityModal()">
+                                        <span id="cityText">Select City</span>
+                                        <i class="fas fa-chevron-down"></i>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group full">
+                                <label>About Me</label>
+                                <div class="input-wrapper">
+                                    <textarea id="bio" placeholder="Tell us about yourself..." rows="4" disabled></textarea>
+                                </div>
+                                <div class="bio-footer" style="margin-top: 1rem;">
+                                    <button type="button" class="edit-btn" style="width: fit-content;" onclick="toggleEdit(true)">
+                                        <i class="fas fa-edit"></i> Editle
+                                    </button>
+                                    <button type="button" class="save-btn bio-save-btn" style="width: fit-content; display: none; align-items: center; gap: 0.5rem;" onclick="handleSave()">
+                                        <i class="fas fa-save"></i> Kaydet
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Account Verification Card -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h2>Account Verification</h2>
+                        </div>
+                        <div class="verification-list">
+                            <div class="verify-item" id="emailVerifyItem">
+                                <div class="verify-left">
+                                    <i class="fas fa-envelope verify-icon"></i>
+                                    <span class="verify-text">Email Verification</span>
+                                </div>
+                                <div class="verify-action" id="emailVerifyAction">
+                                    <button class="verify-btn" onclick="triggerEmailVerification()">Verify Now</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+            </div>
+        </div>
+    </main>
+
+    <!-- OTP Modal -->
+    <div class="modal" id="otpModal">
+        <div class="modal-content">
+            <button class="close-modal" onclick="closeModal('otpModal')">&times;</button>
+            <div class="modal-icon">
+                <i class="fas fa-envelope-open-text"></i>
+            </div>
+            <h3>Verify Your Email</h3>
+            <p>We've sent a 6-digit confirmation code to your email address.</p>
+            <div class="otp-input-group">
+                <input type="text" class="otp-input" id="otpCode" placeholder="000000" maxlength="6">
+            </div>
+            <button class="modal-btn" onclick="handleVerifyOTP()">Verify Account</button>
+            <button class="resend-btn" onclick="triggerEmailVerification()">Didn't get the code? Resend</button>
+        </div>
+    </div>
+
+    <!-- City Modal -->
+    <div class="modal" id="cityModal">
+        <div class="city-modal-content modal-content">
+            <button class="close-modal" onclick="closeModal('cityModal')">&times;</button>
+            <div class="city-modal-header">
+                <h3>Select City</h3>
+            </div>
+            <div class="city-list" id="cityList">
+                <!-- Cities will be injected here -->
+            </div>
+        </div>
+    </div>
+
+    <script src="js/ui.js"></script>
+    <script src="js/layout.js"></script>
+    <script type="module">
+        import { supabase } from './js/supabase.js';
+        import { loadPersonalInfo, updateProfile, sendVerificationCode, verifyOTP } from './js/personal-info-manager.js';
+        import { uploadAvatar } from './js/profile-manager.js';
+
+        const MALTA_CITIES = [
+            'Attard', 'Balzan', 'Birgu', 'Birkirkara', 'Birżebbuġa', 'Bormla', 'Dingli', 'Fgura', 'Floriana', 'Fontana (Gozo)', 'Għajnsielem (Gozo)', 'Għarb (Gozo)', 'Għargħur', 'Għasri (Gozo)', 'Għaxaq', 'Gżira', 'Hamrun', 'Iklin', 'Isla', 'Kalkara', 'Kerċem (Gozo)', 'Kirkop', 'Lija', 'Luqa', 'Marsaskala', 'Marsaxlokk', 'Mdina', 'Mellieħa', 'Mġarr', 'Mosta', 'Mqabba', 'Msida', 'Mtarfa', 'Munxar (Gozo)', 'Nadur (Gozo)', 'Naxxar', 'Paola', 'Pembroke', 'Pietà', 'Qala (Gozo)', 'Qormi', 'Qrendi', 'Rabat', 'Rabat (Gozo)', 'Safi', 'San Ġiljan', 'San Gwann', 'San Lawrenz (Gozo)', 'San Pawl il-Baħar', 'Sannat (Gozo)', 'Santa Luċija', 'Santa Venera', 'Siġġiewi', 'Sliema', "St. Paul's Bay", 'Swieqi', "Ta' Xbiex", 'Tarxien', 'Valletta', 'Xagħra (Gozo)', 'Xewkija (Gozo)', 'Xgħajra', 'Żabbar', 'Żebbuġ', 'Żebbuġ (Gozo)', 'Żejtun', 'Żurrieq'
+        ];
+
+        let isEditing = false;
+
+        // --- Core UI Functions ---
+        window.toggleEdit = (editing) => {
+            isEditing = editing;
+            const profileCard = document.getElementById('profileCard');
+            if (isEditing) profileCard.classList.add('is-editing');
+            else profileCard.classList.remove('is-editing');
+
+            const inputs = document.querySelectorAll('#profileForm input, #profileForm textarea');
+            inputs.forEach(input => {
+                if (input.id !== 'displayEmail') input.disabled = !isEditing;
+            });
+        };
+
+        window.handleSave = async () => {
+            const formData = {
+                firstName: document.getElementById('firstName').value,
+                lastName: document.getElementById('lastName').value,
+                phoneArea: document.getElementById('phoneArea').value,
+                phoneNumber: document.getElementById('phoneNumber').value,
+                birthDate: document.getElementById('birthDate').value,
+                city: document.getElementById('cityText').textContent,
+                bio: document.getElementById('bio').value
+            };
+
+            const result = await updateProfile(formData);
+            if (result.success) {
+                toggleEdit(false);
+                showToast('Profile updated successfully!', 'success');
+            } else {
+                showToast('Error: ' + result.error, 'error');
+            }
+        };
+
+        // --- City Selection ---
+        window.openCityModal = () => {
+            if (!isEditing) return;
+            document.getElementById('cityModal').classList.add('active');
+            renderCities();
+        };
+
+        window.closeModal = (id) => {
+            document.getElementById(id).classList.remove('active');
+        };
+
+        const renderCities = () => {
+            const list = document.getElementById('cityList');
+            const currentCity = document.getElementById('cityText').textContent;
+            list.innerHTML = MALTA_CITIES.map(city => `
+                <div class="city-item ${city === currentCity ? 'selected' : ''}" onclick="selectCity('${city}')">
+                    <span>${city}</span>
+                    ${city === currentCity ? '<i class="fas fa-check"></i>' : ''}
+                </div>
+            `).join('');
+        };
+
+        window.selectCity = (city) => {
+            document.getElementById('cityText').textContent = city;
+            closeModal('cityModal');
+        };
+
+        // --- Email Verification (OTP) ---
+        window.triggerEmailVerification = async () => {
+            const result = await sendVerificationCode();
+            if (result.success) {
+                document.getElementById('otpModal').classList.add('active');
+            } else {
+                showToast('Error: ' + result.error, 'error');
+            }
+        };
+
+        window.handleVerifyOTP = async () => {
+            const code = document.getElementById('otpCode').value;
+            if (code.length !== 6) return showToast('Enter 6-digit code', 'warn');
+
+            const result = await verifyOTP(code);
+            if (result.success) {
+                showToast('Email verified successfully!', 'success');
+                setTimeout(() => location.reload(), 1500);
+            } else {
+                showToast('Invalid code. Please try again.', 'error');
+            }
+        };
+
+        // --- Avatar Handling ---
+        document.getElementById('sidebarAvatarWrapper')?.addEventListener('click', () => {
+            document.getElementById('sidebarAvatarInput').click();
+        });
+
+        document.getElementById('sidebarAvatarInput')?.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            try {
+                showToast('Uploading avatar...', 'info');
+                const url = await uploadAvatar(file);
+                document.getElementById('sidebarProfileImage').src = url;
+                showToast('Avatar updated!', 'success');
+            } catch (err) {
+                showToast(err.message, 'error');
+            }
+        });
+
+        // --- Initialization & Auth Guard ---
+        document.addEventListener('DOMContentLoaded', async () => {
+            // 1. Auth Guard
+            const { data: { user }, error: authError } = await supabase.auth.getUser();
+            if (authError || !user) {
+                window.location.href = 'login.html?redirect=' + encodeURIComponent(window.location.pathname);
+                return;
+            }
+
+            // 2. Load Page Data
+            await loadPersonalInfo();
+            
+            // 3. Sync Sidebar Info
+            try {
+                const name = user.user_metadata?.full_name || user.email?.split('@')[0];
+                const sidebarName = document.getElementById('sidebarProfileName');
+                if (sidebarName) sidebarName.textContent = name;
+                
+                const { data: profile } = await supabase.from('profiles').select('avatar_url').eq('id', user.id).single();
+                if (profile?.avatar_url) {
+                    const sidebarImg = document.getElementById('sidebarProfileImage');
+                    if (sidebarImg) sidebarImg.src = profile.avatar_url;
+                }
+            } catch (e) {
+                console.warn('Sidebar sync error:', e);
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,427 +1,383 @@
-// Favoriler Sayfası Loader
-import { getFavorites, removeFromFavorites } from './api.js';
+import { getFavorites, removeFromFavorites, isFavorite, getUnreadPriceDrops, markPriceDropAsRead } from './api.js';
 import { supabase } from './supabase.js';
 
-function normalizeId(id) {
-    if (id === undefined || id === null) return null;
-    const str = String(id).trim();
-    if (!str || str.toLowerCase() === 'undefined' || str.toLowerCase() === 'null') return null;
-    return str;
-}
+// Configuration
+let currentPage = 1;
+const limit = 10;
+let isLoading = false;
+let hasMore = true;
+let viewMode = localStorage.getItem('vendo_view_mode') || 'grid'; // Default to grid
+let droppedListingIds = [];
+let activeStatFilter = 'all'; // 'all' or 'dropped'
+
+// Performance optimization: intersection observer for infinite scroll
+const observerOptions = {
+    root: null,
+    rootMargin: '100px',
+    threshold: 0.1
+};
+
+const sentinel = document.getElementById('scroll-sentinel');
+const loadingSpinner = document.getElementById('loading-spinner');
+const container = document.querySelector('.favorites-grid');
 
 document.addEventListener('DOMContentLoaded', async () => {
     try {
-        // Giriş kontrolü yap
         const { data: { user } } = await supabase.auth.getUser();
-        
         if (!user) {
-            console.warn('⚠️ Unauthenticated user tried to access favorites page');
             window.location.href = `login.html?redirect=${encodeURIComponent(window.location.href)}`;
             return;
         }
+
+        viewMode = localStorage.getItem('vendo_view_mode') || 'grid';
+        initViewToggle();
         
-        await loadFavorites();
+        // Fetch Price Drops and Init Stat Cards
+        await initializeStatCards();
+        
+        await initPage();
+        
+        // Setup Infinite Scroll
+        const observer = new IntersectionObserver(handleIntersect, observerOptions);
+        if (sentinel) observer.observe(sentinel);
+
     } catch (error) {
-        console.error('Error loading favorites:', error);
-        if (error.message.includes('User')) {
-            window.location.href = 'login.html';
-        }
+        console.error('Initialization error:', error);
     }
 });
 
-// Tüm favorileri sakla global'de
-let allFavorites = [];
-let currentFilter = 'all';
-
-async function loadFavorites() {
-    const container = document.querySelector('.favorites-grid');
+async function initializeStatCards() {
+    // Fetch unread price drops from notifications
+    droppedListingIds = await getUnreadPriceDrops();
     
-    if (!container) {
-        console.warn('Favorites container not found');
-        return;
-    }
+    const totalCard = document.getElementById('show-all-favs');
+    const dropCard = document.getElementById('show-dropped-favs');
+    const tabs = document.querySelectorAll('.filter-tabs .tab-btn');
 
-    try {
-        // Show loading
-        container.innerHTML = `
-            <div style="grid-column: 1/-1; text-align: center; padding: 3rem;">
-                <i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: var(--primary);"></i>
-                <p style="margin-top: 1rem; color: var(--text-muted);">Loading favorites...</p>
-            </div>
-        `;
-
-        allFavorites = await getFavorites();
-        
-        // İstatistikleri güncelle
-        updateStats(allFavorites);
-        
-        if (allFavorites.length === 0) {
-            container.innerHTML = `
-                <div style="grid-column: 1/-1; text-align: center; padding: 3rem;">
-                    <i class="fas fa-heart-broken" style="font-size: 3rem; color: var(--text-muted);"></i>
-                    <h3 style="margin-top: 1rem;">You don't have any favorite listings yet</h3>
-                    <p style="color: var(--text-muted); margin-top: 0.5rem;">
-                        You can add your favorite listings by clicking the heart icon
-                    </p>
-                    <a href="index.html" class="btn-primary" style="margin-top: 1.5rem; display: inline-block; padding: 0.75rem 2rem; text-decoration: none;">
-                        <i class="fas fa-home"></i> Return to Home
-                    </a>
-                </div>
-            `;
-            attachFilterListeners(allFavorites);
-            return;
+    const updateActiveUI = () => {
+        // Update Stat Cards (Optional visual cue)
+        if (activeStatFilter === 'all') {
+            totalCard?.classList.add('active');
+            dropCard?.classList.remove('active');
+        } else {
+            dropCard?.classList.add('active');
+            totalCard?.classList.remove('active');
         }
 
-        // Başlangıçta tümünü göster
-        renderFavorites(allFavorites);
+        // Update Tabs (Main visual cue)
+        tabs.forEach(tab => {
+            if (tab.dataset.filter === activeStatFilter) {
+                tab.classList.add('active');
+            } else {
+                tab.classList.remove('active');
+            }
+        });
+    };
 
-        // Event listener'ları ekle
-        attachRemoveListeners();
-            attachCardClickListeners();
-            attachFilterListeners(allFavorites);
-        attachFilterListeners(allFavorites);
+    const handleFilterChange = async (filter) => {
+        if (activeStatFilter === filter) return;
+        activeStatFilter = filter;
+        updateActiveUI();
+        await initPage();
+    };
+
+    // Binding for Stats Cards
+    totalCard?.addEventListener('click', () => handleFilterChange('all'));
+    dropCard?.addEventListener('click', () => handleFilterChange('dropped'));
+
+    // Binding for Tabs
+    tabs.forEach(tab => {
+        tab.addEventListener('click', () => handleFilterChange(tab.dataset.filter));
+    });
+
+    updateActiveUI();
+}
+
+function initViewToggle() {
+    const listBtn = document.getElementById('list-view-btn');
+    const gridBtn = document.getElementById('grid-view-btn');
+    const mobileToggle = document.querySelector('.view-toggle-btn');
+
+    const updateUI = () => {
+        if (viewMode === 'list') {
+            container.classList.add('list-view');
+            listBtn?.classList.add('active');
+            gridBtn?.classList.remove('active');
+            if (mobileToggle) mobileToggle.innerHTML = '<i class="fas fa-list"></i>';
+        } else {
+            container.classList.remove('list-view');
+            gridBtn?.classList.add('active');
+            listBtn?.classList.remove('active');
+            if (mobileToggle) mobileToggle.innerHTML = '<i class="fas fa-th-large"></i>';
+        }
+    };
+
+    listBtn?.addEventListener('click', () => {
+        viewMode = 'list';
+        localStorage.setItem('vendo_view_mode', 'list');
+        updateUI();
+    });
+
+    gridBtn?.addEventListener('click', () => {
+        viewMode = 'grid';
+        localStorage.setItem('vendo_view_mode', 'grid');
+        updateUI();
+    });
+
+    mobileToggle?.addEventListener('click', () => {
+        viewMode = viewMode === 'grid' ? 'list' : 'grid';
+        localStorage.setItem('vendo_view_mode', viewMode);
+        updateUI();
+    });
+
+    updateUI();
+}
+
+async function initPage() {
+    currentPage = 1;
+    hasMore = true;
+    container.innerHTML = '';
+    await fetchAndRender();
+}
+
+async function handleIntersect(entries) {
+    if (entries[0].isIntersecting && !isLoading && hasMore) {
+        currentPage++;
+        await fetchAndRender();
+    }
+}
+
+async function fetchAndRender() {
+    if (isLoading || !hasMore) return;
+    isLoading = true;
+    if (loadingSpinner) loadingSpinner.style.display = 'flex';
+
+    try {
+        const { favorites, totalCount } = await getFavorites({
+            page: currentPage,
+            limit: limit,
+            categoryId: 'all',
+            onlyDropped: activeStatFilter === 'dropped',
+            droppedListingIds: droppedListingIds
+        });
+
+        // Update stats on first load
+        if (currentPage === 1) {
+            const totalEl = document.getElementById('total-favorites-count');
+            const dropEl = document.getElementById('price-drop-count');
+            
+            // Total is always the full favorites count (but getFavorites with onlyDropped returns filtered count)
+            // So if we are in 'all' filter, we update total. 
+            // Better: mobile app fetch call separately gets total.
+            // For now, if activeStatFilter is 'all', totalCount is the total.
+            if (activeStatFilter === 'all' && totalEl) totalEl.textContent = totalCount;
+            if (dropEl) dropEl.textContent = droppedListingIds.length;
+        }
+
+        if (favorites.length === 0 && currentPage === 1) {
+            hasMore = false;
+            showEmptyState();
+        } else {
+            const fragment = document.createDocumentFragment();
+            favorites.forEach(listing => {
+                const cardHtml = createFavoriteCard(listing);
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = cardHtml;
+                fragment.appendChild(tempDiv.firstElementChild);
+            });
+            container.appendChild(fragment);
+            
+            if (favorites.length < limit) {
+                hasMore = false;
+            }
+        }
+        
+        attachActionListeners();
 
     } catch (error) {
-        console.error('Error loading favorites:', error);
-        container.innerHTML = `
-            <div style="grid-column: 1/-1; text-align: center; padding: 3rem;">
-                <i class="fas fa-exclamation-triangle" style="font-size: 3rem; color: var(--danger);"></i>
-                <p style="margin-top: 1rem; color: var(--text-muted);">An error occurred while loading favorites</p>
-            </div>
-        `;
+        console.error('Fetch error:', error);
+    } finally {
+        isLoading = false;
+        if (loadingSpinner) loadingSpinner.style.display = 'none';
     }
-}
-
-function renderFavorites(favorites) {
-    const container = document.querySelector('.favorites-grid');
-    if (favorites.length === 0) {
-        container.innerHTML = `
-            <div style="grid-column: 1/-1; text-align: center; padding: 3rem;">
-                <i class="fas fa-heart-broken" style="font-size: 3rem; color: var(--text-muted);"></i>
-                <h3 style="margin-top: 1rem;">You don't have any favorite listings in this category</h3>
-            </div>
-        `;
-    } else {
-        container.innerHTML = favorites.map(listing => createFavoriteCard(listing)).join('');
-    }
-    
-    // Re-attach listeners after rendering
-    setTimeout(() => {
-        attachRemoveListeners();
-        attachCardClickListeners();
-        attachActionListeners();
-    }, 0);
-}
-
-function attachActionListeners() {
-    // Mesaj Gönder Butonu
-    document.querySelectorAll('.send-message-btn').forEach(btn => {
-        btn.addEventListener('click', async function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-
-            const listingId = this.dataset.listingId;
-            const sellerId = this.dataset.sellerId;
-
-            // Prevent sending message to own listing
-            const { data: { user } } = await supabase.auth.getUser();
-            if (user && user.id === sellerId) {
-                if (typeof showNotification === 'function') {
-                    showNotification('You cannot send a message to your own listing', 'warning');
-                } else {
-                    alert('You cannot send a message to your own listing');
-                }
-                return;
-            }
-
-            if (listingId && sellerId) {
-                window.location.href = `mesajlar.html?listing_id=${listingId}&seller_id=${sellerId}`;
-            } else {
-                console.error('Missing info:', { listingId, sellerId });
-                if (typeof showNotification === 'function') {
-                    showNotification('Cannot send message: missing listing information', 'error');
-                }
-            }
-        });
-    });
-
-    // Paylaş Butonu (Hazır el atmışken bunu da ekleyelim)
-    document.querySelectorAll('.share-btn').forEach(btn => {
-        btn.addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            const listingId = this.dataset.listingId;
-            const url = `${window.location.origin}/ilan-detay.html?id=${listingId}`;
-            
-            if (navigator.share) {
-                navigator.share({
-                    title: 'VENDO Listing',
-                    url: url
-                }).catch(console.error);
-            } else {
-                navigator.clipboard.writeText(url).then(() => {
-                    if (typeof showNotification === 'function') {
-                        showNotification('Link copied', 'success');
-                    } else {
-                        alert('Link copied');
-                    }
-                });
-            }
-        });
-    });
 }
 
 function createFavoriteCard(listing) {
-    const normalizedId = normalizeId(listing?.id);
-    if (!listing || !normalizedId) {
-        console.warn('Favorite card skipped: no ID or invalid', listing);
-        return '';
-    }
+    const normalizedId = listing?.id;
+    if (!listing || !normalizedId) return '';
+    
     const imageUrl = listing.photos && listing.photos.length > 0 
         ? listing.photos[0] 
-        : 'https://via.placeholder.com/400x300/10b981/ffffff?text=No+Photo';
+        : 'assets/placeholder-listing.jpg';
 
     const formattedPrice = new Intl.NumberFormat('tr-TR', { style: 'decimal', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(listing.price);
-    const currency = '€';
+    const currency = listing.currency === 'TL' ? '₺' : '€';
+
+    const actionButtons = `
+        <button class="action-btn info share-btn" style="flex: 1; justify-content: center;" 
+            data-id="${normalizedId}" 
+            data-title="${escapeHtml(listing.title)}" 
+            data-price="${currency}${formattedPrice}" 
+            data-location="${escapeHtml(listing.location_city || 'Malta')}" 
+            title="Share">
+            <i class="fas fa-share-alt"></i> Share
+        </button>
+    `;
+
+    const isDropped = droppedListingIds.includes(normalizedId) || droppedListingIds.includes(String(normalizedId));
 
     return `
-        <div class="favorite-card" data-listing-id="${normalizedId}" data-href="ilan-detay.html?id=${normalizedId}">
-            <div class="favorite-image">
-                <img src="${imageUrl}" alt="${escapeHtml(listing.title)}">
-            <button class="favorite-remove" data-listing-id="${normalizedId}" title="Remove from Favorites">
+        <div class="ad-card favorite-card" data-listing-id="${normalizedId}" data-listing-number="${listing.listing_number || normalizedId}" data-href="ilan-detay.html?id=${normalizedId}">
+            <div class="ad-image">
+                <img src="${imageUrl}" alt="${escapeHtml(listing.title)}" onerror="this.src='assets/placeholder-listing.jpg'">
+                ${isDropped ? `
+                <div class="price-drop-badge">
+                    <i class="fas fa-trending-down"></i> PRICE DROPPED
+                </div>
+                ` : ''}
+                <button class="favorite-toggle-btn active" data-id="${normalizedId}" title="Remove from Favorites">
                     <i class="fas fa-heart"></i>
                 </button>
-            </div>
-            <div class="favorite-content">
-                <h3 class="favorite-title">${escapeHtml(listing.title)}</h3>
-                <p class="favorite-price">
-                    <span class="current-price">${currency}${formattedPrice}</span>
-                </p>
-                <p class="favorite-location">
-                    <i class="fas fa-map-marker-alt"></i>
-                    ${escapeHtml(listing.location_city || 'Not specified')}
-                </p>
-                <div class="favorite-meta">
-                    <span class="added-date">
-                        <i class="fas fa-clock"></i>
-                        ${formatDate(listing.created_at)}
-                    </span>
-                    ${listing.status === 'active' ? '<span class="urgency-badge"><i class="fas fa-check-circle"></i> Active</span>' : ''}
+                <div class="ad-favorites-overlay">
+                    <i class="fas fa-heart"></i> ${listing.favorites?.[0]?.count || 0}
                 </div>
             </div>
-            <div class="favorite-actions">
-                <button class="action-btn success send-message-btn" title="Send Message" data-listing-id="${normalizedId}" data-seller-id="${listing.user_id}">
-                    <i class="fas fa-envelope"></i>
-                </button>
-                <button class="action-btn info share-btn" title="Share" data-listing-id="${normalizedId}">
-                    <i class="fas fa-share"></i>
-                </button>
+            <div class="ad-content">
+                <h3 class="ad-title">${escapeHtml(listing.title)}</h3>
+                <p class="ad-price">${currency}${formattedPrice}</p>
+                <div class="ad-divider"></div>
+                <div class="ad-action-row">
+                    ${actionButtons}
+                </div>
+            </div>
+            <div class="ad-sidebar-actions">
+                ${actionButtons}
             </div>
         </div>
     `;
 }
 
-function attachRemoveListeners() {
-    document.querySelectorAll('.favorite-remove').forEach(btn => {
-        btn.addEventListener('click', async function(e) {
-            e.preventDefault();
+function attachActionListeners() {
+    const cards = container.querySelectorAll('.ad-card:not([data-listeners-bound])');
+    cards.forEach(card => {
+        card.dataset.listenersBound = 'true';
+        
+        card.addEventListener('click', async (e) => {
+            if (e.target.closest('.action-btn') || e.target.closest('.placeholder-btn') || e.target.closest('.favorite-toggle-btn')) return;
+            
+            const listingId = card.dataset.listingId;
+            
+            // Mark price drop as read in background if needed
+            if (droppedListingIds.includes(listingId) || droppedListingIds.includes(Number(listingId))) {
+                markPriceDropAsRead(listingId);
+                // Optimistically remove badge and update count
+                card.querySelector('.price-drop-badge')?.remove();
+                droppedListingIds = droppedListingIds.filter(id => id != listingId);
+                const dropEl = document.getElementById('price-drop-count');
+                if (dropEl) dropEl.textContent = droppedListingIds.length;
+            }
+            
+            window.location.href = card.dataset.href;
+        });
+
+        // Remove logic (Trash Icon)
+        card.querySelector('.remove-btn')?.addEventListener('click', async (e) => {
             e.stopPropagation();
-
-            const listingId = this.dataset.listingId;
-            
-            let _ok = false;
-            if (typeof showConfirmDialog === 'function') {
-                _ok = await showConfirmDialog('Are you sure you want to remove this listing from your favorites?');
-            } else {
-                if (typeof showNotification === 'function') {
-                    showNotification('Approval required: confirm removal from favorites', 'info');
-                } else if (typeof showInlineToast === 'function') {
-                    showInlineToast('Approval required: confirm removal from favorites', 'info');
-                } else {
-                    console.warn('Approval required: confirm removal from favorites');
-                }
-                return;
-            }
-            if (!_ok) return;
-
-            try {
-                await removeFromFavorites(listingId);
-                
-                // Kartı UI'dan kaldır
-                const card = this.closest('.favorite-card');
-                card.style.opacity = '0';
-                card.style.transform = 'scale(0.9)';
-                
-                setTimeout(() => {
+            if (confirm('Are you sure you want to remove this from your favorites?')) {
+                try {
+                    await removeFromFavorites(card.dataset.listingId);
                     card.remove();
-                    // Eğer başka favori yoksa boş state göster
-                    const remaining = document.querySelectorAll('.favorite-card').length;
-                    if (remaining === 0) {
-                        loadFavorites();
-                    }
-                }, 300);
+                    if (container.children.length === 0) showEmptyState();
+                } catch (err) {
+                    alert('Error: ' + err.message);
+                }
+            }
+        });
+
+        // Toggle Favorite logic (Heart Icon - No Confirm)
+        card.querySelector('.favorite-toggle-btn')?.addEventListener('click', async (e) => {
+            e.stopPropagation();
+            const btn = e.currentTarget;
+            const listingId = card.dataset.listingId;
+            const isRemoving = btn.classList.contains('active');
+
+            if (isRemoving) {
+                // Change UI instantly
+                btn.classList.remove('active');
+                btn.innerHTML = '<i class="far fa-heart"></i>'; // Hollow heart
                 
-                if (typeof showNotification === 'function') {
-                    showNotification('Removed from favorites', 'success');
+                try {
+                    await removeFromFavorites(listingId);
+                    // We keep the card visible as requested, just changing the heart state
+                } catch (err) {
+                    // Revert UI on error
+                    btn.classList.add('active');
+                    btn.innerHTML = '<i class="fas fa-heart"></i>';
+                    console.error('Failed to remove from favorites:', err);
                 }
-            } catch (error) {
-                console.error('Error removing from favorites:', error);
-                if (typeof showNotification === 'function') {
-                    showNotification('Error: ' + error.message, 'error');
-                } else if (typeof showInlineToast === 'function') {
-                    showInlineToast('Error: ' + error.message, 'error');
-                } else {
-                    console.error('Error: ' + error.message);
+            } else {
+                // If they click it again to re-add? (Optional but good UX)
+                btn.classList.add('active');
+                btn.innerHTML = '<i class="fas fa-heart"></i>';
+                try {
+                    const { addFavorite } = await import('./api.js');
+                    if (addFavorite) await addFavorite(listingId);
+                } catch (err) {
+                    btn.classList.remove('active');
+                    btn.innerHTML = '<i class="far fa-heart"></i>';
                 }
             }
         });
-    });
-}
 
-function attachCardClickListeners() {
-    document.querySelectorAll('.favorite-card').forEach(card => {
-        card.style.cursor = 'pointer';
-        card.addEventListener('click', function(e) {
-            if (e.target.closest('.favorite-remove') || e.target.closest('.favorite-actions')) return;
-            const listingId = normalizeId(this.dataset.listingId);
-            const href = this.dataset.href || (listingId ? `ilan-detay.html?id=${listingId}` : '');
-            if (!listingId || !href) {
-                console.warn('Favorite card click prevented: invalid ID', this.dataset);
-                if (typeof showNotification === 'function') {
-                    showNotification('Listing link missing. Please refresh the page.', 'warning');
-                } else if (typeof showInlineToast === 'function') {
-                    showInlineToast('Listing link missing. Please refresh the page.', 'warning');
-                } else {
-                    console.warn('Listing link missing. Please refresh the page.');
-                }
-                return;
+        // Message Listener
+        card.querySelector('.send-message-btn')?.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const listingId = card.dataset.listingId;
+            const sellerId = e.currentTarget.dataset.sellerId;
+            window.location.href = `mesajlar.html?listing_id=${listingId}&seller_id=${sellerId}`;
+        });
+
+        // Share Listener
+        card.querySelector('.share-btn')?.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const btn = e.currentTarget;
+            const listingNumber = card.dataset.listingNumber || card.dataset.listingId;
+            const shareUrl = `https://vendomalta.com/listing/${listingNumber}`;
+            const title = btn.dataset.title || 'VENDO Listing';
+            
+            if (navigator.share) {
+                // By passing ONLY the url (and title for OS UI context), we force 
+                // target apps like WhatsApp to fetch the Open Graph (OG) tags and 
+                // render a non-editable rich preview card, exactly like the mobile app.
+                navigator.share({ 
+                    title: title,
+                    url: shareUrl 
+                }).catch(console.error);
+            } else {
+                navigator.clipboard.writeText(shareUrl).then(() => alert('Link copied successfully!'));
             }
-            window.location.href = href;
         });
     });
 }
 
-function updateStats(favorites) {
-    const totalCount = favorites.length;
+function showEmptyState() {
+    const isDropped = activeStatFilter === 'dropped';
+    const iconClass = isDropped ? 'fas fa-tags' : 'fas fa-heart-broken';
+    const title = isDropped ? 'No Price Drops Yet' : 'No Favorites Found';
+    const message = isDropped 
+        ? 'None of your favorite items have dropped in price yet.' 
+        : 'Start exploring marketplace to add items to your favorites!';
     
-    // Toplam favori
-    const totalStat = document.querySelector('.stats-grid .stat-card:nth-child(1) h3');
-    if (totalStat) totalStat.textContent = totalCount;
-    
-    // Bu hafta eklenen (son 7 gün)
-    const weekAgo = new Date();
-    weekAgo.setDate(weekAgo.getDate() - 7);
-    const thisWeek = favorites.filter(f => new Date(f.created_at) > weekAgo).length;
-    const weekStat = document.querySelector('.stats-grid .stat-card:nth-child(2) h3');
-    if (weekStat) weekStat.textContent = thisWeek;
-    
-    // Tab sayılarını güncelle
-    document.querySelectorAll('.tab-btn').forEach(tab => {
-        const filter = tab.dataset.filter;
-        if (filter === 'all') {
-            tab.textContent = `All (${totalCount})`;
-        } else {
-            const count = favorites.filter(f => f.category === filter).length;
-            const label = getFilterLabel(filter);
-            tab.textContent = `${label} (${count})`;
-        }
-    });
-}
-
-function getFilterLabel(filter) {
-    const labels = {
-        'emlak': 'Real Estate',
-        'vasita': 'Vehicles',
-        'elektronik': 'Electronics',
-        'ev_esyasi': 'Home Goods'
-    };
-    return labels[filter] || filter;
-}
-
-function attachFilterListeners(favorites) {
-    document.querySelectorAll('.tab-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-            currentFilter = this.dataset.filter;
-            
-            // Aktif buton göster
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            this.classList.add('active');
-            
-            // Filtrelenmiş favorileri göster
-            let filtered = favorites;
-            if (currentFilter !== 'all') {
-                filtered = favorites.filter(f => f.category === currentFilter);
-            }
-            
-            renderFavorites(filtered);
-        });
-    });
-    
-    // Search listener
-    const searchInput = document.querySelector('.ads-search');
-    if (searchInput) {
-        searchInput.addEventListener('input', function(e) {
-            const query = e.target.value.toLowerCase();
-            let filtered = favorites;
-            
-            // Önce kategori filtresi uygula
-            if (currentFilter !== 'all') {
-                filtered = filtered.filter(f => f.category === currentFilter);
-            }
-            
-            // Sonra arama filtresi uygula
-            if (query) {
-                filtered = filtered.filter(f => 
-                    f.title.toLowerCase().includes(query) || 
-                    f.location.toLowerCase().includes(query)
-                );
-            }
-            
-            renderFavorites(filtered);
-        });
-    }
-    
-    // Sort listener
-    const sortSelect = document.querySelector('.sort-select');
-    if (sortSelect) {
-        sortSelect.addEventListener('change', function(e) {
-            let filtered = [...allFavorites];
-            const sortValue = e.target.value;
-            
-            // Önce kategori filtresi uygula
-            if (currentFilter !== 'all') {
-                filtered = filtered.filter(f => f.category === currentFilter);
-            }
-            
-            // Sıralama yap
-            switch(sortValue) {
-                case 'date-desc':
-                    filtered.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-                    break;
-                case 'date-asc':
-                    filtered.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
-                    break;
-                case 'price-asc':
-                    filtered.sort((a, b) => a.price - b.price);
-                    break;
-                case 'price-desc':
-                    filtered.sort((a, b) => b.price - a.price);
-                    break;
-                case 'title-asc':
-                    filtered.sort((a, b) => a.title.localeCompare(b.title, 'tr'));
-                    break;
-            }
-            
-            renderFavorites(filtered);
-        });
-    }
-}
-
-function formatDate(dateString) {
-    if (!dateString) return '—';
-    const date = new Date(dateString);
-    if (Number.isNaN(date.getTime())) return '—';
-    return date.toLocaleDateString('tr-TR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    container.innerHTML = `
+        <div style="grid-column: 1/-1; text-align: center; padding: 4rem 2rem;">
+            <i class="${iconClass}" style="font-size: 4rem; color: #e2e8f0; margin-bottom: 1.5rem;"></i>
+            <h3>${title}</h3>
+            <p style="color: #64748b; margin-top: 0.5rem;">${message}</p>
+            <a href="/" class="btn-primary" style="display: inline-block; margin-top: 2rem; padding: 0.8rem 2rem; text-decoration: none; background: #10b981; color: white; border-radius: 8px;">
+                Explore Marketplace
+            </a>
+        </div>
+    `;
 }
 
 function escapeHtml(text) {

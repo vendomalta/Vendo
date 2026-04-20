@@ -1,85 +1,224 @@
-// İlanlarım Sayfası Loader - Load More Sistemi
+// İlanlarım Sayfası Loader - Infinite Scroll (Lazy Loading) Sistemi
 import { getMyListings, deleteListing, updateListing } from './api.js';
 
-let myListings = [];
+// State Management
 let currentPage = 1;
 let totalPages = 1;
 let isLoading = false;
-const ITEMS_PER_PAGE = 20;
+let currentFilter = 'all';
+let currentViewMode = localStorage.getItem('myListingsViewMode') || 'grid';
+let hasMore = true;
+const ITEMS_PER_PAGE = 10;
+
+// DOM Elements
+const container = document.querySelector('.ads-container');
+const scrollTrigger = document.getElementById('infinite-scroll-trigger');
+const infiniteLoader = document.getElementById('infinite-loader');
+const listBtn = document.getElementById('list-view-btn');
+const gridBtn = document.getElementById('grid-view-btn');
+const mobileToggle = document.querySelector('.view-toggle-btn'); // For mobile header if exists
 
 document.addEventListener('DOMContentLoaded', async () => {
-    await loadMyListings();
-    setupLoadMoreButton();
+    if (!container) return;
+
+    // View mode initialize
+    applyViewMode();
+    
+    // Initial load
+    await initPage();
+    
+    // Setup Infinite Scroll
+    setupInfiniteScroll();
+    
+    // Setup Filters
     initializeFilters();
+    
+    // Setup View Toggle
+    initializeViewToggle();
+    
+    // Setup Stats
+    await fetchAndSetStats();
 });
 
-async function loadMyListings() {
-    const container = document.querySelector('.ads-container');
-    
-    if (!container) {
-        console.warn('Listings container not found');
-        return;
-    }
+/**
+ * Görünüm modunu uygula (Grid / List)
+ */
+function applyViewMode() {
+    if (!container) return;
 
-    try {
-        container.innerHTML = `
-            <div style="grid-column: 1/-1; text-align: center; padding: 3rem;">
-                <i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: var(--primary);"></i>
-                <p style="margin-top: 1rem; color: var(--text-muted);">Loading your listings...</p>
-            </div>
-        `;
-
-        myListings = await getMyListings();
-        
-        renderListings(myListings);
-        updateStats(myListings);
-        
-        if (myListings.length === 0) {
-            container.innerHTML = `
-                <div style="grid-column: 1/-1; text-align: center; padding: 3rem;">
-                    <i class="fas fa-inbox" style="font-size: 3rem; color: var(--text-muted);"></i>
-                    <h3 style="margin-top: 1rem;">You don't have any listings yet</h3>
-                    <p style="color: var(--text-muted); margin-top: 0.5rem;">
-                        Post your first listing and start selling!
-                    </p>
-                </div>
-            `;
-            return;
-        }
-
-        container.innerHTML = myListings.map(listing => createAdCard(listing)).join('');
-        attachActionListeners();
-        updateLoadMoreButton();
-
-    } catch (error) {
-        console.error('Error loading listings:', error);
-        container.innerHTML = `
-            <div style="grid-column: 1/-1; text-align: center; padding: 3rem;">
-                <i class="fas fa-exclamation-triangle" style="font-size: 3rem; color: var(--danger);"></i>
-                <p style="margin-top: 1rem; color: var(--text-muted);">An error occurred while loading listings</p>
-            </div>
-        `;
+    if (currentViewMode === 'list') {
+        container.classList.add('list-view');
+        container.classList.remove('grid-view');
+        listBtn?.classList.add('active');
+        gridBtn?.classList.remove('active');
+        if (mobileToggle) mobileToggle.innerHTML = '<i class="fas fa-list"></i>';
+    } else {
+        container.classList.add('grid-view');
+        container.classList.remove('list-view');
+        gridBtn?.classList.add('active');
+        listBtn?.classList.remove('active');
+        if (mobileToggle) mobileToggle.innerHTML = '<i class="fas fa-th-large"></i>';
     }
 }
 
-function renderListings(listings) {
-    const container = document.querySelector('.ads-container');
-    if (!container) return;
-    if (!listings || listings.length === 0) {
-        container.innerHTML = `
-            <div style="grid-column: 1/-1; text-align: center; padding: 3rem;">
-                <i class="fas fa-inbox" style="font-size: 3rem; color: var(--text-muted);"></i>
-                <h3 style="margin-top: 1rem;">You don't have any listings yet</h3>
-                <p style="color: var(--text-muted); margin-top: 0.5rem;">
-                    Post your first listing and start selling!
-                </p>
-            </div>
-        `;
-        return;
-    }
+/**
+ * Görünüm değiştirme butonlarını ayarla
+ */
+function initializeViewToggle() {
+    listBtn?.addEventListener('click', () => {
+        currentViewMode = 'list';
+        localStorage.setItem('myListingsViewMode', 'list');
+        applyViewMode();
+    });
 
-    container.innerHTML = listings.map(listing => createAdCard(listing)).join('');
-    attachActionListeners();
+    gridBtn?.addEventListener('click', () => {
+        currentViewMode = 'grid';
+        localStorage.setItem('myListingsViewMode', 'grid');
+        applyViewMode();
+    });
+
+    mobileToggle?.addEventListener('click', () => {
+        currentViewMode = currentViewMode === 'grid' ? 'list' : 'grid';
+        localStorage.setItem('myListingsViewMode', currentViewMode);
+        applyViewMode();
+    });
+}
+
+/**
+ * Sayfayı sıfırla ve ilk yüklemeyi yap
+ */
+async function initPage() {
+    currentPage = 1;
+    hasMore = true;
+    container.innerHTML = '';
+    await loadListings(true);
+}
+
+/**
+ * İlanları yükle
+ * @param {boolean} isInitial - İlk yükleme mi?
+ */
+async function loadListings(isInitial = false) {
+    if (isLoading || !hasMore) return;
+
+    isLoading = true;
+    if (infiniteLoader) infiniteLoader.style.display = 'block';
+
+    try {
+        const response = await getMyListings({
+            page: currentPage,
+            limit: ITEMS_PER_PAGE,
+            status: currentFilter
+        });
+
+        const listings = response.data;
+        totalPages = response.totalPages;
+        
+        if (listings.length === 0 && isInitial) {
+            container.innerHTML = `
+                <div style="grid-column: 1/-1; text-align: center; padding: 3rem;">
+                    <i class="fas fa-inbox" style="font-size: 3rem; color: var(--text-muted);"></i>
+                    <h3 style="margin-top: 1rem;">Henüz bir ilanınız bulunmuyor</h3>
+                    <p style="color: var(--text-muted); margin-top: 0.5rem;">
+                        İlk ilanınızı oluşturun ve satışa başlayın!
+                    </p>
+                </div>
+            `;
+            hasMore = false;
+        } else {
+            const cardsHtml = listings.map(listing => createAdCard(listing)).join('');
+            container.insertAdjacentHTML('beforeend', cardsHtml);
+            
+            attachActionListeners();
+            
+            // Sonraki sayfa kontrolü
+            if (currentPage >= totalPages || listings.length < ITEMS_PER_PAGE) {
+                hasMore = false;
+            } else {
+                currentPage++;
+            }
+        }
+
+    } catch (error) {
+        console.error('İlanlar yüklenirken hata oluştu:', error);
+        if (isInitial) {
+            container.innerHTML = `
+                <div style="grid-column: 1/-1; text-align: center; padding: 3rem;">
+                    <i class="fas fa-exclamation-triangle" style="font-size: 3rem; color: var(--danger);"></i>
+                    <p style="margin-top: 1rem; color: var(--text-muted);">İlanlar yüklenirken bir sorun oluştu</p>
+                </div>
+            `;
+        }
+    } finally {
+        isLoading = false;
+        if (infiniteLoader) infiniteLoader.style.display = 'none';
+    }
+}
+
+/**
+ * Intersection Observer setup
+ */
+function setupInfiniteScroll() {
+    if (!scrollTrigger) return;
+
+    const observer = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting && !isLoading && hasMore) {
+            loadListings();
+        }
+    }, {
+        rootMargin: '200px'
+    });
+
+    observer.observe(scrollTrigger);
+}
+
+/**
+ * İstatistikleri ayrıca çek ve güncelle
+ */
+async function fetchAndSetStats() {
+    try {
+        const [activeRes, soldRes] = await Promise.all([
+            getMyListings({ limit: 1, status: 'active' }),
+            getMyListings({ limit: 1, status: 'sold' })
+        ]);
+
+        const activeCount = activeRes.totalCount;
+        const soldCount = soldRes.totalCount;
+
+        const activeStat = document.getElementById('active-listings-count');
+        const soldStat = document.getElementById('sold-listings-count');
+        if (activeStat) activeStat.textContent = activeCount;
+        if (soldStat) soldStat.textContent = soldCount;
+
+        document.querySelectorAll('.tab-btn').forEach(tab => {
+            const filter = tab.dataset.filter;
+            let count = 0;
+            if (filter === 'all') {
+                 count = activeCount + soldCount;
+            } else if (filter === 'active') count = activeCount;
+            else if (filter === 'sold') count = soldCount;
+            
+            const label = tab.textContent.split('(')[0].trim();
+            tab.textContent = `${label} (${count})`;
+        });
+    } catch (err) {
+        console.warn('İstatistikler güncellenemedi:', err);
+    }
+}
+
+function initializeFilters() {
+    const tabs = document.querySelectorAll('.tab-btn');
+    tabs.forEach(tab => {
+        tab.addEventListener('click', async () => {
+            if (tab.classList.contains('active')) return;
+
+            tabs.forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+
+            currentFilter = tab.dataset.filter;
+            await initPage();
+        });
+    });
 }
 
 function normalizeId(id) {
@@ -91,59 +230,52 @@ function normalizeId(id) {
 
 function createAdCard(listing) {
     const normalizedId = normalizeId(listing?.id);
-    if (!listing || !normalizedId) {
-        console.warn('Listing card skipped: invalid ID', listing);
-        return '';
-    }
+    if (!listing || !normalizedId) return '';
+    
     const normalizedStatus = normalizeStatus(listing.status);
     const imageUrl = listing.photos && listing.photos.length > 0 
         ? listing.photos[0] 
         : 'https://via.placeholder.com/400x300/10b981/ffffff?text=No+Photo';
 
     const formattedPrice = new Intl.NumberFormat('tr-TR', { style: 'decimal', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(listing.price);
-    const currency = '€';
+    const currency = listing.currency === 'TL' ? '₺' : '€';
     
     const statusBadge = getStatusBadge(normalizedStatus);
     const daysLeft = getDaysLeft(listing.expires_at);
+
+    const actionButtons = `
+        <button class="action-btn primary edit-btn" data-id="${normalizedId}" title="Düzenle">
+            <i class="fas fa-edit"></i>
+        </button>
+        ${normalizedStatus === 'active' ? `
+        <button class="action-btn success mark-sold-btn" data-id="${normalizedId}" title="Mark as Sold">
+            <i class="fas fa-check-circle"></i> SOLD
+        </button>
+        ` : ''}
+        <button class="action-btn danger delete-btn" data-id="${normalizedId}" title="Sil">
+            <i class="fas fa-trash"></i>
+        </button>
+    `;
 
     return `
         <div class="ad-card" data-listing-id="${normalizedId}" data-status="${normalizedStatus}" data-href="ilan-detay.html?id=${normalizedId}">
             <div class="ad-image">
                 <img src="${imageUrl}" alt="${escapeHtml(listing.title)}">
                 ${statusBadge}
-                <div class="ad-views">
-                    <i class="fas fa-eye"></i> ${listing.view_count || 0}
+                <div class="ad-favorites-overlay">
+                    <i class="fas fa-heart"></i> ${listing.favorites?.[0]?.count || 0}
                 </div>
             </div>
             <div class="ad-content">
                 <h3 class="ad-title">${escapeHtml(listing.title)}</h3>
-                <p class="ad-location">
-                    <i class="fas fa-map-marker-alt"></i>
-                    ${escapeHtml(listing.location_city || 'Not specified')}
-                </p>
                 <p class="ad-price">${currency}${formattedPrice}</p>
-                <div class="ad-meta">
-                    <span class="ad-date">
-                        <i class="fas fa-calendar"></i>
-                        ${formatDate(listing.created_at)}
-                    </span>
-                    <span class="ad-expires">
-                        <i class="fas fa-clock"></i>
-                        ${daysLeft}
-                    </span>
+                <div class="ad-divider"></div>
+                <div class="ad-action-row">
+                    ${actionButtons}
                 </div>
             </div>
-            <div class="ad-actions">
-                    <button class="action-btn primary edit-btn" data-id="${normalizedId}" title="Edit">
-                    <i class="fas fa-edit"></i>
-                </button>
-                ${normalizedStatus === 'active' 
-                    ? `<button class="action-btn warning pause-btn" data-id="${normalizedId}" title="Pause"><i class="fas fa-pause"></i></button>`
-                    : `<button class="action-btn success activate-btn" data-id="${normalizedId}" title="Activate"><i class="fas fa-play"></i></button>`
-                }
-                <button class="action-btn danger delete-btn" data-id="${normalizedId}" title="Delete">
-                    <i class="fas fa-trash"></i>
-                </button>
+            <div class="ad-sidebar-actions">
+                ${actionButtons}
             </div>
         </div>
     `;
@@ -151,380 +283,82 @@ function createAdCard(listing) {
 
 function getStatusBadge(status) {
     const badges = {
-        'active': '<div class="ad-badge active">Active</div>',
-        'inactive': '<div class="ad-badge inactive">Inactive</div>',
-        'deactivated': '<div class="ad-badge inactive">Inactive</div>',
-        'draft': '<div class="ad-badge inactive">Draft</div>',
-        'closed': '<div class="ad-badge inactive">Inactive</div>',
-        'sold': '<div class="ad-badge inactive">Sold</div>',
-        'expired': '<div class="ad-badge expired">Expired</div>',
-        'pending': '<div class="ad-badge pending">Pending Approval</div>'
+        'active': '<div class="ad-badge active">Aktif</div>',
+        'closed': '<div class="ad-badge inactive">Pasif</div>',
+        'sold': '<div class="ad-badge sold">SOLD</div>',
+        'expired': '<div class="ad-badge expired">Süresi Doldu</div>',
+        'pending': '<div class="ad-badge pending">Onay Bekliyor</div>'
     };
     return badges[status] || '';
 }
 
 function getDaysLeft(expiresAt) {
-    if (!expiresAt) return 'No expiration';
-    
-    const now = new Date();
-    const expires = new Date(expiresAt);
-    const diffTime = expires - now;
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
-    if (diffDays < 0) return 'Expired';
-    if (diffDays === 0) return 'Expires today';
-    if (diffDays === 1) return '1 day left';
-    return `${diffDays} days left`;
+    return ''; // Feature disabled
 }
 
 function attachActionListeners() {
     const container = document.querySelector('.ads-container');
-    if (!container) return;
-
-    // Bir kez bağla
-    if (container.dataset.actionsBound) return;
+    if (!container || container.dataset.actionsBound) return;
     container.dataset.actionsBound = 'true';
 
-    // Click on card goes to details page (if not clicking action button)
-    container.addEventListener('click', function(e) {
+    container.addEventListener('click', async (e) => {
         const card = e.target.closest('.ad-card');
         if (!card) return;
 
-        if (e.target.closest('.action-btn') || e.target.closest('.menu-toggle') || e.target.closest('.menu-dropdown')) {
-            return;
-        }
-
-        const listingId = normalizeId(card.dataset.listingId);
-        const href = card.dataset.href || (listingId ? `ilan-detay.html?id=${listingId}` : '');
-        if (!listingId || !href) {
-            console.warn('Card click prevented: invalid ID', card.dataset);
-            alert('Listing link missing. Please refresh the page.');
-            return;
-        }
-        window.location.href = href;
-    });
-
-    // Aksiyonlar (delegation)
-    container.addEventListener('click', async function(e) {
-        const editBtn = e.target.closest('.edit-btn');
-        if (editBtn) {
+        const actionBtn = e.target.closest('.action-btn');
+        if (actionBtn) {
             e.preventDefault();
             e.stopPropagation();
-            const listingId = editBtn.dataset.id;
-            if (!listingId) return;
-            const target = `ilan-detay.html?id=${listingId}&mode=edit`;
-            window.location.href = target;
-            return;
-        }
-
-        const deleteBtn = e.target.closest('.delete-btn');
-        if (deleteBtn) {
-            e.preventDefault();
-            e.stopPropagation();
-            const listingId = deleteBtn.dataset.id;
-            if (!listingId) return;
-
-            const confirmed = await showConfirmDialog('Are you sure you want to delete this listing? This action cannot be undone.', 'Delete', 'Cancel');
-            if (!confirmed) return;
-
-            if (listingId.startsWith('demo-')) {
-                const card = deleteBtn.closest('.ad-card');
-                if (card) card.remove();
-                if (typeof showNotification === 'function') {
-                    showNotification('Demo card deleted', 'success');
+            
+            const listingId = actionBtn.dataset.id;
+            if (actionBtn.classList.contains('edit-btn')) {
+                window.location.href = `ilan-detay.html?id=${listingId}&mode=edit`;
+            } else if (actionBtn.classList.contains('delete-btn')) {
+                 const confirmed = await VendoConfirm('Bu ilanı silmek istediğinize emin misiniz?', 'İlanı Sil');
+                 if (confirmed) {
+                     try {
+                         await deleteListing(listingId);
+                         card.remove();
+                         showToast('İlan başarıyla silindi', 'success');
+                         fetchAndSetStats();
+                     } catch (err) {
+                         showToast('Hata: ' + err.message, 'error');
+                     }
+                 }
+            } else if (actionBtn.classList.contains('mark-sold-btn')) {
+                const confirmed = await VendoConfirm('Bu ürünü satıldı olarak işaretlemek istediğine emin misin?', 'Satıldı Olarak İşaretle');
+                if (confirmed) {
+                    try {
+                        await updateListing(listingId, { status: 'sold' });
+                        showToast('İlan satıldı olarak güncellendi', 'success');
+                        await initPage(); // Full reload to update counts and filters
+                        fetchAndSetStats();
+                    } catch (err) {
+                        showToast('Hata: ' + err.message, 'error');
+                    }
                 }
-                return;
-            }
-
-            try {
-                await deleteListing(listingId);
-                const card = deleteBtn.closest('.ad-card');
-                if (card) {
-                    card.style.opacity = '0';
-                    card.style.transform = 'scale(0.9)';
-                    setTimeout(() => {
-                        card.remove();
-                        const remaining = document.querySelectorAll('.ad-card').length;
-                        if (remaining === 0) loadMyListings();
-                    }, 300);
-                }
-                if (typeof showNotification === 'function') {
-                    showNotification('Listing successfully deleted', 'success');
-                }
-            } catch (error) {
-                console.error('Delete error:', error);
-                if (typeof showNotification === 'function') {
-                    showNotification('Error: ' + error.message, 'error');
+            } else if (actionBtn.classList.contains('pause-btn') || actionBtn.classList.contains('activate-btn')) {
+                const targetStatus = actionBtn.classList.contains('pause-btn') ? 'closed' : 'active';
+                try {
+                    await updateListing(listingId, { status: targetStatus });
+                    showToast(`İlan ${targetStatus === 'active' ? 'aktifleştirildi' : 'durduruldu'}`, 'success');
+                    await initPage();
+                    fetchAndSetStats();
+                } catch (err) {
+                    showToast('Hata: ' + err.message, 'error');
                 }
             }
             return;
         }
 
-        const statusBtn = e.target.closest('.pause-btn, .activate-btn');
-        if (statusBtn) {
-            e.preventDefault();
-            e.stopPropagation();
-            const listingId = statusBtn.dataset.id;
-            if (!listingId) return;
-
-            const card = statusBtn.closest('.ad-card');
-            const currentStatus = normalizeStatus(card?.dataset.status || 'active');
-            openStatusMenu(statusBtn, listingId, currentStatus, card);
-            return;
-        }
+        const href = card.dataset.href;
+        if (href) window.location.href = href;
     });
 }
-
-function setCardStatus(card, newStatus, listingId) {
-    if (!card) return;
-    const normalized = normalizeStatus(newStatus);
-    card.dataset.status = normalized;
-
-    const badge = card.querySelector('.ad-badge');
-    if (badge) {
-        badge.classList.remove('active', 'inactive', 'expired', 'pending');
-        const badgeClass = normalized === 'active' ? 'active' : 'inactive';
-        badge.classList.add(badgeClass);
-        // Show appropriate English text based on normalized status
-        let badgeText = 'Inactive';
-        if (normalized === 'active') badgeText = 'Active';
-        else if (normalized === 'sold') badgeText = 'Sold';
-        badge.textContent = badgeText;
-    }
-
-    const actions = card.querySelector('.ad-actions');
-    if (!actions) return;
-
-    const existingToggle = actions.querySelector('.pause-btn, .activate-btn');
-    if (existingToggle) {
-        const newBtn = document.createElement('button');
-        if (normalized === 'active') {
-            newBtn.className = 'action-btn warning pause-btn';
-            newBtn.title = 'Pause';
-            newBtn.innerHTML = '<i class="fas fa-pause"></i>';
-        } else {
-            newBtn.className = 'action-btn success activate-btn';
-            newBtn.title = 'Activate';
-            newBtn.innerHTML = '<i class="fas fa-play"></i>';
-        }
-        newBtn.dataset.id = listingId || existingToggle.dataset.id;
-        existingToggle.replaceWith(newBtn);
-    }
-}
-
-function normalizeStatus(status) {
-    if (!status) return 'active';
-    // Map all passive states to 'closed' for DB compatibility
-    if (status === 'inactive' || status === 'deactivated' || status === 'draft' || status === 'closed') return 'closed';
-    if (status === 'sold') return 'sold';
-    if (status === 'active') return 'active';
-    // Fallback to closed for unknown statuses
-    return 'closed';
-}
-
-async function changeListingStatus(listingId, targetStatus) {
-    // targetStatus is already normalized to DB-valid value
-    // ONLY use DB-valid status values: 'active', 'draft', 'closed', 'sold', 'deactivated'
-    const attempts = targetStatus === 'active'
-        ? ['active']
-        : targetStatus === 'sold'
-            ? ['sold']
-            : ['closed', 'deactivated', 'draft'];
-
-    let lastError;
-    for (const status of attempts) {
-        try {
-            await updateListing(listingId, { status });
-            return status;
-        } catch (error) {
-            lastError = error;
-            const msg = String(error?.message || '').toLowerCase();
-            if (/status/i.test(msg) || /constraint/i.test(msg) || /check/i.test(msg)) {
-                continue; // try next status
-            }
-            throw error;
-        }
-    }
-    throw lastError || new Error('Pause/activate failed');
-}
-
-// Durum menüsü: edit sayfasındaki seçeneklerle aynı (Aktif, Pasif, Satıldı)
-let openStatusMenuRef = null;
-
-function ensureStatusMenuStyles() {
-    if (document.getElementById('status-menu-styles')) return;
-    const style = document.createElement('style');
-    style.id = 'status-menu-styles';
-    style.textContent = `
-        .status-quick-menu {
-            position: absolute;
-            background: var(--surface, #ffffff);
-            border: 1px solid var(--gray-200, #e2e8f0);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.12);
-            border-radius: 10px;
-            padding: 0.35rem 0.25rem;
-            z-index: 9999;
-            min-width: 180px;
-        }
-        .status-quick-menu button {
-            width: 100%;
-            border: none;
-            background: transparent;
-            padding: 0.5rem 0.75rem;
-            text-align: left;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            color: var(--text, #1e293b);
-            cursor: pointer;
-            font-weight: 600;
-        }
-        .status-quick-menu button:hover { background: var(--muted-surface, #f1f5f9); }
-        .status-quick-menu .status-active { color: var(--success, #10b981); }
-        .status-quick-menu .status-inactive { color: var(--warning, #f59e0b); }
-        .status-quick-menu .status-sold { color: var(--gray-600, #475569); }
-    `;
-    document.head.appendChild(style);
-}
-
-function closeStatusMenu() {
-    if (openStatusMenuRef) {
-        openStatusMenuRef.remove();
-        openStatusMenuRef = null;
-    }
-    document.removeEventListener('click', handleOutsideMenuClick, true);
-    window.removeEventListener('scroll', closeStatusMenu, true);
-    window.removeEventListener('resize', closeStatusMenu);
-}
-
-function handleOutsideMenuClick(e) {
-    if (openStatusMenuRef && !openStatusMenuRef.contains(e.target)) {
-        closeStatusMenu();
-    }
-}
-
-function openStatusMenu(triggerBtn, listingId, currentStatus, card) {
-    ensureStatusMenuStyles();
-    closeStatusMenu();
-
-    const menu = document.createElement('div');
-    menu.className = 'status-quick-menu';
-    menu.innerHTML = `
-        <button type="button" data-status-option="active" class="status-active">✅ Active</button>
-        <button type="button" data-status-option="closed" class="status-inactive">⏸️ Inactive</button>
-        <button type="button" data-status-option="sold" class="status-sold">✔️ Sold</button>
-    `;
-
-    const rect = triggerBtn.getBoundingClientRect();
-    menu.style.top = `${rect.bottom + window.scrollY + 6}px`;
-    menu.style.left = `${rect.left + window.scrollX}px`;
-
-    menu.addEventListener('click', async (evt) => {
-        const option = evt.target.closest('[data-status-option]');
-        if (!option) return;
-        const targetStatus = option.dataset.statusOption;
-        closeStatusMenu();
-        await applyStatusChange(listingId, targetStatus, card);
-    });
-
-    document.body.appendChild(menu);
-    openStatusMenuRef = menu;
-    setTimeout(() => {
-        document.addEventListener('click', handleOutsideMenuClick, true);
-        window.addEventListener('scroll', closeStatusMenu, true);
-        window.addEventListener('resize', closeStatusMenu);
-    }, 0);
-}
-
-async function applyStatusChange(listingId, targetStatus, card) {
-    // Normalize IMMEDIATELY to ensure we only use DB-valid values
-    const normalizedTarget = targetStatus === 'inactive' ? 'closed' : targetStatus;
-    const previousStatus = normalizeStatus(card?.dataset.status || 'active');
-
-    if (listingId.startsWith('demo-')) {
-        setCardStatus(card, normalizedTarget, listingId);
-        if (typeof showNotification === 'function') {
-            showNotification(`Demo listing status updated to ${statusLabel(normalizedTarget)}`, 'success');
-        }
-        return;
-    }
-
-    setCardStatus(card, normalizedTarget, listingId);
-
-    try {
-        await changeListingStatus(listingId, normalizedTarget);
-        await loadMyListings();
-        if (typeof showNotification === 'function') {
-            showNotification(`Listing updated to ${statusLabel(normalizedTarget)}`, 'success');
-        }
-    } catch (error) {
-        console.error('Status update error:', error);
-        setCardStatus(card, previousStatus, listingId);
-        if (typeof showNotification === 'function') {
-            showNotification('Status could not be updated: ' + (error?.message || 'Unknown error'), 'error');
-        }
-    }
-}
-
-function statusLabel(status) {
-    if (status === 'active') return 'active';
-    if (status === 'sold') return 'sold';
-    return 'inactive';
-}
-
-function updateStats(listings) {
-    const totalViews = listings.reduce((sum, l) => sum + (l.view_count || 0), 0);
-    const activeCount = listings.filter(l => normalizeStatus(l.status) === 'active').length;
-    const inactiveCount = listings.filter(l => normalizeStatus(l.status) === 'closed').length;
-    const soldCount = listings.filter(l => normalizeStatus(l.status) === 'sold').length;
-
-    const stats = document.querySelectorAll('.stats-grid .stat-card h3');
-    if (stats[0]) stats[0].textContent = totalViews;
-    if (stats[1]) stats[1].textContent = activeCount;
-    if (stats[2]) stats[2].textContent = inactiveCount;
-    if (stats[3]) stats[3].textContent = soldCount;
-
-    // Update tab numbers
-    document.querySelectorAll('.tab-btn').forEach(tab => {
-        const filter = tab.dataset.filter;
-        let count = listings.length;
-        
-        if (filter === 'active') count = activeCount;
-        else if (filter === 'inactive') count = inactiveCount;
-        else if (filter === 'sold') count = soldCount;
-        
-        const label = tab.textContent.split('(')[0].trim();
-        tab.textContent = `${label} (${count})`;
-    });
-}
-
-function initializeFilters() {
-    const tabs = document.querySelectorAll('.tab-btn');
-    tabs.forEach(tab => {
-        tab.addEventListener('click', () => {
-            tabs.forEach(t => t.classList.remove('active'));
-            tab.classList.add('active');
-
-            const filter = tab.dataset.filter;
-            let filtered = myListings;
-            if (filter === 'active') filtered = myListings.filter(l => normalizeStatus(l.status) === 'active');
-            else if (filter === 'inactive') filtered = myListings.filter(l => normalizeStatus(l.status) === 'closed');
-            else if (filter === 'sold') filtered = myListings.filter(l => normalizeStatus(l.status) === 'sold');
-
-            renderListings(filtered);
-            updateStats(myListings);
-        });
-    });
-}
-
-
 
 function formatDate(dateString) {
     if (!dateString) return '—';
-    const date = new Date(dateString);
-    if (Number.isNaN(date.getTime())) return '—';
-    return date.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    return new Date(dateString).toLocaleDateString('tr-TR');
 }
 
 function escapeHtml(text) {
@@ -533,75 +367,9 @@ function escapeHtml(text) {
     return div.innerHTML;
 }
 
-/**
- * Load More butonunu setup et
- */
-function setupLoadMoreButton() {
-    const loadMoreBtn = document.querySelector('.load-more-btn');
-    const loadMoreContainer = document.querySelector('.load-more-container');
-    
-    if (!loadMoreBtn) return;
-    
-    loadMoreBtn.addEventListener('click', async () => {
-        if (isLoading || currentPage >= totalPages) return;
-        
-        isLoading = true;
-        const loadingText = loadMoreContainer.querySelector('.loading-text');
-        
-        loadMoreBtn.disabled = true;
-        loadMoreBtn.style.opacity = '0.5';
-        if (loadingText) loadingText.style.display = 'block';
-        
-        // Load next page
-        await loadMyListingsMore(currentPage + 1);
-        
-        isLoading = false;
-        loadMoreBtn.disabled = false;
-        loadMoreBtn.style.opacity = '1';
-        if (loadingText) loadingText.style.display = 'none';
-        
-        // Hide button if all pages loaded
-        if (currentPage >= totalPages) {
-            loadMoreContainer.style.display = 'none';
-        }
-    });
-}
-
-/**
- * Load more listings (append mode)
- */
-async function loadMyListingsMore(pageNum) {
-    try {
-        const moreListings = await getMyListings({ page: pageNum });
-        
-        if (moreListings && moreListings.length > 0) {
-            const container = document.querySelector('.ads-container');
-            if (container) {
-                const newCards = moreListings.map(listing => createAdCard(listing)).join('');
-                container.innerHTML += newCards;
-                attachActionListeners();
-            }
-            
-            currentPage = pageNum;
-            myListings = myListings.concat(moreListings);
-            updateLoadMoreButton();
-        }
-    } catch (error) {
-        console.error('Error loading more listings:', error);
-    }
-}
-
-/**
- * Load More butonunu göster/gizle
- */
-function updateLoadMoreButton() {
-    const loadMoreContainer = document.querySelector('.load-more-container');
-    if (!loadMoreContainer) return;
-    
-    // Daha fazla ilanlar var mı?
-    if (myListings.length > 0 && myListings.length % ITEMS_PER_PAGE === 0) {
-        loadMoreContainer.style.display = 'block';
-    } else {
-        loadMoreContainer.style.display = 'none';
-    }
+function normalizeStatus(status) {
+    if (!status) return 'active';
+    if (status === 'inactive' || status === 'deactivated' || status === 'draft' || status === 'closed') return 'closed';
+    if (status === 'sold') return 'sold';
+    return 'active';
 }

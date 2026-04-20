@@ -2,7 +2,7 @@ User-agent: *
 Allow: /
 Disallow: /admin/
 Disallow: /ayarlar.html
-Disallow: /profil.html
+Disallow: /personal-info.html
 Disallow: /favorilerim.html
 Disallow: /mesajlar.html
 

@@ -1,4 +1,4 @@
-// Backend API - İlan işlemleri (CRUD)
+// Backend API - Vendo İlan İşlemleri (V3)
 import { supabase } from './supabase.js';
 import { detectDeviceInfo, getLocationInfo } from './device-detection.js';
 
@@ -144,7 +144,7 @@ export async function getListings(options = {}) {
         let query = supabase
             .from('listings')
             // Sadece gerekli alanları seç - daha hızlı
-            .select('id, title, price, currency, location_city, category_id, photos, extra_fields, created_at, user_id, status', { count: 'exact' });
+            .select('id, title, price, currency, location_city, category_id, photos, extra_fields, created_at, user_id, status, favorites:favorites(count)', { count: 'exact' });
 
         if (status) query = query.eq('status', status);
 
@@ -154,7 +154,7 @@ export async function getListings(options = {}) {
         }
         if (location) {
             if (Array.isArray(location) && location.length > 0) {
-                const orQuery = location.map(loc => `location.ilike.%${loc}%`).join(',');
+                const orQuery = location.map(loc => `location_city.ilike.%${loc.replace(/-/g, '%')}%`).join(',');
                 query = query.or(orQuery);
             } else if (typeof location === 'string' && location.trim() !== '') {
                 query = query.ilike('location_city', `%${location}%`);
@@ -231,10 +231,11 @@ export async function getListings(options = {}) {
  * @returns {Promise<Object>} İlan detayı
  */
 export async function getListing(listingId) {
+    const isNumericId = /^\d+$/.test(listingId);
     let { data, error } = await supabase
         .from('listings')
         .select('*')
-        .eq('id', listingId)
+        .eq(isNumericId ? 'listing_number' : 'id', listingId)
         .single();
 
     if (error && /jwt expired|jwt_expired|JWT expired|401/i.test(String(error.message || ''))) {
@@ -317,19 +318,37 @@ async function incrementViewCount(listingId) {
  * Kullanıcının kendi ilanlarını getir
  * @returns {Promise<Array>} İlan listesi
  */
-export async function getMyListings() {
+export async function getMyListings(options = {}) {
+    const { page = 1, limit = 10, status = 'all' } = options;
     const { data: { user } } = await supabase.auth.getUser();
 
     if (!user) throw new Error('User sign in required');
 
-    const { data, error } = await supabase
+    const from = (page - 1) * limit;
+    const to = from + limit - 1;
+
+    let query = supabase
         .from('listings')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false });
+        .select('*, favorites:favorites(count)', { count: 'exact' })
+        .eq('user_id', user.id);
+
+    if (status && status !== 'all') {
+        // Map UI status to DB status if needed, but our UI status matches DB status mainly
+        query = query.eq('status', status);
+    }
+
+    const { data, error, count } = await query
+        .order('created_at', { ascending: false })
+        .range(from, to);
 
     if (error) throw error;
-    return data;
+    
+    return {
+        data: data || [],
+        totalCount: count || 0,
+        page,
+        totalPages: Math.ceil((count || 0) / limit)
+    };
 }
 
 // ============================================================
@@ -381,19 +400,40 @@ export async function removeFromFavorites(listingId) {
  * Kullanıcının favori ilanlarını getir
  * @returns {Promise<Array>} Favori ilanlar
  */
-export async function getFavorites() {
+export async function getFavorites(options = {}) {
+    const { page = 1, limit = 10, categoryId = null, onlyDropped = false, droppedListingIds = [] } = options;
     const { data: { user } } = await supabase.auth.getUser();
 
     if (!user) throw new Error('User sign in required');
 
-    const { data, error } = await supabase
+    const from = (page - 1) * limit;
+    const to = from + limit - 1;
+
+    let query = supabase
         .from('favorites')
         .select(`
             *,
-            listings (*)
-        `)
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false });
+            listings!inner (
+                *,
+                favorites:favorites(count)
+            )
+        `, { count: 'exact' })
+        .eq('user_id', user.id);
+
+    if (categoryId && categoryId !== 'all') {
+        query = query.eq('listings.category_id', categoryId);
+    }
+
+    if (onlyDropped && droppedListingIds.length > 0) {
+        query = query.in('listing_id', droppedListingIds);
+    } else if (onlyDropped) {
+        // If onlyDropped is true but we have no IDs, return empty
+        return { favorites: [], totalCount: 0 };
+    }
+
+    const { data, error, count } = await query
+        .order('created_at', { ascending: false })
+        .range(from, to);
 
     if (error) {
         console.error('getFavorites hatası:', error);
@@ -403,7 +443,7 @@ export async function getFavorites() {
     console.log('Favoriler ham veri:', data);
 
     if (!data || data.length === 0) {
-        return [];
+        return { favorites: [], totalCount: 0 };
     }
 
     // listings null olanları filtrele ve map et
@@ -411,8 +451,10 @@ export async function getFavorites() {
         .filter(fav => fav.listings !== null)
         .map(fav => fav.listings);
 
-    console.log('İşlenmiş favoriler:', favorites);
-    return favorites;
+    return {
+        favorites: favorites || [],
+        totalCount: count || 0
+    };
 }
 
 /**
@@ -884,4 +926,45 @@ export async function getCategories() {
     }
 
     return categories;
+}
+
+/**
+ * Okunmamış fiyat düşüşü bildirmilerini getir
+ * @returns {Promise<Array>} Listing ID listesi
+ */
+export async function getUnreadPriceDrops() {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return [];
+
+    const { data, error } = await supabase
+        .from('notifications')
+        .select('related_listing_id')
+        .eq('user_id', user.id)
+        .eq('type', 'price_drop')
+        .eq('is_read', false);
+
+    if (error) {
+        console.error('Fiyat düşüşü bildirimleri çekilemedi:', error);
+        return [];
+    }
+
+    return (data || []).map(n => n.related_listing_id).filter(Boolean);
+}
+
+/**
+ * Belirli bir ilan için tüm fiyat düşüşü bildirmilerini okundu olarak işaretle
+ * @param {string|number} listingId 
+ */
+export async function markPriceDropAsRead(listingId) {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    const { error } = await supabase
+        .from('notifications')
+        .update({ is_read: true })
+        .eq('user_id', user.id)
+        .eq('related_listing_id', listingId)
+        .eq('type', 'price_drop');
+
+    if (error) console.warn('Bildirim okundu olarak işaretlenemedi:', error.message);
 }

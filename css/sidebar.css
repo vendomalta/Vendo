@@ -227,6 +227,24 @@
     transform: translateX(0);
 }
 
+/* Locked Category State */
+.accordion-header.locked,
+.accordion-subitem.locked,
+.sidebar-category-item.locked {
+    opacity: 0.6 !important;
+    pointer-events: none !important;
+    filter: grayscale(0.8);
+    cursor: not-allowed !important;
+    background: var(--gray-50) !important;
+    border-color: var(--gray-200) !important;
+    color: var(--gray-500) !important;
+}
+
+.accordion-header.locked i,
+.accordion-subitem.locked i {
+    color: var(--gray-400) !important;
+}
+
 /* Drill Down View (Level 2+) */
 .drill-down-list {
     display: flex;

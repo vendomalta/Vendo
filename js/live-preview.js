@@ -19,7 +19,8 @@ document.addEventListener('DOMContentLoaded', () => {
         location: document.getElementById('previewLocation'),
         category: document.getElementById('previewCategory'),
         image: document.getElementById('previewImage'),
-        imageCount: document.getElementById('previewImageCount')
+        imageCount: document.getElementById('previewImageCount'),
+        badge: document.getElementById('previewBadge')
     };
 
     // Helper to format price
@@ -29,20 +30,20 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // Event Listeners
-    if (inputs.title) {
+    if (inputs.title && preview.title) {
         inputs.title.addEventListener('input', (e) => {
             preview.title.textContent = e.target.value.trim() || 'İlan Başlığı';
         });
     }
 
-    if (inputs.price) {
+    if (inputs.price && preview.price) {
         inputs.price.addEventListener('input', (e) => {
             const currency = inputs.currency ? inputs.currency.value : '€';
             preview.price.textContent = formatPrice(e.target.value, currency);
         });
     }
 
-    if (inputs.currency) {
+    if (inputs.currency && preview.price) {
         inputs.currency.addEventListener('change', (e) => {
             const price = inputs.price ? inputs.price.value : 0;
             preview.price.textContent = formatPrice(price, e.target.value);
@@ -51,8 +52,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Location update logic
     const updateLocation = () => {
+        if (!preview.location) return;
+        
         const city = inputs.city ? (inputs.city.options ? inputs.city.options[inputs.city.selectedIndex].text : inputs.city.value) : '';
-        // District might not exist in step 1, or might be dynamically added
         const districtInput = document.getElementById('district'); 
         const district = districtInput ? (districtInput.options ? districtInput.options[districtInput.selectedIndex].text : districtInput.value) : '';
         
@@ -73,10 +75,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Global function to update preview image
     window.updatePreviewImage = (url, count) => {
-        if (url) {
+        if (url && preview.image) {
             preview.image.src = url;
             preview.image.style.objectFit = 'cover';
-        } else {
+        } else if (preview.image) {
              // Reset to placeholder
              preview.image.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 300'%3E%3Crect fill='%23e2e8f0' width='400' height='300'/%3E%3Ctext x='50%25' y='50%25' fill='%2394a3b8' text-anchor='middle' font-family='sans-serif'%3EFotoğraf Yok%3C/text%3E%3C/svg%3E";
         }
@@ -89,7 +91,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Listen for category updates via MutationObserver since ilan-ver-form.js updates the DOM directly
     const categoryTitleEl = document.getElementById('categoryTitle');
-    if (categoryTitleEl) {
+    if (categoryTitleEl && preview.category) {
         // Initial set
         if (categoryTitleEl.textContent) {
             preview.category.textContent = categoryTitleEl.textContent;
@@ -98,7 +100,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const observer = new MutationObserver((mutations) => {
             mutations.forEach((mutation) => {
                 if (mutation.type === 'childList' || mutation.type === 'characterData') {
-                    preview.category.textContent = categoryTitleEl.textContent;
+                    if (preview.category) preview.category.textContent = categoryTitleEl.textContent;
                 }
             });
         });
@@ -106,17 +108,28 @@ document.addEventListener('DOMContentLoaded', () => {
         observer.observe(categoryTitleEl, { childList: true, characterData: true, subtree: true });
     }
 
+    // --- DYNAMIC FIELDS OBSERVER (STEP 2) ---
+    const step2Container = document.getElementById('categorySpecificFields');
+    if (step2Container) {
+        step2Container.addEventListener('input', (e) => {
+            const input = e.target;
+            if (input.name === 'marka' || input.name === 'brand') {
+                 // We could show brand in title if we want, but usually it's just in the details.
+            }
+        });
+    }
+
     // Also listen for custom event if we decide to add it later
     window.addEventListener('categoryChanged', (e) => {
          if (e.detail && e.detail.categoryName) {
-             preview.category.textContent = e.detail.categoryName;
+             if (preview.category) preview.category.textContent = e.detail.categoryName;
          }
     });
 
     // Initialize with current values
     if (inputs.city) inputs.city.dispatchEvent(new Event('change'));
-    if (inputs.title) preview.title.textContent = inputs.title.value || 'İlan Başlığı';
-    if (inputs.price) {
+    if (inputs.title && preview.title) preview.title.textContent = inputs.title.value || 'İlan Başlığı';
+    if (inputs.price && preview.price) {
         const currency = inputs.currency ? inputs.currency.value : '€';
         preview.price.textContent = formatPrice(inputs.price.value, currency);
     }

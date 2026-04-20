@@ -1,0 +1,40 @@
+<!-- Bottom Navigation Component for Mobile -->
+<nav class="bottom-nav">
+    <a href="kategoriler.html" class="bottom-nav-item" data-nav="categories">
+        <i class="fas fa-th-large"></i>
+        <span>Categories</span>
+    </a>
+    <a href="/" class="bottom-nav-item" data-nav="home">
+        <i class="fas fa-home"></i>
+        <span>Home</span>
+    </a>
+    <a href="ilan-ver.html" class="bottom-nav-item add-btn" data-nav="add">
+        <div class="add-icon-wrapper">
+            <i class="fas fa-plus"></i>
+        </div>
+    </a>
+    <a href="mesajlar.html" class="bottom-nav-item" data-nav="messages">
+        <i class="fas fa-comment"></i>
+        <span>Messages</span>
+    </a>
+    <a href="personal-info.html" class="bottom-nav-item" data-nav="profile">
+        <i class="fas fa-user"></i>
+        <span>Profile</span>
+    </a>
+</nav>
+
+<script>
+    // Set active state based on current page
+    document.addEventListener('DOMContentLoaded', () => {
+        const currentPath = window.location.pathname;
+        const navItems = document.querySelectorAll('.bottom-nav-item');
+        
+        navItems.forEach(item => {
+            const href = item.getAttribute('href');
+            if (currentPath.includes(href)) {
+                navItems.forEach(i => i.classList.remove('active'));
+                item.classList.add('active');
+            }
+        });
+    });
+</script>

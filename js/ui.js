@@ -1,41 +1,43 @@
 /* =========================================
-   🎨 UI.JS - Arayüz ve Dinamik Form Sistemi (TAMİR EDİLDİ)
+   🎨 UI.JS - Interface and Dynamic Form System
    ========================================= */
 
-// --- DARK MODE VE TEMA BAŞLANGICI ---
+// --- DARK MODE AND THEME INITIALIZATION ---
 document.addEventListener('DOMContentLoaded', () => {
     console.log("🚀 Initializing Vendo UI Systems...");
 
-    // 1. Kayıtlı temayı yükle
+    // 1. Load saved theme
     const savedTheme = localStorage.getItem('verde_theme') || 'light';
     applyTheme(savedTheme);
 
 
-    // 2. Tema Butonlarını Dinle (YENİ EKLENEN KISIM)
+    // 2. Listen to Theme Toggles
     initializeThemeToggles();
 
-    // 3. İlan Görünüm Kontrollerini Dinle (YENİ EKLENEN)
+    // 3. Listen to Listing View Controls
     initializeViewControls();
 
-    // 4. Sayfalama Butonlarını Dinle
+    // 4. Listen to Pagination Buttons
     initializePagination();
-    // 5. Sayısal giriş formatlama
+    // 5. Numerical input formatting
     initializeNumericFormatting();
 
-    // 6. Header yüklendikten sonra header aksiyonlarını başlat
+    // 6. Initialize header actions after header is loaded
     document.addEventListener('headerLoaded', () => {
         console.log('✅ Header loaded, initializing header actions...');
         initializeHeaderActions();
     });
 
-    // 7. Eğer header zaten yüklüyse direkt başlat
+    // 7. Initialize immediately if header already exists
     setTimeout(() => {
         if (document.querySelector('.user-button')) {
             console.log('✅ Header already exists, initializing header actions...');
             initializeHeaderActions();
         }
     }, 100);
-});// --- TEMA UYGULAMA (GÜNCELLENDİ) ---
+});
+
+// --- APPLY THEME ---
 function applyTheme(themeName) {
     let effectiveTheme = themeName;
 
@@ -50,16 +52,16 @@ function applyTheme(themeName) {
         document.documentElement.removeAttribute('data-theme');
     }
 
-    // LocalStorage güncelle
+    // Update LocalStorage
     localStorage.setItem('verde_theme', themeName);
 
-    // Butonların görsel durumunu güncelle
+    // Update UI status of buttons
     updateThemeUI(themeName);
 }
 
-// --- TEMA BUTONLARINI DİNLEME (YENİ) ---
+// --- LISTEN TO THEME TOGGLES ---
 function initializeThemeToggles() {
-    // Ayarlar sayfasındaki kutucukları bul
+    // Find theme options in settings page
     const themeOptions = document.querySelectorAll('.theme-option');
     if (themeOptions.length > 0) {
         themeOptions.forEach(option => {
@@ -70,7 +72,7 @@ function initializeThemeToggles() {
         });
     }
 
-    // Görünüm sayfasındaki radio butonları (varsa)
+    // Radio inputs in appearance page
     const radioInputs = document.querySelectorAll('input[name="theme"]');
     radioInputs.forEach(radio => {
         radio.addEventListener('change', function () {
@@ -79,25 +81,25 @@ function initializeThemeToggles() {
     });
 }
 
-// --- TEMA BUTONLARINI AKTİF YAPMA (YENİ) ---
+// --- UPDATE THEME UI ---
 function updateThemeUI(activeTheme) {
-    // Ayarlar sayfasındaki kutucukları boya
+    // Highlight options in settings page
     document.querySelectorAll('.theme-option').forEach(opt => {
         if (opt.getAttribute('data-theme') === activeTheme) {
-            opt.classList.add('active'); // CSS'de .active stili eklemen gerekebilir
-            opt.style.borderColor = "var(--primary)"; // Manuel stil
+            opt.classList.add('active');
+            opt.style.borderColor = "var(--primary)";
         } else {
             opt.classList.remove('active');
             opt.style.borderColor = "";
         }
     });
 
-    // Radio butonları güncelle
+    // Update radio buttons
     const radio = document.querySelector(`input[name="theme"][value="${activeTheme}"]`);
     if (radio) radio.checked = true;
 }
 
-// --- KULLANICI GİRİŞ DURUMUNU KONTROL ET ---
+// --- CHECK USER LOGIN STATUS ---
 function checkUserLoginStatus() {
     // ✅ SECURITY: Use Supabase session, do not store user info in localStorage
     // Email ve şifre bilgileri güvenliğe risk oluşturabilir
@@ -230,9 +232,9 @@ function initializeSettingsNavigation() {
     });
 }
 
-// --- İLANLARI BAŞLAT (YENİ EKLENEN) ---
+// --- INITIALIZE LISTINGS ---
 function initializeListings() {
-    // İlan favorileme butonlarını dinle
+    // Listen to favorite buttons
     const favoriteButtons = document.querySelectorAll('.favorite-button');
 
     favoriteButtons.forEach(btn => {
@@ -244,7 +246,7 @@ function initializeListings() {
             if (icon.classList.contains('far')) {
                 icon.classList.remove('far');
                 icon.classList.add('fas');
-                showNotification('Favorilere eklendi', 'success');
+                showNotification('Added to favorites', 'success');
             } else {
                 icon.classList.remove('fas');
                 icon.classList.add('far');
@@ -256,7 +258,7 @@ function initializeListings() {
     console.log('📋 Listing system initialized');
 }
 
-// --- SAYFALAMA BUTONLARINI DİNLE (YENİ EKLENEN) ---
+// --- INITIALIZE PAGINATION BUTTONS ---
 function initializePagination() {
     const paginationButtons = document.querySelectorAll('.page-number[data-page], .next[data-page], .prev[data-page]');
 
@@ -264,7 +266,7 @@ function initializePagination() {
         btn.addEventListener('click', function () {
             const pageNum = this.getAttribute('data-page');
             if (pageNum) {
-                window.location.href = `sayfa${pageNum}.html`;
+                window.location.href = `page${pageNum}.html`;
             }
         });
     });
@@ -522,14 +524,14 @@ function showConfirmDialog(message, confirmText = 'Yes', cancelText = 'Cancel') 
     });
 }
 
-// --- KATEGORİLER TOGGLE KONTROLÜ ---
+// --- CATEGORIES TOGGLE CONTROL ---
 function initializeCategoriesToggle() {
     const toggleBtn = document.querySelector('.categories-toggle-btn');
     if (toggleBtn) {
         toggleBtn.addEventListener('click', (e) => {
             e.stopPropagation();
 
-            // Sidebar varsa aç/kapat (toggle)
+            // Toggle sidebar if exists
             const sidebar = document.querySelector('.sidebar-categories');
             if (sidebar) {
                 const isOpen = sidebar.classList.contains('open');
@@ -547,14 +549,14 @@ function initializeCategoriesToggle() {
             }
         });
 
-        // Sidebar kapatıldığında toggle buttonunu güncelle
+        // Update toggle button when sidebar is closed via other means
         document.addEventListener('sidebar-closed', () => {
             toggleBtn.setAttribute('aria-expanded', 'false');
         });
     }
 }
 
-// --- AKTİF SAYFA İKONUNU YAK (EKSİK OLAN KISIM EKLENDİ) ---
+// --- HIGHLIGHT ACTIVE PAGE ICON ---
 function highlightActivePage() {
     const currentPage = window.location.pathname.split('/').pop() || 'index.html';
     const headerLinks = document.querySelectorAll('.header-icon');
@@ -566,59 +568,84 @@ function highlightActivePage() {
         }
     });
 }
-// --- İLAN VİTRİNİ GÖRÜNÜM KONTROLÜ ---
+// --- LISTING VIEW CONTROL ---
 function initializeViewControls() {
-    const viewButtons = document.querySelectorAll('.view-button, .view-toggle');
+    // Select all potential view toggle buttons (desktop & mobile)
+    const viewButtons = document.querySelectorAll('.view-button, .view-toggle, #viewModeToggle, .view-mode-toggle');
     const listingsGrid = document.querySelector('.listings-grid');
     const tableHeader = document.querySelector('.listings-table-header');
-
+    
     if (viewButtons.length === 0 || !listingsGrid) return;
 
     const allowedViews = ['grid', 'table'];
-    const classMap = { grid: 'grid-view', table: 'table-view' };
+    const classMap = { 
+        grid: 'grid-view', 
+        table: 'table-view' 
+    };
 
     const applyView = (view) => {
         const targetView = allowedViews.includes(view) ? view : 'grid';
-        listingsGrid.classList.remove('grid-view', 'table-view', 'list-view-horizontal');
+        
+        // Update Grid class
+        listingsGrid.classList.remove('grid-view', 'table-view', 'list-view', 'list-view-horizontal');
         listingsGrid.classList.add(classMap[targetView]);
+
+        // Toggle Table Header
         if (tableHeader) {
             tableHeader.classList.toggle('is-active', targetView === 'table');
         }
 
-        // View-controls parent sınıfını güncelle (CSS indicator için)
-        const viewControls = document.querySelector('.view-controls');
-        if (viewControls) {
-            viewControls.classList.remove('grid-v-active', 'table-v-active');
-            viewControls.classList.add(`${targetView}-v-active`);
-        }
+        // Update indicator classes and button states
+        viewButtons.forEach(btn => {
+            const btnView = btn.getAttribute('data-view');
+            const isActive = btnView === targetView;
+            
+            btn.classList.toggle('active', isActive);
+            
+            // Sync icons for all buttons (including non-labeled mobile ones)
+            const icon = btn.querySelector('i');
+            if (icon && btn.id === 'viewModeToggle') {
+                // Mobile toggle icon logic: show the NEXT view's icon
+                icon.className = targetView === 'grid' ? 'fas fa-list' : 'fas fa-th-large';
+            }
+
+            // Sync visual indicator on parent if it exists
+            const parentControls = btn.closest('.view-controls');
+            if (parentControls) {
+                parentControls.classList.remove('grid-v-active', 'table-v-active');
+                parentControls.classList.add(`${targetView}-v-active`);
+            }
+        });
 
         localStorage.setItem('verde_view', targetView);
     };
 
-    // Kayıtlı görünümü yükle ve uygula
+    // Load and apply saved view
     const savedView = localStorage.getItem('verde_view') || 'grid';
     const initialView = allowedViews.includes(savedView) ? savedView : 'grid';
     applyView(initialView);
 
-    // Buton aktifliklerini güncelle
-    document.querySelectorAll('.view-button, .view-toggle').forEach(btn => {
-        const btnView = btn.getAttribute('data-view') || 'grid';
-        btn.classList.toggle('active', btnView === initialView);
-    });
-
-    // Tıklama dinleyicileri
+    // Click listeners
     viewButtons.forEach(button => {
-        const viewMode = button.getAttribute('data-view') || 'grid';
         button.addEventListener('click', function () {
-            document.querySelectorAll('.view-button, .view-toggle').forEach(btn => btn.classList.remove('active'));
-            this.classList.add('active');
-            applyView(viewMode);
-            console.log(`🖼️ Listing view changed: ${viewMode}`);
+            const btnView = this.getAttribute('data-view');
+            
+            if (btnView) {
+                // Pill button (Grid or Table specifically)
+                applyView(btnView);
+            } else {
+                // Legacy toggle button (Mobile)
+                const currentView = localStorage.getItem('verde_view') || 'grid';
+                const nextView = currentView === 'grid' ? 'table' : 'grid';
+                applyView(nextView);
+            }
+            
+            console.log(`🖼️ Listing view changed to: ${localStorage.getItem('verde_view')}`);
         });
     });
 }
 
-// --- SAYILAR İÇİN HAFİF FORMATLAMA ---
+// --- LIGHT NUMERIC FORMATTING ---
 function initializeNumericFormatting() {
     const fmt = new Intl.NumberFormat('tr-TR');
     const attach = (input) => {
@@ -632,7 +659,7 @@ function initializeNumericFormatting() {
     attach(document.getElementById('adPrice'));
 }
 
-// Konteyner içindeki bazı sayısal alanlara yerel format ata
+// Format numerical fields locally within a container
 function attachNumericFormattingIn(container) {
     const fmt = new Intl.NumberFormat('tr-TR');
     const bind = (selector, options = {}) => {
@@ -658,7 +685,7 @@ window.Modal = {
     currentModal: null,
 
     open(title, content, buttons = []) {
-        // Modal HTML oluştur
+        // Create Modal HTML
         const modalHtml = `
             <div class="modal-overlay" id="verde-modal">
                 <div class="modal-container">
@@ -684,11 +711,11 @@ window.Modal = {
             </div>
         `;
 
-        // Modal'ı ekle
+        // Append modal to body
         document.body.insertAdjacentHTML('beforeend', modalHtml);
         this.currentModal = document.getElementById('verde-modal');
 
-        // CSS ekle (eğer yoksa)
+        // Add CSS (if not already added)
         if (!document.getElementById('modal-styles')) {
             const styleEl = document.createElement('style');
             styleEl.id = 'modal-styles';
@@ -786,10 +813,10 @@ window.Modal = {
             document.head.appendChild(styleEl);
         }
 
-        // ESC tuşu ile kapatma
+        // Close on ESC key
         document.addEventListener('keydown', this.handleEscape);
 
-        // Overlay'e tıklayınca kapat
+        // Close when clicking overlay
         this.currentModal.addEventListener('click', (e) => {
             if (e.target === this.currentModal) {
                 this.close();
@@ -812,29 +839,33 @@ window.Modal = {
     }
 };
 
-// ===== FAVORILER BUTONU GİRİŞ KONTROLÜ =====
+// ===== FAVORITES BUTTON AUTH CHECK =====
 async function initializeFavoritesButtonAuth() {
     const favoritesBtn = document.querySelector('a.header-icon[href="favorilerim.html"]');
 
     if (!favoritesBtn) return;
 
     favoritesBtn.addEventListener('click', async (e) => {
-        // Supabase'den auth'u import et
+        // Import supabase auth
         const { supabase } = await import('./supabase.js');
 
-        // Mevcut kullanıcıyı kontrol et
+        // Check current user
         const { data: { user } } = await supabase.auth.getUser();
 
         if (!user) {
-            // Giriş yapılmadıysa, login sayfasına yönlendir
+            // If not logged in, redirect to login page
             e.preventDefault();
             const redirectUrl = encodeURIComponent(window.location.href);
             window.location.href = `login.html?redirect=${redirectUrl}`;
         }
-        // Giriş yapılmışsa normal olarak favoriler sayfasına gider
+        // If logged in, proceed to favorites page normally
     });
 }
 
 // DOMContentLoaded'da veya header yüklendikten sonra çağır
 document.addEventListener('DOMContentLoaded', initializeFavoritesButtonAuth);
+
+// Global exposure for dialogs
+window.showConfirmDialog = showConfirmDialog;
+window.showPromptDialog = showPromptDialog;
 window.addEventListener('header-loaded', initializeFavoritesButtonAuth);

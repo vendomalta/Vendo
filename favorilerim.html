@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="supabase-url" content="https://aiqweggiolawgphxupat.supabase.co">
-    <meta name="supabase-key" content="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFpcXdlZ2dpb2xhd2dwaHh1cGF0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMwNDQwNjksImV4cCI6MjA4ODYyMDA2OX0.x2QOi8OuQRRR0iM_NqSIVw8igSXcb9bQ5s3VVAsc-3Y">
+
     <title>My Favorites - VERDE</title>
     <link rel="icon" type="image/svg+xml" href="assets/images/verde-logo.svg" sizes="any">
     <link rel="shortcut icon" href="assets/images/verde-logo.svg">
@@ -17,106 +16,115 @@
     <div id="header-placeholder"></div>
 
     <!-- My Favorites Page Content -->
-    <main class="my-ads-page">
+    <main class="my-ads-page favorites-page">
+        <!-- Mobile Header -->
+        <div class="mobile-listing-header">
+            <button class="back-btn" onclick="history.back()">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+            <h2>Favorites</h2>
+            <button class="view-toggle-btn">
+                <i class="fas fa-th-large"></i>
+            </button>
+        </div>
+
         <div class="container">
-            <!-- Page Header -->
+            <!-- Page Header and Stats -->
             <div class="page-header">
                 <div class="header-content">
-                    <h1>My Favorites</h1>
+                    <h1>Favorites</h1>
                     <p class="header-subtitle">Track your favorite listings and don't miss out</p>
                 </div>
             </div>
 
             <!-- Stats Cards -->
             <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-icon">
-                        <i class="fas fa-heart" style="color: var(--danger);"></i>
+                <div class="stat-card" id="show-all-favs">
+                    <div class="stat-icon" style="background: rgba(16, 185, 129, 0.1); color: var(--primary);">
+                        <i class="fas fa-heart"></i>
                     </div>
                     <div class="stat-content">
-                        <h3>0</h3>
+                        <h3 id="total-favorites-count">0</h3>
                         <p>Total Favorites</p>
                     </div>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-icon">
-                        <i class="fas fa-eye" style="color: var(--primary);"></i>
+                <div class="stat-card" id="show-dropped-favs">
+                    <div class="stat-icon" style="background: rgba(245, 158, 11, 0.1); color: #f59e0b;">
+                        <i class="fas fa-trending-down"></i>
                     </div>
                     <div class="stat-content">
-                        <h3>0</h3>
-                        <p>Added This Week</p>
-                    </div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon">
-                        <i class="fas fa-tag" style="color: var(--warning);"></i>
-                    </div>
-                    <div class="stat-content">
-                        <h3>0</h3>
-                        <p>Price Dropped</p>
-                    </div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon">
-                        <i class="fas fa-star" style="color: var(--accent);"></i>
-                    </div>
-                    <div class="stat-content">
-                        <h3>0</h3>
-                        <p>Featured</p>
+                        <h3 id="price-drop-count">0</h3>
+                        <p>Price Drops</p>
                     </div>
                 </div>
             </div>
 
-            <!-- Filter and Sort -->
+            <!-- Filter and Search Section -->
             <div class="ads-controls">
                 <div class="filter-tabs">
                     <button class="tab-btn active" data-filter="all">
-                        All (0)
+                        All Favorites
                     </button>
-                    <button class="tab-btn" data-filter="emlak">
-                        Real Estate (0)
-                    </button>
-                    <button class="tab-btn" data-filter="vasita">
-                        Vehicles (0)
-                    </button>
-                    <button class="tab-btn" data-filter="elektronik">
-                        Electronics (0)
-                    </button>
-                    <button class="tab-btn" data-filter="ev_esyasi">
-                        Home Goods (0)
+                    <button class="tab-btn" data-filter="dropped">
+                        Price Drops
                     </button>
                 </div>
-                
-                <div class="search-sort">
-                    <div class="search-input-wrapper">
-                        <i class="fas fa-search"></i>
-                        <input type="text" placeholder="Search your favorites..." class="ads-search">
-                    </div>
-                    <select class="sort-select">
-                        <option value="date-desc">Newly Added</option>
-                        <option value="date-asc">Oldest Added</option>
-                        <option value="price-asc">Price (Low to High)</option>
-                        <option value="price-desc">Price (High to Low)</option>
-                        <option value="title-asc">Sort A-Z</option>
-                    </select>
-
+                <div class="view-toggle desktop-only">
+                    <button class="view-btn list-btn" id="list-view-btn" title="List View">
+                        <i class="fas fa-list"></i>
+                    </button>
+                    <button class="view-btn grid-btn active" id="grid-view-btn" title="Grid View">
+                        <i class="fas fa-th-large"></i>
+                    </button>
                 </div>
             </div>
 
             <!-- Favorite Listings Grid -->
-            <div class="favorites-grid">
+            <div class="favorites-grid ads-container">
                 <!-- Cards will be loaded by JavaScript -->
             </div>
-           
+
+            <!-- Loading & Sentinel -->
+            <div id="loading-spinner" class="loading-container" style="display: none;">
+                <div class="spinner"></div>
+                <p>Loading more favorites...</p>
+            </div>
+            <div id="scroll-sentinel" style="height: 20px; margin-top: 20px;"></div>
+        </div>
     </main>
-    
-    
+
+
     <script type="module" src="js/supabase.js"></script>
     <script type="module" src="js/auth.js"></script>
     <script type="module" src="js/realtime-notifications.js"></script>
     <script type="module" src="js/favorites-loader.js"></script>
     <script src="js/ui.js"></script>
     <script src="js/layout.js"></script>
-    
+    <script type="module">
+        import { supabase } from './js/supabase.js';
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Check authentication
+            const { data: { user }, error: authError } = await supabase.auth.getUser();
+            if (authError || !user) {
+                window.location.href = 'login.html?redirect=' + encodeURIComponent(window.location.pathname);
+                return;
+            }
+
+            // Sync sidebar info (if sidebar is added in future or present in layout)
+            try {
+                const name = user.user_metadata?.full_name || user.email?.split('@')[0];
+                const sidebarName = document.getElementById('sidebarProfileName');
+                if (sidebarName) sidebarName.textContent = name;
+                
+                const { data: profile } = await supabase.from('profiles').select('avatar_url').eq('id', user.id).single();
+                if (profile?.avatar_url) {
+                    const sidebarImg = document.getElementById('sidebarProfileImage');
+                    if (sidebarImg) sidebarImg.src = profile.avatar_url;
+                }
+            } catch (e) {
+                console.warn('Sidebar sync error:', e);
+            }
+        });
+    </script>
 </body>
 </html>

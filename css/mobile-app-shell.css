@@ -1,0 +1,160 @@
+/* Mobile App Shell - Web'e mobil uygulama görünümü kazandıran temel stiller */
+
+/* Bottom Navigation Bar */
+.bottom-nav {
+    display: none; /* Desktop'ta gizle */
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 65px;
+    background: var(--surface, #ffffff);
+    border-top: 1px solid var(--gray-200, #e2e8f0);
+    z-index: 1000;
+    padding-bottom: env(safe-area-inset-bottom);
+    box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+}
+
+@media (max-width: 768px) {
+    .bottom-nav {
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+    }
+
+    /* Ana içerik alanını alt bar kadar yukarı kaydır */
+    body {
+        padding-bottom: 70px;
+    }
+
+    /* Desktop header'daki bazı elemanları gizle (Bottom Nav'a taşındığı için) */
+    .header-actions .post-ad-button,
+    .header-actions .header-icon[href="index.html"],
+    .header-actions .header-icon[href="mesajlar.html"],
+    .header-actions .header-icon[href="favorilerim.html"] {
+        display: none !important;
+    }
+}
+
+.bottom-nav-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    color: var(--gray-500, #64748b);
+    gap: 4px;
+    transition: all 0.2s ease;
+    background: transparent !important;
+}
+
+.bottom-nav-item i {
+    font-size: 1.25rem;
+}
+
+.bottom-nav-item span {
+    font-size: 0.7rem;
+    font-weight: 500;
+}
+
+.bottom-nav-item.active {
+    color: var(--primary, #10b981);
+}
+
+.bottom-nav-item.add-btn {
+    position: relative;
+    top: -18px;
+    z-index: 10;
+}
+
+.bottom-nav-item.add-btn .add-icon-wrapper {
+    width: 52px;
+    height: 52px;
+    background: #10b981 !important;
+    border-radius: 50% !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4);
+    border: 2px solid #ffffff;
+}
+
+.bottom-nav-item.add-btn i {
+    font-size: 1.5rem;
+}
+
+/* App-Style Header (Now handled in responsive.css with Logo on Left)
+@media (max-width: 768px) {
+    .header-main {
+        padding: 0.75rem 1rem !important;
+        justify-content: space-between;
+    }
+
+    .site-logo {
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+
+    .logo-text {
+        display: block !important;
+        font-size: 1.25rem !important;
+    }
+}
+*/
+
+/* List Menu Pattern (Profile/Settings) */
+.mobile-list-menu {
+    display: flex;
+    flex-direction: column;
+    background: var(--surface, #ffffff);
+    border-radius: var(--radius-xl, 16px);
+    overflow: hidden;
+    margin-bottom: 1.5rem;
+}
+
+.mobile-list-item {
+    display: flex;
+    align-items: center;
+    padding: 1rem 1.25rem;
+    text-decoration: none;
+    color: var(--text, #1e293b);
+    border-bottom: 1px solid var(--gray-100, #f1f5f9);
+    gap: 12px;
+    transition: background-color 0.2s ease;
+}
+
+.mobile-list-item:last-child {
+    border-bottom: none;
+}
+
+.mobile-list-item:active {
+    background-color: var(--gray-50, #f8fafc);
+}
+
+.mobile-list-item i {
+    width: 24px;
+    text-align: center;
+    font-size: 1.1rem;
+    color: var(--gray-500, #64748b);
+}
+
+.mobile-list-item span {
+    flex: 1;
+    font-size: 0.95rem;
+    font-weight: 500;
+}
+
+.mobile-list-item .arrow-icon {
+    font-size: 0.8rem;
+    color: var(--gray-300, #cbd5e1);
+}
+
+/* Profile Page Specific Mobile Header Cleanup */
+@media (max-width: 768px) {
+    body.profile-page-body .mobile-actions-container {
+        display: none !important;
+    }
+}

@@ -123,11 +123,9 @@ body {
 /* --- ARAMA FİLTRELERİ --- */
 .search-filters {
     display: flex;
-    gap: 8px;
+    flex-wrap: wrap;
+    gap: 6px;
     padding: 2px 0 4px 0; /* Tighten up vertical padding */
-    overflow-x: auto;
-    scrollbar-width: none; /* Firefox */
-    -ms-overflow-style: none; /* IE/Edge */
 }
 
 .search-filters::-webkit-scrollbar {
@@ -1452,4 +1450,441 @@ textarea.form-control {
 .required {
     color: #ef4444;
     margin-left: 3px;
+}
+
+/* --- DUAL VIEW VISIBILITY CONTROLS --- */
+.desktop-only-messages-view {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    width: 100%;
+}
+
+.mobile-only-messages-view {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    .desktop-only-messages-view {
+        display: none !important;
+    }
+
+    .mobile-only-messages-view {
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+        width: 100vw;
+        background: #ffffff;
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 1000;
+    }
+
+    /* Override general body scroll stop to allow mobile fixed layout */
+    body.messages-page-active {
+        overflow: hidden !important;
+        position: fixed;
+        width: 100%;
+    }
+}
+
+/* --- MOBILE NATIVE DESIGN SYSTEM --- */
+@media (max-width: 768px) {
+    :root {
+        --native-primary: #10b981;
+        --native-bg: #ffffff;
+        --native-text: #1e293b;
+        --native-text-muted: #64748b;
+        --native-border: #f1f5f9;
+        --bubble-sent: #d1fae5;
+        --bubble-received: #f1f5f9;
+    }
+
+    .mobile-screen {
+        display: none;
+        flex-direction: column;
+        height: 100%;
+        width: 100%;
+    }
+
+    .mobile-screen.active {
+        display: flex;
+    }
+
+    /* Native Inbox Header */
+    .native-inbox-header {
+        padding: 16px;
+        padding-top: calc(16px + env(safe-area-inset-top, 0));
+        border-bottom: 1px solid var(--native-border);
+        background: #fff;
+    }
+
+    .header-row-native {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 20px;
+    }
+
+    .back-btn-native {
+        background: transparent;
+        border: none;
+        font-size: 1.25rem;
+        color: var(--native-text);
+        padding: 4px;
+        cursor: pointer;
+    }
+
+    .native-title {
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: var(--native-text);
+        margin: 0;
+    }
+
+    .native-search-row {
+        margin-bottom: 16px;
+    }
+
+    .native-search-bar {
+        background: #f8fafc;
+        border: 1px solid var(--native-border);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        padding: 0 16px;
+        height: 44px;
+    }
+
+    .native-search-bar i {
+        color: var(--native-text-muted);
+        margin-right: 12px;
+    }
+
+    .native-search-bar input {
+        border: none;
+        background: transparent;
+        flex: 1;
+        font-size: 0.95rem;
+        color: var(--native-text);
+    }
+
+    .native-search-bar input:focus {
+        outline: none;
+    }
+
+    /* Native Filters */
+    .native-filters-scroll {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        padding-bottom: 4px;
+    }
+
+    .native-filters-scroll::-webkit-scrollbar {
+        display: none;
+    }
+
+    .native-filter-chip {
+        padding: 8px 16px;
+        border: 1px solid var(--native-border);
+        border-radius: 20px;
+        background: #fff;
+        color: var(--native-text-muted);
+        font-size: 0.9rem;
+        font-weight: 500;
+        white-space: nowrap;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .native-filter-chip.active {
+        background: var(--native-primary);
+        color: #fff;
+        border-color: var(--native-primary);
+    }
+
+    /* Native Conversation Items */
+    .native-conversations-list {
+        flex: 1;
+        overflow-y: auto;
+        background: #fff;
+        padding-bottom: calc(75px + env(safe-area-inset-bottom, 0));
+    }
+
+    .native-conv-item {
+        display: flex;
+        padding: 16px;
+        gap: 14px;
+        border-bottom: 1px solid #f8fafc;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+
+    .native-conv-item:active {
+        background: #f1f5f9;
+    }
+
+    .native-avatar-container {
+        position: relative;
+    }
+
+    .native-avatar {
+        width: 56px;
+        height: 56px;
+        border-radius: 28px;
+        object-fit: cover;
+        background: #e2e8f0;
+    }
+
+    .native-conv-content {
+        flex: 1;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .native-conv-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        margin-bottom: 4px;
+    }
+
+    .native-listing-title {
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: var(--native-text);
+        margin: 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .native-conv-time {
+        font-size: 0.75rem;
+        color: var(--native-text-muted);
+        white-space: nowrap;
+        margin-left: 8px;
+    }
+
+    .native-user-name {
+        font-size: 0.85rem;
+        color: var(--native-text-muted);
+        margin: 0 0 4px 0;
+    }
+
+    .native-last-msg {
+        font-size: 0.9rem;
+        color: var(--native-text-muted);
+        margin: 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .native-last-msg.unread {
+        color: var(--native-text);
+        font-weight: 600;
+    }
+
+    .native-unread-badge {
+        background: var(--native-primary);
+        color: #fff;
+        font-size: 0.7rem;
+        font-weight: 800;
+        min-width: 20px;
+        height: 20px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0 6px;
+        margin-left: auto;
+        align-self: center;
+    }
+
+    /* Native Chat Screen */
+    .native-chat-header {
+        display: flex;
+        align-items: center;
+        padding: 12px 16px;
+        padding-top: calc(12px + env(safe-area-inset-top, 0));
+        background: #fff;
+        border-bottom: 1px solid var(--native-border);
+        gap: 12px;
+        z-index: 10;
+    }
+
+    .native-header-listing {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        min-width: 0;
+    }
+
+    .native-header-img {
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+        object-fit: cover;
+    }
+
+    .native-header-text {
+        min-width: 0;
+    }
+
+    .native-header-title {
+        font-size: 0.95rem;
+        font-weight: 700;
+        margin: 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .native-header-subtitle {
+        font-size: 0.8rem;
+        color: var(--native-text-muted);
+        margin: 0;
+    }
+
+    .native-options-btn {
+        background: transparent;
+        border: none;
+        color: var(--native-text-muted);
+        padding: 4px;
+    }
+
+    .native-chat-content {
+        flex: 1;
+        overflow-y: auto;
+        padding: 16px;
+        background: #fff;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    /* Native Bubbles */
+    .native-bubble-group {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .native-bubble {
+        max-width: 80%;
+        padding: 10px 14px;
+        border-radius: 18px;
+        font-size: 0.95rem;
+        line-height: 1.4;
+        position: relative;
+        word-wrap: break-word;
+    }
+
+    .native-bubble.sent {
+        align-self: flex-end;
+        background: var(--bubble-sent);
+        color: #064e3b;
+        border-bottom-right-radius: 4px;
+    }
+
+    .native-bubble.received {
+        align-self: flex-start;
+        background: var(--bubble-received);
+        color: var(--native-text);
+        border-bottom-left-radius: 4px;
+    }
+
+    .native-bubble-meta {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 4px;
+        margin-top: 4px;
+        font-size: 0.7rem;
+        color: var(--native-text-muted);
+    }
+
+    .native-status-icon {
+        font-size: 0.8rem;
+    }
+
+    .native-status-icon.read {
+        color: #3b82f6;
+    }
+
+    /* Native Input Area */
+    .native-chat-input-area {
+        padding: 12px 16px;
+        padding-bottom: calc(12px + env(safe-area-inset-bottom, 0));
+        background: #fff;
+        border-top: 1px solid var(--native-border);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .native-transaction-btn {
+        padding: 8px 14px;
+        background: #f8fafc;
+        border: 1px solid var(--native-border);
+        border-radius: 20px;
+        color: var(--native-primary);
+        font-size: 0.85rem;
+        font-weight: 700;
+        cursor: pointer;
+    }
+
+    .native-input-box {
+        flex: 1;
+        background: #f8fafc;
+        border: 1px solid var(--native-border);
+        border-radius: 20px;
+        padding: 8px 16px;
+        min-height: 40px;
+        max-height: 120px;
+        display: flex;
+        align-items: center;
+    }
+
+    .native-input-box textarea {
+        flex: 1;
+        background: transparent;
+        border: none;
+        font-size: 0.95rem;
+        color: var(--native-text);
+        resize: none;
+        padding: 0;
+        line-height: 1.4;
+    }
+
+    .native-input-box textarea:focus {
+        outline: none;
+    }
+
+    .native-send-btn {
+        width: 40px;
+        height: 40px;
+        border-radius: 20px;
+        background: #e2e8f0;
+        border: none;
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+    }
+
+    .native-send-btn:not(:disabled) {
+        background: var(--native-primary);
+    }
 }

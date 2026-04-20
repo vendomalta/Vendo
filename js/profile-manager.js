@@ -71,6 +71,8 @@ async function createProfile(userId) {
     const profileData = {
         id: userId,
         full_name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'User',
+        first_name: user.user_metadata?.first_name || user.user_metadata?.full_name?.split(' ')[0] || user.email?.split('@')[0] || 'User',
+        last_name: user.user_metadata?.last_name || user.user_metadata?.full_name?.split(' ').slice(1).join(' ') || '',
         email: user.email,
         phone: user.user_metadata?.phone || '',
         // Varsayılan profil fotoğrafı

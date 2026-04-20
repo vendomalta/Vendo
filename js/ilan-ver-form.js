@@ -1,6 +1,6 @@
-
-// Merge base fields with template fields, avoiding duplicate field names.
 import { getCategoryById, getCategoryBySlug, getCategoryByName, initializeCategories } from './category-data.js';
+import { checkFieldsForProfanity } from './profanity-filter.js';
+import { FormValidator } from './form-validator.js';
 
 function getInheritedFields(detailOrCategory) {
     let current = typeof detailOrCategory === 'object' ? detailOrCategory : getCategoryByName(detailOrCategory);
@@ -122,12 +122,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     setupFormListeners();
     updateProgress();
 
-    // Start form validation (ensure the correct form id)
-    if (typeof FormValidator !== 'undefined') {
-        const formValidator = new FormValidator('#listingForm');
-    } else {
-        console.warn('FormValidator is not defined, skipping validation init.');
-    }
+    // Start form validation
+    const formValidator = new FormValidator('#listingForm');
 });
 
 // Load category from sessionStorage and refetch full data to ensure config is fresh
@@ -793,13 +789,25 @@ async function setupContactSection() {
             // Profil bilgilerini çek
             const { data: profile, error } = await supabase
                 .from('profiles')
-                .select('full_name, phone')
+                .select('first_name, last_name, full_name, phone')
                 .eq('id', user.id)
                 .single();
 
             if (profile && !error) {
                 if (contactNameInput) {
-                    contactNameInput.value = profile.full_name || user.email || 'User';
+                    const combinedName = (profile.first_name && profile.last_name) 
+                        ? `${profile.first_name} ${profile.last_name}` 
+                        : (profile.full_name || user.email || '');
+                    
+                    contactNameInput.value = combinedName;
+                    
+                    // Eğer isim gelmişse kilitli kalsın, gelmemişse kullanıcı yazabilsin
+                    if (combinedName && combinedName !== user.email) {
+                        contactNameInput.disabled = true;
+                    } else {
+                        contactNameInput.disabled = false;
+                        contactNameInput.placeholder = 'Enter your name';
+                    }
                 }
                 if (contactPhoneDisplay) {
                     contactPhoneDisplay.value = profile.phone || 'Phone not provided';
@@ -922,24 +930,27 @@ function updateStepUI() {
     const steps = Array.from(document.querySelectorAll('.form-step'));
     const total = steps.length;
     const progressFill = document.getElementById('progressFill');
+    const labels = document.querySelectorAll('.step-label');
+
+    // Update labels
+    labels.forEach((label, idx) => {
+        label.classList.toggle('active', idx + 1 === currentStepIndex);
+        label.classList.toggle('completed', idx + 1 < currentStepIndex);
+    });
+
     if (progressFill && total > 0) {
-        // Custom progress mapping: after leaving page 1 -> 30%, after leaving page 2 -> 80%
-        let pct;
-        if (currentStepIndex === 2) {
-            pct = 30;
-        } else if (currentStepIndex === 3) {
-            pct = 80;
-        } else {
-            pct = Math.round((currentStepIndex - 1) / (total - 1 || 1) * 100);
-        }
+        let pct = Math.round((currentStepIndex / total) * 100);
         progressFill.style.width = `${pct}%`;
     }
 
     // Show/hide publish button
     const publish = document.getElementById('publishBtn');
     const stickyNext = document.getElementById('stickyNext');
+    const stickyPrev = document.getElementById('stickyPrev');
+    
     if (publish) publish.style.display = (currentStepIndex === total) ? 'inline-flex' : 'none';
     if (stickyNext) stickyNext.style.display = (currentStepIndex === total) ? 'none' : 'inline-flex';
+    if (stickyPrev) stickyPrev.style.visibility = (currentStepIndex === 1) ? 'hidden' : 'visible';
 }
 
 // Initialize wizard after DOM ready
@@ -982,17 +993,29 @@ function validateForm(container = null) {
 
         for (const input of inputs) {
             const group = input.closest('.form-group');
+            let errorMsg = group ? group.querySelector('.error-message') : null;
+            
             // Check HTML5 validity
             if (input.checkValidity && !input.checkValidity()) {
                 isValid = false;
                 if (!firstInvalid) firstInvalid = input;
                 
-                // Add error class for visual feedback (consistent with CSS .error)
                 input.classList.add('error');
-                if (group) group.classList.add('has-error');
+                if (group) {
+                    group.classList.add('has-error');
+                    if (!errorMsg) {
+                        errorMsg = document.createElement('div');
+                        errorMsg.className = 'error-message';
+                        group.appendChild(errorMsg);
+                    }
+                    errorMsg.textContent = input.validationMessage || 'This field is required.';
+                }
             } else {
                 input.classList.remove('error');
-                if (group) group.classList.remove('has-error');
+                if (group) {
+                    group.classList.remove('has-error');
+                    // We'll clear the text later if no profanity either
+                }
             }
         }
 
@@ -1000,16 +1023,72 @@ function validateForm(container = null) {
         const descriptionEditor = document.getElementById('descriptionEditor');
         const descriptionGroup = descriptionEditor ? descriptionEditor.closest('.form-group') : null;
         if (descriptionEditor && (target.contains(descriptionEditor) || target === form)) {
+            const group = descriptionEditor.closest('.form-group');
+            let errorMsg = group ? group.querySelector('.error-message') : null;
+            
             const text = descriptionEditor.textContent || '';
             const strippedText = text.trim();
             if (strippedText.length < 5) {
                 isValid = false;
                 descriptionEditor.classList.add('error');
-                if (descriptionGroup) descriptionGroup.classList.add('has-error');
+                if (group) {
+                    group.classList.add('has-error');
+                    if (!errorMsg) {
+                        errorMsg = document.createElement('div');
+                        errorMsg.className = 'error-message';
+                        group.appendChild(errorMsg);
+                    }
+                    errorMsg.textContent = 'Please enter at least 5 characters for the description.';
+                }
                 if (!firstInvalid) firstInvalid = descriptionEditor;
             } else {
                 descriptionEditor.classList.remove('error');
-                if (descriptionGroup) descriptionGroup.classList.remove('has-error');
+                if (group) group.classList.remove('has-error');
+            }
+        }
+
+        // 🔴 PROFANITY CHECK INTEGRATION
+        const textInputs = Array.from(target.querySelectorAll('input[type="text"], input[type="search"], textarea:not(.visually-hidden)'));
+        if (descriptionEditor && (target.contains(descriptionEditor) || target === form)) {
+            textInputs.push(descriptionEditor);
+        }
+
+        let profanityFound = false;
+        for (const input of textInputs) {
+            const val = input.tagName === 'DIV' ? input.textContent : input.value;
+            const profanity = checkFieldsForProfanity([{ name: 'Field', value: val }]);
+            
+            const group = input.closest('.form-group');
+            let errorMsg = group ? group.querySelector('.error-message') : null;
+
+            if (profanity.hasProfanity) {
+                isValid = false;
+                profanityFound = true;
+                input.classList.add('error');
+                if (group) {
+                    group.classList.add('has-error');
+                    if (!errorMsg) {
+                        errorMsg = document.createElement('div');
+                        errorMsg.className = 'error-message';
+                        group.appendChild(errorMsg);
+                    }
+                    errorMsg.textContent = 'This text violates our community guidelines.';
+                }
+                if (!firstInvalid) firstInvalid = input;
+            } else if (input.classList.contains('error')) {
+                // If it already had an error (HTML5), don't clear the text yet
+            } else {
+                // Truly valid
+                if (group) {
+                    group.classList.remove('has-error');
+                    if (errorMsg) errorMsg.textContent = '';
+                }
+            }
+        }
+
+        if (profanityFound) {
+            if (typeof showNotification === 'function') {
+                showNotification('One or more fields contain inappropriate language. Please correct them.', 'error');
             }
         }
 
@@ -1059,7 +1138,9 @@ async function handleFormSubmit(event) {
     }
 
     if (!validateForm()) {
-        console.warn('Form validation failed.');
+        if (typeof showNotification === 'function') {
+            showNotification('Please check the highlighted fields for errors or inappropriate language.', 'error');
+        }
         return;
     }
 
@@ -1176,7 +1257,7 @@ async function handleFormSubmit(event) {
             price: formData.get('price'),
             currency: formData.get('currency') || 'EUR',
             category: categorySlug,
-            location: `${formData.get('city')}, ${formData.get('district')}`,
+            location: formData.get('city'), // Removed district
             photos: photos,
             extraFields: extraFields,
             contactName: contactName,
@@ -1288,7 +1369,7 @@ function changeCategory() {
 
 // Redirect to home
 function redirectHome() {
-    window.location.href = 'index.html';
+    window.location.href = '/';
 }
 
 // Expose handlers for inline HTML attributes (module scope -> global)

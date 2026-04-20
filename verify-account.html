@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify Your Account - VENDO</title>
+    <meta name="description" content="Verify your email address to start using VENDO.">
+    <meta name="robots" content="noindex,nofollow">
+    <link rel="icon" type="image/svg+xml" href="assets/images/verde-logo.svg" sizes="any">
+    
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <!-- Supabase Configuration -->
+
+
+    <style>
+        :root {
+            --primary: #10b981;
+            --primary-dark: #059669;
+            --surface: #ffffff;
+            --background-light: #f8fafc;
+            --text: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --danger: #ef4444;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--background-light);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .verify-container {
+            width: 100%;
+            max-width: 480px;
+            padding: 2rem;
+            margin: 1rem;
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.05);
+            text-align: center;
+            animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .icon-circle {
+            width: 80px;
+            height: 80px;
+            background: rgba(16, 185, 129, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            color: var(--primary);
+            font-size: 2rem;
+        }
+
+        h1 {
+            font-size: 1.75rem;
+            font-weight: 800;
+            color: var(--text);
+            margin-bottom: 0.75rem;
+            letter-spacing: -0.025em;
+        }
+
+        p {
+            color: var(--text-muted);
+            line-height: 1.5;
+            margin-bottom: 2rem;
+            font-size: 0.95rem;
+        }
+
+        .email-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: #f0fdf4;
+            color: var(--primary-dark);
+            padding: 0.5rem 1rem;
+            border-radius: 100px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            margin-bottom: 2rem;
+        }
+
+        .otp-group {
+            display: flex;
+            gap: 0.75rem;
+            justify-content: center;
+            margin-bottom: 2rem;
+        }
+
+        .otp-input {
+            width: 50px;
+            height: 60px;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text);
+            background: var(--background-light);
+            transition: all 0.2s;
+        }
+
+        .otp-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: white;
+            box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
+        }
+
+        .otp-input.filled {
+            border-color: var(--primary);
+            background: #f0fdf4;
+        }
+
+        .verify-btn {
+            width: 100%;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 1rem;
+            border-radius: 14px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .verify-btn:hover:not(:disabled) {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+            box-shadow: 0 10px 20px rgba(16, 185, 129, 0.15);
+        }
+
+        .verify-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .resend-container {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .resend-link {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .resend-link.disabled {
+            color: var(--text-muted);
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+
+        .timer {
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .loading-spinner {
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .error-message {
+            color: var(--danger);
+            background: #fef2f2;
+            padding: 0.75rem;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            margin-bottom: 1.5rem;
+            display: none;
+            animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both;
+        }
+
+        @keyframes shake {
+            10%, 90% { transform: translate3d(-1px, 0, 0); }
+            20%, 80% { transform: translate3d(2px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+            40%, 60% { transform: translate3d(4px, 0, 0); }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="verify-container">
+        <div class="icon-circle">
+            <i class="fas fa-envelope-open-text"></i>
+        </div>
+        <h1>Account Verification</h1>
+        <p>We've sent a 6-digit verification code to your email address. Please enter it below to continue.</p>
+        
+        <div class="email-badge" id="emailDisplay">
+            <i class="fas fa-at"></i>
+            <span>loading...</span>
+        </div>
+
+        <div class="error-message" id="errorMessage">Invalid code. Please try again.</div>
+
+        <form id="otpForm">
+            <div class="otp-group">
+                <input type="text" maxlength="1" class="otp-input" pattern="\d*" inputmode="numeric" required>
+                <input type="text" maxlength="1" class="otp-input" pattern="\d*" inputmode="numeric" required>
+                <input type="text" maxlength="1" class="otp-input" pattern="\d*" inputmode="numeric" required>
+                <input type="text" maxlength="1" class="otp-input" pattern="\d*" inputmode="numeric" required>
+                <input type="text" maxlength="1" class="otp-input" pattern="\d*" inputmode="numeric" required>
+                <input type="text" maxlength="1" class="otp-input" pattern="\d*" inputmode="numeric" required>
+            </div>
+
+            <button type="submit" class="verify-btn" id="verifyBtn">
+                <span>Verify Account</span>
+                <i class="fas fa-arrow-right"></i>
+            </button>
+        </form>
+
+        <div class="resend-container">
+            Didn't receive the code? 
+            <span class="resend-link disabled" id="resendLink">Resend in <span class="timer" id="timer">02:00</span></span>
+        </div>
+    </div>
+
+    <!-- Firebase / Supabase functionality will be in verify-otp.js -->
+    <script type="module" src="js/verify-otp.js"></script>
+</body>
+
+</html>

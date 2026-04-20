@@ -109,8 +109,42 @@
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
-    max-height: 300px;
+    max-height: 350px;
     overflow-y: auto;
+}
+
+.location-checkboxes {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+}
+
+.location-checkboxes .filter-checkbox-item {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Price Input Wrappers */
+.price-input-wrapper {
+    position: relative;
+    flex: 1;
+}
+
+.price-input-wrapper::before {
+    content: '€';
+    position: absolute;
+    left: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--gray-500);
+    font-size: 0.75rem;
+    pointer-events: none;
+}
+
+.price-inputs input {
+    width: 100%;
+    padding-left: 20px !important;
 }
 
 /* Filtre Seçenekleri - Kaydırma */

@@ -17,8 +17,8 @@ function readSupabaseConfig() {
     const winCfg = (w.__SUPABASE && typeof w.__SUPABASE === 'object') ? w.__SUPABASE : {};
     const metaUrl = getMeta('supabase-url');
     const metaKey = getMeta('supabase-key');
-    const FALLBACK_URL = ''; // Required: Set via meta tag or window.__SUPABASE
-    const FALLBACK_KEY = ''; // Required: Set via meta tag or window.__SUPABASE
+    const FALLBACK_URL = 'https://aiqweggiolawgphxupat.supabase.co';
+    const FALLBACK_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFpcXdlZ2dpb2xhd2dwaHh1cGF0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMwNDQwNjksImV4cCI6MjA4ODYyMDA2OX0.x2QOi8OuQRRR0iM_NqSIVw8igSXcb9bQ5s3VVAsc-3Y';
 
     const url = winCfg.url || metaUrl || FALLBACK_URL;
     const key = winCfg.key || metaKey || FALLBACK_KEY;

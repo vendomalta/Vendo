@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notifications - VENDO</title>
+    <link rel="icon" type="image/svg+xml" href="assets/images/verde-logo.svg" sizes="any">
+    <link rel="shortcut icon" href="assets/images/verde-logo.svg">
+    <link rel="apple-touch-icon" href="assets/images/verde-logo.svg">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/pages/profile.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/mobile-app-shell.css">
+
+    <style>
+        :root {
+            --surface: #ffffff;
+            --bg: #f8fafc;
+            --primary: #10b981;
+            --text: #1f2937;
+            --gray-400: #9ca3af;
+            --gray-500: #6b7280;
+            --gray-100: #f3f4f6;
+            --border: #e2e8f0;
+            --primary-green: #10b981;
+            --border-light: #e2e8f0;
+        }
+
+        body {
+            background-color: var(--bg);
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            color: var(--text);
+        }
+
+        /* Notifications Card */
+        .notifications-card {
+            background: white;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+        }
+
+        .notification-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 24px;
+            border-bottom: 1px solid var(--gray-100);
+        }
+
+        .notification-item:last-child {
+            border-bottom: none;
+        }
+
+        .item-info {
+            flex: 1;
+            padding-right: 20px;
+        }
+
+        .item-title {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 4px;
+            color: var(--text);
+        }
+
+        .item-desc {
+            font-size: 13px;
+            color: var(--gray-500);
+            line-height: 1.5;
+        }
+
+        /* Toggle Switch Premium Styling */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 52px;
+            height: 28px;
+            flex-shrink: 0;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #e2e8f0;
+            transition: .3s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 22px;
+            width: 22px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .3s;
+            border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        input:checked + .slider {
+            background-color: var(--primary);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(24px);
+        }
+
+        /* Loading Indicator */
+        .loader-container {
+            display: none;
+            justify-content: center;
+            padding: 40px;
+        }
+
+        .loader {
+            width: 24px;
+            height: 24px;
+            border: 3px solid #ecfdf5;
+            border-top: 3px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Mobile Header */
+        .mobile-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .back-btn {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: var(--text);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .back-btn:hover {
+            background: var(--gray-100);
+        }
+
+        @media (min-width: 992px) {
+            .notifications-page .container {
+                max-width: 1200px;
+                padding: 40px 20px;
+            }
+            .mobile-header {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="header-placeholder"></div>
+
+    <main class="notifications-page profile-page">
+        <div class="container scroll-content">
+            <div class="profile-layout">
+                <!-- Sidebar -->
+                <aside class="profile-sidebar">
+                    <div class="profile-card">
+                        <div class="avatar-wrapper" id="sidebarAvatarWrapper">
+                            <div class="avatar-circle">
+                                <img src="assets/images/default-avatar.svg" alt="Profile Picture" id="sidebarProfileImage">
+                            </div>
+                            <div class="edit-avatar-btn">
+                                <i class="fas fa-camera"></i>
+                            </div>
+                            <input type="file" id="sidebarAvatarInput" accept="image/*" style="display: none;">
+                        </div>
+                        <div class="profile-info-text">
+                            <h2 class="user-name" id="sidebarProfileName">Loading...</h2>
+                            <p class="user-role">Vendo User</p>
+                        </div>
+                    </div>
+
+                    <div class="menu-section">
+                        <a href="personal-info.html" class="menu-item">
+                            <div class="menu-icon-container"><i class="fas fa-user-circle"></i></div>
+                            <span class="menu-item-text">Personal Info</span>
+                            <i class="fas fa-chevron-right chevron-icon"></i>
+                        </a>
+                        <a href="change-password.html" class="menu-item">
+                            <div class="menu-icon-container"><i class="fas fa-lock"></i></div>
+                            <span class="menu-item-text">Change Password</span>
+                            <i class="fas fa-chevron-right chevron-icon"></i>
+                        </a>
+                        <a href="notifications.html" class="menu-item active">
+                            <div class="menu-icon-container"><i class="fas fa-bell"></i></div>
+                            <span class="menu-item-text">Notifications</span>
+                            <i class="fas fa-chevron-right chevron-icon"></i>
+                        </a>
+                        <a href="engellenenler.html" class="menu-item">
+                            <div class="menu-icon-container"><i class="fas fa-user-slash"></i></div>
+                            <span class="menu-item-text">Blocked Users</span>
+                            <i class="fas fa-chevron-right chevron-icon"></i>
+                        </a>
+                        <a href="ilanlarim.html" class="menu-item">
+                            <div class="menu-icon-container"><i class="fas fa-list"></i></div>
+                            <span class="menu-item-text">Listings</span>
+                            <i class="fas fa-chevron-right chevron-icon"></i>
+                        </a>
+                        <a href="favorilerim.html" class="menu-item">
+                            <div class="menu-icon-container"><i class="fas fa-heart"></i></div>
+                            <span class="menu-item-text">Favorites</span>
+                            <i class="fas fa-chevron-right chevron-icon"></i>
+                        </a>
+                        <a href="mesajlar.html" class="menu-item">
+                            <div class="menu-icon-container"><i class="fas fa-envelope"></i></div>
+                            <span class="menu-item-text">Messages</span>
+                            <i class="fas fa-chevron-right chevron-icon"></i>
+                        </a>
+                        <a href="reviews.html" class="menu-item">
+                            <div class="menu-icon-container"><i class="fas fa-star"></i></div>
+                            <span class="menu-item-text">Reviews</span>
+                            <i class="fas fa-chevron-right chevron-icon"></i>
+                        </a>
+                        <a href="delete-account.html" class="menu-item">
+                            <div class="menu-icon-container"><i class="fas fa-trash"></i></div>
+                            <span class="menu-item-text">Delete Account</span>
+                            <i class="fas fa-chevron-right chevron-icon"></i>
+                        </a>
+                    </div>
+                </aside>
+
+                <!-- Content Area -->
+                <article class="profile-content">
+                    <!-- Mobile Header -->
+                    <header class="mobile-header">
+                        <button class="back-btn" onclick="window.location.href='index.html'">
+                            <i class="fas fa-arrow-left"></i>
+                        </button>
+                        <h1>Notifications</h1>
+                    </header>
+            <div id="loader" class="loader-container">
+                <div class="loader"></div>
+            </div>
+
+            <div id="notificationsContent">
+                <div class="notifications-card">
+                    <!-- New Messages -->
+                    <div class="notification-item">
+                        <div class="item-info">
+                            <div class="item-title">New Messages</div>
+                            <div class="item-desc">Receive an email when you get a new message</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="notifyMessages">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+                    <!-- Price Changes -->
+                    <div class="notification-item">
+                        <div class="item-info">
+                            <div class="item-title">Price Changes</div>
+                            <div class="item-desc">Get notified when the price of your favorite listings changes</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="notifyPriceChanges">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+                    <!-- Campaigns and Discounts -->
+                    <div class="notification-item">
+                        <div class="item-info">
+                            <div class="item-title">Campaigns and Discounts</div>
+                            <div class="item-desc">Stay informed about special offers and campaigns</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="notifyMarketing">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+                </article>
+            </div>
+        </div>
+    </main>
+
+    <div id="bottom-nav-placeholder"></div>
+
+    <script type="module">
+        import { supabase } from './js/supabase.js';
+        import { loadNotificationPreferences, updateNotificationPreference } from './js/notifications-manager.js';
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Check authentication
+            const { data: { user }, error: authError } = await supabase.auth.getUser();
+            if (authError || !user) {
+                window.location.href = 'login.html?redirect=' + encodeURIComponent(window.location.pathname);
+                return;
+            }
+
+            const loader = document.getElementById('loader');
+            const content = document.getElementById('notificationsContent');
+            
+            const toggles = {
+                messages: document.getElementById('notifyMessages'),
+                priceChanges: document.getElementById('notifyPriceChanges'),
+                marketing: document.getElementById('notifyMarketing')
+            };
+
+            // Sync sidebar info
+            try {
+                const name = user.user_metadata?.full_name || user.email?.split('@')[0];
+                const sidebarName = document.getElementById('sidebarProfileName');
+                if (sidebarName) sidebarName.textContent = name;
+                
+                const { data: profile } = await supabase.from('profiles').select('avatar_url').eq('id', user.id).single();
+                if (profile?.avatar_url) {
+                    const sidebarImg = document.getElementById('sidebarProfileImage');
+                    if (sidebarImg) sidebarImg.src = profile.avatar_url;
+                }
+            } catch (e) {
+                console.warn('Sidebar sync error:', e);
+            }
+
+            // Load Preferences
+            try {
+                loader.style.display = 'flex';
+                content.style.opacity = '0.5';
+                
+                const prefs = await loadNotificationPreferences();
+                
+                toggles.messages.checked = prefs.messages;
+                toggles.priceChanges.checked = prefs.priceChanges;
+                toggles.marketing.checked = prefs.marketing;
+                
+            } catch (err) {
+                console.error('Failed to load preferences:', err);
+            } finally {
+                loader.style.display = 'none';
+                content.style.opacity = '1';
+            }
+
+            // Setup Event Listeners for Toggles
+            Object.entries(toggles).forEach(([key, el]) => {
+                if (el) {
+                    el.addEventListener('change', async () => {
+                        const success = await updateNotificationPreference(key, el.checked);
+                        if (!success.success) {
+                            // Revert on failure
+                            el.checked = !el.checked;
+                            alert('Could not save preference: ' + success.error);
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+
+    <script type="module" src="js/supabase.js"></script>
+    <script type="module" src="js/auth.js"></script>
+    <script src="js/layout.js"></script>
+    <script src="js/ui.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delete Account - VENDO</title>
+    <link rel="icon" type="image/svg+xml" href="assets/images/verde-logo.svg" sizes="any">
+    <link rel="shortcut icon" href="assets/images/verde-logo.svg">
+    <link rel="apple-touch-icon" href="assets/images/verde-logo.svg">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/mobile-app-shell.css">
+
+    <style>
+        :root {
+            --surface: #ffffff;
+            --bg: #f8fafc;
+            --primary: #10b981;
+            --text: #1f2937;
+            --gray-400: #9ca3af;
+            --gray-500: #6b7280;
+            --gray-100: #f3f4f6;
+            --border: #e2e8f0;
+            --input-readonly-bg: #f1f5f9;
+            --danger-red: #ef4444;
+            --danger-bg: #fff1f2;
+            --danger-border: #fecaca;
+        }
+
+        body {
+            background-color: var(--bg);
+            font-family: 'Inter', sans-serif;
+            color: var(--text);
+        }
+
+        .personal-info-page {
+            width: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Header */
+        .mobile-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .back-btn {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: white;
+            border: 1px solid var(--border);
+            color: var(--text);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .back-btn:hover {
+            background: var(--gray-100);
+            transform: translateX(-2px);
+        }
+
+        .mobile-header h1 {
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin: 0;
+        }
+
+        /* Card System */
+        .card {
+            background: var(--surface);
+            border-radius: 20px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .card-header h2 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        /* Legal Items */
+        .legal-item {
+            display: flex;
+            align-items: center;
+            padding: 16px 20px;
+            text-decoration: none;
+            color: var(--text);
+            border-bottom: 1px solid #f8fafc;
+            gap: 16px;
+        }
+
+        .legal-item:last-child {
+            border-bottom: none;
+        }
+
+        .icon-circle {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .icon-shield { background-color: #ecfdf5; color: var(--primary); }
+        .icon-list { background-color: #f0f9ff; color: #0ea5e9; }
+
+        .legal-item-text {
+            flex: 1;
+            font-size: 16px;
+            font-weight: 600;
+            color: #0f172a;
+        }
+
+        .chevron-icon {
+            color: #cbd5e1;
+            font-size: 14px;
+        }
+
+        /* Danger Zone Card */
+        .danger-card {
+            background-color: var(--danger-bg);
+            border-radius: 20px;
+            border: 1px solid var(--danger-border);
+            padding: 24px 20px;
+        }
+
+        .danger-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .danger-header i {
+            color: var(--danger-red);
+            font-size: 20px;
+        }
+
+        .danger-title {
+            font-size: 17px;
+            font-weight: 800;
+            color: var(--danger-red);
+        }
+
+        .danger-desc {
+            font-size: 14px;
+            color: #4b5563;
+            line-height: 1.5;
+            margin-bottom: 24px;
+        }
+
+        .danger-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 20px;
+            border-top: 1px solid #fee2e2;
+        }
+
+        .action-info {
+            flex: 1;
+            padding-right: 16px;
+        }
+
+        .action-title {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .action-desc {
+            font-size: 13px;
+            color: #6b7280;
+        }
+
+        .btn-delete-outline {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 18px;
+            border: 1px solid var(--danger-red);
+            border-radius: 10px;
+            background: white;
+            color: var(--danger-red);
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .btn-delete-outline:hover {
+            background: var(--danger-bg);
+        }
+
+        @media (min-width: 992px) {
+            .mobile-header {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="header-placeholder"></div>
+
+    <main class="personal-info-page profile-page">
+        <div class="container scroll-content">
+            <div class="profile-layout">
+                <!-- Sidebar -->
+                <aside class="profile-sidebar">
+                    <div class="profile-card">
+                        <div class="avatar-wrapper" id="sidebarAvatarWrapper">
+                            <div class="avatar-circle">
+                                <img src="assets/images/default-avatar.svg" alt="Profile Picture" id="sidebarProfileImage">
+                            </div>
+                            <div class="edit-avatar-btn">
+                                <i class="fas fa-camera"></i>
+                            </div>
+                            <input type="file" id="sidebarAvatarInput" accept="image/*" style="display: none;">
+                        </div>
+                        <div class="profile-info-text">
+                            <h2 class="user-name" id="sidebarProfileName">Loading...</h2>
+                            <p class="user-role">Vendo User</p>
+                        </div>
+                    </div>
+
+                    <div class="menu-section">
+                        <a href="personal-info.html" class="menu-item">
+                            <div class="menu-icon-container"><i class="fas fa-user-circle"></i></div>
+                            <span class="menu-item-text">Personal Info</span>
+                            <i class="fas fa-chevron-right chevron-icon"></i>
+                        </a>
+                        <a href="change-password.html" class="menu-item">
+                            <div class="menu-icon-container"><i class="fas fa-lock"></i></div>
+                            <span class="menu-item-text">Change Password</span>
+                            <i class="fas fa-chevron-right chevron-icon"></i>
+                        </a>
+                        <a href="notifications.html" class="menu-item">
+                            <div class="menu-icon-container"><i class="fas fa-bell"></i></div>
+                            <span class="menu-item-text">Notifications</span>
+                            <i class="fas fa-chevron-right chevron-icon"></i>
+                        </a>
+                        <a href="engellenenler.html" class="menu-item">
+                            <div class="menu-icon-container"><i class="fas fa-user-slash"></i></div>
+                            <span class="menu-item-text">Blocked Users</span>
+                            <i class="fas fa-chevron-right chevron-icon"></i>
+                        </a>
+                        <a href="ilanlarim.html" class="menu-item">
+                            <div class="menu-icon-container"><i class="fas fa-list"></i></div>
+                            <span class="menu-item-text">Listings</span>
+                            <i class="fas fa-chevron-right chevron-icon"></i>
+                        </a>
+                        <a href="favorilerim.html" class="menu-item">
+                            <div class="menu-icon-container"><i class="fas fa-heart"></i></div>
+                            <span class="menu-item-text">Favorites</span>
+                            <i class="fas fa-chevron-right chevron-icon"></i>
+                        </a>
+                        <a href="mesajlar.html" class="menu-item">
+                            <div class="menu-icon-container"><i class="fas fa-envelope"></i></div>
+                            <span class="menu-item-text">Messages</span>
+                            <i class="fas fa-chevron-right chevron-icon"></i>
+                        </a>
+                        <a href="reviews.html" class="menu-item">
+                            <div class="menu-icon-container"><i class="fas fa-star"></i></div>
+                            <span class="menu-item-text">Reviews</span>
+                            <i class="fas fa-chevron-right chevron-icon"></i>
+                        </a>
+                        <a href="delete-account.html" class="menu-item active">
+                            <div class="menu-icon-container"><i class="fas fa-trash"></i></div>
+                            <span class="menu-item-text">Delete Account</span>
+                            <i class="fas fa-chevron-right chevron-icon"></i>
+                        </a>
+                    </div>
+                </aside>
+
+                <!-- Content Area -->
+                <article class="profile-content">
+                    <!-- Header (Mobile only) -->
+                    <header class="mobile-header">
+                        <button class="back-btn" onclick="window.location.href='index.html'">
+                            <i class="fas fa-arrow-left"></i>
+                        </button>
+                        <h1>Delete Account</h1>
+                    </header>
+
+                    <!-- Legal Resources Section -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h2>Legal Resources</h2>
+                        </div>
+                        <a href="/privacy-policy" target="_blank" class="legal-item">
+                            <div class="icon-circle icon-shield">
+                                <i class="fas fa-shield-alt"></i>
+                            </div>
+                            <span class="legal-item-text">Privacy Policy</span>
+                            <i class="fas fa-chevron-right chevron-icon"></i>
+                        </a>
+                        <a href="/terms-of-service" target="_blank" class="legal-item">
+                            <div class="icon-circle icon-list">
+                                <i class="fas fa-list-ul"></i>
+                            </div>
+                            <span class="legal-item-text">Terms of Service</span>
+                            <i class="fas fa-chevron-right chevron-icon"></i>
+                        </a>
+                    </div>
+
+                    <!-- Danger Zone Section -->
+                    <div class="danger-card">
+                        <div class="danger-header">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <span class="danger-title">Danger Zone</span>
+                        </div>
+                        <p class="danger-desc">Once you delete your account, there is no going back. Please be certain.</p>
+                        
+                        <div class="danger-item">
+                            <div class="action-info">
+                                <div class="action-title">Permanently Delete</div>
+                                <div class="action-desc">All listings, messages and profile data will be erased.</div>
+                            </div>
+                            <button class="btn-delete-outline" id="deleteAccountBtn">
+                                <i class="fas fa-trash-alt"></i>
+                                <span>Delete</span>
+                            </button>
+                        </div>
+                    </div>
+
+                </article>
+            </div>
+        </div>
+    </main>
+
+    <div id="bottom-nav-placeholder"></div>
+
+    <div id="bottom-nav-placeholder"></div>
+
+    <script type="module" src="js/supabase.js"></script>
+    <script type="module">
+        import { initiateAccountDeletion } from './js/account-deletor.js';
+
+        document.getElementById('deleteAccountBtn')?.addEventListener('click', async () => {
+            await initiateAccountDeletion();
+        });
+    </script>
+
+    <script type="module" src="js/auth.js"></script>
+    <script src="js/layout.js"></script>
+    <script src="js/ui.js"></script>
+    <script type="module">
+        import { supabase } from './js/supabase.js';
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Check authentication
+            const { data: { user }, error: authError } = await supabase.auth.getUser();
+            if (authError || !user) {
+                window.location.href = 'login.html?redirect=' + encodeURIComponent(window.location.pathname);
+                return;
+            }
+
+            // Sync sidebar info
+            try {
+                const name = user.user_metadata?.full_name || user.email?.split('@')[0];
+                const sidebarName = document.getElementById('sidebarProfileName');
+                if (sidebarName) sidebarName.textContent = name;
+                
+                const { data: profile } = await supabase.from('profiles').select('avatar_url').eq('id', user.id).single();
+                if (profile?.avatar_url) {
+                    const sidebarImg = document.getElementById('sidebarProfileImage');
+                    if (sidebarImg) sidebarImg.src = profile.avatar_url;
+                }
+            } catch (e) {
+                console.warn('Sidebar sync error:', e);
+            }
+        });
+    </script>
+</body>
+
+</html>

@@ -3,8 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="supabase-url" content="https://aiqweggiolawgphxupat.supabase.co">
-    <meta name="supabase-key" content="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFpcXdlZ2dpb2xhd2dwaHh1cGF0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMwNDQwNjksImV4cCI6MjA4ODYyMDA2OX0.x2QOi8OuQRRR0iM_NqSIVw8igSXcb9bQ5s3VVAsc-3Y">
+
     <title>Create Listing | VERDE</title>
     <link rel="stylesheet" href="css/variables.css" />
     <link rel="stylesheet" href="css/reset.css" />
@@ -25,6 +24,13 @@
       <!-- Form Container -->
       <div class="form-container">
         <div class="progress-container">
+          <div class="progress-steps-labels">
+            <span class="step-label active" data-step="1">Details</span>
+            <span class="step-label" data-step="2">Specs</span>
+            <span class="step-label" data-step="3">Tech</span>
+            <span class="step-label" data-step="4">Photos</span>
+            <span class="step-label" data-step="5">Review</span>
+          </div>
           <div
             class="progress-bar"
             role="progressbar"
@@ -39,363 +45,121 @@
             <div class="banner-content">
               <i class="fas fa-tag" id="categoryIcon"></i>
               <div>
-                <h3 id="categoryTitle">Select Category</h3>
-                <p id="categorySubtitle">category > subcategory > detail</p>
+                <h3 id="categoryTitle">Category</h3>
+                <p id="categorySubtitle">Main > Sub > Detail</p>
               </div>
             </div>
-            <button class="change-category-btn" onclick="changeCategory()">
+            <button type="button" class="change-category-btn" onclick="window.location.href='ilan-ver.html'">
               <i class="fas fa-edit"></i>
               Change
             </button>
           </div>
 
+          <div class="form-and-preview-wrapper">
+
           <!-- Single Form - Wizard steps -->
           <form id="listingForm" onsubmit="handleFormSubmit(event)">
-            <!-- STEP 1: Temel Bilgiler + Fotoğraf -->
-            <div class="form-step" data-step="1">
-              <div class="two-column-wrapper">
-                <!-- LEFT COLUMN: Temel Bilgiler -->
-                <div class="form-section left-column">
-                  <h2 class="section-title">
-                    <i class="fas fa-info-circle"></i>
-                    Basic Information
-                  </h2>
+            <!-- STEP 1: Details -->
+            <div class="form-step active" data-step="1">
+              <div class="form-section">
+                <h2 class="section-title">
+                  <i class="fas fa-info-circle"></i>
+                  Basic Information
+                </h2>
+                
+                <div class="form-group">
+                  <label for="title" class="form-label">
+                    <span>Listing Title</span>
+                    <span class="required">*</span>
+                  </label>
+                  <input type="text" id="title" name="title" class="form-input" placeholder="e.g. BMW 320i M Sport" maxlength="100" required />
+                </div>
 
-                  <!-- Title -->
+                <div class="form-row">
                   <div class="form-group">
-                    <label for="title" class="form-label">
-                      <span>Listing Title</span>
+                    <label for="price-display" class="form-label">
+                      <span>Price</span>
                       <span class="required">*</span>
                     </label>
-                    <input
-                      type="text"
-                      id="title"
-                      name="title"
-                      class="form-input"
-                      placeholder="e.g. private bedroom"
-                      maxlength="100"
-                      required
-                    />
-                    <span class="input-help"
-                      >You can write up to 100 characters</span
-                    >
+                    <div class="price-input-wrapper">
+                      <input type="text" id="price-display" inputmode="numeric" class="form-input" placeholder="0" maxlength="13" />
+                      <input type="hidden" id="price" name="price" required />
+                      <span class="price-currency">€</span>
+                    </div>
                   </div>
 
-                  <!-- Description (Rich Text Editor) -->
                   <div class="form-group">
-                    <label for="descriptionEditor" class="form-label">
-                      <span>Description</span>
+                    <label for="city" class="form-label">
+                      <span>City</span>
                       <span class="required">*</span>
                     </label>
-
-                    <div
-                      class="rich-text-toolbar"
-                      id="rteToolbar"
-                      aria-hidden="false"
-                      role="toolbar"
-                    >
-                      <button
-                        type="button"
-                        data-cmd="bold"
-                        title="Bold (Ctrl+B)"
-                      >
-                        <i class="fas fa-bold"></i>
-                      </button>
-                      <button
-                        type="button"
-                        data-cmd="italic"
-                        title="Italic (Ctrl+I)"
-                      >
-                        <i class="fas fa-italic"></i>
-                      </button>
-                      <button
-                        type="button"
-                        data-cmd="underline"
-                        title="Underline"
-                      >
-                        <i class="fas fa-underline"></i>
-                      </button>
-                      <button
-                        type="button"
-                        data-cmd="insertUnorderedList"
-                        title="Bullet List"
-                      >
-                        <i class="fas fa-list-ul"></i>
-                      </button>
-                      <button
-                        type="button"
-                        data-cmd="insertOrderedList"
-                        title="Numbered List"
-                      >
-                        <i class="fas fa-list-ol"></i>
-                      </button>
-                      <button
-                        type="button"
-                        data-cmd="justifyLeft"
-                        title="Align Left"
-                      >
-                        <i class="fas fa-align-left"></i>
-                      </button>
-                      <button
-                        type="button"
-                        data-cmd="justifyCenter"
-                        title="Align Center"
-                      >
-                        <i class="fas fa-align-center"></i>
-                      </button>
-                      <button
-                        type="button"
-                        data-cmd="justifyRight"
-                        title="Align Right"
-                      >
-                        <i class="fas fa-align-right"></i>
-                      </button>
-                      <button
-                        type="button"
-                        data-cmd="createLink"
-                        title="Add Link"
-                      >
-                        <i class="fas fa-link"></i>
-                      </button>
-                      <button
-                        type="button"
-                        data-cmd="removeFormat"
-                        title="Clear Formatting"
-                      >
-                        <i class="fas fa-eraser"></i>
-                      </button>
-                    </div>
-
-                    <div
-                      id="descriptionEditor"
-                      class="form-textarea rich-text-editor"
-                      contenteditable="true"
-                      aria-multiline="true"
-                      role="textbox"
-                      placeholder="Write the details of your listing..."
-                    ></div>
-
-                    <!-- Hidden field that will be submitted containing HTML content -->
-                    <textarea
-                      id="description"
-                      name="description"
-                      class="visually-hidden"
-                      aria-hidden="true"
-                      style="display: none"
-                    ></textarea>
-
-                    <span class="input-help"
-                      ><span id="charCount">0</span>/2000</span
-                    >
-                  </div>
-                  <!-- Price & Location (moved from STEP 3) -->
-                  <div class="form-row">
-                    <!-- Price -->
-                    <div class="form-group">
-                      <label for="price" class="form-label">
-                        <span>Price</span>
-                        <span class="required">*</span>
-                      </label>
-                      <div class="price-input-wrapper">
-                        <input
-                          type="text"
-                          id="price-display"
-                          inputmode="numeric"
-                          class="form-input"
-                          placeholder="0"
-                          maxlength="13"
-                          autocomplete="off"
-                        />
-                        <input type="hidden" id="price" name="price" required />
-                        <span class="price-currency">€</span>
-                      </div>
-                    </div>
-
-                    <!-- City -->
-                    <div class="form-group">
-                      <label for="city" class="form-label">
-                        <span>City</span>
-                        <span class="required">*</span>
-                      </label>
-                      <select id="city" name="city" class="form-input" required>
-                        <option value="">Select city...</option>
-                        <option value="valletta">Valletta</option>
-                        <option value="birkirkara">Birkirkara</option>
-                        <option value="mosta">Mosta</option>
-                        <option value="qormi">Qormi</option>
-                        <option value="zabbar">Żabbar</option>
-                        <option value="sliema">Sliema</option>
-                        <option value="naxxar">Naxxar</option>
-                        <option value="rabat">Rabat</option>
-                        <option value="stpauls-bay">St. Paul's Bay</option>
-                        <option value="marsaskala">Marsaskala</option>
-                        <option value="mellieha">Mellieħa</option>
-                        <option value="birzebbuga">Birżebbuġa</option>
-                        <option value="attard">Attard</option>
-                        <option value="siggiewi">Siġġiewi</option>
-                        <option value="other">Other</option>
-                      </select>
-                    </div>
+                    <select id="city" name="city" class="form-input" required>
+                      <option value="">Select city...</option>
+                      <option value="Attard">Attard</option>
+                      <option value="Balzan">Balzan</option>
+                      <option value="Birgu">Birgu</option>
+                      <option value="Birkirkara">Birkirkara</option>
+                      <option value="Birżebbuġa">Birżebbuġa</option>
+                      <option value="Bormla">Bormla</option>
+                      <option value="Dingli">Dingli</option>
+                      <option value="Fgura">Fgura</option>
+                      <option value="Floriana">Floriana</option>
+                      <option value="Gżira">Gżira</option>
+                      <option value="Hamrun">Hamrun</option>
+                      <option value="Iklin">Iklin</option>
+                      <option value="Isla">Isla</option>
+                      <option value="Kalkara">Kalkara</option>
+                      <option value="Luqa">Luqa</option>
+                      <option value="Marsaskala">Marsaskala</option>
+                      <option value="Marsaxlokk">Marsaxlokk</option>
+                      <option value="Mdina">Mdina</option>
+                      <option value="Mellieħa">Mellieħa</option>
+                      <option value="Mġarr">Mġarr</option>
+                      <option value="Mosta">Mosta</option>
+                      <option value="Mqabba">Mqabba</option>
+                      <option value="Msida">Msida</option>
+                      <option value="Mtarfa">Mtarfa</option>
+                      <option value="Naxxar">Naxxar</option>
+                      <option value="Paola">Paola</option>
+                      <option value="Pembroke">Pembroke</option>
+                      <option value="Pietà">Pietà</option>
+                      <option value="Qormi">Qormi</option>
+                      <option value="Qrendi">Qrendi</option>
+                      <option value="Rabat">Rabat</option>
+                      <option value="Safi">Safi</option>
+                      <option value="San Ġiljan">San Ġiljan</option>
+                      <option value="San Gwann">San Gwann</option>
+                      <option value="San Pawl il-Baħar">San Pawl il-Baħar</option>
+                      <option value="Santa Luċija">Santa Luċija</option>
+                      <option value="Santa Venera">Santa Venera</option>
+                      <option value="Siġġiewi">Siġġiewi</option>
+                      <option value="Sliema">Sliema</option>
+                      <option value="St. Paul's Bay">St. Paul's Bay</option>
+                      <option value="Swieqi">Swieqi</option>
+                      <option value="Ta' Xbiex">Ta' Xbiex</option>
+                      <option value="Tarxien">Tarxien</option>
+                      <option value="Valletta">Valletta</option>
+                      <option value="Żabbar">Żabbar</option>
+                      <option value="Żebbuġ">Żebbuġ</option>
+                      <option value="Żejtun">Żejtun</option>
+                      <option value="Żurrieq">Żurrieq</option>
+                    </select>
                   </div>
                 </div>
 
-                <!-- RIGHT COLUMN: Fotoğraf Yükleme -->
-                <div class="form-section right-column">
-                  <h2 class="section-title">
-                    <i class="fas fa-images"></i>
-                    Upload Photo
-                  </h2>
-
-                  <div class="photo-upload-area" id="photoUploadArea">
-                    <div class="upload-placeholder-content">
-                      <div class="upload-icon">
-                        <i class="fas fa-image"></i>
-                      </div>
-                      <div class="upload-text">
-                        <p class="upload-title">
-                          Choose or drag photos
-                        </p>
-                        <p class="upload-hint">
-                          JPG, PNG (Max 5MB, Max 5 photos)
-                        </p>
-                      </div>
-                    </div>
-
-                    <!-- Live Preview Card (Moved here) -->
-                    <div
-                      class="preview-container"
-                      id="uploadPreviewContainer"
-                      style="
-                        display: none;
-                        max-width: 300px;
-                        margin: 1rem auto;
-                        position: relative;
-                        z-index: 10;
-                      "
-                    >
-                      <div class="listing-card verde-card" id="livePreviewCard">
-                        <div class="table-media">
-                          <div class="listing-image" id="previewImageContainer">
-                            <div class="image-blur-bg" id="previewBlurBg"></div>
-                            <img
-                              id="previewImage"
-                              src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 300'%3E%3Crect fill='%23e2e8f0' width='400' height='300'/%3E%3Ctext x='50%25' y='50%25' fill='%2394a3b8' text-anchor='middle' font-family='sans-serif'%3ENo%20Photo%3C/text%3E%3C/svg%3E"
-                              alt="Preview"
-                            />
-                            <button class="favorite-button" type="button">
-                              <i class="far fa-heart"></i>
-                            </button>
-                            <button
-                              class="fit-toggle-button"
-                              id="fitToggleBtn"
-                              type="button"
-                              title="Fit Image"
-                            >
-                              <i class="fas fa-expand"></i>
-                            </button>
-                            <div class="gallery-count">
-                              <i class="fas fa-camera"></i
-                              ><span id="previewImageCount">0</span>
-                            </div>
-                          </div>
-                          <div class="table-model" id="previewCategory">
-                            Category
-                          </div>
-                        </div>
-                        <div class="listing-content">
-                          <div class="price-title">
-                            <h3
-                              class="listing-title verde-title"
-                              id="previewTitle"
-                            >
-                              Listing Title
-                            </h3>
-                          </div>
-                          <div class="listing-actions">
-                            <div
-                              class="listing-meta verde-meta listing-meta-inline"
-                            >
-                              <div
-                                class="listing-location verde-location"
-                                id="previewLocation"
-                              >
-                                <i class="fas fa-map-marker-alt"></i> Select city
-                              </div>
-                              <div
-                                class="listing-price verde-price"
-                                id="previewPrice"
-                              >
-                                €0
-                              </div>
-                              <div class="listing-date">
-                                <i class="fas fa-clock"></i> Now
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      <p
-                        style="
-                          text-align: center;
-                          font-size: 0.85rem;
-                          color: #64748b;
-                          margin-top: 1rem;
-                        "
-                      >
-                        * You can adjust the photo by dragging.
-                      </p>
-                    </div>
-
-                    <input
-                      type="file"
-                      id="photoInput"
-                      name="photo"
-                      class="photo-input"
-                      accept="image/jpeg,image/png"
-                      multiple
-                      required
-                    />
+                <div class="form-group">
+                  <label for="descriptionEditor" class="form-label">
+                    <span>Description</span>
+                    <span class="required">*</span>
+                  </label>
+                  <div class="rich-text-toolbar" id="rteToolbar">
+                    <button type="button" data-cmd="bold"><i class="fas fa-bold"></i></button>
+                    <button type="button" data-cmd="italic"><i class="fas fa-italic"></i></button>
+                    <button type="button" data-cmd="insertUnorderedList"><i class="fas fa-list-ul"></i></button>
+                    <button type="button" data-cmd="removeFormat"><i class="fas fa-eraser"></i></button>
                   </div>
-
-                  <!-- Fotoğraf Önizleme Kutuları -->
-                  <div class="photo-preview-grid">
-                    <div class="preview-box empty">
-                      <i class="fas fa-plus"></i>
-                    </div>
-                    <div class="preview-box empty">
-                      <i class="fas fa-plus"></i>
-                    </div>
-                    <div class="preview-box empty">
-                      <i class="fas fa-plus"></i>
-                    </div>
-                    <div class="preview-box empty">
-                      <i class="fas fa-plus"></i>
-                    </div>
-                    <div class="preview-box empty">
-                      <i class="fas fa-plus"></i>
-                    </div>
-                    <div class="preview-box empty">
-                      <i class="fas fa-plus"></i>
-                    </div>
-                    <div class="preview-box empty">
-                      <i class="fas fa-plus"></i>
-                    </div>
-                    <div class="preview-box empty">
-                      <i class="fas fa-plus"></i>
-                    </div>
-                    <div class="preview-box empty">
-                      <i class="fas fa-plus"></i>
-                    </div>
-                    <div class="preview-box empty">
-                      <i class="fas fa-plus"></i>
-                    </div>
-                  </div>
-
-                  <div
-                    id="photoPreview"
-                    class="photo-preview"
-                    style="display: none"
-                  ></div>
+                  <div id="descriptionEditor" class="form-textarea rich-text-editor" contenteditable="true" placeholder="Write details..."></div>
+                  <textarea id="description" name="description" class="visually-hidden"></textarea>
                 </div>
               </div>
             </div>
@@ -428,23 +192,44 @@
               </div>
             </div>
 
-            <!-- STEP 4: İletişim Bilgileri -->
+            <!-- STEP 4: Photos -->
             <div class="form-step" data-step="4">
+              <div class="form-section">
+                <h2 class="section-title">
+                  <i class="fas fa-images"></i>
+                  Upload Photos
+                </h2>
+                <div class="photo-upload-area" id="photoUploadArea">
+                  <div class="upload-placeholder-content">
+                    <div class="upload-icon"><i class="fas fa-image"></i></div>
+                    <div class="upload-text">
+                      <p class="upload-title">Choose or drag photos</p>
+                      <p class="upload-hint">JPG, PNG (Max 5MB, Max 10 photos)</p>
+                    </div>
+                  </div>
+                  <input type="file" id="photoInput" name="photo" class="photo-input" accept="image/jpeg,image/png" multiple required />
+                </div>
+                <div class="photo-preview-grid">
+                  <div class="preview-box empty"><i class="fas fa-plus"></i></div>
+                  <div class="preview-box empty"><i class="fas fa-plus"></i></div>
+                  <div class="preview-box empty"><i class="fas fa-plus"></i></div>
+                  <div class="preview-box empty"><i class="fas fa-plus"></i></div>
+                  <div class="preview-box empty"><i class="fas fa-plus"></i></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- STEP 5: Review & Finalize -->
+            <div class="form-step" data-step="5">
               <div class="form-section contact-section">
                 <h2 class="section-title">
                   <i class="fas fa-phone-alt"></i>
-                  Contact Information
+                  Contact & Review
                 </h2>
-
                 <div class="form-group">
                   <label class="form-label">How should people contact you?</label>
                   <div class="contact-options">
                     <label class="radio-option">
-                      <input
-                        type="radio"
-                        name="contactPreference"
-                        value="phone"
-                        checked
                       />
                       <span>With my phone numbers</span>
                     </label>
@@ -594,6 +379,61 @@
               </button>
             </div>
           </form>
+
+          <!-- NEW: Persistent Live Preview Sidebar -->
+          <aside class="form-preview-sidebar">
+            <div class="sticky-preview-wrapper" id="stickyPreview">
+                <div class="preview-header">
+                    <h4>Live Preview</h4>
+                    <span class="preview-status">Real-time</span>
+                </div>
+                
+                <div class="preview-content-card">
+                    <div class="listing-card verde-card" id="livePreviewCard">
+                        <div class="listing-image" id="previewImageContainer">
+                          <div class="image-blur-bg" id="previewBlurBg"></div>
+                          <img
+                            id="previewImage"
+                            src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 300'%3E%3Crect fill='%23e2e8f0' width='400' height='300'/%3E%3Ctext x='50%25' y='50%25' fill='%2394a3b8' text-anchor='middle' font-family='sans-serif'%3ENo%20Photo%3C/text%3E%3C/svg%3E"
+                            alt="Preview"
+                          />
+                          <button class="favorite-button" type="button">
+                            <i class="far fa-heart"></i>
+                          </button>
+                          <button class="fit-toggle-button" id="fitToggleBtn" type="button" title="Fit Image">
+                            <i class="fas fa-expand"></i>
+                          </button>
+                          <div class="gallery-count">
+                            <i class="fas fa-camera"></i><span id="previewImageCount">0</span>
+                          </div>
+                          <div class="listing-badge active" id="previewBadge">NEW</div>
+                        </div>
+                        
+                        <div class="listing-content">
+                          <div class="price-title">
+                            <h3 class="listing-title verde-title" id="previewTitle">Listing Title</h3>
+                          </div>
+                          <div class="listing-actions">
+                            <div class="listing-meta verde-meta">
+                              <div class="listing-location verde-location" id="previewLocation">
+                                <i class="fas fa-map-marker-alt"></i> Select city
+                              </div>
+                              <div class="listing-price verde-price" id="previewPrice">€0</div>
+                              <div class="listing-date">
+                                <i class="fas fa-clock"></i> Just now
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="preview-tips">
+                    <p><i class="fas fa-lightbulb"></i> <strong>Tip:</strong> Users are 40% more likely to click on listings with high-quality photos.</p>
+                </div>
+            </div>
+          </aside>
+        </div>
         </div>
       </div>
     </main>
@@ -624,7 +464,7 @@
     </div>
 
     <script src="js/layout.js"></script>
-    <script type="module" src="js/form-validator.js"></script>
+
     <script type="module" src="js/error-handler.js"></script>
     <script type="module" src="js/toast.js"></script>
     <script type="module" src="js/photo-upload.js"></script>

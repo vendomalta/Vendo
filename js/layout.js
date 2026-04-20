@@ -57,12 +57,12 @@ function loadHeaderIfNeeded() {
                     const fallback = `
                         <header class="site-header" role="banner">
                             <div class="header-main">
-                                <a href="/index.html" class="site-logo">
+                                <a href="/" class="site-logo">
                                     <div class="logo-icon">V</div>
                                     <h1 class="logo-text">VERDE</h1>
                                 </a>
                                 <div class="header-right">
-                                    <a href="/ilan-ver.html" class="btn-post-ad"><i class="fas fa-plus"></i><span>Post Ad</span></a>
+                                     <a href="/ilan-ver.html" class="btn-post-ad"><i class="fas fa-plus"></i><span>Sell Now</span></a>
                                 </div>
                             </div>
                         </header>
@@ -107,7 +107,7 @@ async function loadPostAdButtonConfig() {
                 border_color: '#003366',
                 is_active: true
             };
-            isActive = true;
+            window.location.href = '/';
         } else {
             isActive = data.is_active;
             config = typeof data.setting_value === 'string'
@@ -145,10 +145,119 @@ async function loadPostAdButtonConfig() {
     }
 }
 
+function loadBottomNavIfNeeded() {
+    try {
+        const placeholder = document.getElementById("bottom-nav-placeholder");
+        if (!placeholder) return;
+        if (placeholder.dataset.loaded === "true") return;
+
+        fetch("/components/bottom-nav.html")
+            .then(response => response.ok ? response.text() : null)
+            .then(data => {
+                if (data) {
+                    placeholder.innerHTML = data;
+                    placeholder.dataset.loaded = "true";
+                    document.dispatchEvent(new Event('bottomNavLoaded'));
+                }
+            })
+            .catch(err => console.error("Bottom nav load error:", err));
+    } catch (err) {
+        console.error("Bottom nav unexpected error:", err);
+    }
+}
+
+/**
+ * Sidebar avatar upload functionality.
+ * Allows users to change their profile picture by clicking on the sidebar avatar.
+ */
+async function initializeSidebarAvatarUpload() {
+    const wrapper = document.getElementById('sidebarAvatarWrapper');
+    const input = document.getElementById('sidebarAvatarInput');
+    const editBtn = document.querySelector('.edit-avatar-btn');
+    const avatarImg = document.getElementById('sidebarProfileImage');
+
+    if (!wrapper || !input) return;
+
+    // Click on camera icon or wrapper triggers file input
+    const triggerInput = () => input.click();
+    if (editBtn) editBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        triggerInput();
+    });
+    wrapper.addEventListener('click', triggerInput);
+
+    input.addEventListener('change', async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        try {
+            // Add loading state
+            wrapper.classList.add('uploading');
+
+            // Dynamic import to avoid circular dependencies or unnecessary loading
+            const { uploadAvatar } = await import('./profile-manager.js');
+            const publicUrl = await uploadAvatar(file);
+
+            // Update UI
+            if (avatarImg) avatarImg.src = publicUrl;
+            
+            // Update header avatars if they exist
+            const headerAvatars = document.querySelectorAll('.user-avatar img');
+            headerAvatars.forEach(img => img.src = publicUrl);
+
+            console.log('✅ Avatar updated successfully:', publicUrl);
+        } catch (error) {
+            console.error('❌ Avatar upload failed:', error);
+            alert('Upload failed: ' + error.message);
+        } finally {
+            wrapper.classList.remove('uploading');
+            input.value = ''; // Reset input
+        }
+    });
+}
+
+// Global Modal & Notification System Injection
+const injectGlobalSystems = () => {
+    // 1. Inject modals.css
+    if (!document.getElementById('vendo-modals-css')) {
+        const link = document.createElement('link');
+        link.id = 'vendo-modals-css';
+        link.rel = 'stylesheet';
+        link.href = '/css/modals.css';
+        document.head.appendChild(link);
+    }
+
+    // 2. Inject modal-system.js
+    import('/js/modal-system.js')
+        .then(module => {
+            window.VendoAlert = module.VendoAlert;
+            window.VendoConfirm = module.VendoConfirm;
+            window.VendoPrompt = module.VendoPrompt;
+            console.log('💎 VENDO Modal System Initialized');
+        })
+        .catch(err => console.error('❌ Modal system injection failed:', err));
+        
+    // 3. Inject toast system (if not already handled)
+    import('/js/toast.js')
+        .then(module => {
+            window.showToast = module.showToast;
+            console.log('🍞 VENDO Toast System Initialized');
+        })
+        .catch(err => console.error('❌ Toast system injection failed:', err));
+};
+
 // Eğer DOMContentLoaded zaten geçtiyse hemen çalıştır, değilse listener ekle
 if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', loadHeaderIfNeeded);
+    document.addEventListener('DOMContentLoaded', () => {
+        loadHeaderIfNeeded();
+        loadBottomNavIfNeeded();
+        initializeSidebarAvatarUpload();
+        injectGlobalSystems();
+    });
 } else {
     // DOM hazırsa hemen yükle
     loadHeaderIfNeeded();
+    loadBottomNavIfNeeded();
+    initializeSidebarAvatarUpload();
+    injectGlobalSystems();
 }

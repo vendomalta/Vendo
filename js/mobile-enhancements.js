@@ -34,43 +34,14 @@
             this.addBottomNavigation();
             this.enhanceScrolling();
             this.addTapFeedback();
+            this.initHomeParity();
             this.initialized = true;
             console.log('🟢 MobileEnhancements.init() completed');
         }
 
-        // Swipe gestures for sidebar
+        // Swipe gestures for sidebar (DISABLED - Mobile has its own navigation pages)
         addTouchGestures() {
-            const mainContent = document.querySelector('.main-content');
-            if (!mainContent) return;
-
-            let startX = 0;
-            let isDragging = false;
-
-            mainContent.addEventListener('touchstart', (e) => {
-                startX = e.touches[0].clientX;
-                isDragging = true;
-            }, { passive: true });
-
-            mainContent.addEventListener('touchmove', (e) => {
-                if (!isDragging) return;
-
-                const currentX = e.touches[0].clientX;
-                const diff = currentX - startX;
-
-                // Swipe right from left edge to open sidebar
-                if (startX < 50 && diff > 100) {
-                    const sidebar = document.querySelector('.sidebar-categories');
-                    if (sidebar) {
-                        sidebar.classList.add('open');
-                        document.body.classList.add('sidebar-open');
-                    }
-                    isDragging = false;
-                }
-            }, { passive: true });
-
-            mainContent.addEventListener('touchend', () => {
-                isDragging = false;
-            }, { passive: true });
+            // Disabled to prevent conflicts with mobile-native navigation flow.
         }
 
         // Pull to refresh hint
@@ -140,189 +111,10 @@
             }, { passive: true });
         }
 
-        // Bottom navigation bar for mobile
+        // Bottom navigation bar for mobile - REDUNDANT: Now using bottom-nav.html component
         addBottomNavigation() {
-            if (window.innerWidth > 480) return;
-
-            const existingNav = document.querySelector('.mobile-bottom-nav');
-            if (existingNav) return;
-
-            const bottomNav = document.createElement('nav');
-            bottomNav.className = 'mobile-bottom-nav';
-            bottomNav.innerHTML = `
-                <a href="kategoriler.html" class="nav-item" id="mobile-categories-btn">
-                    <i class="fas fa-th-large"></i>
-                    <span>Kategoriler</span>
-                </a>
-                <a href="index.html" class="nav-item">
-                    <i class="fas fa-home"></i>
-                    <span>Anasayfa</span>
-                </a>
-                <a href="ilan-ver.html" class="nav-item nav-item-center post-ad-nav">
-                    <i class="fas fa-plus"></i>
-                    <span>İlan Ver</span>
-                </a>
-                <a href="mesajlar.html" class="nav-item">
-                    <i class="fas fa-envelope"></i>
-                    <span>Mesajlar</span>
-                </a>
-                <a href="profil.html" class="nav-item">
-                    <i class="fas fa-user"></i>
-                    <span>Profil</span>
-                </a>
-            `;
-
-            bottomNav.style.cssText = `
-                position: fixed;
-                bottom: 0;
-                left: 0;
-                right: 0;
-                background: var(--surface, white);
-                border-top: 1px solid var(--gray-200);
-                display: grid;
-                grid-template-columns: repeat(5, minmax(0, 1fr));
-                align-items: center;
-                justify-items: center;
-                z-index: 1000;
-                box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.08);
-                height: 75px;
-                padding: 0;
-            `;
-
-            document.body.appendChild(bottomNav);
-            
-            // Load dynamic styles for the post ad button
-            this.loadMobilePostAdButtonConfig();
-            
-            // Add padding to main content to prevent overlap
-            const mainContent = document.querySelector('.main-content');
-            if (mainContent) {
-                mainContent.style.paddingBottom = '90px';
-            }
-
-            // No event listener needed as it's now a direct link
-
-            // Add CSS for nav items
-            const style = document.createElement('style');
-            style.textContent = `
-                .mobile-bottom-nav {
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: center;
-                    padding: 0.5rem 0.75rem;
-                    flex-wrap: nowrap;
-                }
-                
-                .mobile-bottom-nav .nav-item {
-                    display: flex;
-                    flex-direction: column;
-                    align-items: center;
-                    justify-content: center;
-                    gap: 2px;
-                    color: var(--gray-600, #666);
-                    text-decoration: none;
-                    font-size: 0.65rem;
-                    font-weight: 500;
-                    transition: all 0.2s ease;
-                    border: none;
-                    background: transparent;
-                    cursor: pointer;
-                    height: 100%;
-                    width: 100%;
-                    -webkit-tap-highlight-color: transparent;
-                    white-space: nowrap;
-                    overflow: hidden;
-                }
-                
-                .mobile-bottom-nav .nav-item span {
-                    display: block;
-                    width: 100%;
-                    text-align: center;
-                    text-overflow: ellipsis;
-                    overflow: hidden;
-                    padding: 0 2px;
-                }
-                
-                .mobile-bottom-nav .nav-item i {
-                    font-size: 1.35rem;
-                    color: var(--gray-600);
-                    transition: color 0.2s ease;
-                }
-                
-                /* Centered post ad button container */
-                .mobile-bottom-nav .nav-item-center {
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
-                    width: 100%;
-                }
-                
-                .mobile-bottom-nav .post-ad-nav {
-                    background: var(--primary);
-                    color: white;
-                    border-radius: 50%;
-                    width: 56px;
-                    height: 56px;
-                    padding: 0;
-                    flex: 0 0 auto;
-                    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    gap: 0;
-                    position: relative;
-                    overflow: hidden;
-                    background-size: cover;
-                    background-position: center;
-                    z-index: 10;
-                }
-                
-                .mobile-bottom-nav .post-ad-nav::before {
-                    content: '';
-                    position: absolute;
-                    top: 0;
-                    left: 0;
-                    right: 0;
-                    bottom: 0;
-                    background: var(--btn-overlay, transparent);
-                    z-index: 1;
-                    transition: all 0.3s ease;
-                }
-                
-                .mobile-bottom-nav .post-ad-nav i {
-                    font-size: 1.5rem;
-                    color: white;
-                    position: relative;
-                    z-index: 2;
-                }
-                
-                .mobile-bottom-nav .post-ad-nav span {
-                    display: none;
-                }
-                
-                .mobile-bottom-nav .post-ad-nav:hover,
-                .mobile-bottom-nav .post-ad-nav:active {
-                    background: var(--primary-dark);
-                    box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
-                }
-                
-                .mobile-bottom-nav .post-ad-nav:active {
-                    transform: scale(0.95);
-                }
-                
-                .mobile-bottom-nav .nav-item:not(.post-ad-nav):active {
-                    transform: scale(0.9);
-                }
-                
-                .mobile-bottom-nav .nav-item:not(.post-ad-nav):hover i {
-                    color: var(--primary);
-                }
-                
-                .mobile-bottom-nav .nav-item:not(.post-ad-nav):active i {
-                    color: var(--primary);
-                }
-            `;
-            document.head.appendChild(style);
+            // This function is now empty to prevent duplicate navigation bars.
+            // The bottom navigation is handled by components/bottom-nav.html loaded in layout.js.
         }
 
         // Enhance scrolling with momentum
@@ -331,10 +123,9 @@
             document.documentElement.style.webkitOverflowScrolling = 'touch';
             document.documentElement.style.overflowScrolling = 'touch';
             
-            // Hide header on scroll down, show on scroll up (mobile and tablet)
+            // Hide header on scroll down, show on scroll up (mobile and tablet) - DISABLED for native app parity
             if (window.innerWidth <= 768) {
-                console.log('🟢 Mobile/Tablet detected. Setting up header hide on scroll');
-                this.setupHeaderHideOnScroll();
+                // this.setupHeaderHideOnScroll(); // DİSABLED: Header should stay fixed
             } else {
                 console.log('🔵 Desktop detected. Header hide not needed');
             }

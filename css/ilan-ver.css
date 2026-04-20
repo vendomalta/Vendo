@@ -254,6 +254,19 @@ body {
     width: 4px;
 }
 
+/* Locked state */
+.category-item.locked {
+    opacity: 0.6;
+    pointer-events: none;
+    filter: grayscale(0.8);
+    cursor: not-allowed;
+    background: #f1f5f9 !important;
+}
+
+.category-item.locked .category-name {
+    color: #94a3b8 !important;
+}
+
 /* Category Icon */
 .category-icon {
     width: 40px;
