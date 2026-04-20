@@ -1118,9 +1118,10 @@
 
   .listings-grid.table-view .listing-meta-inline {
     display: flex !important;
-    justify-content: space-between !important;
+    justify-content: flex-start !important;
     align-items: center;
     width: 100%;
+    gap: 12px;
   }
 
   .listings-grid.table-view .listing-location {
